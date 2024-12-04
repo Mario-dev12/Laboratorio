@@ -35,6 +35,9 @@ import '@ionic/vue/css/palettes/dark.system.css';
 /* Theme variables */
 import './theme/variables.css';
 
+import 'bootstrap'; // Para importar Bootstrap JS  
+import 'bootstrap/dist/css/bootstrap.min.css';
+
 const pinia = createPinia();
 
 const app = createApp(App)
