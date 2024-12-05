@@ -2,42 +2,75 @@
 --------------------------------------------- PRIMERO CORRE ESTO -------------------------------------------------------
 ------------------------------------------------------------------------------------------------------------------------ */
 
-CREATE TABLE IF NOT EXISTS player
+CREATE TABLE IF NOT EXISTS provider
 (
-    idPlayer serial primary key,
+    idProvider serial primary key,
+    name character varying(255) not null,
+    createdDate timestamp with time zone NOT NULL default now(),
+    modifiedDate timestamp with time zone NOT NULL default now()
+);
+
+CREATE TABLE IF NOT EXISTS users
+(
+    idUser serial primary key,
+    ci character varying(255),
+    passport character varying(255),
     firstName character varying(255) not null,
     lastName character varying(255) not null,
-    position character varying(255) not null,
-    birth_date date not null,
-    image character varying not null,
-    cost character varying(255) not null,
+    genre CHAR(1) NOT NULL CHECK (genre IN ('M', 'F', 'm', 'f')),
+    age integer not null,
+    address character varying(255) not null,
     createdDate timestamp with time zone NOT NULL default now(),
     modifiedDate timestamp with time zone NOT NULL default now()
 );
 
-CREATE TABLE IF NOT EXISTS team
+CREATE TABLE IF NOT EXISTS unit
 (
-    idTeam serial primary key,
+    idUnit serial primary key,
     name character varying(255) not null,
-    country character varying(255) not null,
-    fundation character varying(255) not null,
-    image character varying not null,
     createdDate timestamp with time zone NOT NULL default now(),
     modifiedDate timestamp with time zone NOT NULL default now()
 );
 
-CREATE TABLE IF NOT EXISTS contract
+CREATE TABLE IF NOT EXISTS exam
 (
-    idContract serial primary key,
-    games integer not null,
-    goals integer not null,
-    assits integer not null,
-    salary character varying(255) not null,
-    beginDate date not null,
-    endDate date,
-    idTeam integer NOT NULL references team(idTeam) ON DELETE CASCADE,
-    idPlayer integer NOT NULL references player(idPlayer) ON DELETE CASCADE,
+    idExam serial primary key,
+    name character varying(255) not null,
+    cost_bs character varying(255),
+    cost_usd character varying(255),
+    idUnit integer NOT NULL references unit(idUnit) ON DELETE CASCADE,
+    idUser integer NOT NULL references users(idUser) ON DELETE CASCADE,
     createdDate timestamp with time zone NOT NULL default now(),
     modifiedDate timestamp with time zone NOT NULL default now()
 );
 
+CREATE TABLE IF NOT EXISTS payment_method
+(
+    idPayment_method serial primary key,
+    name character varying(255) not null,
+    amount character varying(255) not null,
+    bank character varying(255),
+    type character varying(255) NOT NULL CHECK (type IN ('Bolivares', 'Dolares', 'bolivares', 'dolares')),
+    idExam integer NOT NULL references exam(idExam) ON DELETE CASCADE,
+    createdDate timestamp with time zone NOT NULL default now(),
+    modifiedDate timestamp with time zone NOT NULL default now()
+);
+
+CREATE TABLE IF NOT EXISTS reactive
+(
+    idReactive serial primary key,
+    quantity integer not null,
+    idExam integer NOT NULL references exam(idExam) ON DELETE CASCADE,
+    createdDate timestamp with time zone NOT NULL default now(),
+    modifiedDate timestamp with time zone NOT NULL default now()
+);
+
+CREATE TABLE IF NOT EXISTS alliance
+(
+    idAlliance serial primary key,
+    quantity integer not null,
+    idReactive integer NOT NULL references reactive(idReactive) ON DELETE CASCADE,
+    idProvider integer NOT NULL references provider(idProvider) ON DELETE CASCADE,
+    createdDate timestamp with time zone NOT NULL default now(),
+    modifiedDate timestamp with time zone NOT NULL default now()
+);
