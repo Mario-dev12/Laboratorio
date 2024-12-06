@@ -38,6 +38,7 @@ CREATE TABLE IF NOT EXISTS exam
     name character varying(255) not null,
     cost_bs character varying(255),
     cost_usd character varying(255),
+    status character varying(255) NOT NULL CHECK (status IN ('Pendiente por pasar', 'Pendiente de enviar', 'Pendiente de imprimir', 'Completado')),
     idUnit integer NOT NULL references unit(idUnit) ON DELETE CASCADE,
     idUser integer NOT NULL references users(idUser) ON DELETE CASCADE,
     createdDate timestamp with time zone NOT NULL default now(),
