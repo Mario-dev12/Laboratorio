@@ -1,0 +1,13 @@
+import express from 'express'
+const reactiveRouter = express.Router()
+import reactiveController from './reactive.controller.js'
+
+
+reactiveRouter.get('/', reactiveController.readReactives)
+reactiveRouter.get('/name', reactiveController.readReactiveByName)
+reactiveRouter.post('/', reactiveController.createReactive)
+reactiveRouter.put('/:id', reactiveController.updateReactive)
+reactiveRouter.delete('/:id', reactiveController.deleteReactive)
+
+
+export default reactiveRouter
