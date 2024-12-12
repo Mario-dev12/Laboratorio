@@ -10,6 +10,10 @@ usersServices.readUserByName = async name => {
     return await usersRepository.readUserByName(name)
 }
 
+usersServices.readUserById = async id => {
+    return await usersRepository.readUserById(id)
+}
+
 usersServices.createUser = async (ci, passport, firstName, lastName, genre, age, address) => {
     return await usersRepository.createUser(ci, passport, firstName, lastName, genre, age, address)
 }

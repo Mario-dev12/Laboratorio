@@ -1,4 +1,4 @@
-import payment_methodServices from './answer.services.js'
+import payment_methodServices from './payment_method.services.js'
 
 const payment_methodController = {};
 

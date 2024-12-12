@@ -22,4 +22,4 @@ providersServices.deleteProvider = async id => {
     return await providersRepository.deleteProvider(id)
 }
 
-export default answerServices
+export default providersServices

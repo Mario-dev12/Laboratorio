@@ -4,9 +4,9 @@ const providersRepository = {};
 
 providersRepository.readProviders = async () => {
   try {
-    await pool.query("SET SCHEMA 'cahub'");
-    const resp = await pool.query(`SELECT * FROM cahub.sp_find_answer_by_id()`);
-    return resp.rows[0].sp_find_answer_by_id;
+    
+    const resp = await pool.query(`SELECT * FROM sp_find_all_provider()`);
+    return resp.rows[0].sp_find_all_provider;
   } catch (error) {
     throw error;
   }
@@ -14,8 +14,8 @@ providersRepository.readProviders = async () => {
 
 providersRepository.readProviderByName = async name => {
   try {
-    await pool.query("SET SCHEMA 'cahub'");
-    const resp = await pool.query(`SELECT * FROM cahub.sp_find_answer_by_name('${name}')`);
+    
+    const resp = await pool.query(`SELECT * FROM sp_find_answer_by_name('${name}')`);
     return resp.rows[0].sp_find_answer_by_name;
   } catch (error) {
     throw error;
@@ -24,8 +24,8 @@ providersRepository.readProviderByName = async name => {
 
 providersRepository.createProvider = async (name) => {
   try {
-    await pool.query("SET SCHEMA 'cahub'");
-    const resp = await pool.query(`SELECT * FROM cahub.sp_create_answer('${name}')`);
+    
+    const resp = await pool.query(`SELECT * FROM sp_create_answer('${name}')`);
     return resp.rows[0].sp_create_answer;
   } catch (error) {
     throw error;
@@ -34,8 +34,8 @@ providersRepository.createProvider = async (name) => {
 
 providersRepository.updateProvider = async (id, answer) => {
   try {
-    await pool.query("SET SCHEMA 'cahub'");
-    const resp = await pool.query(`SELECT * FROM cahub.sp_update_answer(${id}, '${answer.name}')`);
+    
+    const resp = await pool.query(`SELECT * FROM sp_update_answer(${id}, '${answer.name}')`);
     return resp.rows[0].sp_update_answer;
   } catch (error) {
     throw error;
@@ -44,9 +44,9 @@ providersRepository.updateProvider = async (id, answer) => {
 
 providersRepository.deleteProvider = async id => {
   try {
-    await pool.query("SET SCHEMA 'cahub'");
-    const resp = await pool.query(`SELECT * FROM cahub.sp_delete_answer(${id})`);
-    return resp.rows[0].sp_delete_answer;
+    
+    const resp = await pool.query(`SELECT * FROM sp_delete_provider(${id})`);
+    return resp.rows[0].sp_delete_provider;
   } catch (error) {
     throw error;
   }
