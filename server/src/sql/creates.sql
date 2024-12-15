@@ -24,22 +24,23 @@ CREATE TABLE IF NOT EXISTS users
     modifiedDate timestamp with time zone NOT NULL default now()
 );
 
-CREATE TABLE IF NOT EXISTS unit
-(
-    idUnit serial primary key,
-    name character varying(255) not null,
-    createdDate timestamp with time zone NOT NULL default now(),
-    modifiedDate timestamp with time zone NOT NULL default now()
-);
-
 CREATE TABLE IF NOT EXISTS exam
 (
     idExam serial primary key,
     name character varying(255) not null,
     cost_bs character varying(255),
     cost_usd character varying(255),
-    idUnit integer NOT NULL references unit(idUnit) ON DELETE CASCADE,
+    status character varying(255) NOT NULL CHECK (status IN ('Pendiente por pasar', 'Pendiente de enviar', 'Pendiente de imprimir', 'Completado')),
     idUser integer NOT NULL references users(idUser) ON DELETE CASCADE,
+    createdDate timestamp with time zone NOT NULL default now(),
+    modifiedDate timestamp with time zone NOT NULL default now()
+);
+
+CREATE TABLE IF NOT EXISTS unit
+(
+    idUnit serial primary key,
+    name character varying(255) not null,
+    idExam integer NOT NULL references exam(idExam) ON DELETE CASCADE,
     createdDate timestamp with time zone NOT NULL default now(),
     modifiedDate timestamp with time zone NOT NULL default now()
 );
@@ -59,6 +60,7 @@ CREATE TABLE IF NOT EXISTS payment_method
 CREATE TABLE IF NOT EXISTS reactive
 (
     idReactive serial primary key,
+    name character varying(255) not null,
     quantity integer not null,
     idExam integer NOT NULL references exam(idExam) ON DELETE CASCADE,
     createdDate timestamp with time zone NOT NULL default now(),
