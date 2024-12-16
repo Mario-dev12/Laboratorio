@@ -15,8 +15,8 @@ providersRepository.readProviders = async () => {
 providersRepository.readProviderByName = async name => {
   try {
     
-    const resp = await pool.query(`SELECT * FROM sp_find_answer_by_name('${name}')`);
-    return resp.rows[0].sp_find_answer_by_name;
+    const resp = await pool.query(`SELECT * FROM sp_find_provider_by_name('${name}')`);
+    return resp.rows[0].sp_find_provider_by_name;
   } catch (error) {
     throw error;
   }
@@ -25,8 +25,8 @@ providersRepository.readProviderByName = async name => {
 providersRepository.createProvider = async (name) => {
   try {
     
-    const resp = await pool.query(`SELECT * FROM sp_create_answer('${name}')`);
-    return resp.rows[0].sp_create_answer;
+    const resp = await pool.query(`SELECT * FROM sp_create_provider('${name}')`);
+    return resp.rows[0].sp_create_provider;
   } catch (error) {
     throw error;
   }
@@ -35,8 +35,8 @@ providersRepository.createProvider = async (name) => {
 providersRepository.updateProvider = async (id, answer) => {
   try {
     
-    const resp = await pool.query(`SELECT * FROM sp_update_answer(${id}, '${answer.name}')`);
-    return resp.rows[0].sp_update_answer;
+    const resp = await pool.query(`SELECT * FROM sp_update_provider(${id}, '${answer.name}')`);
+    return resp.rows[0].sp_update_provider;
   } catch (error) {
     throw error;
   }

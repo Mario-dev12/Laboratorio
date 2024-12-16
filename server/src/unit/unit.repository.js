@@ -15,8 +15,8 @@ unitRepository.readUnits = async () => {
 unitRepository.readUnitByName = async name => {
   try {
     
-    const resp = await pool.query(`SELECT * FROM sp_find_answer_by_name('${name}')`);
-    return resp.rows[0].sp_find_answer_by_name;
+    const resp = await pool.query(`SELECT * FROM sp_find_unit_by_name('${name}')`);
+    return resp.rows[0].sp_find_unit_by_name;
   } catch (error) {
     throw error;
   }
@@ -25,8 +25,8 @@ unitRepository.readUnitByName = async name => {
 unitRepository.createUnit = async (name, idExam) => {
   try {
     
-    const resp = await pool.query(`SELECT * FROM sp_create_answer('${name}', ${idExam})`);
-    return resp.rows[0].sp_create_answer;
+    const resp = await pool.query(`SELECT * FROM sp_create_unit('${name}', ${idExam})`);
+    return resp.rows[0].sp_create_unit;
   } catch (error) {
     throw error;
   }
@@ -35,8 +35,8 @@ unitRepository.createUnit = async (name, idExam) => {
 unitRepository.updateUnit = async (id, answer) => {
   try {
     
-    const resp = await pool.query(`SELECT * FROM sp_update_answer(${id}, '${answer.name}', ${answer.idExam})`);
-    return resp.rows[0].sp_update_answer;
+    const resp = await pool.query(`SELECT * FROM sp_update_unit(${id}, '${answer.name}', ${answer.idExam})`);
+    return resp.rows[0].sp_update_unit;
   } catch (error) {
     throw error;
   }
