@@ -4,7 +4,7 @@ import providersController from './providers.controller.js'
 
 
 providersRouter.get('/', providersController.readProviders)
-providersRouter.get('/name', providersController.readProviderByName)
+providersRouter.get('/name/:name', providersController.readProviderByName)
 providersRouter.post('/', providersController.createProvider)
 providersRouter.put('/:id', providersController.updateProvider)
 providersRouter.delete('/:id', providersController.deleteProvider)
