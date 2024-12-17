@@ -755,3 +755,168 @@ begin
 	);
 end;
 $BODY$;
+
+CREATE OR REPLACE FUNCTION sp_find_user_by_name(
+	p_name character varying)
+    RETURNS json[]
+    LANGUAGE 'plpgsql'
+    COST 100
+    VOLATILE PARALLEL UNSAFE
+AS $BODY$
+declare 
+	v_json_resp json[];
+begin
+	select array(
+        select jsonb_build_object(
+			'idUser', a.idUser,
+			'ci', a.ci,
+			'passport', a.passport,
+			'firstName', a.firstName,
+			'lastName', a.lastName,
+			'genre', a.genre,
+			'age', a.age,
+			'address', a.address,
+			'createdDate', a.createdDate,
+            'modifiedDate', a.modifiedDate
+		)
+		from users a 
+		WHERE a.firstName = p_name
+        ) ::json[] into v_json_resp;
+		return v_json_resp;
+end;
+$BODY$;
+
+CREATE OR REPLACE FUNCTION sp_find_payment_method_by_name(
+	p_name character varying
+	)
+    RETURNS json[]
+    LANGUAGE 'plpgsql'
+    COST 100
+    VOLATILE PARALLEL UNSAFE
+AS $BODY$
+declare 
+	v_json_resp json[];
+begin
+	select array(
+        select jsonb_build_object(
+			'idPayment_method', a.idPayment_method,
+			'name', a.name,
+            'amount', a.amount,
+			'bank', a.bank,
+			'type', a.type,
+			'idExam', a.idExam,
+			'createdDate', a.createdDate,
+            'modifiedDate', a.modifiedDate
+		)
+		from payment_method a
+		where a.name = p_name
+        ) ::json[] into v_json_resp;
+		return v_json_resp;
+end;
+$BODY$;
+
+CREATE OR REPLACE FUNCTION sp_find_provider_by_name(
+	p_name character varying)
+    RETURNS json[]
+    LANGUAGE 'plpgsql'
+    COST 100
+    VOLATILE PARALLEL UNSAFE
+AS $BODY$
+declare 
+	v_json_resp json[];
+begin
+	select array(
+        select jsonb_build_object(
+			'idProvider', a.idProvider,
+			'name', a.name,
+			'createdDate', a.createdDate,
+            'modifiedDate', a.modifiedDate
+		)
+		from provider a
+		where a.name = p_name
+        ) ::json[] into v_json_resp;
+		return v_json_resp;
+end;
+$BODY$;
+
+CREATE OR REPLACE FUNCTION sp_find_reactive_by_name(
+	p_name character varying
+	)
+    RETURNS json[]
+    LANGUAGE 'plpgsql'
+    COST 100
+    VOLATILE PARALLEL UNSAFE
+AS $BODY$
+declare 
+	v_json_resp json[];
+begin
+	select array(
+        select jsonb_build_object(
+			'idReactive', a.idReactive,
+			'name', a.name,
+			'quantity', a.quantity,
+			'idExam', a.idExam,
+			'createdDate', a.createdDate,
+            'modifiedDate', a.modifiedDate
+		)
+		from reactive a
+		where a.name = p_name
+        ) ::json[] into v_json_resp;
+		return v_json_resp;
+end;
+$BODY$;
+
+CREATE OR REPLACE FUNCTION sp_find_unit_by_name(
+	p_name character varying
+	)
+    RETURNS json[]
+    LANGUAGE 'plpgsql'
+    COST 100
+    VOLATILE PARALLEL UNSAFE
+AS $BODY$
+declare 
+	v_json_resp json[];
+begin
+	select array(
+        select jsonb_build_object(
+			'idUnit', a.idUnit,
+			'name', a.name,
+			'idExam', a.idExam,
+			'createdDate', a.createdDate,
+            'modifiedDate', a.modifiedDate
+		)
+		from unit a
+		where a.name = p_name
+        ) ::json[] into v_json_resp;
+		return v_json_resp;
+end;
+$BODY$;
+
+CREATE OR REPLACE FUNCTION sp_find_exam_by_name(
+	p_name character varying
+	)
+    RETURNS json[]
+    LANGUAGE 'plpgsql'
+    COST 100
+    VOLATILE PARALLEL UNSAFE
+AS $BODY$
+declare 
+	v_json_resp json[];
+begin
+	select array(
+        select jsonb_build_object(
+			'idExam', a.idExam,
+			'name', a.name,
+            'cost_bs', a.cost_bs,
+			'cost_usd', a.cost_usd,
+			'status', a.status,
+			'idUser', a.idUser,
+			'createdDate', a.createdDate,
+            'modifiedDate', a.modifiedDate
+		)
+		from exam a
+		where a.name = p_name
+        ) ::json[] into v_json_resp;
+		return v_json_resp;
+end;
+$BODY$;

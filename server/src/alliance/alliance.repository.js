@@ -15,8 +15,8 @@ allianceRepository.readAlliances = async () => {
 allianceRepository.createAlliance = async (quantity, idReactive, idProvider) => {
   try {
     
-    const resp = await pool.query(`SELECT * FROM sp_create_answer(${quantity}, ${idReactive}, ${idProvider})`);
-    return resp.rows[0].sp_create_answer;
+    const resp = await pool.query(`SELECT * FROM sp_create_alliance(${quantity}, ${idReactive}, ${idProvider})`);
+    return resp.rows[0].sp_create_alliance;
   } catch (error) {
     throw error;
   }
@@ -25,8 +25,8 @@ allianceRepository.createAlliance = async (quantity, idReactive, idProvider) => 
 allianceRepository.updateAlliance = async (id, answer) => {
   try {
     
-    const resp = await pool.query(`SELECT * FROM sp_update_answer(${id}, ${answer.quantity}, ${answer.idReactive}, ${answer.idProvider})`);
-    return resp.rows[0].sp_update_answer;
+    const resp = await pool.query(`SELECT * FROM sp_update_alliance(${id}, ${answer.quantity}, ${answer.idReactive}, ${answer.idProvider})`);
+    return resp.rows[0].sp_update_alliance;
   } catch (error) {
     throw error;
   }
