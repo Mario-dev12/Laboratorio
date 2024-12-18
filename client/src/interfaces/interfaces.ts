@@ -53,3 +53,14 @@ export interface Alliance {
 	createddate: any;
 	modifieddate: any;
 }
+
+export interface Payment {
+	idpayment_method: number;
+	name: string;
+	amount: number;
+	bank: string;
+	type: string;
+	idexam: number;
+	createddate: any;
+	modifieddate: any;
+}
