@@ -15,7 +15,7 @@ examController.readExams = async (req, res) => {
 examController.readExamByType = async (req, res) => {
     try {
       const { type } = req.params
-      const answer = await usersServices.readUserByName(type)
+      const answer = await examServices.readUserByName(type)
   
       res.send(answer)
     } catch (error) {
