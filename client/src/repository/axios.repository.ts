@@ -19,12 +19,20 @@ class AxiosRepository {
     return response.data;  
   }  
 
-  async getByName<T>(domain: string, name: string): Promise<T[]> {  
-    const response = await axios.get<T[]>(`${import.meta.env.VITE_API_URL}/${domain}`, {  
-      params: { name }  
-    });  
+  async getByName<T>(domain: string, name: string): Promise<T> {  
+    const response = await axios.get<T>(`${import.meta.env.VITE_API_URL}/${domain}/name/${name}`);  
     return response.data;  
   }  
+
+  async getByType<T>(domain: string, name: string): Promise<T> {  
+    const response = await axios.get<T>(`${import.meta.env.VITE_API_URL}/${domain}/type/${name}`);  
+    return response.data;  
+  } 
+
+  async getReactiveByProvider<T>(domain: string): Promise<T[]> {  
+    const response = await axios.get<T[]>(`${import.meta.env.VITE_API_URL}/${domain}/provider`);  
+    return response.data; 
+  } 
 
   async create<T>(domain: string, data: T): Promise<T> {  
     const response = await axios.post<T>(`${import.meta.env.VITE_API_URL}/${domain}`, data);  
