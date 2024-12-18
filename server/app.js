@@ -69,10 +69,6 @@ app.use(helmet());
 const port = process.env.PORT || 3001;
 
 app.listen(port, (err) => {
-	console.log("hello");
-	if (err) {
-		return console.error("Error starting server:", err);
-	}
 	logger.info(`Server running on port ${port}`);
 	ObjLog.log(`Server running on port ${port}`);
 	logger.info(`Sockets connected on port ${port}`);

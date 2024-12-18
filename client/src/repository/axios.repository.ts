@@ -1,6 +1,6 @@
 import axios, { AxiosResponse, AxiosError } from "axios";
 
-const API_URL = "http://localhost:600/api";
+const API_URL = "http://localhost:3000/api";
 
 axios.interceptors.response.use(
 	(response: AxiosResponse) => response,
@@ -17,8 +17,8 @@ class AxiosRepository {
 		return response.data;
 	}
 
-	async getById<T>(domain: string, id: string | number): Promise<T[]> {
-		const response = await axios.get<T[]>(`${API_URL}/${domain}/${id}`);
+	async getById<T>(domain: string, id: string | number): Promise<T> {
+		const response = await axios.get<T>(`${API_URL}/${domain}/${id}`);
 		return response.data;
 	}
 

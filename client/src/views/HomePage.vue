@@ -93,10 +93,10 @@
 </template>
 
 <script setup lang="ts">
-	import { ref, watch } from "vue";
+	import { ref, watch, onMounted } from "vue";
 	import { IonContent, IonHeader, IonPage, IonTitle, IonToolbar } from "@ionic/vue";
+	import { userStore } from "@/stores/userStore";
 
-	const showCrearOrdenRef = ref(false);
 	const tipoDeExamen = ref("");
 	const pagoEnDivisas = ref();
 	const pagoEnBs = ref();
@@ -109,6 +109,12 @@
 	console.log(month);
 	console.log(year);
 	const precioDolar = 48;
+	const user = userStore();
+
+	onMounted(async () => {
+		const usuarios = await user.fecthUserByName("Juan");
+		console.log(usuarios);
+	});
 
 	interface Examen {
 		nombre: string;
