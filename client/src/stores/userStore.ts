@@ -1,14 +1,37 @@
 import { defineStore } from "pinia";
-import axios from "axios";
+import { axiosRepository } from "@/repository/axios.repository";
+import { User } from "@/interfaces/interfaces";
 
-const userStore = defineStore("user", {
+export const userStore = defineStore("user", {
 	state: () => ({
-		users: [],
+		users: [] as User[] | User,
 	}),
 	actions: {
 		async fecthUsers() {
-			const response = await axios.get();
-			this.users = response.data;
+			const response = await axiosRepository.getAll<User>("users");
+			this.users = response;
+			return this.users;
+		},
+		async fecthUserById(id: string | number) {
+			const response = await axiosRepository.getById<User>("users", id);
+			this.users = response;
+			return this.users;
+		},
+		async fecthUserByName(name: string) {
+			const response = await axiosRepository.getByName<User>("users", name);
+			this.users = response;
+			return this.users;
+		},
+		async createUser(user: User) {
+			const response = await axiosRepository.create<User>("users", user);
+			this.users = response;
+		},
+		async updateUser(id: string | number, data: User) {
+			const response = await axiosRepository.update<User>("users", id, data);
+			this.users = response;
+		},
+		async deleteUser(id: string | number) {
+			await axiosRepository.delete("users", id);
 		},
 	},
 });

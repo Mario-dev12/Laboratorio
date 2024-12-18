@@ -93,10 +93,16 @@
 </template>
 
 <script setup lang="ts">
-	import { ref, watch } from "vue";
+	import { ref, watch, onMounted } from "vue";
 	import { IonContent, IonHeader, IonPage, IonTitle, IonToolbar } from "@ionic/vue";
+	import { userStore } from "@/stores/userStore";
+	import { examStore } from "@/stores/examStore";
+	import { reactiveStore } from "@/stores/reactiveStore";
+	import { providerStore } from "@/stores/providerStore";
+	import { unitStore } from "@/stores/unitStore";
+	import { allianceStore } from "@/stores/allianceStore";
+	import { paymentStore } from "@/stores/paymentStore";
 
-	const showCrearOrdenRef = ref(false);
 	const tipoDeExamen = ref("");
 	const pagoEnDivisas = ref();
 	const pagoEnBs = ref();
@@ -109,6 +115,25 @@
 	console.log(month);
 	console.log(year);
 	const precioDolar = 48;
+	// stores test
+	const user = userStore();
+	const exam = examStore();
+	const reactive = reactiveStore();
+	const provider = providerStore();
+	const unit = unitStore();
+	const alliance = allianceStore();
+	const payment = paymentStore();
+
+	onMounted(async () => {
+		const usuarios = await user.fecthUserById(1234567);
+		const examenes = await exam.fecthExams();
+		const reactivos = await reactive.fetchReactiveByName("Cloro");
+		const proveedores = await provider.fetchProviderByName("Pedro Sánchez");
+		const unidades = await unit.fecthUnits();
+		const alianza = await alliance.fecthAlliance();
+		const pago = await payment.fetchPaymentByName("Debito");
+		console.log(pago);
+	});
 
 	interface Examen {
 		nombre: string;
