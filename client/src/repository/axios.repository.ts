@@ -1,11 +1,8 @@
 import axios, { AxiosResponse, AxiosError } from "axios";
 
-const API_URL = "http://localhost:3000/api";
-
 axios.interceptors.response.use(
 	(response: AxiosResponse) => response,
 	(error: AxiosError) => {
-		// Aquí puedes manejar el error como desees
 		console.error("Error in Axios Request:", error);
 		return Promise.reject(error);
 	}
@@ -13,34 +10,42 @@ axios.interceptors.response.use(
 
 class AxiosRepository {
 	async getAll<T>(domain: string): Promise<T[]> {
-		const response = await axios.get<T[]>(`${API_URL}/${domain}`);
+		const response = await axios.get<T[]>(`${import.meta.env.VITE_API_URL}/${domain}`);
 		return response.data;
 	}
 
 	async getById<T>(domain: string, id: string | number): Promise<T> {
-		const response = await axios.get<T>(`${API_URL}/${domain}/${id}`);
+		const response = await axios.get<T>(`${import.meta.env.VITE_API_URL}/${domain}/${id}`);
 		return response.data;
 	}
 
 	async getByName<T>(domain: string, name: string): Promise<T> {
-		const response = await axios.get<T>(`${API_URL}/${domain}`, {
-			params: { name },
-		});
+		const response = await axios.get<T>(`${import.meta.env.VITE_API_URL}/${domain}/name/${name}`);
+		return response.data;
+	}
+
+	async getByType<T>(domain: string, name: string): Promise<T> {
+		const response = await axios.get<T>(`${import.meta.env.VITE_API_URL}/${domain}/type/${name}`);
+		return response.data;
+	}
+
+	async getReactiveByProvider<T>(domain: string): Promise<T[]> {
+		const response = await axios.get<T[]>(`${import.meta.env.VITE_API_URL}/${domain}/provider`);
 		return response.data;
 	}
 
 	async create<T>(domain: string, data: T): Promise<T> {
-		const response = await axios.post<T>(`${API_URL}/${domain}`, data);
+		const response = await axios.post<T>(`${import.meta.env.VITE_API_URL}/${domain}`, data);
 		return response.data;
 	}
 
 	async update<T>(domain: string, id: string | number, data: T): Promise<T> {
-		const response = await axios.put<T>(`${API_URL}/${domain}/${id}`, data);
+		const response = await axios.put<T>(`${import.meta.env.VITE_API_URL}/${domain}/${id}`, data);
 		return response.data;
 	}
 
 	async delete(domain: string, id: string | number): Promise<void> {
-		await axios.delete(`${API_URL}/${domain}/${id}`);
+		await axios.delete(`${import.meta.env.VITE_API_URL}/${domain}/${id}`);
 	}
 }
 
