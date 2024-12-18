@@ -24,6 +24,11 @@ class AxiosRepository {
 		return response.data;
 	}
 
+	async getByReactiveName<T>(domain: string, name: string): Promise<T> {
+		const response = await axios.get<T>(`${import.meta.env.VITE_API_URL}/${domain}/name?name=${name}`);
+		return response.data;
+	}
+
 	async getByType<T>(domain: string, name: string): Promise<T> {
 		const response = await axios.get<T>(`${import.meta.env.VITE_API_URL}/${domain}/type/${name}`);
 		return response.data;
