@@ -15,7 +15,7 @@ unitController.readUnits = async (req, res) => {
 unitController.readUnitByName = async (req, res) => {
     try {
       const { name } = req.params
-      const answer = await usersServices.readUserByName(name)
+      const answer = await unitServices.readUserByName(name)
   
       res.send(answer)
     } catch (error) {
