@@ -15,7 +15,7 @@ providersController.readProviders = async (req, res) => {
 providersController.readProviderByName = async (req, res) => {
     try {
       const { name } = req.params
-      const answer = await providersServices.readUserByName(name)
+      const answer = await providersServices.readProviderByName(name)
   
       res.send(answer)
     } catch (error) {

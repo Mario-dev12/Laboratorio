@@ -15,7 +15,7 @@ payment_methodController.readPayment_methods = async (req, res) => {
 payment_methodController.readPayment_methodByName = async (req, res) => {
     try {
       const { name } = req.params
-      const answer = await payment_methodServices.readUserByName(name)
+      const answer = await payment_methodServices.readPayment_methodByName(name)
   
       res.send(answer)
     } catch (error) {
