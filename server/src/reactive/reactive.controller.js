@@ -14,7 +14,8 @@ reactiveController.readReactives = async (req, res) => {
 
 reactiveController.readReactiveByName = async (req, res) => {
     try {
-      const answer = await reactiveServices.readReactiveByName(req.body.name)
+      const { name } = req.params
+      const answer = await usersServices.readUserByName(name)
   
       res.send(answer)
     } catch (error) {
