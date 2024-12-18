@@ -25,7 +25,8 @@ usersController.readUserById = async (req, res) => {
 
 usersController.readUserByName = async (req, res) => {
     try {
-      const answer = await usersServices.readUserByName(req.body.name)
+      const { name } = req.params
+      const answer = await usersServices.readUserByName(name)
   
       res.send(answer)
     } catch (error) {
