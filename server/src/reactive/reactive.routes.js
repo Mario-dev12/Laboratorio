@@ -4,6 +4,7 @@ import reactiveController from './reactive.controller.js'
 
 
 reactiveRouter.get('/', reactiveController.readReactives)
+reactiveRouter.get('/quantity', reactiveController.readReactivesQuantity)
 reactiveRouter.get('/name/:name', reactiveController.readReactiveByName)
 reactiveRouter.get('/provider', reactiveController.readReactivesByProvider)
 reactiveRouter.post('/', reactiveController.createReactive)

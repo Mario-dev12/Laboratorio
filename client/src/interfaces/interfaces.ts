@@ -25,9 +25,20 @@ export interface Reactive {
 	idreactive: number;
 	name: string;
 	quantity: number;
-	idexam: number;
+	idExam: number;
 	createddate: any;
 	modifieddate: any;
+}
+
+export interface ReactiveProvider {
+	idreactive: number;
+	name: string;
+	quantity: number;
+	idExam: number;
+	createddate: any;
+	modifieddate: any;
+	providerName: string;
+	providerQuantity: number;
 }
 
 export interface Unit {

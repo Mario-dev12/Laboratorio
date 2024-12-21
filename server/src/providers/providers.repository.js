@@ -14,7 +14,6 @@ providersRepository.readProviders = async () => {
 providersRepository.readProviderByName = async (name) => {
 	try {
 		const resp = await pool.query(`SELECT * FROM sp_find_provider_by_name('${name}')`);
-		console.log(resp.rows[0].sp_find_provider_by_name);
 		return resp.rows[0].sp_find_provider_by_name;
 	} catch (error) {
 		throw error;

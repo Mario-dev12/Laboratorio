@@ -12,6 +12,16 @@ reactiveController.readReactives = async (req, res) => {
     }
 }
 
+reactiveController.readReactivesQuantity = async (req, res) => {
+  try {
+    const answer = await reactiveServices.readReactivesQuantity()
+
+    res.send(answer)
+  } catch (error) {
+    return res.status(400).send(error.stack)
+  }
+}
+
 reactiveController.readReactiveByName = async (req, res) => {
     try {
       const { name } = req.params

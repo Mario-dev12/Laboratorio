@@ -5,6 +5,10 @@ const reactiveServices = {};
 reactiveServices.readReactives = async () => {
     return await reactiveRepository.readReactives()
 }
+
+reactiveServices.readReactivesQuantity = async () => {
+    return await reactiveRepository.readReactivesQuantity()
+}
   
 reactiveServices.readReactiveByName = async name => {
     return await reactiveRepository.readReactiveByName(name)

@@ -12,6 +12,16 @@ reactiveRepository.readReactives = async () => {
   }
 }
 
+reactiveRepository.readReactivesQuantity = async () => {
+  try {
+    
+    const resp = await pool.query(`SELECT * FROM sp_find_all_quantity_reactive()`);
+    return resp.rows[0].sp_find_all_quantity_reactive;
+  } catch (error) {
+    throw error;
+  }
+}
+
 reactiveRepository.readReactiveByName = async name => {
   try {
     
