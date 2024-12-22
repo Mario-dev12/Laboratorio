@@ -184,7 +184,7 @@ onMounted(async () => {
     reactives.value = await reactivesStore.fetchReactiveByProvider();
     providers.value = await providersStore.fecthProviders();
     allReactives.value = await reactivesStore.fecthReactives();
-    exams.value = await examsStore.fecthExams(); 
+    exams.value = await examsStore.fecthExams();
     quantityReactives.value = await reactivesStore.fecthQuantityReactives();
 });  
 
