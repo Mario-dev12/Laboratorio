@@ -2,28 +2,46 @@
 	<ion-page>
 		<ion-content :fullscreen="true">
 			<div class="container mt-4 p-3 bg-body-secondary rounded">
-				<div class="w-100 m-auto">
-					<label class="row w-100 m-auto" for="documento">Documento de identidad</label>
-					<div class="row w-100 m-auto">
-						<input class="col-11" type="text" placeholder="Documento de identidad" name="documento" />
-						<button class="btn btn-success col w-auto ms-1">🔎</button>
+				<div class="w-100 m-auto row px-2">
+					<label class="col-12 p-0" for="documento">Documento de identidad</label>
+					<div class="col-12 p-0">
+						<div class="row w-100 m-auto pe-1 justify-content-between">
+							<input class="col-10" type="text" placeholder="Documento de identidad" name="documento" />
+							<button class="btn btn-success col-2 w-auto ms-1">🔎</button>
+						</div>
 					</div>
 				</div>
-				<div class="mt-2">
-					<label class="me-1" for="genero">Genero</label>
-					<input class="w-auto me-3" type="text" placeholder="Genero" name="genero" />
-					<label class="me-1" for="edad">Edad</label>
-					<input class="w-auto" type="text" placeholder="Edad" name="edad" />
-					<label class="ms-3" for="procedencia">Procedencia</label>
-					<select class="ms-1 p-1" name="procedencia" id="precedencia">
-						<option disabled selected>Seleccionar</option>
-						<option value="procedencia1">procedencia1</option>
-						<option value="procedencia2">procedencia2</option>
-					</select>
+				<div class="row mt-2 w-100 m-auto">
+					<div class="col-12 mb-2">
+						<div class="row w-100 m-auto">
+							<label class="col align-content-center p-0" for="genero">Genero</label>
+							<input class="col w-auto" type="text" placeholder="Genero" name="genero" />
+						</div>
+					</div>
+					<div class="col-12 mb-2">
+						<div class="row w-100 m-auto">
+							<label class="col align-content-center p-0" for="edad">Edad</label>
+							<input class="col w-auto" type="text" placeholder="Edad" name="edad" />
+						</div>
+					</div>
+					<div class="col-12 mb-2">
+						<div class="row w-100 m-auto">
+							<label class="col align-content-center p-0" for="procedencia">Procedencia</label>
+							<select class="col w-auto py-2" name="procedencia" id="precedencia">
+								<option disabled selected>Seleccionar</option>
+								<option value="procedencia1">procedencia1</option>
+								<option value="procedencia2">procedencia2</option>
+							</select>
+						</div>
+					</div>
 				</div>
-				<div class="mt-2 d-flex">
-					<label class="me-1" for="diagnostico">Motivo/Diagnostico:</label>
-					<textarea name="diagnostico" id="diagnostico" cols="50"></textarea>
+				<div class="row w-100 m-auto">
+					<div class="col-12 mb-2">
+						<div class="row w-100 m-auto">
+							<label class="col-12 p-0" for="diagnostico">Motivo/Diagnostico:</label>
+							<textarea class="col-12" name="diagnostico" id="diagnostico" cols="50"></textarea>
+						</div>
+					</div>
 				</div>
 			</div>
 			<div class="bg-info container py-2 rounded mt-2">
@@ -125,14 +143,14 @@
 	const payment = paymentStore();
 
 	onMounted(async () => {
-		const usuarios = await user.fecthUserById(1234567);
-		const examenes = await exam.fecthExams();
-		const reactivos = await reactive.fetchReactiveByName("Cloro");
-		const proveedores = await provider.fetchProviderByName("Pedro Sánchez");
-		const unidades = await unit.fecthUnits();
-		const alianza = await alliance.fecthAlliance();
-		const pago = await payment.fetchPaymentByName("Debito");
-		console.log(pago);
+		// const usuarios = await user.fecthUserById(1234567);
+		// const examenes = await exam.fecthExams();
+		const reactivos = await reactive.fetchReactiveByName("Glucosa");
+		// const proveedores = await provider.fetchProviderByName("Pedro Sánchez");
+		// const unidades = await unit.fecthUnits();
+		// const alianza = await alliance.fecthAlliance();
+		// const pago = await payment.fetchPaymentByName("Debito");
+		console.log(reactivos);
 	});
 
 	interface Examen {
