@@ -61,8 +61,6 @@ CREATE TABLE IF NOT EXISTS reactive
 (
     idReactive serial primary key,
     name character varying(255) not null,
-    quantity integer not null,
-    idExam integer NOT NULL references exam(idExam) ON DELETE CASCADE,
     createdDate timestamp with time zone NOT NULL default now(),
     modifiedDate timestamp with time zone NOT NULL default now()
 );
@@ -71,6 +69,10 @@ CREATE TABLE IF NOT EXISTS alliance
 (
     idAlliance serial primary key,
     quantity integer not null,
+    cost_bs character varying(255),
+    cost_usd character varying(255),
+    pay_done boolean not null,
+    pay_amount character varying(255),
     idReactive integer NOT NULL references reactive(idReactive) ON DELETE CASCADE,
     idProvider integer NOT NULL references provider(idProvider) ON DELETE CASCADE,
     createdDate timestamp with time zone NOT NULL default now(),

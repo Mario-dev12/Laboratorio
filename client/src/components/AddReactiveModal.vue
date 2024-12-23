@@ -19,23 +19,7 @@
                   required   
                   class="form-control custom-input"   
                   placeholder="Ingrese el nombre del reactivo" />  
-            </div>   
-            <div class="form-group"> 
-                <label for="reactiveQuantity" class="form-label">Cantidad</label>  
-                <input   
-                  v-model.number="reactive.quantity"   
-                  type="number"   
-                  required   
-                  class="form-control custom-input"   
-                  placeholder="Ingrese la cantidad" />  
-                </div>  
-                <div class="form-group">   
-                <label for="examSelect" class="form-label">Perfil (Examen)</label>  
-                <select v-model="reactive.idExam" required class="form-select custom-input"> 
-                  <option value="" disabled>Selecciona un examen</option>  
-                  <option v-for="exam in exams" :key="exam.idExam" :value="exam.idExam">{{ exam.name }}</option>  
-                </select>  
-                </div>   
+            </div>    
           <ion-footer>  
             <ion-button expand="full" type="submit">Añadir Reactivo</ion-button>  
           </ion-footer>  
@@ -70,8 +54,6 @@ watch(() => props.exam, async (newUser) => {
 
 const reactive = ref({  
     name: '',  
-    quantity: 0,  
-    idExam: 0,  
 });  
 
 const closeModal = () => {  
@@ -80,7 +62,7 @@ const closeModal = () => {
 
 const submit = () => {  
     emit('add', { ...reactive.value }); 
-    reactive.value = { name: '', quantity: 0, idExam: 0 }; 
+    reactive.value = { name: '' }; 
     closeModal();  
 };  
 </script>  

@@ -6,8 +6,8 @@ allianceServices.readAlliances = async () => {
     return await allianceRepository.readAlliances()
 }
 
-allianceServices.createAlliance = async (quantity, idReactive, idProvider) => {
-    return await allianceRepository.createAlliance(quantity, idReactive, idProvider)
+allianceServices.createAlliance = async (quantity, cost_bs, cost_usd, pay_done, pay_amount, idReactive, idProvider) => {
+    return await allianceRepository.createAlliance(quantity, cost_bs, cost_usd, pay_done, pay_amount, idReactive, idProvider)
 }
 
 allianceServices.updateAlliance = async (id, answer) => {

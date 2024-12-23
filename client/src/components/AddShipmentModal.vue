@@ -20,7 +20,62 @@
               class="form-control custom-input"  
               placeholder="Ingrese la cantidad"  
             />  
+          </div> 
+          
+          <div class="form-group">  
+            <label for="shipmentCostBs" class="form-label">Costo Bolivares</label>  
+            <input  
+              v-model="shipment.cost_bs"  
+              type="text"  
+              required  
+              class="form-control custom-input"  
+              placeholder="Ingrese la cantidad"  
+            />  
+          </div> 
+
+          <div class="form-group">  
+            <label for="shipmentCostUsd" class="form-label">Costo Dolares</label>  
+            <input  
+              v-model="shipment.cost_usd"  
+              type="text"  
+              required  
+              class="form-control custom-input"  
+              placeholder="Ingrese la cantidad"  
+            />  
+          </div>
+
+          <div class="form-group">  
+            <label for="paymentStatus" class="form-label">Pago realizado</label>  
+            <div>  
+                <input   
+                  type="radio"   
+                  id="paymentYes"   
+                  :value="true"   
+                  v-model="shipment.pay_done"
+                  class="radio-input"   
+                />  
+                <label class="radio-label" for="paymentYes">Sí</label>  
+                
+                <input   
+                  type="radio"   
+                  id="paymentNo"   
+                  :value="false"   
+                  v-model="shipment.pay_done"
+                  class="radio-input"
+                />  
+                <label for="paymentNo">No</label>  
+            </div>  
           </div>  
+
+          <div class="form-group" v-if="!shipment.pay_done">  
+            <label for="payAmount" class="form-label">Debe</label>  
+            <input  
+              v-model="shipment.pay_amount"  
+              type="text"  
+              class="form-control custom-input"  
+              placeholder="Ingrese el monto"  
+            />  
+          </div> 
           
           <div class="form-group">  
             <label for="reactiveSelect" class="form-label">Reactivo</label>  
@@ -71,7 +126,11 @@ watch(() => props.provider, async (newUser) => {
 }); 
 
 const shipment = ref({  
-    quantity: 0,  
+    quantity: 0,
+    cost_bs: '',
+    cost_usd: '',
+    pay_done: true,
+    pay_amount: '',
     idReactive: 0,  
     idProvider: 0,  
 });  
@@ -92,7 +151,7 @@ const closeModal = () => {
 
 const submit = () => {  
     emit('add', { ...shipment.value });  
-    shipment.value = { quantity: 0, idReactive: 0, idProvider: 0 };  
+    shipment.value = { quantity: 0, cost_bs: '', cost_usd: '', pay_done: false, pay_amount: '', idReactive: 0, idProvider: 0 };  
     closeModal();  
 };  
 </script>  
@@ -123,4 +182,11 @@ const submit = () => {
   opacity: 1;
 }  
 
+.radio-input {  
+  margin-right: 5px;
+}  
+
+.radio-label {  
+  margin-right: 20px;
+}  
 </style>  

@@ -40,13 +40,15 @@
               <table class="table table-striped">  
                 <thead>  
                   <tr>  
-                    <th>Nombre del Reactivo</th>   
+                    <th>Nombre del Reactivo</th>  
+                    <th>Cantidad Existencia</th> 
                     <th>Acciones</th>  
                   </tr>  
                 </thead>  
                 <tbody>  
                   <tr v-for="reactive in allReactives" :key="reactive.idreactive">  
-                    <td>{{ reactive.name }}</td>      
+                    <td>{{ reactive.name }}</td>  
+                    <td>{{ reactive.totalQuantity }}</td>    
                     <td>  
                       <i class="fas fa-edit" @click="editReactive(reactive)" style="cursor: pointer; margin-right: 10px;"></i>  
                       <i class="fas fa-trash" @click="deleteReactive(reactive.idReactive)" style="cursor: pointer;"></i>  
@@ -55,25 +57,6 @@
                 </tbody>  
               </table>  
             </div> 
-
-            <div style="width: 30px;"></div>
-
-            <div class="table-responsive" style="max-height: 400px; overflow-y: auto; flex: 1;">  
-              <table class="table table-striped">  
-                <thead>  
-                  <tr>  
-                    <th>Nombre del Reactivo</th>  
-                    <th>Cantidad Total existencia</th>    
-                  </tr>  
-                </thead>  
-                <tbody>  
-                  <tr v-for="reactive in quantityReactives" :key="reactive.name">  
-                    <td>{{ reactive.name }}</td>    
-                    <td>{{ reactive.quantity }}</td>   
-                  </tr>  
-                </tbody>  
-              </table>  
-            </div>  
           </div>
         </div> 
         <div class="container mt-3">
@@ -184,6 +167,7 @@ onMounted(async () => {
     reactives.value = await reactivesStore.fetchReactiveByProvider();
     providers.value = await providersStore.fecthProviders();
     allReactives.value = await reactivesStore.fecthReactives();
+    console.log('allReactives.value', allReactives.value);
     exams.value = await examsStore.fecthExams();
     quantityReactives.value = await reactivesStore.fecthQuantityReactives();
 });  
@@ -251,7 +235,7 @@ const deleteProvider = async (id: number | string) => {
     allReactives.value = await reactivesStore.fecthReactives(); 
 };
 
-const addReactiveToList = async (newReactive: ReactiveProvider) => {    
+const addReactiveToList = async (newReactive: Reactive) => {    
     await reactivesStore.createReactive(newReactive);
     reactives.value = await reactivesStore.fetchReactiveByProvider();
     providers.value = await providersStore.fecthProviders();

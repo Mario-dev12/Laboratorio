@@ -21,6 +21,38 @@
               placeholder="Ingrese la cantidad"  
             />  
           </div>
+          <div class="form-group">  
+            <label for="paymentStatus" class="form-label">Pago realizado</label>  
+            <div>  
+                <input   
+                  type="radio"   
+                  id="paymentYes"   
+                  :value="true"   
+                  v-model="form.pay_done"
+                  class="radio-input"   
+                />  
+                <label class="radio-label" for="paymentYes">Sí</label>  
+                
+                <input   
+                  type="radio"   
+                  id="paymentNo"   
+                  :value="false"   
+                  v-model="form.pay_done"
+                  class="radio-input"
+                />  
+                <label for="paymentNo">No</label>  
+            </div>  
+          </div>  
+          <div class="form-group" v-if="!form.pay_done">  
+            <label for="payAmount" class="form-label">Debe</label>  
+            <input  
+              v-model="form.pay_amount"  
+              type="text"  
+              class="form-control custom-input"  
+              placeholder="Ingrese el monto"  
+            />  
+          </div>
+
           <div class="form-group">   
             <label for="examSelect" class="form-label">Reactivo</label>  
             <select v-model="form.idReactive" required class="form-select custom-input"> 
@@ -63,8 +95,12 @@ const alliance = ref();
 const form = ref({ 
   idalliance: 0,
 	quantity: 0,
-	idReactive: 0,
-	idProvider: 0,
+  cost_bs: '',
+  cost_usd: '',
+  pay_done: true,
+  pay_amount: '',
+  idReactive: 0,  
+  idProvider: 0, 
 }); 
 
 watch(() => props.alliance, async (newUser) => {  
@@ -74,6 +110,10 @@ watch(() => props.alliance, async (newUser) => {
         form.value.quantity = newUser.providerQuantity
         form.value.idalliance = newUser.idAlliance
         form.value.idProvider = newUser.idProvider
+        form.value.cost_bs = newUser.cost_bs
+        form.value.cost_usd = newUser.cost_usd
+        form.value.pay_amount = newUser.pay_amount
+        form.value.pay_done = newUser.pay_done
     }
 });   
 
@@ -102,5 +142,13 @@ const submit = () => {
     padding: 10px;  
     font-size: 16px;  
     color: #fff;  
+}  
+
+.radio-input {  
+  margin-right: 5px;
+}  
+
+.radio-label {  
+  margin-right: 20px;
 }  
 </style>

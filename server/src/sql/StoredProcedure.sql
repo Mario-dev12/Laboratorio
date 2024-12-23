@@ -16,6 +16,10 @@ begin
         select jsonb_build_object(
 			'idAlliance', a.idAlliance,
 			'quantity', a.quantity,
+			'cost_bs', a.cost_bs,
+			'cost_usd', a.cost_usd,
+			'pay_done', a.pay_done,
+			'pay_amount', a.pay_amount,
             'idReactive', a.idReactive,
 			'idProvider', a.idProvider,
 			'createdDate', a.createdDate,
@@ -118,8 +122,6 @@ begin
         select jsonb_build_object(
 			'idReactive', a.idReactive,
 			'name', a.name,
-			'quantity', a.quantity,
-			'idExam', a.idExam,
 			'createdDate', a.createdDate,
             'modifiedDate', a.modifiedDate
 		)
@@ -314,6 +316,10 @@ $BODY$;
 
 CREATE OR REPLACE FUNCTION sp_create_alliance(
 	p_quantity integer,
+	p_cost_bs character varying, 
+	p_cost_usd character varying, 
+	p_pay_done boolean, 
+	p_pay_amount character varying,
     p_idReactive integer,
     p_idProvider integer)
     RETURNS varchar
@@ -330,17 +336,15 @@ begin
 	if (v_id is NOT NULL) then
 		return 'La alianza ya fue ingresado anteriormente.';
 	else
-		Insert into alliance(quantity, idReactive, idProvider) 
-		VALUES (p_quantity, p_idReactive, p_idProvider);
+		Insert into alliance(quantity, cost_bs, cost_usd, pay_done, pay_amount, idReactive, idProvider) 
+		VALUES (p_quantity, p_cost_bs, p_cost_usd, p_pay_done, p_pay_amount, p_idReactive, p_idProvider);
 		return 'Inserción exitosa';
 	end if;
 end;
 $BODY$;
 
 CREATE OR REPLACE FUNCTION sp_create_reactive(
-	p_name character varying,
-    p_quantity integer,
-    p_idExam integer)
+	p_name character varying)
     RETURNS varchar
     LANGUAGE 'plpgsql'
     COST 100
@@ -355,8 +359,8 @@ begin
 	if (v_id is NOT NULL) then
 		return 'El reactivo ya fue ingresado anteriormente.';
 	else
-		Insert into reactive(name, quantity, idExam) 
-		VALUES (p_name, p_quantity, p_idExam);
+		Insert into reactive(name) 
+		VALUES (p_name);
 		return 'Inserción exitosa';
 	end if;
 end;
@@ -450,7 +454,7 @@ declare
 	v_id                                    integer;
 begin
 		Insert into users(ci, passport, firstName, lastName, genre, age, address) 
-		VALUES (p_ci, p_passport​, p_firstName, p_lastName, p_genre, p_age, p_address);
+		VALUES (p_ci, p_passport, p_firstName, p_lastName, p_genre, p_age, p_address);
 		return 'Inserción exitosa';
 end;
 $BODY$;
@@ -480,6 +484,10 @@ $BODY$;
 CREATE OR REPLACE FUNCTION sp_update_alliance(
 	p_id integer,
 	p_quantity integer,
+	p_cost_bs character varying, 
+	p_cost_usd character varying, 
+	p_pay_done boolean, 
+	p_pay_amount character varying,
 	p_idReactive integer,
 	p_idProvider integer)
     RETURNS json
@@ -489,6 +497,10 @@ CREATE OR REPLACE FUNCTION sp_update_alliance(
 AS $BODY$
 declare
 	v_quantity                              integer;
+	v_cost_bs                            character varying;
+	v_cost_usd                           character varying; 
+	v_pay_done                           boolean;
+	v_pay_amount                         character varying;
 	v_idReactive                             integer;
 	v_idProvider                             integer;
 	v_createdDate                       TIMESTAMP;
@@ -496,9 +508,13 @@ declare
 	v_id                                    integer;
 begin
 	update alliance
-	set quantity = p_quantity, idReactive = p_idReactive, idProvider = p_idProvider, modifiedDate = now()
+	set quantity = p_quantity, cost_bs = p_cost_bs, cost_usd = p_cost_usd, pay_done = p_pay_done, pay_amount = p_pay_amount, idReactive = p_idReactive, idProvider = p_idProvider, modifiedDate = now()
 	where idalliance = p_id;
 	select u.quantity into v_quantity from alliance u where idalliance = p_id;
+	select u.cost_bs into v_cost_bs from alliance u where idalliance = p_id;
+	select u.cost_usd into v_cost_usd from alliance u where idalliance = p_id;
+	select u.pay_done into v_pay_done from alliance u where idalliance = p_id;
+	select u.pay_amount into v_pay_amount from alliance u where idalliance = p_id;
 	select u.idReactive into v_idReactive from alliance u where idalliance = p_id;
 	select u.idProvider into v_idProvider from alliance u where idalliance = p_id;
 	select u.createdDate into v_createdDate from alliance u where idalliance = p_id;
@@ -506,6 +522,10 @@ begin
 	return json_build_object(
 		'idAlliance', p_id,
 		'quantity', v_quantity,
+		'cost_bs', v_cost_bs,
+		'cost_usd', v_cost_usd,
+		'pay_done', v_pay_done,
+		'pay_amount', v_pay_amount,
 		'idReactive', v_idReactive,
 		'idProvider', v_idProvider,
 		'createdDate', v_createdDate,
@@ -516,9 +536,7 @@ $BODY$;
 
 CREATE OR REPLACE FUNCTION sp_update_reactive(
 	p_id integer,
-	p_name character varying,
-	p_quantity integer,
-	p_idExam integer)
+	p_name character varying)
     RETURNS json
     LANGUAGE 'plpgsql'
     COST 100
@@ -526,25 +544,19 @@ CREATE OR REPLACE FUNCTION sp_update_reactive(
 AS $BODY$
 declare
 	v_name                              character varying;
-	v_quantity                             integer;
-	v_idExam                             integer;
 	v_createdDate                       TIMESTAMP;
 	v_modifiedDate                      TIMESTAMP;
 	v_id                                    integer;
 begin
 	update reactive
-	set name = p_name, quantity = p_quantity, idExam = p_idExam, modifiedDate = now()
+	set name = p_name, modifiedDate = now()
 	where idreactive = p_id;
 	select u.name into v_name from reactive u where idreactive = p_id;
-	select u.quantity into v_quantity from reactive u where idreactive = p_id;
-	select u.idExam into v_idExam from reactive u where idreactive = p_id;
 	select u.createdDate into v_createdDate from reactive u where idreactive = p_id;
 	select u.modifiedDate into v_modifiedDate from reactive u where idreactive = p_id;
 	return json_build_object(
 		'idReactive', p_id,
 		'name', v_name,
-		'quantity', v_quantity,
-		'idExam', v_idExam,
 		'createdDate', v_createdDate,
 		'modifiedDate', v_modifiedDate
 	);
@@ -854,8 +866,6 @@ begin
         select jsonb_build_object(
 			'idReactive', a.idReactive,
 			'name', a.name,
-			'quantity', a.quantity,
-			'idExam', a.idExam,
 			'createdDate', a.createdDate,
             'modifiedDate', a.modifiedDate
 		)

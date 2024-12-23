@@ -1,4 +1,4 @@
-CREATE OR REPLACE FUNCTION public.sp_find_all_reactive_by_providers(
+CREATE OR REPLACE FUNCTION sp_find_all_reactive_by_providers(
 	)
     RETURNS json[]
     LANGUAGE 'plpgsql'
@@ -12,12 +12,14 @@ begin
         select jsonb_build_object(
 			'idReactive', a.idReactive,
 			'name', a.name,
-			'quantity', a.quantity,
-			'idExam', a.idExam,
 			'createdDate', a.createdDate,
             'modifiedDate', a.modifiedDate,
 			'providerName', d.name,
 			'providerQuantity', l.quantity,
+			'cost_bs', l.cost_bs,
+			'cost_usd', l.cost_usd,
+			'pay_done', l.pay_done,
+			'pay_amount', l.pay_amount,
 			'idProvider', d.idProvider,
 			'idAlliance', l.idAlliance
 		)

@@ -21,23 +21,6 @@
               placeholder="Ingrese el nombre del reactivo"  
             />  
           </div>  
-          <div class="form-group">  
-            <label class="form-label">Cantidad</label>  
-            <input  
-              v-model.number="form.quantity"  
-              type="number"  
-              required  
-              class="form-control custom-input"  
-              placeholder="Ingrese la cantidad"  
-            />  
-          </div>
-          <div class="form-group">   
-            <label for="examSelect" class="form-label">Perfil (Examen)</label>  
-            <select v-model="form.idExam" required class="form-select custom-input"> 
-              <option value="" disabled>Selecciona un examen</option>  
-              <option v-for="exam in exams" :key="exam.idExam" :value="exam.idExam">{{ exam.name }}</option>  
-            </select>  
-          </div>  
           <ion-footer>  
             <ion-button expand="full" type="submit">Guardar Cambios</ion-button>  
           </ion-footer>  
@@ -63,8 +46,6 @@ const reactive = ref();
 const form = ref({ 
 idreactive: 0,
 name: '',  
-quantity: 0,
-idExam: 0 
 }); 
 
 watch(() => props.reactive, (newUser) => {  
@@ -72,8 +53,6 @@ watch(() => props.reactive, (newUser) => {
         reactive.value = newUser
         form.value.idreactive = newUser.idReactive
         form.value.name = newUser.name
-        form.value.quantity = newUser.quantity
-        form.value.idExam = newUser.idExam
     }
 });   
 
