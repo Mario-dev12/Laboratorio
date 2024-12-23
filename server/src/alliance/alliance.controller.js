@@ -14,7 +14,7 @@ allianceController.readAlliances = async (req, res) => {
 
 allianceController.createAlliance = async (req, res) => {
   try {
-    const answer = await allianceServices.createAlliance(req.body.quantity, req.body.idReactive, req.body.idProvider)
+    const answer = await allianceServices.createAlliance(req.body.quantity, req.body.cost_bs, req.body.cost_usd, req.body.pay_done, req.body.pay_amount, req.body.idReactive, req.body.idProvider)
     res.send(answer)
   } catch (error) {
     return res.status(400).send(error.stack)

@@ -24,10 +24,24 @@ export interface Exam {
 export interface Reactive {
 	idreactive: number;
 	name: string;
-	quantity: number;
-	idexam: number;
 	createddate: any;
 	modifieddate: any;
+	totalQuantity: number;
+}
+
+export interface ReactiveProvider {
+	idreactive: number;
+	name: string;
+	createddate: any;
+	modifieddate: any;
+	providerName: string;
+	providerQuantity: number;
+	cost_bs: string;
+	cost_usd: string;
+	pay_done: boolean;
+	pay_amount: string;
+	idProvider: number;
+	idAlliance: number;
 }
 
 export interface Unit {
@@ -48,6 +62,10 @@ export interface Provider {
 export interface Alliance {
 	idalliance: number;
 	quantity: number;
+	cost_bs: string;
+    cost_usd: string;
+    pay_done: boolean;
+    pay_amount: string;
 	idreactive: number;
 	idprovider: number;
 	createddate: any;
