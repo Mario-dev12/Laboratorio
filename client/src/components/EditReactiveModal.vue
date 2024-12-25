@@ -29,7 +29,8 @@
     </ion-modal>  
 </template>  
   
-<script setup lang="ts">  
+<script setup lang="ts"> 
+import { IonModal, IonButton, IonContent, IonFooter, IonHeader, IonToolbar, IonTitle, IonButtons } from '@ionic/vue'; 
 import { examStore } from '@/stores/examStore';
 import { ref, defineEmits, watch, onMounted } from 'vue';  
 const exams = ref();

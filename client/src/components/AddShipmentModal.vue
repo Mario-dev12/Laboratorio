@@ -102,6 +102,7 @@
   </template>  
   
 <script setup lang="ts">  
+import { IonModal, IonButton, IonContent, IonFooter, IonHeader, IonToolbar, IonTitle, IonButtons } from '@ionic/vue';
 import { ref, defineEmits, onMounted, watch } from 'vue';  
 import { reactiveStore } from '@/stores/reactiveStore';
 import { providerStore } from '@/stores/providerStore'; 

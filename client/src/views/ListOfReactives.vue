@@ -130,7 +130,8 @@
 </template>  
   
 <script setup lang="ts">  
-import { Alliance, Provider, Reactive, ReactiveProvider } from '@/interfaces/interfaces';
+import { IonModal, IonButton, IonContent } from '@ionic/vue';
+import { Alliance, Provider, Reactive } from '@/interfaces/interfaces';
 import { reactiveStore } from '@/stores/reactiveStore';  
 import { onMounted, ref } from 'vue';  
 import AddReactiveModal from '@/components/AddReactiveModal.vue';
@@ -167,7 +168,6 @@ onMounted(async () => {
     reactives.value = await reactivesStore.fetchReactiveByProvider();
     providers.value = await providersStore.fecthProviders();
     allReactives.value = await reactivesStore.fecthReactives();
-    console.log('allReactives.value', allReactives.value);
     exams.value = await examsStore.fecthExams();
     quantityReactives.value = await reactivesStore.fecthQuantityReactives();
 });  

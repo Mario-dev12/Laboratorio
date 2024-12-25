@@ -30,7 +30,7 @@
 </template>  
   
 <script setup lang="ts">  
-import { examStore } from '@/stores/examStore';
+import { IonModal, IonButton, IonContent, IonFooter, IonHeader, IonToolbar, IonTitle, IonButtons } from '@ionic/vue';
 import { ref, defineEmits, watch, onMounted } from 'vue';  
 
 const props = defineProps<{  
