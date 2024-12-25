@@ -5,6 +5,7 @@ import { Reactive, ReactiveProvider } from "@/interfaces/interfaces";
 export const reactiveStore = defineStore("reactive", {
 	state: () => ({
 		reactives: [] as Reactive[] | Reactive,
+		reactiveProvider: [] as ReactiveProvider[] | ReactiveProvider,
 	}),
 	actions: {
 		async fecthReactives() {
@@ -30,8 +31,8 @@ export const reactiveStore = defineStore("reactive", {
 		},
 		async fetchReactiveByProvider() {
 			const response = await axiosRepository.getByReactiveAndProvider<ReactiveProvider>("reactive");
-			this.reactives = response;
-			return this.reactives;
+			this.reactiveProvider = response;
+			return this.reactiveProvider;
 		},
 		async createReactive(reactive: Reactive) {
 			const response = await axiosRepository.create<Reactive>("reactive", reactive);

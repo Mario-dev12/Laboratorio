@@ -15,19 +15,15 @@ const routes: Array<RouteRecordRaw> = [
 				path: "crearOrden",
 				component: HomePage,
 			},
+			{
+				path: "HomeView",
+				component: HomeView,
+			},
+			{
+				path: "reactivos",
+				component: ListOfReactives,
+			},
 		],
-		name: "HomeView",
-		component: HomeView,
-	},
-	{
-		path: "/crearOrden",
-		name: "Home",
-		component: HomePage,
-	},
-	{
-		path: "/reactivos",
-		name: "ListOfReactives",
-		component: ListOfReactives,
 	},
 ];
 

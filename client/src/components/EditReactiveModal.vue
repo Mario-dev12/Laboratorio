@@ -1,84 +1,85 @@
-<template>  
-    <ion-modal :is-open="isOpen" @ionModalDidClose="closeModal">  
-      <ion-header>  
-        <ion-toolbar>  
-          <ion-title>Editar Reactivo</ion-title>  
-          <ion-buttons slot="end">  
-            <ion-button @click="closeModal">Cerrar</ion-button>  
-          </ion-buttons>  
-        </ion-toolbar>  
-      </ion-header>  
+<template>
+	<ion-modal :is-open="isOpen" @ionModalDidClose="closeModal">
+		<ion-header>
+			<ion-toolbar>
+				<ion-title>Editar Reactivo</ion-title>
+				<ion-buttons slot="end">
+					<ion-button @click="closeModal">Cerrar</ion-button>
+				</ion-buttons>
+			</ion-toolbar>
+		</ion-header>
 
-      <ion-content>  
-        <form @submit.prevent="submit">  
-          <div class="form-group">  
-            <label class="form-label">Nombre del Reactivo</label>  
-            <input  
-              v-model="form.name"  
-              type="text"  
-              required  
-              class="form-control custom-input"  
-              placeholder="Ingrese el nombre del reactivo"  
-            />  
-          </div>  
-          <ion-footer>  
-            <ion-button expand="full" type="submit">Guardar Cambios</ion-button>  
-          </ion-footer>  
-        </form>  
-      </ion-content> 
-    </ion-modal>  
-</template>  
-  
-<script setup lang="ts">  
-import { examStore } from '@/stores/examStore';
-import { ref, defineEmits, watch, onMounted } from 'vue';  
-const exams = ref();
-const examsStore = examStore()
+		<ion-content>
+			<form @submit.prevent="submit">
+				<div class="form-group">
+					<label class="form-label">Nombre del Reactivo</label>
+					<input
+						v-model="form.name"
+						type="text"
+						required
+						class="form-control custom-input"
+						placeholder="Ingrese el nombre del reactivo" />
+				</div>
+				<ion-footer>
+					<ion-button expand="full" type="submit">Guardar Cambios</ion-button>
+				</ion-footer>
+			</form>
+		</ion-content>
+	</ion-modal>
+</template>
 
-const props = defineProps<{  
-    isOpen: boolean;  
-    reactive: any;
-}>();   
+<script setup lang="ts">
+	import { examStore } from "@/stores/examStore";
+	import { ref, defineEmits, watch, onMounted } from "vue";
+	import { IonContent, IonHeader, IonButton, IonButtons, IonTitle, IonFooter, IonToolbar, IonModal } from "@ionic/vue";
+	const exams = ref();
+	const examsStore = examStore();
 
-const emit = defineEmits(['close', 'update']);  
+	const props = defineProps<{
+		isOpen: boolean;
+		reactive: any;
+	}>();
 
-const reactive = ref();  
-const form = ref({ 
-idreactive: 0,
-name: '',  
-}); 
+	const emit = defineEmits(["close", "update"]);
 
-watch(() => props.reactive, (newUser) => {  
-    if (newUser){
-        reactive.value = newUser
-        form.value.idreactive = newUser.idReactive
-        form.value.name = newUser.name
-    }
-});   
+	const reactive = ref();
+	const form = ref({
+		idreactive: 0,
+		name: "",
+	});
 
-onMounted(async () => {  
-    exams.value = await examsStore.fecthExams();  
-})
+	watch(
+		() => props.reactive,
+		(newUser) => {
+			if (newUser) {
+				reactive.value = newUser;
+				form.value.idreactive = newUser.idReactive;
+				form.value.name = newUser.name;
+			}
+		}
+	);
 
+	onMounted(async () => {
+		exams.value = await examsStore.fecthExams();
+	});
 
-const closeModal = () => {  
-    emit('close');  
-};  
+	const closeModal = () => {
+		emit("close");
+	};
 
-const submit = () => {  
+	const submit = () => {
+		emit("update", { ...form.value });
+		closeModal();
+	};
+</script>
 
-    emit('update', { ...form.value });
-    closeModal();  
-};  
-</script>  
-  
-<style scoped>  
-.custom-input {  
-    background-color: #1e1e1e;  
-    border: 1px solid #444;  
-    border-radius: 8px;  
-    padding: 10px;  
-    font-size: 16px;  
-    color: #fff;  
-}  
+<style scoped>
+	.custom-input {
+		background-color: #1e1e1e;
+		border: 1px solid #444;
+		border-radius: 8px;
+		padding: 10px;
+		font-size: 16px;
+		color: #fff;
+	}
 </style>

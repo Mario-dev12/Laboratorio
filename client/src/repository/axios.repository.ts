@@ -31,6 +31,7 @@ class AxiosRepository {
 
 	async getByReactiveAndProvider<T>(domain: string): Promise<T> {
 		const response = await axios.get<T>(`${import.meta.env.VITE_API_URL}/${domain}/provider`);
+		console.log("response", response.data);
 		return response.data;
 	}
 

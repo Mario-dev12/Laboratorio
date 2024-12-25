@@ -5,8 +5,7 @@
 </template>
 
 <script setup lang="ts">
-	import { IonApp, IonRouterOutlet, IonPage, IonContent, IonHeader } from "@ionic/vue";
-	import NavBar from "./components/NavBar.vue";
+	import { IonApp, IonRouterOutlet } from "@ionic/vue";
 </script>
 
 <style scoped></style>
