@@ -24,8 +24,18 @@ class AxiosRepository {
 		return response.data;
 	}
 
-	async getByReactiveName<T>(domain: string, name: string): Promise<T> {
+	async getByUnitName<T>(domain: string, name: string): Promise<T> {
 		const response = await axios.get<T>(`${import.meta.env.VITE_API_URL}/${domain}/name?name=${name}`);
+		return response.data;
+	}
+
+	async getByReactiveAndProvider<T>(domain: string): Promise<T> {
+		const response = await axios.get<T>(`${import.meta.env.VITE_API_URL}/${domain}/provider`);
+		return response.data;
+	}
+
+	async getByTotalQuantity<T>(domain: string): Promise<T> {
+		const response = await axios.get<T>(`${import.meta.env.VITE_API_URL}/${domain}/quantity`);
 		return response.data;
 	}
 

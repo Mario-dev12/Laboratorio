@@ -19,6 +19,23 @@ reactiveRepository.readReactiveByName = async (name) => {
 		throw error;
 	}
 };
+reactiveRepository.readReactivesQuantity = async () => {
+	try {
+		const resp = await pool.query(`SELECT * FROM sp_find_all_quantity_reactive()`);
+		return resp.rows[0].sp_find_all_quantity_reactive;
+	} catch (error) {
+		throw error;
+	}
+};
+
+reactiveRepository.readReactiveByName = async (name) => {
+	try {
+		const resp = await pool.query(`SELECT * FROM sp_find_reactive_by_name('${name}')`);
+		return resp.rows[0].sp_find_reactive_by_name;
+	} catch (error) {
+		throw error;
+	}
+};
 
 reactiveRepository.readReactivesByProvider = async () => {
 	try {
@@ -43,6 +60,23 @@ reactiveRepository.updateReactive = async (id, answer) => {
 		const resp = await pool.query(
 			`SELECT * FROM sp_update_reactive(${id}, '${answer.name}', ${answer.quantity}, ${answer.idExam})`
 		);
+		return resp.rows[0].sp_update_reactive;
+	} catch (error) {
+		throw error;
+	}
+};
+reactiveRepository.createReactive = async (name) => {
+	try {
+		const resp = await pool.query(`SELECT * FROM sp_create_reactive('${name}')`);
+		return resp.rows[0].sp_create_reactive;
+	} catch (error) {
+		throw error;
+	}
+};
+
+reactiveRepository.updateReactive = async (id, answer) => {
+	try {
+		const resp = await pool.query(`SELECT * FROM sp_update_reactive(${id}, '${answer.name}')`);
 		return resp.rows[0].sp_update_reactive;
 	} catch (error) {
 		throw error;

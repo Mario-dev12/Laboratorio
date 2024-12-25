@@ -1,6 +1,6 @@
 import { defineStore } from "pinia";
 import { axiosRepository } from "@/repository/axios.repository";
-import { Reactive } from "@/interfaces/interfaces";
+import { Reactive, ReactiveProvider } from "@/interfaces/interfaces";
 
 export const reactiveStore = defineStore("reactive", {
 	state: () => ({
@@ -12,6 +12,11 @@ export const reactiveStore = defineStore("reactive", {
 			this.reactives = response;
 			return this.reactives;
 		},
+		async fecthQuantityReactives() {
+			const response = await axiosRepository.getByTotalQuantity<Reactive>("reactive");
+			this.reactives = response;
+			return this.reactives;
+		},
 		async fetchReactiveById(id: string | number) {
 			const response = await axiosRepository.getById<Reactive>("reactive", id);
 			this.reactives = response;
@@ -20,6 +25,11 @@ export const reactiveStore = defineStore("reactive", {
 		async fetchReactiveByName(name: string) {
 			console.log(name);
 			const response = await axiosRepository.getByName<Reactive>("reactive", name);
+			this.reactives = response;
+			return this.reactives;
+		},
+		async fetchReactiveByProvider() {
+			const response = await axiosRepository.getByReactiveAndProvider<ReactiveProvider>("reactive");
 			this.reactives = response;
 			return this.reactives;
 		},
