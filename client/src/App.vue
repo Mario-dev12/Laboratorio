@@ -1,13 +1,12 @@
 <template>
 	<ion-app>
-		<NavBar />
-		<ion-content>
-			<ion-router-outlet />
-		</ion-content>
+		<ion-router-outlet></ion-router-outlet>
 	</ion-app>
 </template>
 
 <script setup lang="ts">
-	import { IonApp, IonRouterOutlet, IonContent } from "@ionic/vue";
+	import { IonApp, IonRouterOutlet, IonPage, IonContent, IonHeader } from "@ionic/vue";
 	import NavBar from "./components/NavBar.vue";
 </script>
+
+<style scoped></style>

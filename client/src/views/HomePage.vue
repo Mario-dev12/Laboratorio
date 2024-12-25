@@ -76,7 +76,7 @@
 					</table>
 				</div>
 			</div>
-			<div class="factura container mt-2 bg-dark-subtle rounded p-2">
+			<div class="factura container mt-2 mb-4 bg-dark-subtle rounded p-2">
 				<div class="row">
 					<div class="col">Numero de orden</div>
 					<div class="col">1</div>

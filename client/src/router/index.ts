@@ -1,16 +1,19 @@
 import { createRouter, createWebHistory } from "@ionic/vue-router";
 import { RouteRecordRaw } from "vue-router";
 import HomePage from "../views/HomePage.vue";
+import NavBar from "@/components/NavBar.vue";
 
 const routes: Array<RouteRecordRaw> = [
 	{
 		path: "/",
-		redirect: "/home",
-	},
-	{
-		path: "/crearOrden",
-		name: "Home",
-		component: HomePage,
+		name: "Main",
+		component: NavBar,
+		children: [
+			{
+				path: "crearOrden",
+				component: HomePage,
+			},
+		],
 	},
 ];
 
