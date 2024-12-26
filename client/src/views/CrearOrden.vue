@@ -1,6 +1,6 @@
 <template>
 	<ion-page>
-		<ion-content :fullscreen="true">
+		<ion-content>
 			<div class="container mt-4 p-3 bg-body-secondary rounded">
 				<div class="w-100 m-auto row px-2">
 					<label class="col-12 p-0" for="documento">Documento de identidad</label>

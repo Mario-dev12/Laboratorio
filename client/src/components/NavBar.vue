@@ -1,73 +1,116 @@
 <template>
-	<ion-page>
-		<ion-tabs>
-			<ion-tab-bar class="bg-secondary" slot="top">
-				<ion-tab-button class="border-end border-black" tab="home" href="HomeView">
-					<ion-icon :icon="home" />
-					Home
-				</ion-tab-button>
-				<ion-tab-button class="border-end border-black" tab="reactivos" href="reactivos">
-					<ion-icon :icon="flask" />
-					Reactivos
-				</ion-tab-button>
-				<ion-tab-button class="" tab="crearOrden" href="crearOrden">
-					<ion-icon :icon="document" />
-					Crear Orden
-				</ion-tab-button>
-			</ion-tab-bar>
-			<ion-router-outlet></ion-router-outlet>
-		</ion-tabs>
-	</ion-page>
+	<div class="desktop">
+		<ion-header>
+			<ion-toolbar>
+				<ion-title slot="end"> Lab Madre Emilia </ion-title>
+				<ion-buttons>
+					<ion-button class="border-end border-secondary" @click="() => router.push({ name: 'Home' })">
+						<ion-icon slot="start" :icon="home"></ion-icon>
+						Home
+					</ion-button>
+					<ion-button class="border-end border-secondary" @click="() => router.push({ name: 'Reactivos' })">
+						<ion-icon slot="start" :icon="flask"></ion-icon>
+						Reactivos
+					</ion-button>
+					<ion-button @click="() => router.push({ name: 'CrearOrden' })">
+						<ion-icon slot="start" :icon="document"></ion-icon>
+						Crear Orden
+					</ion-button>
+				</ion-buttons>
+			</ion-toolbar>
+		</ion-header>
+	</div>
+	<div class="mobile">
+		<ion-menu content-id="main-content">
+			<ion-header>
+				<ion-toolbar>
+					<ion-title>Lab Madre Emilia</ion-title>
+				</ion-toolbar>
+			</ion-header>
+			<ion-content class="ion-padding">
+				<ion-row class="row">
+					<ion-button fill="clear" @click="() => router.push({ name: 'Home' })">
+						<ion-icon slot="start" :icon="home"></ion-icon>
+						Home
+					</ion-button>
+					<ion-button fill="clear" class="" @click="() => router.push({ name: 'Reactivos' })">
+						<ion-icon slot="start" :icon="flask"></ion-icon>
+						Reactivos
+					</ion-button>
+					<ion-button fill="clear" @click="() => router.push({ name: 'CrearOrden' })">
+						<ion-icon slot="start" :icon="document"></ion-icon>
+						Crear Orden
+					</ion-button>
+					<ion-menu-toggle class="mt-2">
+						<ion-button expand="block" color="danger">
+							<ion-icon slot="start" :icon="closeOutline"></ion-icon>
+							Cerrar Menu
+						</ion-button>
+					</ion-menu-toggle>
+				</ion-row>
+			</ion-content>
+		</ion-menu>
+		<div id="main-content">
+			<ion-header>
+				<ion-toolbar color="primary">
+					<ion-buttons slot="start">
+						<ion-menu-button></ion-menu-button>
+					</ion-buttons>
+					<ion-title>Lab Madre Emilia</ion-title>
+				</ion-toolbar>
+			</ion-header>
+		</div>
+	</div>
 </template>
 
 <script setup lang="ts">
-	import { IonTabBar, IonTabButton, IonTabs, IonIcon, IonPage, IonRouterOutlet, IonTab, IonContent } from "@ionic/vue";
-	import { flask, home, document } from "ionicons/icons";
+	import {
+		IonHeader,
+		IonToolbar,
+		IonTitle,
+		IonButtons,
+		IonButton,
+		IonIcon,
+		IonContent,
+		IonMenu,
+		IonMenuButton,
+		IonMenuToggle,
+		IonRow,
+	} from "@ionic/vue";
+	import { flask, home, document, closeOutline } from "ionicons/icons";
+	import { useRouter } from "vue-router";
+
+	const router = useRouter();
 </script>
 
 <style scoped>
-	@media (max-width: 991px) {
-		.navbar {
-			padding: 2px !important;
-		}
-		#navbarSupportedContent {
-			border-top-right-radius: 50px;
-			border-bottom-right-radius: 50px;
-			margin-right: auto;
-			background-color: rgb(201, 201, 201);
-			position: absolute;
-			top: 100%;
-			bottom: -916px;
-			left: 0;
-			right: 40%;
-			padding: 8px;
+	@media (width < 991px) {
+		.desktop {
+			display: none;
 		}
 
-		.navbar-toggler {
-			display: block !important;
+		.mobile {
+			display: block;
+		}
+	}
+
+	@media (width > 991px) {
+		.desktop {
+			display: block;
 		}
 
-		.nav-item {
-			display: flex;
-			align-items: center;
-			border-right: none !important;
+		.mobile {
+			display: none;
 		}
+	}
 
-		.nav-img {
-			margin-right: 10px;
-		}
+	ion-button {
+		--color: black;
+	}
 
-		.navbar-nav a:not(:last-child) {
-			border-bottom: 1px solid white !important;
-		}
-
-		.navbar-nav a {
-			padding: 10px !important;
-		}
-
-		.navbar-toggler:focus {
-			box-shadow: 1px 1px gray !important;
-		}
+	ion-menu-button {
+		--background-hover: rgb(106, 106, 106) !important;
+		--background-hover-opacity: 0.5;
 	}
 </style>
 
