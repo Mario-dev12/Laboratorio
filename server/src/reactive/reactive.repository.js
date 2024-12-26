@@ -44,7 +44,6 @@ reactiveRepository.readReactivesByProvider = async () => {
 
 reactiveRepository.createReactive = async (name, total) => {
   try {
-    console.log('ssssssss', name, total)
     const resp = await pool.query(`SELECT * FROM sp_create_reactive('${name}', ${total})`);
     return resp.rows[0].sp_create_reactive;
   } catch (error) {
