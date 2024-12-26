@@ -352,7 +352,7 @@ $BODY$;
 CREATE OR REPLACE FUNCTION sp_create_reactive(
 	p_name character varying,
 	p_total integer)
-    RETURNS varchar
+    RETURNS character varying
     LANGUAGE 'plpgsql'
     COST 100
     VOLATILE PARALLEL UNSAFE
@@ -361,8 +361,7 @@ declare
 	v_id                                    integer;
 begin
 	select idreactive into v_id FROM reactive 
-	WHERE name = p_name
-	AND idexam = p_idExam;
+	WHERE name = p_name;
 	if (v_id is NOT NULL) then
 		return 'El reactivo ya fue ingresado anteriormente.';
 	else
