@@ -1,5 +1,5 @@
 <template>  
-    <ion-modal :is-open="isOpen" @ionModalDidClose="closeModal">  
+    <ion-modal :is-open="isOpen" @did-dismiss="closeModal">  
       <ion-header>  
         <ion-toolbar>  
           <ion-title>Editar Alianza</ion-title>  
@@ -75,7 +75,8 @@
     </ion-modal>  
 </template>  
   
-<script setup lang="ts">  
+<script setup lang="ts"> 
+import { IonModal, IonButton, IonContent, IonFooter, IonHeader, IonToolbar, IonTitle, IonButtons } from '@ionic/vue'; 
 import { providerStore } from '@/stores/providerStore';
 import { reactiveStore } from '@/stores/reactiveStore';
 import { ref, defineEmits, watch, onMounted } from 'vue';  

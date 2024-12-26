@@ -61,6 +61,7 @@ CREATE TABLE IF NOT EXISTS reactive
 (
     idReactive serial primary key,
     name character varying(255) not null,
+    total integer not null default 0,
     createdDate timestamp with time zone NOT NULL default now(),
     modifiedDate timestamp with time zone NOT NULL default now()
 );

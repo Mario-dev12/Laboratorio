@@ -45,7 +45,7 @@ reactiveController.readReactivesByProvider = async (req, res) => {
 
 reactiveController.createReactive = async (req, res) => {
   try {
-    const answer = await reactiveServices.createReactive(req.body.name)
+    const answer = await reactiveServices.createReactive(req.body.name, req.body.total)
     res.send(answer)
   } catch (error) {
     return res.status(400).send(error.stack)

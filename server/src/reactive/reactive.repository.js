@@ -42,9 +42,9 @@ reactiveRepository.readReactivesByProvider = async () => {
   }
 }
 
-reactiveRepository.createReactive = async (name) => {
+reactiveRepository.createReactive = async (name, total) => {
   try {
-    const resp = await pool.query(`SELECT * FROM sp_create_reactive('${name}')`);
+    const resp = await pool.query(`SELECT * FROM sp_create_reactive('${name}', ${total})`);
     return resp.rows[0].sp_create_reactive;
   } catch (error) {
     throw error;
@@ -54,7 +54,7 @@ reactiveRepository.createReactive = async (name) => {
 reactiveRepository.updateReactive = async (id, answer) => {
   try {
     
-    const resp = await pool.query(`SELECT * FROM sp_update_reactive(${id}, '${answer.name}')`);
+    const resp = await pool.query(`SELECT * FROM sp_update_reactive(${id}, '${answer.name}', ${answer.total})`);
     return resp.rows[0].sp_update_reactive;
   } catch (error) {
     throw error;

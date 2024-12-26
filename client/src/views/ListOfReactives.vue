@@ -16,6 +16,9 @@
                 <th>Nombre del Reactivo</th>  
                 <th>Proveedor</th>  
                 <th>Cantidad</th>  
+                <th>Fecha Envío</th> 
+                <th>Costo Bs</th>
+                <th>Costo $</th>
                 <th>Acciones</th>  
               </tr>  
             </thead>  
@@ -23,7 +26,10 @@
               <tr v-for="reactive in reactives" :key="reactive.idreactive">  
                 <td>{{ reactive.name }}</td>  
                 <td>{{ reactive.providerName }}</td>  
-                <td>{{ reactive.providerQuantity }}</td>  
+                <td>{{ reactive.providerQuantity }}</td>
+                <td>{{ formatearFecha(reactive.createdDate) }}</td> 
+                <td>{{ reactive.cost_bs }} bs</td> 
+                <td>{{ reactive.cost_usd }} $</td>   
                 <td>  
                   <i class="fas fa-edit" @click="editAlliance(reactive)" style="cursor: pointer; margin-right: 10px;"></i>  
                   <i class="fas fa-trash" @click="deleteAlliance(reactive.idAlliance)" style="cursor: pointer;"></i>  
@@ -48,7 +54,7 @@
                 <tbody>  
                   <tr v-for="reactive in allReactives" :key="reactive.idreactive">  
                     <td>{{ reactive.name }}</td>  
-                    <td>{{ reactive.totalQuantity }}</td>    
+                    <td>{{ reactive.total }}</td>    
                     <td>  
                       <i class="fas fa-edit" @click="editReactive(reactive)" style="cursor: pointer; margin-right: 10px;"></i>  
                       <i class="fas fa-trash" @click="deleteReactive(reactive.idReactive)" style="cursor: pointer;"></i>  
@@ -93,7 +99,7 @@
           <AddProviderModal   
             :is-open="isProvidersModalOpen" 
             :provider="providers"  
-            @close="isProvidersModalOpen = false"   
+            @close="closeProvidersModal"   
             @add="addProviderToList"   
           />  
 
@@ -130,7 +136,8 @@
 </template>  
   
 <script setup lang="ts">  
-import { Alliance, Provider, Reactive, ReactiveProvider } from '@/interfaces/interfaces';
+import { IonModal, IonButton, IonContent } from '@ionic/vue';
+import { Alliance, Provider, Reactive } from '@/interfaces/interfaces';
 import { reactiveStore } from '@/stores/reactiveStore';  
 import { onMounted, ref } from 'vue';  
 import AddReactiveModal from '@/components/AddReactiveModal.vue';
@@ -146,7 +153,6 @@ import { examStore } from '@/stores/examStore';
 const reactives = ref();  
 const providers = ref();
 const allReactives = ref();
-const quantityReactives = ref();
 const exams = ref();
 const reactivesStore = reactiveStore();
 const providersStore = providerStore();
@@ -167,9 +173,7 @@ onMounted(async () => {
     reactives.value = await reactivesStore.fetchReactiveByProvider();
     providers.value = await providersStore.fecthProviders();
     allReactives.value = await reactivesStore.fecthReactives();
-    console.log('allReactives.value', allReactives.value);
     exams.value = await examsStore.fecthExams();
-    quantityReactives.value = await reactivesStore.fecthQuantityReactives();
 });  
 
 const editReactive = (reactive: any) => {  
@@ -264,9 +268,23 @@ const showProvidersModal = async () => {
   isProvidersModalOpen.value = true;  
 }; 
 
+const closeProvidersModal = () => {  
+  isProvidersModalOpen.value = false; 
+};  
+
 const showAllianceModal = async () => {
   isAllianceModalOpen.value = true;  
 }; 
+
+function formatearFecha(fecha: string | number | Date) {   
+  const fechaObjeto = new Date(fecha);  
+  
+  const dia = String(fechaObjeto.getDate()).padStart(2, '0');  
+  const mes = String(fechaObjeto.getMonth() + 1).padStart(2, '0'); 
+  const año = fechaObjeto.getFullYear();
+  
+  return `${dia}-${mes}-${año}`;  
+} 
 
 </script>  
   

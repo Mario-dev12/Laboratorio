@@ -1,5 +1,5 @@
 <template>  
-    <ion-modal :is-open="isOpen" @ionModalDidClose="closeModal">  
+    <ion-modal :is-open="isOpen" @did-dismiss="closeModal">  
       <ion-header>  
         <ion-toolbar>  
           <ion-title>Editar Proveedor</ion-title>  
@@ -30,7 +30,7 @@
 </template>  
   
 <script setup lang="ts">  
-import { examStore } from '@/stores/examStore';
+import { IonModal, IonButton, IonContent, IonFooter, IonHeader, IonToolbar, IonTitle, IonButtons } from '@ionic/vue';
 import { ref, defineEmits, watch, onMounted } from 'vue';  
 
 const props = defineProps<{  

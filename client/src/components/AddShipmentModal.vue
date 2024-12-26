@@ -1,5 +1,5 @@
 <template>  
-    <ion-modal :is-open="isOpen" @ionModalDidClose="closeModal">  
+    <ion-modal :is-open="isOpen" @did-dismiss="closeModal">  
       <ion-header>  
         <ion-toolbar>  
           <ion-title>Añadir Envío</ion-title>  
@@ -102,6 +102,7 @@
   </template>  
   
 <script setup lang="ts">  
+import { IonModal, IonButton, IonContent, IonFooter, IonHeader, IonToolbar, IonTitle, IonButtons } from '@ionic/vue';
 import { ref, defineEmits, onMounted, watch } from 'vue';  
 import { reactiveStore } from '@/stores/reactiveStore';
 import { providerStore } from '@/stores/providerStore'; 

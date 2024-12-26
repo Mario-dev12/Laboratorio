@@ -1,5 +1,5 @@
 <template>  
-    <ion-modal :is-open="isOpen" @ionModalDidClose="closeModal">  
+    <ion-modal :is-open="isOpen" @did-dismiss="closeModal">  
       <ion-header>  
         <ion-toolbar>  
           <ion-title>Añadir Proveedor</ion-title>  
@@ -30,7 +30,8 @@
   </template>  
   
 <script setup lang="ts">  
-import { ref, defineEmits, watch } from 'vue';  
+import { ref, defineEmits, watch } from 'vue';
+import { IonModal, IonButton, IonContent, IonFooter, IonHeader, IonToolbar, IonTitle, IonButtons } from '@ionic/vue';  
 
 const props = defineProps<{  
     isOpen: boolean;  
