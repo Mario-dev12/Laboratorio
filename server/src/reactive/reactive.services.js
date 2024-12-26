@@ -10,8 +10,8 @@ reactiveServices.readReactivesQuantity = async () => {
     return await reactiveRepository.readReactivesQuantity()
 }
   
-reactiveServices.readReactiveByName = async name => {
-    return await reactiveRepository.readReactiveByName(name)
+reactiveServices.readReactiveByName = async (name, total) => {
+    return await reactiveRepository.readReactiveByName(name, total)
 }
 
 reactiveServices.readReactivesByProvider = async () => {

@@ -1,5 +1,5 @@
 <template>  
-    <ion-modal :is-open="isOpen" @ionModalDidClose="closeModal">  
+    <ion-modal :is-open="isOpen" @did-dismiss="closeModal">  
       <ion-header>  
         <ion-toolbar>  
           <ion-title>Añadir Reactivo</ion-title>  
@@ -19,7 +19,16 @@
                   required   
                   class="form-control custom-input"   
                   placeholder="Ingrese el nombre del reactivo" />  
-            </div>    
+            </div>   
+            <div class="form-group">  
+              <label for="reactiveName" class="form-label">Total del Reactivo</label>  
+              <input   
+                v-model.number="reactive.total"   
+                type="number"   
+                required   
+                class="form-control custom-input"   
+                placeholder="Ingrese el total del reactivo" />  
+            </div>   
           <ion-footer>  
             <ion-button expand="full" type="submit">Añadir Reactivo</ion-button>  
           </ion-footer>  
@@ -55,6 +64,7 @@ watch(() => props.exam, async (newUser) => {
 
 const reactive = ref({  
     name: '',  
+    total: 0,
 });  
 
 const closeModal = () => {  
@@ -63,7 +73,7 @@ const closeModal = () => {
 
 const submit = () => {  
     emit('add', { ...reactive.value }); 
-    reactive.value = { name: '' }; 
+    reactive.value = { name: '', total: 0 }; 
     closeModal();  
 };  
 </script>  

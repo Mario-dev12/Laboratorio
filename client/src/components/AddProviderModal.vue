@@ -1,5 +1,5 @@
 <template>  
-    <ion-modal :is-open="isOpen" @ionModalDidClose="closeModal">  
+    <ion-modal :is-open="isOpen" @did-dismiss="closeModal">  
       <ion-header>  
         <ion-toolbar>  
           <ion-title>Añadir Proveedor</ion-title>  

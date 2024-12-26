@@ -34,11 +34,6 @@ class AxiosRepository {
 		return response.data;
 	}
 
-	async getByTotalQuantity<T>(domain: string): Promise<T> {
-		const response = await axios.get<T>(`${import.meta.env.VITE_API_URL}/${domain}/quantity`);
-		return response.data;
-	}
-
 	async getByType<T>(domain: string, name: string): Promise<T> {
 		const response = await axios.get<T>(`${import.meta.env.VITE_API_URL}/${domain}/type/${name}`);
 		return response.data;
