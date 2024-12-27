@@ -122,6 +122,7 @@ begin
         select jsonb_build_object(
 			'idReactive', a.idReactive,
 			'name', a.name,
+			'total', a.total,
 			'createdDate', a.createdDate,
             'modifiedDate', a.modifiedDate
 		)
@@ -329,6 +330,7 @@ CREATE OR REPLACE FUNCTION sp_create_alliance(
 AS $BODY$
 declare
 	v_id                                    integer;
+	v_total                                    integer;
 begin
 	select idalliance into v_id FROM alliance 
 	WHERE idprovider = p_idProvider
@@ -336,6 +338,10 @@ begin
 	if (v_id is NOT NULL) then
 		return 'La alianza ya fue ingresado anteriormente.';
 	else
+		select u.total into v_total from reactive u where idreactive = p_idReactive;
+		update reactive
+		set total = v_total + p_quantity, modifiedDate = now()
+		where idreactive = p_idReactive;
 		Insert into alliance(quantity, cost_bs, cost_usd, pay_done, pay_amount, idReactive, idProvider) 
 		VALUES (p_quantity, p_cost_bs, p_cost_usd, p_pay_done, p_pay_amount, p_idReactive, p_idProvider);
 		return 'Inserción exitosa';
@@ -344,8 +350,9 @@ end;
 $BODY$;
 
 CREATE OR REPLACE FUNCTION sp_create_reactive(
-	p_name character varying)
-    RETURNS varchar
+	p_name character varying,
+	p_total integer)
+    RETURNS character varying
     LANGUAGE 'plpgsql'
     COST 100
     VOLATILE PARALLEL UNSAFE
@@ -354,13 +361,12 @@ declare
 	v_id                                    integer;
 begin
 	select idreactive into v_id FROM reactive 
-	WHERE name = p_name
-	AND idexam = p_idExam;
+	WHERE name = p_name;
 	if (v_id is NOT NULL) then
 		return 'El reactivo ya fue ingresado anteriormente.';
 	else
-		Insert into reactive(name) 
-		VALUES (p_name);
+		Insert into reactive(name, total) 
+		VALUES (p_name, p_total);
 		return 'Inserción exitosa';
 	end if;
 end;
@@ -506,7 +512,12 @@ declare
 	v_createdDate                       TIMESTAMP;
 	v_modifiedDate                      TIMESTAMP;
 	v_id                                    integer;
+	v_total                                    integer;
 begin
+	select u.total into v_total from reactive u where idreactive = p_idReactive;
+	update reactive
+	set total = v_total + p_quantity, modifiedDate = now()
+	where idreactive = p_idReactive;
 	update alliance
 	set quantity = p_quantity, cost_bs = p_cost_bs, cost_usd = p_cost_usd, pay_done = p_pay_done, pay_amount = p_pay_amount, idReactive = p_idReactive, idProvider = p_idProvider, modifiedDate = now()
 	where idalliance = p_id;
@@ -536,7 +547,8 @@ $BODY$;
 
 CREATE OR REPLACE FUNCTION sp_update_reactive(
 	p_id integer,
-	p_name character varying)
+	p_name character varying,
+	p_total integer)
     RETURNS json
     LANGUAGE 'plpgsql'
     COST 100
@@ -544,19 +556,22 @@ CREATE OR REPLACE FUNCTION sp_update_reactive(
 AS $BODY$
 declare
 	v_name                              character varying;
+	v_total                                    integer;
 	v_createdDate                       TIMESTAMP;
 	v_modifiedDate                      TIMESTAMP;
 	v_id                                    integer;
 begin
 	update reactive
-	set name = p_name, modifiedDate = now()
+	set name = p_name, total = p_total, modifiedDate = now()
 	where idreactive = p_id;
 	select u.name into v_name from reactive u where idreactive = p_id;
+	select u.total into v_total from reactive u where idreactive = p_id;
 	select u.createdDate into v_createdDate from reactive u where idreactive = p_id;
 	select u.modifiedDate into v_modifiedDate from reactive u where idreactive = p_id;
 	return json_build_object(
 		'idReactive', p_id,
 		'name', v_name,
+		'total', v_total,
 		'createdDate', v_createdDate,
 		'modifiedDate', v_modifiedDate
 	);
@@ -866,6 +881,7 @@ begin
         select jsonb_build_object(
 			'idReactive', a.idReactive,
 			'name', a.name,
+			'total', a.total,
 			'createdDate', a.createdDate,
             'modifiedDate', a.modifiedDate
 		)

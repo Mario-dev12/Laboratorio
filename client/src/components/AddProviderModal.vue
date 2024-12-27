@@ -1,5 +1,5 @@
 <template>
-	<ion-modal :is-open="isOpen" @ionModalDidClose="closeModal">
+	<ion-modal :is-open="isOpen" @did-dismiss="closeModal">
 		<ion-header>
 			<ion-toolbar>
 				<ion-title>Añadir Proveedor</ion-title>
@@ -29,37 +29,60 @@
 </template>
 
 <script setup lang="ts">
-	import { ref, defineEmits, watch } from "vue";
-	import { IonContent, IonHeader, IonButton, IonButtons, IonTitle, IonFooter, IonToolbar, IonModal } from "@ionic/vue";
+	import { ref, defineEmits, watch } from 'vue';
+	import { IonModal, IonButton, IonContent, IonFooter, IonHeader, IonToolbar, IonTitle, IonButtons } from '@ionic/vue';
 
-	const props = defineProps<{
-		isOpen: boolean;
-		provider: any;
-	}>();
-	const emit = defineEmits(["close", "add"]);
+			<ion-content>
+				<form @submit.prevent="submit">
+					<div class="form-group">
+						<label for="providerName" class="form-label">Nombre del Proveedor</label>
+						<input
+							v-model="provider.name"
+							type="text"
+							required
+							class="form-control custom-input"
+							placeholder="Ingrese el nombre del proveedor" />
+					</div>
+					<ion-footer>
+						<ion-button expand="full" type="submit">Añadir Proveedor</ion-button>
+					</ion-footer>
+				</form>
+			</ion-content>
+		</ion-modal>
+	</template>
 
-	watch(
-		() => props.provider,
-		async (newUser) => {
-			if (newUser) {
-				provider.value = newUser;
+	<script setup lang="ts">
+		import { ref, defineEmits, watch } from "vue";
+		import { IonContent, IonHeader, IonButton, IonButtons, IonTitle, IonFooter, IonToolbar, IonModal } from "@ionic/vue";
+
+		const props = defineProps<{
+			isOpen: boolean;
+			provider: any;
+		}>();
+		const emit = defineEmits(["close", "add"]);
+
+		watch(
+			() => props.provider,
+			async (newUser) => {
+				if (newUser) {
+					provider.value = newUser;
+				}
 			}
-		}
-	);
+		);
 
-	const provider = ref({
-		name: "",
-	});
+		const provider = ref({
+			name: "",
+		});
 
-	const closeModal = () => {
-		emit("close");
-	};
+		const closeModal = () => {
+			emit("close");
+		};
 
-	const submit = () => {
-		emit("add", { ...provider.value });
-		provider.value = { name: "" };
-		closeModal();
-	};
+		const submit = () => {
+			emit("add", { ...provider.value });
+			provider.value = { name: "" };
+			closeModal();
+		};
 </script>
 
 <style scoped>

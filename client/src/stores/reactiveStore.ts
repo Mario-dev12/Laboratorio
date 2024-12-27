@@ -13,11 +13,6 @@ export const reactiveStore = defineStore("reactive", {
 			this.reactives = response;
 			return this.reactives;
 		},
-		async fecthQuantityReactives() {
-			const response = await axiosRepository.getByTotalQuantity<Reactive>("reactive");
-			this.reactives = response;
-			return this.reactives;
-		},
 		async fetchReactiveById(id: string | number) {
 			const response = await axiosRepository.getById<Reactive>("reactive", id);
 			this.reactives = response;
@@ -30,9 +25,9 @@ export const reactiveStore = defineStore("reactive", {
 			return this.reactives;
 		},
 		async fetchReactiveByProvider() {
-			const response = await axiosRepository.getByReactiveAndProvider<ReactiveProvider>("reactive");
-			this.reactiveProvider = response;
-			return this.reactiveProvider;
+			const response = await axiosRepository.getByReactiveAndProvider<Reactive>("reactive");
+			this.reactives = response;
+			return this.reactives;
 		},
 		async createReactive(reactive: Reactive) {
 			const response = await axiosRepository.create<Reactive>("reactive", reactive);

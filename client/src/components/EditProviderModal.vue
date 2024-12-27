@@ -1,5 +1,5 @@
 <template>
-	<ion-modal :is-open="isOpen" @ionModalDidClose="closeModal">
+	<ion-modal :is-open="isOpen" @did-dismiss="closeModal">
 		<ion-header>
 			<ion-toolbar>
 				<ion-title>Editar Proveedor</ion-title>
@@ -29,42 +29,46 @@
 </template>
 
 <script setup lang="ts">
-	import { examStore } from "@/stores/examStore";
-	import { ref, defineEmits, watch, onMounted } from "vue";
-	import { IonContent, IonHeader, IonButton, IonButtons, IonTitle, IonFooter, IonToolbar, IonModal } from "@ionic/vue";
+	import { IonModal, IonButton, IonContent, IonFooter, IonHeader, IonToolbar, IonTitle, IonButtons } from '@ionic/vue';
+	import { ref, defineEmits, watch, onMounted } from 'vue';
 
-	const props = defineProps<{
-		isOpen: boolean;
-		provider: any;
-	}>();
+	<script setup lang="ts">
+		import { examStore } from "@/stores/examStore";
+		import { ref, defineEmits, watch, onMounted } from "vue";
+		import { IonContent, IonHeader, IonButton, IonButtons, IonTitle, IonFooter, IonToolbar, IonModal } from "@ionic/vue";
 
-	const emit = defineEmits(["close", "update"]);
+		const props = defineProps<{
+			isOpen: boolean;
+			provider: any;
+		}>();
 
-	const provider = ref();
-	const form = ref({
-		idprovider: 0,
-		name: "",
-	});
+		const emit = defineEmits(["close", "update"]);
 
-	watch(
-		() => props.provider,
-		(newUser) => {
-			if (newUser) {
-				provider.value = newUser;
-				form.value.name = newUser.name;
-				form.value.idprovider = newUser.idProvider;
+		const provider = ref();
+		const form = ref({
+			idprovider: 0,
+			name: "",
+		});
+
+		watch(
+			() => props.provider,
+			(newUser) => {
+				if (newUser) {
+					provider.value = newUser;
+					form.value.name = newUser.name;
+					form.value.idprovider = newUser.idProvider;
+				}
 			}
-		}
-	);
+		);
 
-	const closeModal = () => {
-		emit("close");
-	};
+		const closeModal = () => {
+			emit("close");
+		};
 
-	const submit = () => {
-		emit("update", { ...form.value });
-		closeModal();
-	};
+		const submit = () => {
+			emit("update", { ...form.value });
+			closeModal();
+		};
 </script>
 
 <style scoped>
