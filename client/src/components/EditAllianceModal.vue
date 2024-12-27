@@ -1,13 +1,13 @@
 <template>
-    <ion-modal :is-open="isOpen" @did-dismiss="closeModal">
-      <ion-header>
-        <ion-toolbar>
-          <ion-title>Editar Alianza</ion-title>
-          <ion-buttons slot="end">
-            <ion-button @click="closeModal">Cerrar</ion-button>
-          </ion-buttons>
-        </ion-toolbar>
-      </ion-header>
+	<ion-modal :is-open="isOpen" @did-dismiss="closeModal">
+		<ion-header>
+			<ion-toolbar>
+				<ion-title>Editar Alianza</ion-title>
+				<ion-buttons slot="end">
+					<ion-button @click="closeModal">Cerrar</ion-button>
+				</ion-buttons>
+			</ion-toolbar>
+		</ion-header>
 
 		<ion-content>
 			<form @submit.prevent="submit">
@@ -26,37 +26,14 @@
 						<input type="radio" id="paymentYes" :value="true" v-model="form.pay_done" class="radio-input" />
 						<label class="radio-label" for="paymentYes">Sí</label>
 
-          <div class="form-group">
-            <label for="examSelect" class="form-label">Reactivo</label>
-            <select v-model="form.idReactive" required class="form-select custom-input">
-              <option value="" disabled>Selecciona un reactivo</option>
-              <option v-for="reactives in reactive" :key="reactives.idReactive" :value="reactives.idReactive">{{ reactives.name }}</option>
-            </select>
-          </div>
-          <div class="form-group">
-            <label for="examSelect" class="form-label">Proveedor</label>
-            <select v-model="form.idProvider" required class="form-select custom-input">
-              <option value="" disabled>Selecciona un proveedor</option>
-              <option v-for="providers in provider" :key="providers.idProvider" :value="providers.idProvider">{{ providers.name }}</option>
-            </select>
-          </div>
-          <ion-footer>
-            <ion-button expand="full" type="submit">Guardar Cambios</ion-button>
-          </ion-footer>
-        </form>
-      </ion-content>
-    </ion-modal>
-</template>
-
-<script setup lang="ts">
-import { IonModal, IonButton, IonContent, IonFooter, IonHeader, IonToolbar, IonTitle, IonButtons } from '@ionic/vue';
-import { providerStore } from '@/stores/providerStore';
-import { reactiveStore } from '@/stores/reactiveStore';
-import { ref, defineEmits, watch, onMounted } from 'vue';
-const provider = ref();
-const reactive = ref();
-const providersStore = providerStore();
-const reactivesStore = reactiveStore();
+						<input type="radio" id="paymentNo" :value="false" v-model="form.pay_done" class="radio-input" />
+						<label for="paymentNo">No</label>
+					</div>
+				</div>
+				<div class="form-group" v-if="!form.pay_done">
+					<label for="payAmount" class="form-label">Debe</label>
+					<input v-model="form.pay_amount" type="text" class="form-control custom-input" placeholder="Ingrese el monto" />
+				</div>
 
 				<div class="form-group">
 					<label for="examSelect" class="form-label">Reactivo</label>
@@ -85,10 +62,10 @@ const reactivesStore = reactiveStore();
 </template>
 
 <script setup lang="ts">
+	import { IonModal, IonButton, IonContent, IonFooter, IonHeader, IonToolbar, IonTitle, IonButtons } from "@ionic/vue";
 	import { providerStore } from "@/stores/providerStore";
 	import { reactiveStore } from "@/stores/reactiveStore";
 	import { ref, defineEmits, watch, onMounted } from "vue";
-	import { IonContent, IonHeader, IonButton, IonButtons, IonTitle, IonFooter, IonToolbar, IonModal } from "@ionic/vue";
 	const provider = ref();
 	const reactive = ref();
 	const providersStore = providerStore();

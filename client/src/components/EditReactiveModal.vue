@@ -38,63 +38,50 @@
 </template>
 
 <script setup lang="ts">
-	import { IonModal, IonButton, IonContent, IonFooter, IonHeader, IonToolbar, IonTitle, IonButtons } from '@ionic/vue';
-	import { examStore } from '@/stores/examStore';
-	import { ref, defineEmits, watch, onMounted } from 'vue';
+	import { IonModal, IonButton, IonContent, IonFooter, IonHeader, IonToolbar, IonTitle, IonButtons } from "@ionic/vue";
+	import { examStore } from "@/stores/examStore";
+	import { ref, defineEmits, watch, onMounted } from "vue";
 	const exams = ref();
-	const examsStore = examStore()
+	const examsStore = examStore();
 
-	<script setup lang="ts">
-		import { examStore } from "@/stores/examStore";
-		import { ref, defineEmits, watch, onMounted } from "vue";
-		import { IonContent, IonHeader, IonButton, IonButtons, IonTitle, IonFooter, IonToolbar, IonModal } from "@ionic/vue";
-		const exams = ref();
-		const examsStore = examStore();
+	const props = defineProps<{
+		isOpen: boolean;
+		reactive: any;
+	}>();
 
-		const props = defineProps<{
-			isOpen: boolean;
-			reactive: any;
-		}>();
+	const emit = defineEmits(["close", "update"]);
 
 	const reactive = ref();
 	const form = ref({
-	idreactive: 0,
-	name: '',
-	total: 0,
+		idreactive: 0,
+		name: "",
+		total: 0,
 	});
 
-	watch(() => props.reactive, (newUser) => {
-	    if (newUser){
-	        reactive.value = newUser
-	        form.value.idreactive = newUser.idReactive
-	        form.value.name = newUser.name
-	        form.value.total = newUser.total
-	    }
-	});
-
-		watch(
-			() => props.reactive,
-			(newUser) => {
-				if (newUser) {
-					reactive.value = newUser;
-					form.value.idreactive = newUser.idReactive;
-					form.value.name = newUser.name;
-				}
+	watch(
+		() => props.reactive,
+		(newUser) => {
+			if (newUser) {
+				reactive.value = newUser;
+				form.value.idreactive = newUser.idReactive;
+				form.value.name = newUser.name;
+				form.value.total = newUser.total;
 			}
-		);
+		}
+	);
 
-		onMounted(async () => {
-			exams.value = await examsStore.fecthExams();
-		});
+	onMounted(async () => {
+		exams.value = await examsStore.fecthExams();
+	});
 
-		const closeModal = () => {
-			emit("close");
-		};
+	const closeModal = () => {
+		emit("close");
+	};
 
-		const submit = () => {
-			emit("update", { ...form.value });
-			closeModal();
-		};
+	const submit = () => {
+		emit("update", { ...form.value });
+		closeModal();
+	};
 </script>
 
 <style scoped>

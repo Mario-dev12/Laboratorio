@@ -1,37 +1,13 @@
 <template>
-    <ion-modal :is-open="isOpen" @did-dismiss="closeModal">
-      <ion-header>
-        <ion-toolbar>
-          <ion-title>Añadir Envío</ion-title>
-          <ion-buttons slot="end">
-            <ion-button @click="closeModal">Cerrar</ion-button>
-          </ion-buttons>
-        </ion-toolbar>
-      </ion-header>
-
-      <ion-content>
-        <form @submit.prevent="submit">
-          <div class="form-group">
-            <label for="shipmentQuantity" class="form-label">Cantidad</label>
-            <input
-              v-model.number="shipment.quantity"
-              type="number"
-              required
-              class="form-control custom-input"
-              placeholder="Ingrese la cantidad"
-            />
-          </div>
-
-          <div class="form-group">
-            <label for="shipmentCostBs" class="form-label">Costo Bolivares</label>
-            <input
-              v-model="shipment.cost_bs"
-              type="text"
-              required
-              class="form-control custom-input"
-              placeholder="Ingrese la cantidad"
-            />
-          </div>
+	<ion-modal :is-open="isOpen" @did-dismiss="closeModal">
+		<ion-header>
+			<ion-toolbar>
+				<ion-title>Añadir Envío</ion-title>
+				<ion-buttons slot="end">
+					<ion-button @click="closeModal">Cerrar</ion-button>
+				</ion-buttons>
+			</ion-toolbar>
+		</ion-header>
 
 		<ion-content>
 			<form @submit.prevent="submit">
@@ -55,45 +31,15 @@
 						placeholder="Ingrese la cantidad" />
 				</div>
 
-          <div class="form-group" v-if="!shipment.pay_done">
-            <label for="payAmount" class="form-label">Debe</label>
-            <input
-              v-model="shipment.pay_amount"
-              type="text"
-              class="form-control custom-input"
-              placeholder="Ingrese el monto"
-            />
-          </div>
-
-          <div class="form-group">
-            <label for="reactiveSelect" class="form-label">Reactivo</label>
-            <select v-model="shipment.idReactive" required class="form-select custom-input">
-              <option value="" disabled>Selecciona un reactivo</option>
-              <option v-for="reactive in reactives" :key="reactive.idReactive" :value="reactive.idReactive">{{ reactive.name }}</option>
-            </select>
-          </div>
-
-          <div class="form-group">
-            <label for="providerSelect" class="form-label">Proveedor</label>
-            <select v-model="shipment.idProvider" required class="form-select custom-input">
-              <option value="" disabled>Selecciona un proveedor</option>
-              <option v-for="provider in providers" :key="provider.idProvider" :value="provider.idProvider">{{ provider.name }}</option>
-            </select>
-          </div>
-
-          <ion-footer>
-            <ion-button expand="full" type="submit">Añadir Envío</ion-button>
-          </ion-footer>
-        </form>
-      </ion-content>
-    </ion-modal>
-  </template>
-
-<script setup lang="ts">
-import { IonModal, IonButton, IonContent, IonFooter, IonHeader, IonToolbar, IonTitle, IonButtons } from '@ionic/vue';
-import { ref, defineEmits, onMounted, watch } from 'vue';
-import { reactiveStore } from '@/stores/reactiveStore';
-import { providerStore } from '@/stores/providerStore';
+				<div class="form-group">
+					<label for="shipmentCostUsd" class="form-label">Costo Dolares</label>
+					<input
+						v-model="shipment.cost_usd"
+						type="text"
+						required
+						class="form-control custom-input"
+						placeholder="Ingrese la cantidad" />
+				</div>
 
 				<div class="form-group">
 					<label for="paymentStatus" class="form-label">Pago realizado</label>
@@ -140,10 +86,11 @@ import { providerStore } from '@/stores/providerStore';
 </template>
 
 <script setup lang="ts">
+	import { IonModal, IonButton, IonContent, IonFooter, IonHeader, IonToolbar, IonTitle, IonButtons } from "@ionic/vue";
 	import { ref, defineEmits, onMounted, watch } from "vue";
 	import { reactiveStore } from "@/stores/reactiveStore";
 	import { providerStore } from "@/stores/providerStore";
-	import { IonContent, IonHeader, IonButton, IonButtons, IonTitle, IonFooter, IonToolbar, IonModal } from "@ionic/vue";
+
 	const props = defineProps<{
 		isOpen: boolean;
 		alliance: any;
