@@ -4,7 +4,7 @@ import { User } from "@/interfaces/interfaces";
 
 export const userStore = defineStore("user", {
 	state: () => ({
-		users: [] as User[] | User,
+		users: [] as User[],
 	}),
 	actions: {
 		async fecthUsers() {
@@ -23,12 +23,10 @@ export const userStore = defineStore("user", {
 			return this.users;
 		},
 		async createUser(user: User) {
-			const response = await axiosRepository.create<User>("users", user);
-			this.users = response;
+			await axiosRepository.create<User>("users", user);
 		},
 		async updateUser(id: string | number, data: User) {
-			const response = await axiosRepository.update<User>("users", id, data);
-			this.users = response;
+			await axiosRepository.update<User>("users", id, data);
 		},
 		async deleteUser(id: string | number) {
 			await axiosRepository.delete("users", id);

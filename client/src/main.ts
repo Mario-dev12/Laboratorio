@@ -20,7 +20,7 @@ import "@ionic/vue/css/text-alignment.css";
 import "@ionic/vue/css/text-transformation.css";
 import "@ionic/vue/css/flex-utils.css";
 import "@ionic/vue/css/display.css";
-// import '@fortawesome/fontawesome-free/css/all.min.css';
+import "@fortawesome/fontawesome-free/css/all.min.css";
 
 /**
  * Ionic Dark Mode
@@ -38,6 +38,7 @@ import "./theme/variables.css";
 
 import "bootstrap"; // Para importar Bootstrap JS
 import "bootstrap/dist/css/bootstrap.min.css";
+import "bootstrap/dist/js/bootstrap.bundle.min.js";
 
 const pinia = createPinia();
 

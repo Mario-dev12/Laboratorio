@@ -1,14 +1,14 @@
 export interface User {
-	iduser: number;
+	idUser: number;
 	ci: number;
 	passport: number;
-	firstname: string;
-	lastname: string;
+	firstName: string;
+	lastName: string;
 	genre: string;
 	age: number;
 	address: string;
-	createddate: any;
-	modifieddate: any;
+	createdDate: any;
+	modifiedDate: any;
 }
 export interface Exam {
 	idexam: number;
@@ -63,9 +63,9 @@ export interface Alliance {
 	idalliance: number;
 	quantity: number;
 	cost_bs: string;
-    cost_usd: string;
-    pay_done: boolean;
-    pay_amount: string;
+	cost_usd: string;
+	pay_done: boolean;
+	pay_amount: string;
 	idreactive: number;
 	idprovider: number;
 	createddate: any;

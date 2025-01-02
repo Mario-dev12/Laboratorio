@@ -1,136 +1,138 @@
 <template>
-	<ion-content>
-		<div class="container mt-3">
-			<h2 class="text-center mb-4">Lista de Envios</h2>
-
-			<div class="d-flex justify-content-end mb-3">
-				<ion-button @click="showModal" color="primary">+ Reactivo</ion-button>
-				<ion-button @click="showProvidersModal" color="primary">+ Proveedor</ion-button>
-				<ion-button @click="showAllianceModal" color="primary">+ Envio</ion-button>
-			</div>
-
-			<div class="table-responsive" style="max-height: 400px; overflow-y: auto">
-				<table class="table table-striped">
-					<thead>
-						<tr>
-							<th>Nombre del Reactivo</th>
-							<th>Proveedor</th>
-							<th>Cantidad</th>
-							<th>Fecha Envío</th>
-							<th>Costo Bs</th>
-							<th>Costo $</th>
-							<th>Acciones</th>
-						</tr>
-					</thead>
-					<tbody>
-						<tr v-for="reactive in reactives" :key="reactive.idreactive">
-							<td>{{ reactive.name }}</td>
-							<td>{{ reactive.providerName }}</td>
-							<td>{{ reactive.providerQuantity }}</td>
-							<td>{{ formatearFecha(reactive.createdDate) }}</td>
-							<td>{{ reactive.cost_bs }} bs</td>
-							<td>{{ reactive.cost_usd }} $</td>
-							<td>
-								<i class="fas fa-edit" @click="editAlliance(reactive)" style="cursor: pointer; margin-right: 10px"></i>
-								<i class="fas fa-trash" @click="deleteAlliance(reactive.idAlliance)" style="cursor: pointer"></i>
-							</td>
-						</tr>
-					</tbody>
-				</table>
-			</div>
+	<ion-page>
+		<ion-content>
 			<div class="container mt-3">
-				<h2 class="text-center mb-4">Lista de Reactivos</h2>
+				<h2 class="text-center mb-4">Lista de Envios</h2>
 
-				<div class="d-flex justify-content-between">
-					<div class="table-responsive" style="max-height: 400px; overflow-y: auto; flex: 1">
+				<div class="d-flex justify-content-end mb-3">
+					<ion-button @click="showModal" color="primary">+ Reactivo</ion-button>
+					<ion-button @click="showProvidersModal" color="primary">+ Proveedor</ion-button>
+					<ion-button @click="showAllianceModal" color="primary">+ Envio</ion-button>
+				</div>
+
+				<div class="table-responsive" style="max-height: 400px; overflow-y: auto">
+					<table class="table table-striped">
+						<thead>
+							<tr>
+								<th>Nombre del Reactivo</th>
+								<th>Proveedor</th>
+								<th>Cantidad</th>
+								<th>Fecha Envío</th>
+								<th>Costo Bs</th>
+								<th>Costo $</th>
+								<th>Acciones</th>
+							</tr>
+						</thead>
+						<tbody>
+							<tr v-for="reactive in reactives" :key="reactive.idreactive">
+								<td>{{ reactive.name }}</td>
+								<td>{{ reactive.providerName }}</td>
+								<td>{{ reactive.providerQuantity }}</td>
+								<td>{{ formatearFecha(reactive.createdDate) }}</td>
+								<td>{{ reactive.cost_bs }} bs</td>
+								<td>{{ reactive.cost_usd }} $</td>
+								<td>
+									<i class="fas fa-edit" @click="editAlliance(reactive)" style="cursor: pointer; margin-right: 10px"></i>
+									<i class="fas fa-trash" @click="deleteAlliance(reactive.idAlliance)" style="cursor: pointer"></i>
+								</td>
+							</tr>
+						</tbody>
+					</table>
+				</div>
+				<div class="container mt-3">
+					<h2 class="text-center mb-4">Lista de Reactivos</h2>
+
+					<div class="d-flex justify-content-between">
+						<div class="table-responsive" style="max-height: 400px; overflow-y: auto; flex: 1">
+							<table class="table table-striped">
+								<thead>
+									<tr>
+										<th>Nombre del Reactivo</th>
+										<th>Cantidad Existencia</th>
+										<th>Acciones</th>
+									</tr>
+								</thead>
+								<tbody>
+									<tr v-for="reactive in allReactives" :key="reactive.idreactive">
+										<td>{{ reactive.name }}</td>
+										<td>{{ reactive.total }}</td>
+										<td>
+											<i class="fas fa-edit" @click="editReactive(reactive)" style="cursor: pointer; margin-right: 10px"></i>
+											<i class="fas fa-trash" @click="deleteReactive(reactive.idReactive)" style="cursor: pointer"></i>
+										</td>
+									</tr>
+								</tbody>
+							</table>
+						</div>
+					</div>
+				</div>
+				<div class="container mt-3">
+					<h2 class="text-center mb-4">Lista de Proveedores</h2>
+
+					<div class="table-responsive" style="max-height: 400px; overflow-y: auto">
 						<table class="table table-striped">
 							<thead>
 								<tr>
-									<th>Nombre del Reactivo</th>
-									<th>Cantidad Existencia</th>
+									<th>Nombre del Proveedor</th>
 									<th>Acciones</th>
 								</tr>
 							</thead>
 							<tbody>
-								<tr v-for="reactive in allReactives" :key="reactive.idreactive">
-									<td>{{ reactive.name }}</td>
-									<td>{{ reactive.total }}</td>
+								<tr v-for="provider in providers" :key="provider.idprovider">
+									<td>{{ provider.name }}</td>
 									<td>
-										<i class="fas fa-edit" @click="editReactive(reactive)" style="cursor: pointer; margin-right: 10px"></i>
-										<i class="fas fa-trash" @click="deleteReactive(reactive.idReactive)" style="cursor: pointer"></i>
+										<i class="fas fa-edit" @click="editProvider(provider)" style="cursor: pointer; margin-right: 10px"></i>
+										<i class="fas fa-trash" @click="deleteProvider(provider.idProvider)" style="cursor: pointer"></i>
 									</td>
 								</tr>
 							</tbody>
 						</table>
 					</div>
 				</div>
+				<AddReactiveModal
+					:is-open="isModalOpen"
+					:reactive="allReactives"
+					:exam="exams"
+					@close="isModalOpen = false"
+					@add="addReactiveToList" />
+
+				<AddProviderModal
+					:is-open="isProvidersModalOpen"
+					:provider="providers"
+					@close="closeProvidersModal"
+					@add="addProviderToList" />
+
+				<AddShipmentModal
+					:is-open="isAllianceModalOpen"
+					:alliance="reactives"
+					:provider="providers"
+					@close="isAllianceModalOpen = false"
+					@add="addShipmentToList" />
+
+				<EditProviderModal
+					:is-open="isEditProviderModalOpen"
+					:provider="selectedProvider"
+					@close="isEditProviderModalOpen = false"
+					@update="updateProviderInList" />
+
+				<EditAllianceModal
+					:is-open="isEditAllianceModalOpen"
+					:alliance="selectedAlliance"
+					@close="isEditAllianceModalOpen = false"
+					@update="updateAllianceInList" />
+
+				<EditReactiveModal
+					:is-open="isEditModalOpen"
+					:reactive="selectedReactive"
+					@close="isEditModalOpen = false"
+					@update="updateReactiveInList" />
 			</div>
-			<div class="container mt-3">
-				<h2 class="text-center mb-4">Lista de Proveedores</h2>
-
-				<div class="table-responsive" style="max-height: 400px; overflow-y: auto">
-					<table class="table table-striped">
-						<thead>
-							<tr>
-								<th>Nombre del Proveedor</th>
-								<th>Acciones</th>
-							</tr>
-						</thead>
-						<tbody>
-							<tr v-for="provider in providers" :key="provider.idprovider">
-								<td>{{ provider.name }}</td>
-								<td>
-									<i class="fas fa-edit" @click="editProvider(provider)" style="cursor: pointer; margin-right: 10px"></i>
-									<i class="fas fa-trash" @click="deleteProvider(provider.idProvider)" style="cursor: pointer"></i>
-								</td>
-							</tr>
-						</tbody>
-					</table>
-				</div>
-			</div>
-			<AddReactiveModal
-				:is-open="isModalOpen"
-				:reactive="allReactives"
-				:exam="exams"
-				@close="isModalOpen = false"
-				@add="addReactiveToList" />
-
-			<AddProviderModal
-				:is-open="isProvidersModalOpen"
-				:provider="providers"
-				@close="closeProvidersModal"
-				@add="addProviderToList" />
-
-			<AddShipmentModal
-				:is-open="isAllianceModalOpen"
-				:alliance="reactives"
-				:provider="providers"
-				@close="isAllianceModalOpen = false"
-				@add="addShipmentToList" />
-
-			<EditProviderModal
-				:is-open="isEditProviderModalOpen"
-				:provider="selectedProvider"
-				@close="isEditProviderModalOpen = false"
-				@update="updateProviderInList" />
-
-			<EditAllianceModal
-				:is-open="isEditAllianceModalOpen"
-				:alliance="selectedAlliance"
-				@close="isEditAllianceModalOpen = false"
-				@update="updateAllianceInList" />
-
-			<EditReactiveModal
-				:is-open="isEditModalOpen"
-				:reactive="selectedReactive"
-				@close="isEditModalOpen = false"
-				@update="updateReactiveInList" />
-		</div>
-	</ion-content>
+		</ion-content>
+	</ion-page>
 </template>
 
 <script setup lang="ts">
-	import { IonButton, IonContent } from "@ionic/vue";
+	import { IonButton, IonContent, IonPage } from "@ionic/vue";
 	import { Alliance, Provider, Reactive } from "@/interfaces/interfaces";
 	import { reactiveStore } from "@/stores/reactiveStore";
 	import { onMounted, ref } from "vue";
