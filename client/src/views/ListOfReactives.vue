@@ -136,7 +136,7 @@
 </template>  
   
 <script setup lang="ts">  
-import { IonModal, IonButton, IonContent } from '@ionic/vue';
+import { IonButton, IonContent } from '@ionic/vue';
 import { Alliance, Provider, Reactive } from '@/interfaces/interfaces';
 import { reactiveStore } from '@/stores/reactiveStore';  
 import { onMounted, ref } from 'vue';  
@@ -290,16 +290,16 @@ function formatearFecha(fecha: string | number | Date) {
   
 <style scoped>   
 .container {  
-padding: 16px; 
+  padding: 16px; 
 }  
 
 .table-responsive {  
-max-height: 400px; 
+  max-height: 400px; 
 }  
 
 .btn-container {  
-display: flex;  
-justify-content: flex-end;  
-margin-bottom: 1rem; 
+  display: flex;  
+  justify-content: flex-end;  
+  margin-bottom: 1rem; 
 }  
 </style>

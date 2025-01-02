@@ -82,3 +82,37 @@ export interface Payment {
 	createddate: any;
 	modifieddate: any;
 }
+
+export interface Income {
+	idExam: number;
+	examName: string;
+	cost_bs: string;
+	cost_usd: string
+	createdDate: any;
+	idUser: number;
+	ci: string;
+	passport: string;
+	firstName: string;
+	lastName: string;
+	genre: string;
+	age: number;
+	idPaymentMethod: number;
+	PaymentMethodName: string;
+	amount: string;
+	bank: string;
+	type: string;
+}
+
+export interface Bill {
+	idAlliance: number;
+	quantity: number;
+	cost_bs: string;
+	cost_usd: string;
+	pay_done: boolean;
+	pay_amount: string;
+	createdDate: any;
+	idProvider: number;
+	providerName: string;
+	idReactive: number;
+	reactiveName: string;
+}

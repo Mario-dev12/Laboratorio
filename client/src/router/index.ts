@@ -3,6 +3,7 @@ import { RouteRecordRaw } from "vue-router";
 import HomePage from "../views/HomePage.vue";
 import HomeView from '../views/HomeView.vue'
 import ListOfReactives from '../views/ListOfReactives.vue'
+import NumberConsultant from '../views/NumberConsultant.vue'
 
 const routes: Array<RouteRecordRaw> = [
 	{
@@ -19,6 +20,11 @@ const routes: Array<RouteRecordRaw> = [
 		path: "/reactivos",
 		name: "ListOfReactives",
 		component: ListOfReactives,
+	},
+	{
+		path: "/caja",
+		name: "Caja",
+		component: NumberConsultant,
 	},
 ];
 
