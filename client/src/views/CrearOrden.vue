@@ -228,10 +228,16 @@
 	let divisas: number = 0;
 	const showChangeDolar = ref(false);
 
-	const totales = {
+	const totales = ref({
 		totalBs: 0,
 		total$: 0,
-	};
+	});
+
+	const examenes: Examen[] = [
+		{ nombre: "Perfil 20", precio$: 10, descripcion: "examen general de salud" },
+		{ nombre: "Perfil Tiroideo", precio$: 10, descripcion: "examen de la tiroides" },
+		{ nombre: "Perfil Urológico", precio$: 15, descripcion: "examen urológico" },
+	];
 
 	onMounted(async () => {});
 
@@ -275,12 +281,6 @@
 		}
 	};
 
-	const examenes: Examen[] = [
-		{ nombre: "Perfil 20", precio$: 10, descripcion: "examen general de salud" },
-		{ nombre: "Perfil Tiroideo", precio$: 10, descripcion: "examen de la tiroides" },
-		{ nombre: "Perfil Urológico", precio$: 15, descripcion: "examen urológico" },
-	];
-
 	const cambiarPrecioDolar = () => {
 		if (isNaN(precioDolarRef.value.value) || precioDolarRef.value.value === "") {
 			alert("Ingrese un valor válido");
@@ -289,6 +289,12 @@
 			localStorage.setItem("tasaDolar", precioDolarRef.value.value);
 			showChangeDolar.value = !showChangeDolar.value;
 			precioDolarRef.value.value = "";
+			totales.value.total$ = 0;
+			totales.value.totalBs = 0;
+			for (const item of examenesSeleccionados.value) {
+				totales.value.totalBs += item.precio$ * precioDolar.value;
+				totales.value.total$ += item.precio$;
+			}
 		}
 	};
 
@@ -315,15 +321,15 @@
 	watch(examenesSeleccionados, (newValue, oldValue) => {
 		if (newValue.length) {
 			if (newValue.length < oldValue.length) {
-				totales.totalBs -= newValue[0].precio$ * precioDolar.value;
-				totales.total$ -= newValue[0].precio$;
+				totales.value.totalBs -= newValue[0].precio$ * precioDolar.value;
+				totales.value.total$ -= newValue[0].precio$;
 			} else if (newValue.length >= oldValue.length) {
-				totales.totalBs += newValue[0].precio$ * precioDolar.value;
-				totales.total$ += newValue[0].precio$;
+				totales.value.totalBs += newValue[0].precio$ * precioDolar.value;
+				totales.value.total$ += newValue[0].precio$;
 			}
 		} else {
-			totales.totalBs = 0;
-			totales.total$ = 0;
+			totales.value.totalBs = 0;
+			totales.value.total$ = 0;
 		}
 	});
 
@@ -345,23 +351,23 @@
 					totales2.totalBs -= pagoEnBs.value;
 					totales2.total$ -= newValue;
 					totales2.total$ -= pagoEnBs.value / precioDolar.value;
-					totales.totalBs = totales2.totalBs;
-					totales.total$ = totales2.total$;
+					totales.value.totalBs = totales2.totalBs;
+					totales.value.total$ = totales2.total$;
 				} else {
 					totales2.totalBs -= pagoEnBs.value;
 					totales2.total$ -= pagoEnBs.value / precioDolar.value;
-					totales.totalBs = totales2.totalBs;
-					totales.total$ = totales2.total$;
+					totales.value.totalBs = totales2.totalBs;
+					totales.value.total$ = totales2.total$;
 				}
 			} else {
 				if (newValue) {
 					totales2.totalBs -= newValue * precioDolar.value;
 					totales2.total$ -= newValue;
-					totales.totalBs = totales2.totalBs;
-					totales.total$ = totales2.total$;
+					totales.value.totalBs = totales2.totalBs;
+					totales.value.total$ = totales2.total$;
 				} else {
-					totales.totalBs = totales2.totalBs;
-					totales.total$ = totales2.total$;
+					totales.value.totalBs = totales2.totalBs;
+					totales.value.total$ = totales2.total$;
 				}
 			}
 		}
@@ -385,23 +391,23 @@
 					totales2.totalBs -= pagoEnDivisas.value * precioDolar.value;
 					totales2.total$ -= pagoEnDivisas.value;
 					totales2.total$ -= newValue / precioDolar.value;
-					totales.totalBs = totales2.totalBs;
-					totales.total$ = totales2.total$;
+					totales.value.totalBs = totales2.totalBs;
+					totales.value.total$ = totales2.total$;
 				} else {
 					totales2.totalBs -= pagoEnDivisas.value * precioDolar.value;
 					totales2.total$ -= pagoEnDivisas.value;
-					totales.totalBs = totales2.totalBs;
-					totales.total$ = totales2.total$;
+					totales.value.totalBs = totales2.totalBs;
+					totales.value.total$ = totales2.total$;
 				}
 			} else {
 				if (newValue) {
 					totales2.totalBs -= newValue;
 					totales2.total$ -= newValue / precioDolar.value;
-					totales.totalBs = totales2.totalBs;
-					totales.total$ = totales2.total$;
+					totales.value.totalBs = totales2.totalBs;
+					totales.value.total$ = totales2.total$;
 				} else {
-					totales.totalBs = totales2.totalBs;
-					totales.total$ = totales2.total$;
+					totales.value.totalBs = totales2.totalBs;
+					totales.value.total$ = totales2.total$;
 				}
 			}
 		}
@@ -435,7 +441,7 @@
 		};
 
 		if (Object.entries(orden).every(([key, value]) => key === "pagoBs" || key === "pago$" || Boolean(value))) {
-			if (totales.total$ != 0 || totales.totalBs != 0) {
+			if (totales.value.total$ != 0 || totales.value.totalBs != 0) {
 				alert("Por favor completar pago");
 			} else {
 				const toastElement: any = document.getElementById("liveToast");
