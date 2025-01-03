@@ -131,12 +131,20 @@
               @close="isEditModalOpen = false"  
               @update="updateReactiveInList"  
           />  
+
+          <IonToast  
+            :is-open="toast.isOpen"  
+            :message="toast.message"  
+            :duration="toast.duration"  
+            @on-did-dismiss="toast.isOpen = false"
+            @did-dismiss="toast.isOpen = false"  
+          />  
       </div>  
     </ion-content>  
 </template>  
   
 <script setup lang="ts">  
-import { IonModal, IonButton, IonContent } from '@ionic/vue';
+import { IonButton, IonContent } from '@ionic/vue';
 import { Alliance, Provider, Reactive } from '@/interfaces/interfaces';
 import { reactiveStore } from '@/stores/reactiveStore';  
 import { onMounted, ref } from 'vue';  
@@ -149,6 +157,7 @@ import EditAllianceModal from '@/components/EditAllianceModal.vue';
 import { providerStore } from '@/stores/providerStore';
 import { allianceStore } from '@/stores/allianceStore';
 import { examStore } from '@/stores/examStore';
+import { IonToast } from '@ionic/vue';
 
 const reactives = ref();  
 const providers = ref();
@@ -166,7 +175,12 @@ const selectedAlliance = ref();
 const selectedProvider = ref();   
 const isEditModalOpen = ref(false); 
 const isEditAllianceModalOpen = ref(false); 
-const isEditProviderModalOpen = ref(false); 
+const isEditProviderModalOpen = ref(false);
+const toast = ref({  
+  isOpen: false,  
+  message: '',  
+  duration: 2000
+}); 
 
 
 onMounted(async () => {  
@@ -175,6 +189,11 @@ onMounted(async () => {
     allReactives.value = await reactivesStore.fecthReactives();
     exams.value = await examsStore.fecthExams();
 });  
+
+const showToast = (message: string) => {  
+    toast.value.message = message;  
+    toast.value.isOpen = true;  
+}; 
 
 const editReactive = (reactive: any) => {  
     selectedReactive.value = { ...reactive }; 
@@ -197,6 +216,7 @@ const editProvider = (provider: any) => {
 const updateReactiveInList = async (updatedReactive: Reactive) => {  
   const id = updatedReactive.idreactive
   await reactivesStore.updateReactive(id, updatedReactive)
+  showToast('Reactivo actualizado correctamente')
   reactives.value = await reactivesStore.fetchReactiveByProvider();
   providers.value = await providersStore.fecthProviders();
   allReactives.value = await reactivesStore.fecthReactives();  
@@ -205,6 +225,7 @@ const updateReactiveInList = async (updatedReactive: Reactive) => {
 const updateAllianceInList = async (updatedAlliance: Alliance) => {  
   const id = updatedAlliance.idalliance
   await alliancesStore.updateAlliance(id, updatedAlliance)
+  showToast('Alianza actualizada correctamente')
   reactives.value = await reactivesStore.fetchReactiveByProvider();
   providers.value = await providersStore.fecthProviders();
   allReactives.value = await reactivesStore.fecthReactives(); 
@@ -213,6 +234,7 @@ const updateAllianceInList = async (updatedAlliance: Alliance) => {
 const updateProviderInList = async (updatedProvider: Provider) => {
   const id = updatedProvider.idprovider 
   await providersStore.updateProvider(id, updatedProvider)
+  showToast('Proveedor actualizado correctamente')
   reactives.value = await reactivesStore.fetchReactiveByProvider();
   providers.value = await providersStore.fecthProviders();
   allReactives.value = await reactivesStore.fecthReactives();
@@ -220,6 +242,7 @@ const updateProviderInList = async (updatedProvider: Provider) => {
 
 const deleteReactive = async (id: number | string) => {   
     await reactivesStore.deleteReactive(id)
+    showToast('Reactivo borrado correctamente')
     reactives.value = await reactivesStore.fetchReactiveByProvider();
     providers.value = await providersStore.fecthProviders();
     allReactives.value = await reactivesStore.fecthReactives();   
@@ -227,6 +250,7 @@ const deleteReactive = async (id: number | string) => {
 
 const deleteAlliance = async (id: number | string) => {   
     await alliancesStore.deleteAlliance(id)
+    showToast('Alianza borrada correctamente')
     reactives.value = await reactivesStore.fetchReactiveByProvider();
     providers.value = await providersStore.fecthProviders();
     allReactives.value = await reactivesStore.fecthReactives();  
@@ -234,6 +258,7 @@ const deleteAlliance = async (id: number | string) => {
 
 const deleteProvider = async (id: number | string) => {  
     await providersStore.deleteProvider(id)
+    showToast('Proveedor borrado correctamente')
     reactives.value = await reactivesStore.fetchReactiveByProvider();
     providers.value = await providersStore.fecthProviders();
     allReactives.value = await reactivesStore.fecthReactives(); 
@@ -241,13 +266,16 @@ const deleteProvider = async (id: number | string) => {
 
 const addReactiveToList = async (newReactive: Reactive) => {    
     await reactivesStore.createReactive(newReactive);
+    showToast('Reactivo creado correctamente')
     reactives.value = await reactivesStore.fetchReactiveByProvider();
     providers.value = await providersStore.fecthProviders();
     allReactives.value = await reactivesStore.fecthReactives();
 };  
 
 const addProviderToList = async (newProvider: Provider) => {   
-    await providersStore.createProvider(newProvider) 
+    const resp = await providersStore.createProvider(newProvider) 
+    console.log('resp', resp)
+    showToast('Proveedor creado correctamente')
     reactives.value = await reactivesStore.fetchReactiveByProvider();
     providers.value = await providersStore.fecthProviders();
     allReactives.value = await reactivesStore.fecthReactives();
@@ -255,6 +283,7 @@ const addProviderToList = async (newProvider: Provider) => {
 
 const addShipmentToList = async (newShipment: Alliance) => {    
     await alliancesStore.createAlliance(newShipment);
+    showToast('Alianza creada correctamente')
     reactives.value = await reactivesStore.fetchReactiveByProvider();
     providers.value = await providersStore.fecthProviders();
     allReactives.value = await reactivesStore.fecthReactives();
@@ -290,16 +319,16 @@ function formatearFecha(fecha: string | number | Date) {
   
 <style scoped>   
 .container {  
-padding: 16px; 
+  padding: 16px; 
 }  
 
 .table-responsive {  
-max-height: 400px; 
+  max-height: 400px; 
 }  
 
 .btn-container {  
-display: flex;  
-justify-content: flex-end;  
-margin-bottom: 1rem; 
+  display: flex;  
+  justify-content: flex-end;  
+  margin-bottom: 1rem; 
 }  
 </style>
