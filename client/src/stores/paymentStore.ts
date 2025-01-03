@@ -25,10 +25,12 @@ export const paymentStore = defineStore("payment", {
 		async createPayment(exam: Payment) {
 			const response = await axiosRepository.create<Payment>("payment_method", exam);
 			this.payments = response;
+			return this.payments;
 		},
 		async updatePayment(id: string | number, data: Payment) {
 			const response = await axiosRepository.update<Payment>("payment_method", id, data);
 			this.payments = response;
+			return this.payments;
 		},
 		async deletePayment(id: string | number) {
 			await axiosRepository.delete("payment_method", id);

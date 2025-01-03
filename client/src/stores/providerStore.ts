@@ -25,10 +25,12 @@ export const providerStore = defineStore("provider", {
 		async createProvider(provider: Provider) {
 			const response = await axiosRepository.create<Provider>("providers", provider);
 			this.providers = response;
+			return this.providers;
 		},
 		async updateProvider(id: string | number, data: Provider) {
 			const response = await axiosRepository.update<Provider>("providers", id, data);
 			this.providers = response;
+			return this.providers;
 		},
 		async deleteProvider(id: string | number) {
 			await axiosRepository.delete("providers", id);
