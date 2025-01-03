@@ -25,10 +25,13 @@ export const allianceStore = defineStore("alliance", {
 		async createAlliance(user: Alliance) {
 			const response = await axiosRepository.create<Alliance>("alliance", user);
 			this.alliance = response;
+			return this.alliance;
 		},
-		async updateAlliance(id: string | number, data: User) {
+		async updateAlliance(id: string | number, data: Alliance) {
 			const response = await axiosRepository.update<Alliance>("alliance", id, data);
 			this.alliance = response;
+			return this.alliance;
+			
 		},
 		async deleteAlliance(id: string | number) {
 			await axiosRepository.delete("alliance", id);

@@ -1,8 +1,9 @@
 import { createRouter, createWebHistory } from "@ionic/vue-router";
 import { RouteRecordRaw } from "vue-router";
-import CrearOrden from "../views/CrearOrden.vue";
+import HomePage from "../views/HomePage.vue";
 import HomeView from "../views/HomeView.vue";
 import ListOfReactives from "../views/ListOfReactives.vue";
+import NumberConsultant from "../views/NumberConsultant.vue";
 
 const routes: Array<RouteRecordRaw> = [
 	{
@@ -23,6 +24,11 @@ const routes: Array<RouteRecordRaw> = [
 		path: "/reactivos",
 		name: "Reactivos",
 		component: ListOfReactives,
+	},
+	{
+		path: "/caja",
+		name: "Caja",
+		component: NumberConsultant,
 	},
 ];
 

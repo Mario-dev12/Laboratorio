@@ -23,10 +23,14 @@ export const userStore = defineStore("user", {
 			return this.users;
 		},
 		async createUser(user: User) {
-			await axiosRepository.create<User>("users", user);
+			const response = await axiosRepository.create<User>("users", user);
+			this.users = response;
+			return this.users;
 		},
 		async updateUser(id: string | number, data: User) {
-			await axiosRepository.update<User>("users", id, data);
+			const response = await axiosRepository.update<User>("users", id, data);
+			this.users = response;
+			return this.users;
 		},
 		async deleteUser(id: string | number) {
 			await axiosRepository.delete("users", id);

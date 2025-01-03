@@ -32,10 +32,12 @@ export const reactiveStore = defineStore("reactive", {
 		async createReactive(reactive: Reactive) {
 			const response = await axiosRepository.create<Reactive>("reactive", reactive);
 			this.reactives = response;
+			return this.reactives;
 		},
 		async updateReactive(id: string | number, data: Reactive) {
 			const response = await axiosRepository.update<Reactive>("reactive", id, data);
 			this.reactives = response;
+			return this.reactives;
 		},
 		async deleteReactive(id: string | number) {
 			await axiosRepository.delete("reactive", id);
