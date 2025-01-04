@@ -1,48 +1,121 @@
 <template>
-	<ion-header>
-		<nav class="navbar navbar-expand-lg bg-body-secondary p-0">
-			<div class="container-fluid p-0">
-				<button
-					class="navbar-toggler"
-					type="button"
-					data-bs-toggle="collapse"
-					data-bs-target="#navbarSupportedContent"
-					aria-controls="navbarSupportedContent"
-					aria-expanded="false"
-					aria-label="Toggle navigation">
-					<span class="navbar-toggler-icon"></span>
-				</button>
-				<div class="collapse navbar-collapse" id="navbarSupportedContent">
-					<ul class="navbar-nav me-auto mb-2 mb-lg-0">
-						<a class="nav-item bg-danger text-center p-1 text-decoration-none text-black" href="#">
-							<img src="/images/resultados.png" alt="" />
-							<p class="m-0">Resultados</p>
-						</a>
-						<a class="nav-item bg-primary text-center p-1 text-decoration-none text-black" href="#">
-							<img src="/images/especialista.png" alt="" />
-							<p class="m-0">Especialista</p>
-						</a>
-						<a class="nav-item bg-warning text-center p-1 text-decoration-none text-black" href="#">
-							<img src="/images/lista.png" alt="" />
-							<p class="m-0">Lista De Precios</p>
-						</a>
-						<a class="nav-item bg-success text-center p-1 text-decoration-none text-black" href="#">
-							<img src="/images/reactivos.png" alt="" />
-							<p class="m-0">Reactivos</p>
-						</a>
-						<router-link class="nav-item bg-info text-center p-1 text-decoration-none text-black" :to="{ path: '/crearOrden' }">
-							<img src="/images/reactivos.png" alt="" />
-							<p class="m-0">Crear Orden</p>
-						</router-link>
-					</ul>
-				</div>
-			</div>
-		</nav>
-	</ion-header>
+	<div class="desktop">
+		<ion-header>
+			<ion-toolbar>
+				<ion-title slot="end"> Lab Madre Emilia </ion-title>
+				<ion-buttons>
+					<ion-button class="border-end border-secondary" @click="() => router.push({ name: 'Home' })">
+						<ion-icon slot="start" :icon="home"></ion-icon>
+						Home
+					</ion-button>
+					<ion-button class="border-end border-secondary" @click="() => router.push({ name: 'Reactivos' })">
+						<ion-icon slot="start" :icon="flask"></ion-icon>
+						Reactivos
+					</ion-button>
+					<ion-button class="border-end border-secondary" @click="() => router.push({ name: 'CrearOrden' })">
+						<ion-icon slot="start" :icon="document"></ion-icon>
+						Crear Orden
+					</ion-button>
+					<ion-button @click="() => router.push({ name: 'Caja' })">
+						<ion-icon slot="start" :icon="calculator"></ion-icon>
+						Caja
+					</ion-button>
+				</ion-buttons>
+			</ion-toolbar>
+		</ion-header>
+	</div>
+	<div class="mobile">
+		<ion-menu content-id="main-content">
+			<ion-header>
+				<ion-toolbar>
+					<ion-title>Lab Madre Emilia</ion-title>
+				</ion-toolbar>
+			</ion-header>
+			<ion-content class="ion-padding">
+				<ion-row class="row">
+					<ion-button fill="clear" @click="() => router.push({ name: 'Home' })">
+						<ion-icon slot="start" :icon="home"></ion-icon>
+						Home
+					</ion-button>
+					<ion-button fill="clear" class="" @click="() => router.push({ name: 'Reactivos' })">
+						<ion-icon slot="start" :icon="flask"></ion-icon>
+						Reactivos
+					</ion-button>
+					<ion-button fill="clear" @click="() => router.push({ name: 'CrearOrden' })">
+						<ion-icon slot="start" :icon="document"></ion-icon>
+						Crear Orden
+					</ion-button>
+					<ion-menu-toggle class="mt-2">
+						<ion-button expand="block" color="danger">
+							<ion-icon slot="start" :icon="closeOutline"></ion-icon>
+							Cerrar Menu
+						</ion-button>
+					</ion-menu-toggle>
+				</ion-row>
+			</ion-content>
+		</ion-menu>
+		<div id="main-content">
+			<ion-header>
+				<ion-toolbar color="primary">
+					<ion-buttons slot="start">
+						<ion-menu-button></ion-menu-button>
+					</ion-buttons>
+					<ion-title>Lab Madre Emilia</ion-title>
+				</ion-toolbar>
+			</ion-header>
+		</div>
+	</div>
 </template>
 
 <script setup lang="ts">
-	import { IonContent, IonHeader, IonPage, IonTitle, IonToolbar } from "@ionic/vue";
+	import {
+		IonHeader,
+		IonToolbar,
+		IonTitle,
+		IonButtons,
+		IonButton,
+		IonIcon,
+		IonContent,
+		IonMenu,
+		IonMenuButton,
+		IonMenuToggle,
+		IonRow,
+	} from "@ionic/vue";
+	import { flask, home, document, closeOutline, calculator } from "ionicons/icons";
+	import { useRouter } from "vue-router";
+
+	const router = useRouter();
 </script>
+
+<style scoped>
+	@media (width < 991px) {
+		.desktop {
+			display: none;
+		}
+
+		.mobile {
+			display: block;
+		}
+	}
+
+	@media (width > 991px) {
+		.desktop {
+			display: block;
+		}
+
+		.mobile {
+			display: none;
+		}
+	}
+
+	ion-button {
+		--color: black;
+	}
+
+	ion-menu-button {
+		--background-hover: rgb(106, 106, 106) !important;
+		--background-hover-opacity: 0.5;
+	}
+</style>
 
 <style scoped></style>

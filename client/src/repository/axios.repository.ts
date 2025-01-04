@@ -11,16 +11,21 @@ axios.interceptors.response.use(
 class AxiosRepository {
 	async getAll<T>(domain: string): Promise<T[]> {
 		const response = await axios.get<T[]>(`${import.meta.env.VITE_API_URL}/${domain}`);
+		console.log(response.data);
 		return response.data;
 	}
 
 	async getAllIncome<T>(domain: string, all: boolean, startDate: string, endDate: string): Promise<T[]> {
-		const response = await axios.get<T[]>(`${import.meta.env.VITE_API_URL}/${domain}/ingreso?all=${all}&startDate=${startDate}&endDate=${endDate}`);
+		const response = await axios.get<T[]>(
+			`${import.meta.env.VITE_API_URL}/${domain}/ingreso?all=${all}&startDate=${startDate}&endDate=${endDate}`
+		);
 		return response.data;
 	}
 
 	async getAllBills<T>(domain: string, all: boolean, startDate: string, endDate: string): Promise<T[]> {
-		const response = await axios.get<T[]>(`${import.meta.env.VITE_API_URL}/${domain}/egreso?all=${all}&startDate=${startDate}&endDate=${endDate}`);
+		const response = await axios.get<T[]>(
+			`${import.meta.env.VITE_API_URL}/${domain}/egreso?all=${all}&startDate=${startDate}&endDate=${endDate}`
+		);
 		return response.data;
 	}
 
