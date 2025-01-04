@@ -25,10 +25,12 @@ export const examStore = defineStore("exam", {
 		async createExam(exam: Exam) {
 			const response = await axiosRepository.create<Exam>("exam", exam);
 			this.exams = response;
+			return this.exams;
 		},
 		async updateExam(id: string | number, data: Exam) {
 			const response = await axiosRepository.update<Exam>("exam", id, data);
 			this.exams = response;
+			return this.exams;
 		},
 		async deleteExam(id: string | number) {
 			await axiosRepository.delete("exam", id);

@@ -25,10 +25,12 @@ export const unitStore = defineStore("unit", {
 		async createUnit(reactive: Unit) {
 			const response = await axiosRepository.create<Unit>("unit", reactive);
 			this.units = response;
+			return this.units;
 		},
 		async updateUnit(id: string | number, data: Unit) {
 			const response = await axiosRepository.update<Unit>("unit", id, data);
 			this.units = response;
+			return this.units;
 		},
 		async deleteUnit(id: string | number) {
 			await axiosRepository.delete("unit", id);
