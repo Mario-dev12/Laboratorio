@@ -239,7 +239,10 @@
 		{ nombre: "Perfil Urológico", precio$: 15, descripcion: "examen urológico" },
 	];
 
-	onMounted(async () => {});
+	onMounted(async () => {
+		const test = await users.fecthUsers();
+		console.log(test);
+	});
 
 	interface Examen {
 		nombre: string;

@@ -1,9 +1,9 @@
 import { createRouter, createWebHistory } from "@ionic/vue-router";
 import { RouteRecordRaw } from "vue-router";
-import HomePage from "../views/HomePage.vue";
 import HomeView from "../views/HomeView.vue";
 import ListOfReactives from "../views/ListOfReactives.vue";
 import NumberConsultant from "../views/NumberConsultant.vue";
+import CrearOrden from "@/views/CrearOrden.vue";
 
 const routes: Array<RouteRecordRaw> = [
 	{

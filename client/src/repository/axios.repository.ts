@@ -11,6 +11,7 @@ axios.interceptors.response.use(
 class AxiosRepository {
 	async getAll<T>(domain: string): Promise<T[]> {
 		const response = await axios.get<T[]>(`${import.meta.env.VITE_API_URL}/${domain}`);
+		console.log(response.data);
 		return response.data;
 	}
 
@@ -33,24 +34,23 @@ class AxiosRepository {
 		return response.data;
 	}
 
-	async getByName<T>(domain: string, name: string): Promise<T[]> {
-		const response = await axios.get<T[]>(`${import.meta.env.VITE_API_URL}/${domain}/name/${name}`);
+	async getByName<T>(domain: string, name: string): Promise<T> {
+		const response = await axios.get<T>(`${import.meta.env.VITE_API_URL}/${domain}/name/${name}`);
 		return response.data;
 	}
 
-	async getByUnitName<T>(domain: string, name: string): Promise<T[]> {
-		const response = await axios.get<T[]>(`${import.meta.env.VITE_API_URL}/${domain}/name?name=${name}`);
+	async getByUnitName<T>(domain: string, name: string): Promise<T> {
+		const response = await axios.get<T>(`${import.meta.env.VITE_API_URL}/${domain}/name?name=${name}`);
 		return response.data;
 	}
 
-	async getByReactiveAndProvider<T>(domain: string): Promise<T[]> {
-		const response = await axios.get<T[]>(`${import.meta.env.VITE_API_URL}/${domain}/provider`);
-		console.log("response", response.data);
+	async getByReactiveAndProvider<T>(domain: string): Promise<T> {
+		const response = await axios.get<T>(`${import.meta.env.VITE_API_URL}/${domain}/provider`);
 		return response.data;
 	}
 
-	async getByType<T>(domain: string, name: string): Promise<T[]> {
-		const response = await axios.get<T[]>(`${import.meta.env.VITE_API_URL}/${domain}/type/${name}`);
+	async getByType<T>(domain: string, name: string): Promise<T> {
+		const response = await axios.get<T>(`${import.meta.env.VITE_API_URL}/${domain}/type/${name}`);
 		return response.data;
 	}
 
