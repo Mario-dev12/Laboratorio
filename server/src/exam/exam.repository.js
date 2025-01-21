@@ -12,20 +12,10 @@ examRepository.readExams = async () => {
   }
 }
 
-examRepository.readExamByType = async name => {
+examRepository.createExam = async (idUser, total_cost_bs, total_cost_usd) => {
   try {
     
-    const resp = await pool.query(`SELECT * FROM sp_find_exam_by_name('${name}')`);
-    return resp.rows[0].sp_find_exam_by_name;
-  } catch (error) {
-    throw error;
-  }
-}
-
-examRepository.createExam = async (name, cost_bs, cost_usd, status, idUser) => {
-  try {
-    
-    const resp = await pool.query(`SELECT * FROM sp_create_exam('${name}', '${cost_bs}', '${cost_usd}', '${status}', ${idUser})`);
+    const resp = await pool.query(`SELECT * FROM sp_create_exam(${idUser}, '${total_cost_bs}', '${total_cost_usd}')`);
     return resp.rows[0].sp_create_exam;
   } catch (error) {
     throw error;
@@ -35,7 +25,7 @@ examRepository.createExam = async (name, cost_bs, cost_usd, status, idUser) => {
 examRepository.updateExam = async (id, answer) => {
   try {
     
-    const resp = await pool.query(`SELECT * FROM sp_update_exam(${id}, '${answer.name}', '${answer.cost_bs}', '${answer.cost_usd}', '${answer.status}', ${answer.idUser})`);
+    const resp = await pool.query(`SELECT * FROM sp_update_exam(${id}, ${answer.idUser}, ${answer.idProfile}, '${answer.total_cost_bs}', '${answer.total_cost_usd}')`);
     return resp.rows[0].sp_update_exam;
   } catch (error) {
     throw error;

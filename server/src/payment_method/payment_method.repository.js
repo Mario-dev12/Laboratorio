@@ -22,10 +22,10 @@ payment_methodRepository.readPayment_methodByName = async text => {
   }
 }
 
-payment_methodRepository.createPayment_method = async (name, amount, bank, type, idExam) => {
+payment_methodRepository.createPayment_method = async (name) => {
   try {
     
-    const resp = await pool.query(`SELECT * FROM sp_create_payment_method('${name}', '${amount}', '${bank}', '${type}', ${idExam})`);
+    const resp = await pool.query(`SELECT * FROM sp_create_payment_method('${name}')`);
     return resp.rows[0].sp_create_payment_method;
   } catch (error) {
     throw error;
@@ -35,7 +35,7 @@ payment_methodRepository.createPayment_method = async (name, amount, bank, type,
 payment_methodRepository.updatePayment_method = async (id, answer) => {
   try {
     
-    const resp = await pool.query(`SELECT * FROM sp_update_payment_method(${id}, '${answer.name}', '${answer.amount}', '${answer.bank}', '${answer.type}', ${answer.idExam})`);
+    const resp = await pool.query(`SELECT * FROM sp_update_payment_method(${id}, '${answer.name}')`);
     return resp.rows[0].sp_update_payment_method;
   } catch (error) {
     throw error;

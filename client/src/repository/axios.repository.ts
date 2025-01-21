@@ -11,7 +11,11 @@ axios.interceptors.response.use(
 class AxiosRepository {
 	async getAll<T>(domain: string): Promise<T[]> {
 		const response = await axios.get<T[]>(`${import.meta.env.VITE_API_URL}/${domain}`);
-		console.log(response.data);
+		return response.data;
+	}
+
+	async getAllUnrepeated<T>(domain: string): Promise<T[]> {
+		const response = await axios.get<T[]>(`${import.meta.env.VITE_API_URL}/${domain}/unrepeated`);
 		return response.data;
 	}
 

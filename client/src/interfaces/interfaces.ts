@@ -1,36 +1,58 @@
 export interface User {
+	id?: number;
 	idUser: number;
-	ci: number;
-	passport: number;
+	ci: string;
+	passport: number | null;
 	firstName: string;
 	lastName: string;
 	genre: string;
 	age: number;
 	address: string;
-	createdDate: any;
-	modifiedDate: any;
+	createdDate?: any;
+	modifiedDate?: any;
 }
-export interface Exam {
-	idexam: number;
+
+export interface Profile {
+	id?: number;
+	idProfile: number;
 	name: string;
-	cost_bs: number;
-	cost_usd: number;
+	cost_bs: string;
+	cost_usd: string;
 	status: string;
-	iduser: number;
-	createddate: any;
-	modifieddate: any;
+	createddate?: any;
+	modifieddate?: any;
+}
+
+export interface Exam {
+	id?: number;
+	idExam: number;
+	idUser: number;
+	total_cost_bs: string;
+	total_cost_usd: string;
+	status: string;
+	createddate?: any;
+	modifieddate?: any;
+}
+
+export interface Order {
+	id?: number;
+	idOrder: number;
+	idExam: number;
+	idProfile: number;
+	createddate?: any;
+	modifieddate?: any;
 }
 
 export interface Reactive {
-	idreactive: number;
+	idReactive: number;
 	name: string;
 	createddate: any;
 	modifieddate: any;
-	totalQuantity: number;
+	total: number;
 }
 
 export interface ReactiveProvider {
-	idreactive: number;
+	idReactive: number;
 	name: string;
 	createddate: any;
 	modifieddate: any;
@@ -45,9 +67,9 @@ export interface ReactiveProvider {
 }
 
 export interface Unit {
-	idunit: number;
+	idUnit: number;
 	name: string;
-	idexam: number;
+	idProfile: number;
 	createddate: any;
 	modifieddate: any;
 }
@@ -60,25 +82,34 @@ export interface Provider {
 }
 
 export interface Alliance {
-	idalliance: number;
+	idAlliance: number;
 	quantity: number;
 	cost_bs: string;
 	cost_usd: string;
 	pay_done: boolean;
 	pay_amount: string;
-	idreactive: number;
-	idprovider: number;
+	idReactive: number;
+	idProvider: number;
+	createddate: any;
+	modifieddate: any;
+}
+
+export interface Payment_Method {
+	idPayment_method: number;
+	name: string;
 	createddate: any;
 	modifieddate: any;
 }
 
 export interface Payment {
-	idpayment_method: number;
-	name: string;
-	amount: number;
-	bank: string;
-	type: string;
-	idexam: number;
+	idPayment: number;
+	idPayment_method: number;
+	idExam: number;
+	amount_bs: string;
+    amount_usd: string;
+    bank: string;
+    phone: string;
+    type: string;
 	createddate: any;
 	modifieddate: any;
 }

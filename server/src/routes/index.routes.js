@@ -8,12 +8,18 @@ import reactiveRouter from "../reactive/reactive.routes.js";
 import unitRouter from "../unit/unit.routes.js";
 import usersRouter from "../users/users.routes.js";
 import boxRouter from "../box/box.routes.js";
+import paymentRouter from "../payment/payment.routes.js";
+import profileRouter from "../profile/profile.routes.js";
+import orderRouter from "../order/order.routes.js"
 
 const routerModule = Router();
 
 routerModule.use("/alliance", allianceRouter);
+routerModule.use("/profile", profileRouter);
 routerModule.use("/exam", examRouter);
+routerModule.use("/order", orderRouter);
 routerModule.use("/payment_method", payment_methodRouter);
+routerModule.use("/payment", paymentRouter);
 routerModule.use("/providers", providersRouter);
 routerModule.use("/reactive", reactiveRouter);
 routerModule.use("/unit", unitRouter);

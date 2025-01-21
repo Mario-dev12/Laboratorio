@@ -10,8 +10,8 @@ unitServices.readUnitByName = async name => {
     return await unitRepository.readUnitByName(name)
 }
 
-unitServices.createUnit = async (name, idExam) => {
-    return await unitRepository.createUnit(name, idExam)
+unitServices.createUnit = async (name, idProfile) => {
+    return await unitRepository.createUnit(name, idProfile)
 }
 
 unitServices.updateUnit = async (id, answer) => {
