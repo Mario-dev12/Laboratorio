@@ -1,6 +1,6 @@
 import express from 'express'
 const paymentRouter = express.Router()
-import paymentController from './payment_method.controller.js'
+import paymentController from './payment.controller.js'
 
 
 paymentRouter.get('/', paymentController.readPayments)
