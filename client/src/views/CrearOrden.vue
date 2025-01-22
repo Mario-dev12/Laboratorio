@@ -91,7 +91,7 @@
 						<div class="row w-100 m-auto">
 							<label class="col align-content-center p-0" for="examen">Tipo de Examen:</label>
 							<select class="col p-1" name="examen" id="examen" v-model="tipoDeExamen" @change="agregarExamen()">
-								<option value="">Seleccionar</option>
+								<option disabled selected value="">Seleccionar</option>
 								<option value="Perfil 20">Perfil 20</option>
 								<option value="Perfil Tiroideo">Perfil Tiroideo</option>
 								<option value="Perfil Urológico">Perfil Urológico</option>
@@ -155,6 +155,16 @@
 						<input type="text" v-model="pagoEnDivisas" />
 					</div>
 				</div>
+				<div class="row m-auto w-100 text-center mt-3" ref="listaDeMetodos">
+					<h1 class="">Metodos De Pago</h1>
+					<select class="col me-2" name="metodosDePago" id="metodosDePago" ref="metodosDePago">
+						<option disabled selected value="">Seleccionar</option>
+						<option value="efectivo">Efectivo</option>
+						<option value="debito">Débito</option>
+						<option value="Pago movil">Pago Móvil</option>
+					</select>
+					<button class="col btn btn-primary w-auto" @click="agregarMetodoDePago()">+ Metodo De Pago</button>
+				</div>
 			</div>
 			<div class="row w-100 m-auto justify-content-center mb-4">
 				<button class="btn btn-primary w-auto" @click="saveOrder">Guardar Orden</button>
@@ -195,6 +205,69 @@
 					</div>
 				</div>
 			</div>
+			<div class="d-none" ref="metodoDebito">
+				<div class="mt-2 table-responsive">
+					<table class="table text-nowrap table-striped">
+						<thead>
+							<tr>
+								<th scope="col">Tipo</th>
+								<th scope="col">Moneda</th>
+								<th scope="col">Banco</th>
+								<th scope="col">Cantidad</th>
+								<th scope="col"></th>
+							</tr>
+						</thead>
+						<tbody>
+							<tr>
+								<td>Debito</td>
+								<td>
+									<select name="moneda" id="moneda">
+										<option value="">seleccionar moneda</option>
+										<option value="bolivares">Bolivares</option>
+									</select>
+								</td>
+								<td>
+									<select name="banco" id="banco">
+										<option value="">seleccionar banco</option>
+										<option value="bolivares">Mercantil</option>
+										<option value="dolares">Banesco</option>
+									</select>
+								</td>
+								<td><input type="text" name="cantidad" id="cantida" placeholder="Cantidad" /></td>
+								<td><button class="btn btn-danger" @click="eliminarMetodoDebito">Borrar</button></td>
+							</tr>
+						</tbody>
+					</table>
+				</div>
+			</div>
+			<div class="d-none" ref="metodoEfectivo">
+				<div class="mt-2 table-responsive">
+					<table class="table text-nowrap table-striped">
+						<thead>
+							<tr>
+								<th scope="col">Tipo</th>
+								<th scope="col">Moneda</th>
+								<th scope="col">Cantidad</th>
+								<th scope="col"></th>
+							</tr>
+						</thead>
+						<tbody>
+							<tr>
+								<td>Efectivo</td>
+								<td>
+									<select name="moneda" id="moneda">
+										<option value="">seleccionar moneda</option>
+										<option value="bolivares">Bolivares</option>
+										<option value="dolares">Dolares</option>
+									</select>
+								</td>
+								<td><input type="text" name="cantidad" id="cantida" placeholder="Cantidad" /></td>
+								<td><button class="btn btn-danger" @click="eliminarMetodoEfectivo">Borrar</button></td>
+							</tr>
+						</tbody>
+					</table>
+				</div>
+			</div>
 		</ion-content>
 	</ion-page>
 </template>
@@ -227,6 +300,11 @@
 	let bs: number = 0;
 	let divisas: number = 0;
 	const showChangeDolar = ref(false);
+	const metodosDePago = ref();
+	const listaDeMetodos = ref();
+
+	const metodoEfectivo = ref();
+	const metodoDebito = ref();
 
 	const totales = ref({
 		totalBs: 0,
@@ -264,6 +342,57 @@
 		pagoBs: number;
 		pago$: number;
 		fechaDeCreacion: string;
+	}
+
+	const test = `
+	<div class="" ref="metodoEfectivo">
+				<div class="mt-2 table-responsive">
+					<table class="table text-nowrap table-striped">
+						<thead>
+							<tr>
+								<th scope="col">Tipo</th>
+								<th scope="col">Moneda</th>
+								<th scope="col">Cantidad</th>
+								<th scope="col"></th>
+							</tr>
+						</thead>
+						<tbody>
+							<tr>
+								<td>Efectivo</td>
+								<td>
+									<select name="moneda" id="moneda">
+										<option value="">seleccionar moneda</option>
+										<option value="bolivares">Bolivares</option>
+										<option value="dolares">Dolares</option>
+									</select>
+								</td>
+								<td><input type="text" name="cantidad" id="cantida" placeholder="Cantidad" /></td>
+								<td><button class="btn btn-danger" @click="eliminarMetodoEfectivo">Borrar</button></td>
+							</tr>
+						</tbody>
+					</table>
+				</div>
+			</div>
+	`;
+
+	function agregarMetodoDePago() {
+		listaDeMetodos.value.innerHTML += test;
+		console.log(metodosDePago.value.value);
+		if (metodosDePago.value.value === "efectivo") {
+			listaDeMetodos.value.appendChild(metodoEfectivo.value);
+			metodoEfectivo.value.classList.remove("d-none");
+		} else if (metodosDePago.value.value === "debito") {
+			listaDeMetodos.value.appendChild(metodoDebito.value);
+			metodoDebito.value.classList.remove("d-none");
+		}
+	}
+
+	function eliminarMetodoEfectivo() {
+		listaDeMetodos.value.removeChild(metodoEfectivo.value);
+	}
+
+	function eliminarMetodoDebito() {
+		listaDeMetodos.value.removeChild(metodoDebito.value);
 	}
 
 	const searchClient = async () => {
