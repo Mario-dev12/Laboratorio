@@ -22,10 +22,10 @@ unitRepository.readUnitByName = async name => {
   }
 }
 
-unitRepository.createUnit = async (name, idExam) => {
+unitRepository.createUnit = async (name, idProfile) => {
   try {
     
-    const resp = await pool.query(`SELECT * FROM sp_create_unit('${name}', ${idExam})`);
+    const resp = await pool.query(`SELECT * FROM sp_create_unit('${name}', ${idProfile})`);
     return resp.rows[0].sp_create_unit;
   } catch (error) {
     throw error;
@@ -35,7 +35,7 @@ unitRepository.createUnit = async (name, idExam) => {
 unitRepository.updateUnit = async (id, answer) => {
   try {
     
-    const resp = await pool.query(`SELECT * FROM sp_update_unit(${id}, '${answer.name}', ${answer.idExam})`);
+    const resp = await pool.query(`SELECT * FROM sp_update_unit(${id}, '${answer.name}', ${answer.idProfile})`);
     return resp.rows[0].sp_update_unit;
   } catch (error) {
     throw error;

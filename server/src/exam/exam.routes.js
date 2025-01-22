@@ -4,7 +4,6 @@ import examController from './exam.controller.js'
 
 
 examRouter.get('/', examController.readExams)
-examRouter.get('/type/:type', examController.readExamByType)
 examRouter.post('/', examController.createExam)
 examRouter.put('/:id', examController.updateExam)
 examRouter.delete('/:id', examController.deleteExam)

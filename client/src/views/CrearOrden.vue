@@ -26,7 +26,7 @@
 					<label class="col-12 p-0" for="documento">Documento de identidad</label>
 					<div class="col-12 p-0">
 						<div class="row w-100 m-auto pe-1 justify-content-between">
-							<input class="col-10" type="text" placeholder="Documento de identidad" name="documento" ref="documentoRef" />
+							<input class="col-10" type="text" placeholder="Documento de identidad" v-model="user.documento" />
 							<button class="btn btn-success col-2 w-auto ms-1" @click="searchClient">🔎</button>
 						</div>
 					</div>
@@ -35,24 +35,19 @@
 					<div class="col-12 mb-2">
 						<div class="row w-100 m-auto">
 							<label class="col align-content-center p-0" for="nombre">Nombre</label>
-							<input class="col w-auto" type="text" placeholder="Nombre" name="nombre" ref="nombreRef" />
+							<input class="col w-auto" type="text" placeholder="Nombre" v-model="user.nombre" />
 						</div>
 					</div>
 					<div class="col-12 mb-2">
 						<div class="row w-100 m-auto">
 							<label class="col align-content-center p-0" for="apellido">Apellido</label>
-							<input class="col w-auto" type="text" placeholder="Apellido" name="apellido" ref="apellidoRef" />
+							<input class="col w-auto" type="text" placeholder="Apellido" v-model="user.apellido" />
 						</div>
 					</div>
 					<div class="col-12 mb-2">
 						<div class="row w-100 m-auto">
-							<label class="col align-content-center p-0" for="genero">Genero</label>
-							<select
-								class="col w-auto py-2"
-								name="genero"
-								id="genero"
-								ref="generoRef"
-								@change="() => console.log(generoRef.value)">
+							<label class="col align-content-center p-0" for="genero">Género</label>
+							<select class="col w-auto py-2" v-model="user.genero">
 								<option disabled selected>Seleccionar</option>
 								<option value="masculino">Masculino</option>
 								<option value="femenino">Femenino</option>
@@ -62,25 +57,21 @@
 					<div class="col-12 mb-2">
 						<div class="row w-100 m-auto">
 							<label class="col align-content-center p-0" for="edad">Edad</label>
-							<input class="col w-auto" type="text" placeholder="Edad" name="edad" ref="edadRef" />
+							<input class="col w-auto" type="number" placeholder="Edad" v-model="user.edad" />
 						</div>
 					</div>
 					<div class="col-12 mb-2">
 						<div class="row w-100 m-auto">
 							<label class="col align-content-center p-0" for="procedencia">Procedencia</label>
-							<select class="col w-auto py-2" name="procedencia" id="precedencia" ref="procedenciaRef">
-								<option disabled selected>Seleccionar</option>
-								<option value="procedencia1">procedencia1</option>
-								<option value="procedencia2">procedencia2</option>
-							</select>
+							<input class="col w-auto" type="text" placeholder="Ingrese la procedencia" v-model="user.procedencia" />
 						</div>
 					</div>
 				</div>
 				<div class="row w-100 m-auto">
 					<div class="col-12 mb-2">
 						<div class="row w-100 m-auto">
-							<label class="col-12 p-0" for="diagnostico">Motivo/Diagnostico:</label>
-							<textarea class="col-12" name="diagnostico" id="diagnostico" cols="50" ref="diagnosticoRef"></textarea>
+							<label class="col-12 p-0" for="diagnostico">Motivo/Diagnóstico:</label>
+							<textarea class="col-12" v-model="user.diagnostico" cols="50"></textarea>
 						</div>
 					</div>
 				</div>
@@ -91,10 +82,8 @@
 						<div class="row w-100 m-auto">
 							<label class="col align-content-center p-0" for="examen">Tipo de Examen:</label>
 							<select class="col p-1" name="examen" id="examen" v-model="tipoDeExamen" @change="agregarExamen()">
-								<option disabled selected value="">Seleccionar</option>
-								<option value="Perfil 20">Perfil 20</option>
-								<option value="Perfil Tiroideo">Perfil Tiroideo</option>
-								<option value="Perfil Urológico">Perfil Urológico</option>
+								<option value="">Seleccionar</option>
+								<option v-for="examen in exams" :key="examen.idExam" :value="examen.name">{{ examen.name }}</option>
 							</select>
 						</div>
 					</div>
@@ -106,7 +95,6 @@
 								<thead>
 									<tr>
 										<th scope="col">Examen</th>
-										<th scope="col">Descripcion</th>
 										<th scope="col">Precio Bs</th>
 										<th scope="col">Precio $</th>
 										<th scope="col"></th>
@@ -114,17 +102,26 @@
 								</thead>
 								<tbody>
 									<tr v-for="(value, index) in examenesSeleccionados" :key="index">
-										<td>{{ value.nombre }}</td>
-										<td>{{ value.descripcion }}</td>
-										<td>Bs: {{ value.precio$ * precioDolar }}</td>
-										<td>$: {{ value.precio$ }}</td>
-										<td><button class="btn btn-danger" @click="eliminarExamen(value.nombre)">Borrar</button></td>
+										<td>{{ value.name }}</td>
+										<td>Bs: {{ value.cost_usd * precioDolar }}</td>
+										<td>$: {{ value.cost_usd }}</td>
+										<td>
+											<button class="btn btn-danger" @click="eliminarExamen(value.name)">Borrar</button>
+										</td>
 									</tr>
 								</tbody>
 							</table>
 						</div>
+						<button class="btn btn-primary mt-3" @click="abrirModal">Agregar método de pago del paciente</button>
 					</div>
 				</div>
+				<ModalAgregarMetodo
+					:isOpen="mostrarModal"
+					:totales="totales"
+					:precioDolar="precioDolar"
+					@update-precio-dolar="cambiarPrecioDolar($event)"
+					@close="closeModal"
+					@add="guardarMetodoPago" />
 			</div>
 			<div class="factura container mt-3 mb-4 bg-dark-subtle rounded p-3">
 				<div class="row w-100 m-auto mb-1">
@@ -137,39 +134,28 @@
 				</div>
 				<div class="row w-100 m-auto mb-1">
 					<div class="col">Total En Bs</div>
-					<div class="col">Bs: {{ totales.totalBs.toFixed(2) }}</div>
+					<div class="col">Bs: {{ totales.totalBs }}</div>
 				</div>
 				<div class="row w-100 m-auto mb-1">
 					<div class="col">Total En $</div>
-					<div class="col">$: {{ totales.total$.toFixed(2) }}</div>
+					<div class="col">$: {{ totales.total$ }}</div>
 				</div>
-				<div class="row w-100 m-auto mb-1">
-					<div class="col">Pago Bs</div>
-					<div class="col">
-						<input type="text" v-model="pagoEnBs" />
+				<div v-if="metodoPagos && metodoPagos.length > 0" class="mt-3">
+					<div class="row w-100 m-auto mt-3">
+						<div class="col">Métodos de Pago</div>
 					</div>
-				</div>
-				<div class="row w-100 m-auto">
-					<div class="col">Pago $</div>
-					<div class="col">
-						<input type="text" v-model="pagoEnDivisas" />
+
+					<div v-for="(metodo, index) in metodoPagos" :key="index" class="row w-100 m-auto mb-1">
+						<div class="col">{{ metodo.metodo }}</div>
+						<div class="col">Monto: Bs {{ metodo.monto !== undefined ? metodo.monto.toFixed(2) : "N/A" }}</div>
+						<div class="col">Divisa: {{ metodo.divisa }}</div>
+						<div class="col" v-if="metodo.banco">Banco: {{ metodo.banco }}</div>
 					</div>
-				</div>
-				<div class="row m-auto w-100 text-center mt-3" ref="listaDeMetodos">
-					<h1 class="">Metodos De Pago</h1>
-					<select class="col me-2" name="metodosDePago" id="metodosDePago" ref="metodosDePago">
-						<option disabled selected value="">Seleccionar</option>
-						<option value="efectivo">Efectivo</option>
-						<option value="debito">Débito</option>
-						<option value="Pago movil">Pago Móvil</option>
-					</select>
-					<button class="col btn btn-primary w-auto" @click="agregarMetodoDePago()">+ Metodo De Pago</button>
 				</div>
 			</div>
 			<div class="row w-100 m-auto justify-content-center mb-4">
 				<button class="btn btn-primary w-auto" @click="saveOrder">Guardar Orden</button>
 			</div>
-			<!-- Toast cliente no encontrado -->
 			<div class="toast-container position-fixed top-0 end-0 p-3 z-3">
 				<div
 					id="searchClientToast"
@@ -187,7 +173,6 @@
 					</div>
 				</div>
 			</div>
-			<!-- Toast orden creada -->
 			<div class="toast-container position-fixed top-0 end-0 p-3 z-3">
 				<div
 					id="liveToast"
@@ -205,69 +190,6 @@
 					</div>
 				</div>
 			</div>
-			<div class="d-none" ref="metodoDebito">
-				<div class="mt-2 table-responsive">
-					<table class="table text-nowrap table-striped">
-						<thead>
-							<tr>
-								<th scope="col">Tipo</th>
-								<th scope="col">Moneda</th>
-								<th scope="col">Banco</th>
-								<th scope="col">Cantidad</th>
-								<th scope="col"></th>
-							</tr>
-						</thead>
-						<tbody>
-							<tr>
-								<td>Debito</td>
-								<td>
-									<select name="moneda" id="moneda">
-										<option value="">seleccionar moneda</option>
-										<option value="bolivares">Bolivares</option>
-									</select>
-								</td>
-								<td>
-									<select name="banco" id="banco">
-										<option value="">seleccionar banco</option>
-										<option value="bolivares">Mercantil</option>
-										<option value="dolares">Banesco</option>
-									</select>
-								</td>
-								<td><input type="text" name="cantidad" id="cantida" placeholder="Cantidad" /></td>
-								<td><button class="btn btn-danger" @click="eliminarMetodoDebito">Borrar</button></td>
-							</tr>
-						</tbody>
-					</table>
-				</div>
-			</div>
-			<div class="d-none" ref="metodoEfectivo">
-				<div class="mt-2 table-responsive">
-					<table class="table text-nowrap table-striped">
-						<thead>
-							<tr>
-								<th scope="col">Tipo</th>
-								<th scope="col">Moneda</th>
-								<th scope="col">Cantidad</th>
-								<th scope="col"></th>
-							</tr>
-						</thead>
-						<tbody>
-							<tr>
-								<td>Efectivo</td>
-								<td>
-									<select name="moneda" id="moneda">
-										<option value="">seleccionar moneda</option>
-										<option value="bolivares">Bolivares</option>
-										<option value="dolares">Dolares</option>
-									</select>
-								</td>
-								<td><input type="text" name="cantidad" id="cantida" placeholder="Cantidad" /></td>
-								<td><button class="btn btn-danger" @click="eliminarMetodoEfectivo">Borrar</button></td>
-							</tr>
-						</tbody>
-					</table>
-				</div>
-			</div>
 		</ion-content>
 	</ion-page>
 </template>
@@ -278,18 +200,13 @@
 	import { userStore } from "@/stores/userStore";
 	import { User } from "@/interfaces/interfaces";
 	import { Toast } from "bootstrap";
+	import ModalAgregarMetodo from "@/components/ModalAgregarMetodo.vue";
+	import { examStore } from "@/stores/examStore";
 
 	const tipoDeExamen = ref();
 	const pagoEnDivisas = ref();
 	const pagoEnBs = ref();
 	const examenesSeleccionados = ref<Examen[]>([]);
-	const documentoRef = ref();
-	const nombreRef = ref();
-	const apellidoRef = ref();
-	const generoRef = ref();
-	const edadRef = ref();
-	const procedenciaRef = ref();
-	const diagnosticoRef = ref();
 	const today = new Date();
 	const day = today.getUTCDate();
 	const month = today.getUTCMonth() + 1;
@@ -297,112 +214,56 @@
 	const precioDolar = ref(Number(localStorage.getItem("tasaDolar")) || 50);
 	const precioDolarRef = ref();
 	const users = userStore();
+	const metodoPagos = ref();
+	const showChangeDolar = ref(false);
+	const mostrarModal = ref(false);
+	const exams = ref();
+	const examsStore = examStore();
 	let bs: number = 0;
 	let divisas: number = 0;
-	const showChangeDolar = ref(false);
-	const metodosDePago = ref();
-	const listaDeMetodos = ref();
 
-	const metodoEfectivo = ref();
-	const metodoDebito = ref();
+	const user = ref({
+		id: 0,
+		documento: "",
+		nombre: "",
+		apellido: "",
+		genero: "",
+		edad: 0,
+		procedencia: "",
+		diagnostico: "",
+	});
 
 	const totales = ref({
 		totalBs: 0,
 		total$: 0,
 	});
 
-	const examenes: Examen[] = [
-		{ nombre: "Perfil 20", precio$: 10, descripcion: "examen general de salud" },
-		{ nombre: "Perfil Tiroideo", precio$: 10, descripcion: "examen de la tiroides" },
-		{ nombre: "Perfil Urológico", precio$: 15, descripcion: "examen urológico" },
-	];
-
-	onMounted(async () => {
-		const test = await users.fecthUsers();
-		console.log(test);
-	});
+	// onMounted(async () => {
+	// 	exams.value = await examsStore.fecthExamsUnrepeated();
+	// 	exams.value = exams.value.map((exam: { cost_bs: string; cost_usd: string; }) => ({
+	// 		...exam,
+	// 		cost_bs: parseFloat(exam.cost_bs.replace(',', '.')),
+	// 		cost_usd: parseFloat(exam.cost_usd)
+	// 	}));
+	// });
 
 	interface Examen {
-		nombre: string;
-		precio$: number;
-		descripcion: string;
-	}
-
-	interface Orden {
-		documentoIdentidad: number;
-		nombre: any;
-		apellido: string;
-		genero: string;
-		edad: number;
-		procedencia: string;
-		diagnostico: string;
-		examenes: Examen[];
-		totalEnBs: number;
-		totalEn$: number;
-		pagoBs: number;
-		pago$: number;
-		fechaDeCreacion: string;
-	}
-
-	const test = `
-	<div class="" ref="metodoEfectivo">
-				<div class="mt-2 table-responsive">
-					<table class="table text-nowrap table-striped">
-						<thead>
-							<tr>
-								<th scope="col">Tipo</th>
-								<th scope="col">Moneda</th>
-								<th scope="col">Cantidad</th>
-								<th scope="col"></th>
-							</tr>
-						</thead>
-						<tbody>
-							<tr>
-								<td>Efectivo</td>
-								<td>
-									<select name="moneda" id="moneda">
-										<option value="">seleccionar moneda</option>
-										<option value="bolivares">Bolivares</option>
-										<option value="dolares">Dolares</option>
-									</select>
-								</td>
-								<td><input type="text" name="cantidad" id="cantida" placeholder="Cantidad" /></td>
-								<td><button class="btn btn-danger" @click="eliminarMetodoEfectivo">Borrar</button></td>
-							</tr>
-						</tbody>
-					</table>
-				</div>
-			</div>
-	`;
-
-	function agregarMetodoDePago() {
-		listaDeMetodos.value.innerHTML += test;
-		console.log(metodosDePago.value.value);
-		if (metodosDePago.value.value === "efectivo") {
-			listaDeMetodos.value.appendChild(metodoEfectivo.value);
-			metodoEfectivo.value.classList.remove("d-none");
-		} else if (metodosDePago.value.value === "debito") {
-			listaDeMetodos.value.appendChild(metodoDebito.value);
-			metodoDebito.value.classList.remove("d-none");
-		}
-	}
-
-	function eliminarMetodoEfectivo() {
-		listaDeMetodos.value.removeChild(metodoEfectivo.value);
-	}
-
-	function eliminarMetodoDebito() {
-		listaDeMetodos.value.removeChild(metodoDebito.value);
+		name: string;
+		cost_usd: number;
+		cost_bs: number;
+		idExam: number;
 	}
 
 	const searchClient = async () => {
-		if (documentoRef.value.value) {
-			const currentClient: User[] = await users.fecthUserById(documentoRef.value.value);
+		if (user.value.documento) {
+			const currentClient: User[] = await users.fecthUserById(user.value.documento);
 			if (currentClient.length) {
-				nombreRef.value.value = currentClient[0].firstName;
-				apellidoRef.value.value = currentClient[0].lastName;
-				generoRef.value.value = currentClient[0].genre === "M" ? "masculino" : "femenino";
-				edadRef.value.value = currentClient[0].age;
+				user.value.id = currentClient[0].idUser;
+				user.value.nombre = currentClient[0].firstName;
+				user.value.apellido = currentClient[0].lastName;
+				user.value.genero = currentClient[0].genre === "M" ? "masculino" : "femenino";
+				user.value.edad = currentClient[0].age;
+				user.value.procedencia = currentClient[0].address;
 			} else {
 				const clientToast: any = document.getElementById("searchClientToast");
 				const toastBootstrap = Toast.getOrCreateInstance(clientToast);
@@ -413,27 +274,25 @@
 		}
 	};
 
-	const cambiarPrecioDolar = () => {
-		if (isNaN(precioDolarRef.value.value) || precioDolarRef.value.value === "") {
+	const cambiarPrecioDolar = (nuevoPrecio: any) => {
+		if (isNaN(nuevoPrecio) || nuevoPrecio === "") {
 			alert("Ingrese un valor válido");
 		} else {
-			precioDolar.value = precioDolarRef.value.value;
-			localStorage.setItem("tasaDolar", precioDolarRef.value.value);
-			showChangeDolar.value = !showChangeDolar.value;
-			precioDolarRef.value.value = "";
+			precioDolar.value = nuevoPrecio;
+			localStorage.setItem("tasaDolar", nuevoPrecio);
 			totales.value.total$ = 0;
 			totales.value.totalBs = 0;
 			for (const item of examenesSeleccionados.value) {
-				totales.value.totalBs += item.precio$ * precioDolar.value;
-				totales.value.total$ += item.precio$;
+				totales.value.totalBs += item.cost_usd * precioDolar.value;
+				totales.value.total$ += item.cost_usd;
 			}
 		}
 	};
 
 	const agregarExamen = () => {
-		for (const item of examenes) {
-			const itemInArray = examenesSeleccionados.value.find((element) => element.nombre === item.nombre);
-			if (item.nombre === tipoDeExamen.value && !itemInArray) {
+		for (const item of exams.value) {
+			const itemInArray = examenesSeleccionados.value.find((element) => element.name === item.name);
+			if (item.name === tipoDeExamen.value && !itemInArray) {
 				examenesSeleccionados.value.push(item);
 				examenesSeleccionados.value = [...examenesSeleccionados.value];
 				pagoEnBs.value = "";
@@ -444,20 +303,30 @@
 		tipoDeExamen.value = "";
 	};
 
+	const actualizarCostosEnBs = () => {
+		examenesSeleccionados.value.forEach((examen) => {
+			examen.cost_bs = examen.cost_usd * precioDolar.value;
+		});
+	};
+
 	function eliminarExamen(examen: string) {
 		examenesSeleccionados.value = examenesSeleccionados.value.filter((item) => {
-			return item.nombre !== examen;
+			return item.name !== examen;
 		});
 	}
+
+	watch(precioDolar, () => {
+		actualizarCostosEnBs();
+	});
 
 	watch(examenesSeleccionados, (newValue, oldValue) => {
 		if (newValue.length) {
 			if (newValue.length < oldValue.length) {
-				totales.value.totalBs -= newValue[0].precio$ * precioDolar.value;
-				totales.value.total$ -= newValue[0].precio$;
+				totales.value.totalBs -= newValue[0].cost_usd * precioDolar.value;
+				totales.value.total$ -= newValue[0].cost_usd;
 			} else if (newValue.length >= oldValue.length) {
-				totales.value.totalBs += newValue[0].precio$ * precioDolar.value;
-				totales.value.total$ += newValue[0].precio$;
+				totales.value.totalBs += newValue[0].cost_usd * precioDolar.value;
+				totales.value.total$ += newValue[0].cost_usd;
 			}
 		} else {
 			totales.value.totalBs = 0;
@@ -472,8 +341,8 @@
 		};
 
 		for (const item of examenesSeleccionados.value) {
-			totales2.total$ += item.precio$;
-			totales2.totalBs += item.precio$ * precioDolar.value;
+			totales2.total$ += item.cost_usd;
+			totales2.totalBs += item.cost_usd * precioDolar.value;
 		}
 
 		if (examenesSeleccionados.value.length) {
@@ -512,8 +381,8 @@
 		};
 
 		for (const item of examenesSeleccionados.value) {
-			totales2.total$ += item.precio$;
-			totales2.totalBs += item.precio$ * precioDolar.value;
+			totales2.total$ += item.cost_usd;
+			totales2.totalBs += item.cost_usd * precioDolar.value;
 		}
 
 		if (examenesSeleccionados.value.length) {
@@ -549,14 +418,50 @@
 		bs = 0;
 		divisas = 0;
 		for (const item of examenesSeleccionados.value) {
-			divisas += item.precio$;
-			bs += item.precio$ * precioDolar.value;
+			divisas += item.cost_usd;
+			bs += item.cost_usd * precioDolar.value;
 		}
 	}
 
-	const saveOrder = () => {
+	const saveOrder = async () => {
 		obtenerTotales();
-		const orden: Orden = {
+		console.log("user", user.value);
+		console.log("exams", examenesSeleccionados.value);
+		console.log("metodos", metodoPagos.value);
+		/*if (user.value.id === 0){
+			let respUser: number | undefined = 0;
+			let respExam = [];
+			const body: User = {
+				idUser: user.value.id,
+				passport: null,
+				ci: user.value.documento,
+				firstName: user.value.nombre,
+				lastName: user.value.apellido,
+				genre: user.value.genero === 'masculino' ? 'M' : (user.value.genero === 'femenino' ? 'F' : ''),
+				age: user.value.edad,
+				address: user.value.procedencia
+			}
+			const resp = await users.createUser(body);
+			respUser = resp[0].id;
+			if (respUser){
+				for(let i = 0; i < examenesSeleccionados.value.length; i++){
+					const body: Exam = {
+						idexam: examenesSeleccionados.value[i].idExam,
+						name: examenesSeleccionados.value[i].name,
+						cost_bs: examenesSeleccionados.value[i].cost_bs,
+						cost_usd: examenesSeleccionados.value[i].cost_usd,
+						status: 'Pendiente por pasar',
+						idUser: respUser
+					}
+					const resp = await examsStore.createExam(body);
+					respExam.push(resp)
+					console.log('resp', resp, respExam)
+				}
+			}
+		} else {
+
+		}*/
+		/*const orden: Orden = {
 			documentoIdentidad: documentoRef.value.value,
 			nombre: nombreRef.value.value,
 			apellido: apellidoRef.value.value,
@@ -585,7 +490,20 @@
 			alert("please fill all fields");
 		}
 
-		console.log(orden);
+		console.log(orden);*/
+	};
+
+	const abrirModal = () => {
+		mostrarModal.value = true;
+	};
+
+	const closeModal = () => {
+		mostrarModal.value = false;
+	};
+
+	const guardarMetodoPago = (metodo: any) => {
+		metodoPagos.value = metodo;
+		closeModal();
 	};
 </script>
 

@@ -25,7 +25,7 @@ unitController.readUnitByName = async (req, res) => {
 
 unitController.createUnit = async (req, res) => {
   try {
-    const answer = await unitServices.createUnit(req.body.name, req.body.idExam)
+    const answer = await unitServices.createUnit(req.body.name, req.body.idProfile)
     res.send(answer)
   } catch (error) {
     return res.status(400).send(error.stack)
