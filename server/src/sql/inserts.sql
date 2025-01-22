@@ -1,7 +1,3 @@
-/*----------------------------------------------------------------------------------------------------------------------
---------------------------------------------- DESPUÉS SEGUNDO CORRE ESTO -------------------------------------------------------
------------------------------------------------------------------------------------------------------------------------- */
-
 INSERT INTO provider (name) VALUES  
 ('Juan Pérez'),  
 ('María Gómez'),  
@@ -16,11 +12,30 @@ INSERT INTO users (ci, firstName, lastName, genre, age, address) VALUES
 ('4567890', 'Lucía', 'Torres', 'F', 22, 'Camino de la Libertad, Ciudad W'),  
 ('5678901', 'Pedro', 'Sánchez', 'M', 40, 'Ruta del Progreso 99, Ciudad V'); 
 
-INSERT INTO exam (name, cost_bs, cost_usd, status, idUser) VALUES 
-('Perfil 20', '244,35', '5', 'Pendiente por pasar', 1),
-('Uroanalisis', '244,35', '5', 'Pendiente por pasar', 2);
+INSERT INTO profile (name, cost_bs, cost_usd, status) VALUES 
+('Perfil 20', '244,35', '5', 'Pendiente por pasar'),
+('Uroanalisis', '244,35', '5', 'Pendiente por pasar');
 
-INSERT INTO unit (name, idExam) VALUES   
+INSERT INTO exam (idUser, total_cost_bs, total_cost_usd) VALUES 
+(1, '488,7', '5'),
+(2, '244,35', '5');
+
+INSERT INTO orders (idExam, idProfile) VALUES 
+(1, 1),
+(1, 2),
+(2, 2);
+
+INSERT INTO payment_method (name) VALUES 
+('Debito'),
+('Pago Movil'),
+('Efectivo');
+
+INSERT INTO payment (idPayment_method, idExam, amount_bs, amount_usd, bank, phone, type) VALUES 
+(1, 1, '244,35', '2.5', 'Mercantil', '', 'Bolivares'),
+(2, 1, '244,35', '2.5', 'Venezuela', '0414-894432', 'Bolivares'),
+(3, 2, '244,35', '5', '', '', 'Dolares');
+
+INSERT INTO unit (name, idProfile) VALUES   
 ('x10/L', 1),  
 ('g%', 1),  
 ('%', 1),  
@@ -33,11 +48,6 @@ INSERT INTO unit (name, idExam) VALUES
 ('g/dl', 1),  
 ('U/L', 1),  
 ('gr/dl', 1);  
-
-INSERT INTO payment_method (name, amount, bank, type, idExam) VALUES 
-('Debito', '244,35', 'Banco Mercantil', 'Bolivares', 1),
-('Pago Movil', '122,18', 'Banco Venezuela', 'Bolivares', 2),
-('Efectivo', '2,5', '', 'Dolares', 2);
 
 INSERT INTO reactive (name, total) VALUES   
 ('Glucosa', 5),  

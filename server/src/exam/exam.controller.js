@@ -12,20 +12,9 @@ examController.readExams = async (req, res) => {
     }
 }
 
-examController.readExamByType = async (req, res) => {
-    try {
-      const { type } = req.params
-      const answer = await examServices.readExamByType(type)
-  
-      res.send(answer)
-    } catch (error) {
-      return res.status(400).send(error.stack)
-    }
-}
-
 examController.createExam = async (req, res) => {
   try {
-    const answer = await examServices.createExam(req.body.name, req.body.cost_bs, req.body.cost_usd, req.body.status, req.body.idUser)
+    const answer = await examServices.createExam(req.body.idUser, req.body.total_cost_bs, req.body.total_cost_usd)
     res.send(answer)
   } catch (error) {
     return res.status(400).send(error.stack)

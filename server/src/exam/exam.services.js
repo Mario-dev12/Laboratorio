@@ -6,12 +6,8 @@ examServices.readExams = async () => {
     return await examRepository.readExams()
 }
 
-examServices.readExamByType = async name => {
-    return await examRepository.readExamByType(name)
-}
-
-examServices.createExam = async (name, cost_bs, cost_usd, status, idUser) => {
-    return await examRepository.createExam(name, cost_bs, cost_usd, status, idUser)
+examServices.createExam = async (idUser, total_cost_bs, total_cost_usd) => {
+    return await examRepository.createExam(idUser, total_cost_bs, total_cost_usd)
 }
 
 examServices.updateExam = async (id, answer) => {

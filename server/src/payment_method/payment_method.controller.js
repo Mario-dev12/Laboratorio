@@ -25,7 +25,7 @@ payment_methodController.readPayment_methodByName = async (req, res) => {
 
 payment_methodController.createPayment_method = async (req, res) => {
   try {
-    const answer = await payment_methodServices.createPayment_method(req.body.name, req.body.amount, req.body.bank, req.body.type, req.body.idExam)
+    const answer = await payment_methodServices.createPayment_method(req.body.name)
     res.send(answer)
   } catch (error) {
     return res.status(400).send(error.stack)

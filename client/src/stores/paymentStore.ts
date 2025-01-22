@@ -4,36 +4,26 @@ import { Payment } from "@/interfaces/interfaces";
 
 export const paymentStore = defineStore("payment", {
 	state: () => ({
-		payments: [] as Payment[] | Payment,
+		payment: [] as Payment[] | Payment,
 	}),
 	actions: {
 		async fecthPayments() {
-			const response = await axiosRepository.getAll<Payment>("payment_method");
-			this.payments = response;
-			return this.payments;
-		},
-		async fetchPaymentId(id: string | number) {
-			const response = await axiosRepository.getById<Payment>("payment_method", id);
-			this.payments = response;
-			return this.payments;
-		},
-		async fetchPaymentByName(name: string) {
-			const response = await axiosRepository.getByName<Payment>("payment_method", name);
-			this.payments = response;
-			return this.payments;
+			const response = await axiosRepository.getAll<Payment>("payment");
+			this.payment = response;
+			return this.payment;
 		},
 		async createPayment(exam: Payment) {
-			const response = await axiosRepository.create<Payment>("payment_method", exam);
-			this.payments = response;
-			return this.payments;
+			const response = await axiosRepository.create<Payment>("payment", exam);
+			this.payment = response;
+			return this.payment;
 		},
 		async updatePayment(id: string | number, data: Payment) {
-			const response = await axiosRepository.update<Payment>("payment_method", id, data);
-			this.payments = response;
-			return this.payments;
+			const response = await axiosRepository.update<Payment>("payment", id, data);
+			this.payment = response;
+			return this.payment;
 		},
 		async deletePayment(id: string | number) {
-			await axiosRepository.delete("payment_method", id);
+			await axiosRepository.delete("payment", id);
 		},
 	},
 });

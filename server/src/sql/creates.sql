@@ -1,7 +1,3 @@
-/*----------------------------------------------------------------------------------------------------------------------
---------------------------------------------- PRIMERO CORRE ESTO -------------------------------------------------------
------------------------------------------------------------------------------------------------------------------------- */
-
 CREATE TABLE IF NOT EXISTS provider
 (
     idProvider serial primary key,
@@ -24,23 +20,32 @@ CREATE TABLE IF NOT EXISTS users
     modifiedDate timestamp with time zone NOT NULL default now()
 );
 
-CREATE TABLE IF NOT EXISTS exam
+CREATE TABLE IF NOT EXISTS profile
 (
-    idExam serial primary key,
+    idProfile serial primary key,
     name character varying(255) not null,
     cost_bs character varying(255),
     cost_usd character varying(255),
     status character varying(255) NOT NULL CHECK (status IN ('Pendiente por pasar', 'Pendiente de enviar', 'Pendiente de imprimir', 'Completado')),
-    idUser integer NOT NULL references users(idUser) ON DELETE CASCADE,
     createdDate timestamp with time zone NOT NULL default now(),
     modifiedDate timestamp with time zone NOT NULL default now()
 );
 
-CREATE TABLE IF NOT EXISTS unit
+CREATE TABLE IF NOT EXISTS exam
 (
-    idUnit serial primary key,
-    name character varying(255) not null,
+    idExam serial primary key,
+    idUser integer NOT NULL references users(idUser) ON DELETE CASCADE,
+    total_cost_bs character varying(255),
+    total_cost_usd character varying(255),
+    createdDate timestamp with time zone NOT NULL default now(),
+    modifiedDate timestamp with time zone NOT NULL default now()
+);
+
+CREATE TABLE IF NOT EXISTS orders
+(
+    idOrder serial primary key,
     idExam integer NOT NULL references exam(idExam) ON DELETE CASCADE,
+    idProfile integer NOT NULL references profile(idProfile) ON DELETE CASCADE,
     createdDate timestamp with time zone NOT NULL default now(),
     modifiedDate timestamp with time zone NOT NULL default now()
 );
@@ -49,10 +54,29 @@ CREATE TABLE IF NOT EXISTS payment_method
 (
     idPayment_method serial primary key,
     name character varying(255) not null,
-    amount character varying(255) not null,
-    bank character varying(255),
-    type character varying(255) NOT NULL CHECK (type IN ('Bolivares', 'Dolares', 'bolivares', 'dolares')),
+    createdDate timestamp with time zone NOT NULL default now(),
+    modifiedDate timestamp with time zone NOT NULL default now()
+);
+
+CREATE TABLE IF NOT EXISTS payment
+(
+    idPayment serial primary key,
+    idPayment_method integer NOT NULL references payment_method(idPayment_method) ON DELETE CASCADE,
     idExam integer NOT NULL references exam(idExam) ON DELETE CASCADE,
+    amount_bs character varying(255),
+    amount_usd character varying(255),
+    bank character varying(255),
+    phone character varying(255),
+    type character varying(255) NOT NULL CHECK (type IN ('Bolivares', 'Dolares', 'bolivares', 'dolares')),
+    createdDate timestamp with time zone NOT NULL default now(),
+    modifiedDate timestamp with time zone NOT NULL default now()
+);
+
+CREATE TABLE IF NOT EXISTS unit
+(
+    idUnit serial primary key,
+    name character varying(255) not null,
+    idProfile integer NOT NULL references profile(idProfile) ON DELETE CASCADE,
     createdDate timestamp with time zone NOT NULL default now(),
     modifiedDate timestamp with time zone NOT NULL default now()
 );
