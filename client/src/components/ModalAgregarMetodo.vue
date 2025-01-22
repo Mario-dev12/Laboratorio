@@ -149,6 +149,17 @@
                             </select>  
                         </div>  
                         <div class="form-group mx-2">  
+                            <label for="telefonoPagoMovil">Teléfono:</label>  
+                            <input  
+                                v-model="metodo.telefonoPagoMovil"  
+                                type="text"  
+                                class="form-control"  
+                                id="telefonoPagoMovil"  
+                                required  
+                                placeholder="Ingrese el teléfono"  
+                            />  
+                        </div>  
+                        <div class="form-group mx-2">  
                             <label for="montoPagoMovil">Monto:</label>  
                             <input  
                                 v-model.number="metodo.montoPagoMovil"  
@@ -169,7 +180,7 @@
                                 readonly  
                             />  
                         </div>  
-                    </div>
+                    </div>  
 
                     <ion-item-divider></ion-item-divider>  
                 </div>  
@@ -195,8 +206,9 @@
 </template>  
 
 <script setup lang="ts">  
-import { ref, defineEmits, defineProps, computed } from "vue";  
+import { ref, defineEmits, defineProps, computed, watch } from "vue";  
 import { IonButton, IonContent, IonHeader, IonModal, IonTitle, IonFooter, IonToolbar, IonButtons, IonItemDivider } from "@ionic/vue";
+import { payment_MethodStore } from "@/stores/payment_MethodStore"
 
 const props = defineProps<{  
     isOpen: boolean;  
@@ -208,44 +220,90 @@ const props = defineProps<{
 }>();  
 
 const montoRestanteBolivares = ref(0);  
-const montoRestanteDolares = ref(0);  
+const montoRestanteDolares = ref(0); 
+const paymentsStore = payment_MethodStore();
 
 const method = ref(false);
 
 const emit = defineEmits(["close", "add", "update-precio-dolar"]);  
 
-const metodos = ref([{ metodo: '', divisaEfectivo: '', montoEfectivo: 0, divisaDebito: 'Bolivares', montoDebito: 0, montoUSD: 0, banco: '', divisaPagoMovil: 'Bolivares', bancoPagoMovil: '', montoPagoMovil: 0 }]);  
+const metodos = ref([{ metodo: '', divisaEfectivo: '', montoEfectivo: 0, divisaDebito: 'Bolivares', montoDebito: 0, montoUSD: 0, banco: '', divisaPagoMovil: 'Bolivares', bancoPagoMovil: '', montoPagoMovil: 0, telefonoPagoMovil: '' }]);  
 
 const closeModal = () => {  
     emit("close");  
 };  
 
+watch(  
+    () => props.precioDolar,  
+    (nuevoPrecioDolar) => {  
+        nuevoMontoDolar.value = nuevoPrecioDolar; 
+    }  
+); 
+
 const agregarMetodoPago = async () => { 
     method.value = true; 
     await calcularMontosRestantes();
-    metodos.value.push({ metodo: '', divisaEfectivo: '', montoEfectivo: 0, divisaDebito: 'Bolivares', montoDebito: 0, montoUSD: 0, banco: '', divisaPagoMovil: 'Bolivares', bancoPagoMovil: '', montoPagoMovil: 0 });  
+    metodos.value.push({ metodo: '', divisaEfectivo: '', montoEfectivo: 0, divisaDebito: 'Bolivares', montoDebito: 0, montoUSD: 0, banco: '', divisaPagoMovil: 'Bolivares', bancoPagoMovil: '', montoPagoMovil: 0, telefonoPagoMovil: '' });  
 };  
 
-const submit = () => {  
-    const paymentDetails = metodos.value.filter(m => m.metodo).map(m => ({  
-        metodo: m.metodo,  
-        monto: m.metodo === 'Efectivo' ? m.montoEfectivo : m.metodo === 'Pago Movil' ? m.montoPagoMovil : m.montoDebito,  
-        divisa: m.metodo === 'Efectivo' ? m.divisaEfectivo : m.metodo === 'Pago Movil' ? m.divisaPagoMovil : m.divisaDebito,  
-        banco: m.metodo === 'Debito' ? m.banco : m.metodo === 'Pago Movil' ? m.bancoPagoMovil : null,  
-    }));  
+const submit = async () => {  
+    const paymentDetails = [];  
+
+    for (const m of metodos.value) {  
+        if (m.metodo) {  
+            const paymentMethod = await paymentsStore.fetchPaymentByName(m.metodo);   
+
+            const idPaymentMethod = Array.isArray(paymentMethod) && paymentMethod.length > 0  
+                ? paymentMethod[0].idPayment_method  
+                : null;  
+
+            if (idPaymentMethod === null) {  
+                console.warn(`Método de pago "${m.metodo}" no encontrado o no válido.`);  
+                continue;
+            }  
+
+            let montoBolivares = 0;  
+            let montoDolares = 0;  
+            let tipo = "";
+
+            if (m.metodo === 'Efectivo') {  
+                montoBolivares = m.divisaEfectivo === 'Bolivares' ? m.montoEfectivo : m.montoEfectivo * props.precioDolar;  
+                montoDolares = m.divisaEfectivo === 'Dolares' ? m.montoEfectivo : m.montoEfectivo / props.precioDolar;  
+                tipo = m.divisaEfectivo;
+            } else if (m.metodo === 'Debito') {  
+                montoBolivares = m.montoDebito;  
+                montoDolares = m.montoDebito / props.precioDolar;
+                tipo = "Bolivares"; 
+            } else if (m.metodo === 'Pago Movil') {  
+                montoBolivares = m.montoPagoMovil;
+                montoDolares = m.montoPagoMovil / props.precioDolar; 
+                tipo = "Bolivares";
+            }  
+ 
+            paymentDetails.push({  
+                metodo: m.metodo,  
+                banco: m.banco || m.bancoPagoMovil || '',
+                telefono: m.telefonoPagoMovil || '',
+                tipo: tipo,
+                montoBolivares: montoBolivares.toFixed(2), 
+                montoDolares: montoDolares.toFixed(2),
+                idPayment_method: idPaymentMethod, 
+            });  
+        }  
+    }  
 
     if (paymentDetails.length === 0) {  
         alert("Por favor, seleccione al menos un método de pago.");  
         return;  
     }  
 
-    emit("add", paymentDetails); 
+    emit("add", paymentDetails);  
     resetForm();  
-    closeModal(); 
-};  
+    closeModal();  
+}; 
 
 const resetForm = () => {  
-    metodos.value = [{ metodo: '', divisaEfectivo: '', montoEfectivo: 0, divisaDebito: 'Bolivares', montoDebito: 0, montoUSD: 0, banco: '', divisaPagoMovil: 'Bolivares', bancoPagoMovil: '', montoPagoMovil: 0 }];  
+    metodos.value = [{ metodo: '', divisaEfectivo: '', montoEfectivo: 0, divisaDebito: 'Bolivares', montoDebito: 0, montoUSD: 0, banco: '', divisaPagoMovil: 'Bolivares', bancoPagoMovil: '', montoPagoMovil: 0, telefonoPagoMovil: '' }];  
 };  
 
 const isEditingTasa = ref(false);  

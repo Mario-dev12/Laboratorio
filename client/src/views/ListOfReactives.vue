@@ -268,7 +268,6 @@
 
 	const addProviderToList = async (newProvider: Provider) => {
 		const resp = await providersStore.createProvider(newProvider);
-		console.log("resp", resp);
 		showToast("Proveedor creado correctamente");
 		reactives.value = await reactivesStore.fetchReactiveByProvider();
 		providers.value = await providersStore.fecthProviders();

@@ -4,7 +4,6 @@ const profileRepository = {};
 
 profileRepository.readProfiles = async () => {
   try {
-    
     const resp = await pool.query(`SELECT * FROM sp_find_all_profile()`);
     return resp.rows[0].sp_find_all_profile;
   } catch (error) {
