@@ -16,6 +16,7 @@ class AxiosRepository {
 
 	async getAllUnrepeated<T>(domain: string): Promise<T[]> {
 		const response = await axios.get<T[]>(`${import.meta.env.VITE_API_URL}/${domain}/unrepeated`);
+		console.log(response);
 		return response.data;
 	}
 

@@ -201,7 +201,7 @@
 	import { User } from "@/interfaces/interfaces";
 	import { Toast } from "bootstrap";
 	import ModalAgregarMetodo from "@/components/ModalAgregarMetodo.vue";
-	import { examStore } from "@/stores/examStore";
+	import { profileStore } from "@/stores/profileStore";
 
 	const tipoDeExamen = ref();
 	const pagoEnDivisas = ref();
@@ -218,9 +218,7 @@
 	const showChangeDolar = ref(false);
 	const mostrarModal = ref(false);
 	const exams = ref();
-	const examsStore = examStore();
-	let bs: number = 0;
-	let divisas: number = 0;
+	const profile = profileStore();
 
 	const user = ref({
 		id: 0,
@@ -238,14 +236,15 @@
 		total$: 0,
 	});
 
-	// onMounted(async () => {
-	// 	exams.value = await examsStore.fecthExamsUnrepeated();
-	// 	exams.value = exams.value.map((exam: { cost_bs: string; cost_usd: string; }) => ({
-	// 		...exam,
-	// 		cost_bs: parseFloat(exam.cost_bs.replace(',', '.')),
-	// 		cost_usd: parseFloat(exam.cost_usd)
-	// 	}));
-	// });
+	onMounted(async () => {
+		exams.value = await profile.fecthProfiles();
+		exams.value = exams.value.map((exam: { cost_bs: string; cost_usd: string }) => ({
+			...exam,
+			cost_bs: parseFloat(exam.cost_bs.replace(",", ".")),
+			cost_usd: parseFloat(exam.cost_usd),
+		}));
+		console.log(exams.value);
+	});
 
 	interface Examen {
 		name: string;
@@ -414,17 +413,7 @@
 		}
 	});
 
-	function obtenerTotales() {
-		bs = 0;
-		divisas = 0;
-		for (const item of examenesSeleccionados.value) {
-			divisas += item.cost_usd;
-			bs += item.cost_usd * precioDolar.value;
-		}
-	}
-
 	const saveOrder = async () => {
-		obtenerTotales();
 		console.log("user", user.value);
 		console.log("exams", examenesSeleccionados.value);
 		console.log("metodos", metodoPagos.value);
