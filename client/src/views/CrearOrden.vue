@@ -486,6 +486,8 @@
 			const toastBootstrap = Toast.getOrCreateInstance(toastElement);
 			toastBootstrap.show();
 
+			await resetOrderData();
+
 			router.push({ name: "CrearOrden" }); 
 		} else {
 			let respExam: number | undefined = 0;
@@ -521,6 +523,8 @@
 			const toastBootstrap = Toast.getOrCreateInstance(toastElement);
 			toastBootstrap.show();
 
+			await resetOrderData();
+
 			router.push({ name: "CrearOrden" }); 
 		}
 	};
@@ -537,6 +541,28 @@
 		metodoPagos.value = metodo;
 		closeModal();
 	};
+
+async function resetOrderData() {  
+    user.value = {  
+        id: 0,  
+        documento: '',  
+        nombre: '',  
+        apellido: '',  
+        genero: '',  
+        edad: 0,  
+        procedencia: '',  
+        diagnostico: ''  
+    };  
+    examenesSeleccionados.value = [];  
+    metodoPagos.value = [];  
+    pagoEnDivisas.value = '';  
+    pagoEnBs.value = '';  
+    totales.value = {  
+        totalBs: 0,  
+        total$: 0,  
+    };  
+    precioDolar.value = Number(localStorage.getItem("tasaDolar")) || 50; // o el valor por defecto  
+} 
 </script>
 
 <style scoped>
