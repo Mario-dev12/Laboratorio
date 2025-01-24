@@ -14,7 +14,7 @@ paymentRepository.readPayments = async () => {
 
 paymentRepository.createPayment = async (idPayment_method, idExam, amount_bs, amount_usd, bank, phone, type) => {
   try {
-    
+
     const resp = await pool.query(`SELECT * FROM sp_create_payment(${idPayment_method}, ${idExam}, '${amount_bs}', '${amount_usd}', '${bank}', '${phone}', '${type}')`);
     return resp.rows[0].sp_create_payment;
   } catch (error) {

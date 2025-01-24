@@ -2,7 +2,7 @@ import { defineStore } from "pinia";
 import { axiosRepository } from "@/repository/axios.repository";
 import { Profile } from "@/interfaces/interfaces";
 
-export const examStore = defineStore("profile", {
+export const profileStore = defineStore("profile", {
 	state: () => ({
 		profiles: [] as Profile[] | Profile,
 	}),

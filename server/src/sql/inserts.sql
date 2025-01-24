@@ -31,8 +31,8 @@ INSERT INTO payment_method (name) VALUES
 ('Efectivo');
 
 INSERT INTO payment (idPayment_method, idExam, amount_bs, amount_usd, bank, phone, type) VALUES 
-(1, 1, '244,35', '2.5', 'Mercantil', '', 'Bolivares'),
-(2, 1, '244,35', '2.5', 'Venezuela', '0414-894432', 'Bolivares'),
+(1, 1, '244,35', '5', 'Mercantil', '', 'Bolivares'),
+(2, 1, '244,35', '5', 'Venezuela', '0414-894432', 'Bolivares'),
 (3, 2, '244,35', '5', '', '', 'Dolares');
 
 INSERT INTO unit (name, idProfile) VALUES   

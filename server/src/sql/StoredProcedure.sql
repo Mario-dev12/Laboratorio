@@ -50,7 +50,7 @@ begin
 end;
 $BODY$;
 
-CREATE OR REPLACE FUNCTION sp_find_all_profile(
+CREATE OR REPLACE FUNCTION public.sp_find_all_profile(
 	)
     RETURNS json[]
     LANGUAGE 'plpgsql'
@@ -70,7 +70,7 @@ begin
 			'createdDate', a.createdDate,
             'modifiedDate', a.modifiedDate
 		)
-		from exam a
+		from profile a
         ) ::json[] into v_json_resp;
 		return v_json_resp;
 end;
@@ -613,8 +613,7 @@ end;
 $BODY$;
 
 CREATE OR REPLACE FUNCTION sp_create_exam(
-	p_idUser integer,
-	p_idProfile integer,
+	p_iduser integer,
 	p_total_cost_bs character varying,
 	p_total_cost_usd character varying)
     RETURNS json
@@ -626,8 +625,8 @@ declare
 	v_id                                    integer;
 	v_returning_id                                 integer;
 begin
-		Insert into exam(idUser, idProfile, total_cost_bs, total_cost_usd) 
-		VALUES (p_idUser, p_idProfile, p_total_cost_bs, p_total_cost_usd)
+		Insert into exam(idUser, total_cost_bs, total_cost_usd) 
+		VALUES (p_idUser, p_total_cost_bs, p_total_cost_usd)
 		RETURNING idExam INTO v_returning_id;
 		return json_build_object('message', 'Inserción exitosa.', 
 								 'id', v_returning_id);
@@ -1482,7 +1481,7 @@ declare
 begin
 	SELECT array(  
         SELECT jsonb_build_object(  
-            'idProfile', MIN(a.idExam),
+            'idProfile', MIN(a.idProfile),
             'name', a.name,  
             'cost_bs', MIN(a.cost_bs),  
             'cost_usd', MIN(a.cost_usd),  

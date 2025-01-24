@@ -50,13 +50,10 @@
 								<th>Documento Identidad</th>
 								<th>Género</th>
 								<th>Edad</th>
+								<th>Monto Bs</th>
+								<th>Monto $</th>
 								<th>Exámen</th>
-								<th>Costo BS</th>
-								<th>Costo $</th>
-								<th>Método Pago</th>
-								<th>Moneda</th>
-								<th>Banco</th>
-								<th>Monto</th>
+								<th>Método de Pago</th>
 							</tr>
 						</thead>
 						<tbody>
@@ -65,15 +62,33 @@
 								<td>{{ income.ci ? income.ci : income.passport ? income.passport : "N/A" }}</td>
 								<td>{{ income.genre }}</td>
 								<td>{{ income.age }}</td>
-								<td>{{ income.examName }}</td>
-								<td>{{ income.cost_bs }} bs</td>
-								<td>{{ income.cost_usd }} $</td>
-								<td>{{ income.PaymentMethodName }}</td>
-								<td>{{ income.type }}</td>
-								<td>{{ income.bank }}</td>
+								<td>{{ income.totalCost_bs }}</td>
+								<td>{{ income.totalCost_usd }}</td>
 								<td>
-									{{ income.amount }}
-									{{ income.type.toLowerCase() === "bolivares" ? "Bs" : income.type.toLowerCase() === "dolares" ? "$" : "" }}
+									<div v-for="exam in income.exams" :key="exam.idProfile">  
+										{{ exam.examName }}
+										<div>
+											{{ exam.cost_bs }} bs -
+											{{ exam.cost_usd }} $
+										</div>
+									</div> 
+								</td>
+								<td>
+									<div v-for="payment in income.payments" :key="payment.idPaymentMethod">  
+										{{ payment.PaymentMethodName }}
+										<div>
+											{{ payment.type }}
+										</div>
+										<div v-if="payment.bank">
+											Banco {{ payment.bank }}
+										</div>
+										<div v-if="payment.phone">
+											{{ payment.phone }}
+										</div>
+										{{ payment.amount_bs }} bs -
+										{{ payment.amount_usd }} $
+										<hr>
+									</div> 
 								</td>
 							</tr>
 						</tbody>
@@ -162,8 +177,8 @@
 
 	async function totalAmountIncome() {
 		for (let i = 0; i < incomes.value.length; i++) {
-			totalBs.value += parseFloat(incomes.value[i].cost_bs.replace(",", "."));
-			totalDolares.value += parseFloat(incomes.value[i].cost_usd.replace(",", "."));
+			totalBs.value += parseFloat(incomes.value[i].totalCost_bs);
+			totalDolares.value += parseFloat(incomes.value[i].totalCost_usd);
 		}
 	}
 

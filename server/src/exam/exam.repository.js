@@ -14,7 +14,6 @@ examRepository.readExams = async () => {
 
 examRepository.createExam = async (idUser, total_cost_bs, total_cost_usd) => {
   try {
-    
     const resp = await pool.query(`SELECT * FROM sp_create_exam(${idUser}, '${total_cost_bs}', '${total_cost_usd}')`);
     return resp.rows[0].sp_create_exam;
   } catch (error) {

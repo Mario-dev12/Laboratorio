@@ -16,8 +16,8 @@
 						Editar
 					</button>
 					<div v-if="showChangeDolar">
-						<input class="d-block mb-2" type="text" ref="precioDolarRef" />
-						<button class="d-block btn btn-primary w-auto mx-auto" @click="cambiarPrecioDolar">Cambiar tasa del dolar</button>
+						<input class="d-block mb-2" type="text" v-model="cambioDolar" />
+						<button class="d-block btn btn-primary w-auto mx-auto" @click="cambiarPrecioDolar(cambioDolar)">Cambiar tasa del dolar</button>
 					</div>
 				</div>
 			</div>
@@ -83,7 +83,7 @@
 							<label class="col align-content-center p-0" for="examen">Tipo de Examen:</label>  
 							<select class="col p-1" name="examen" id="examen" v-model="tipoDeExamen" @change="agregarExamen()">  
 								<option value="">Seleccionar</option>  
-								<option v-for="examen in exams" :key="examen.idExam" :value="examen.name">{{ examen.name }}</option>  
+								<option v-for="profile in profiles" :key="profile.idProfile" :value="profile.name">{{ profile.name }}</option>  
 							</select>  
 						</div>  
 					</div>  
@@ -148,9 +148,10 @@
 					
 					<div v-for="(metodo, index) in metodoPagos" :key="index" class="row w-100 m-auto mb-1">  
 						<div class="col">{{ metodo.metodo }}</div>  
-						<div class="col">Monto: Bs {{ metodo.monto !== undefined ? metodo.monto.toFixed(2) : 'N/A' }}</div>  
-						<div class="col">Divisa: {{ metodo.divisa }}</div>  
+						<div class="col">Monto: Bs {{ metodo.montoBolivares !== undefined ? metodo.montoBolivares : 'N/A' }}</div>  
+						<div class="col">Divisa: {{ metodo.montoDolares }}</div>  
 						<div class="col" v-if="metodo.banco">Banco: {{ metodo.banco }}</div>  
+						<div class="col" v-if="metodo.telefono">Teléfono: {{ metodo.telefono }}</div> 
 					</div>   
 				</div>  
 			</div>
@@ -199,10 +200,14 @@
 	import { ref, watch, onMounted } from "vue";
 	import { IonContent, IonPage } from "@ionic/vue";
 	import { userStore } from "@/stores/userStore";
-	import { User, Exam } from "@/interfaces/interfaces";
+	import { User, Exam, Profile, Order, Payment } from "@/interfaces/interfaces";
 	import { Toast } from "bootstrap";
 	import ModalAgregarMetodo from '@/components/ModalAgregarMetodo.vue'
 	import { examStore } from "@/stores/examStore";
+	import { profileStore } from "@/stores/profileStore"
+	import { orderStore } from "@/stores/orderStore";
+	import { paymentStore } from "@/stores/paymentStore"
+	import { useRouter } from 'vue-router';
 
 	const tipoDeExamen = ref();
 	const pagoEnDivisas = ref();
@@ -213,15 +218,19 @@
 	const month = today.getUTCMonth() + 1;
 	const year = today.getFullYear();
 	const precioDolar = ref(Number(localStorage.getItem("tasaDolar")) || 50);
-	const precioDolarRef = ref();
+	const cambioDolar = ref(precioDolar.value);
 	const users = userStore();
 	const metodoPagos = ref();
 	let bs: number = 0;
 	let divisas: number = 0;
 	const showChangeDolar = ref(false);
 	const mostrarModal = ref(false);
-	const exams = ref();
+	const profiles = ref();
 	const examsStore = examStore();
+	const ordersStore = orderStore();
+	const profilesStore = profileStore();
+	const paymentsStore = paymentStore();
+	const router = useRouter(); 
 	const user = ref({  
 		id: 0,
         documento: '',  
@@ -239,8 +248,8 @@
 	});
 
 	onMounted(async () => {
-		exams.value = await examsStore.fecthExamsUnrepeated();
-		exams.value = exams.value.map((exam: { cost_bs: string; cost_usd: string; }) => ({  
+		profiles.value = await profilesStore.fecthProfiles();
+		profiles.value = profiles.value.map((exam: { cost_bs: string; cost_usd: string; }) => ({  
 			...exam, 
 			cost_bs: parseFloat(exam.cost_bs.replace(',', '.')),
 			cost_usd: parseFloat(exam.cost_usd)
@@ -252,6 +261,7 @@
 		cost_usd: number;
 		cost_bs: number;
 		idExam: number;
+		idProfile: number;
 	}
 
 	const searchClient = async () => {
@@ -275,11 +285,13 @@
 	};
 
 	const cambiarPrecioDolar = (nuevoPrecio: any) => {  
+		const newPrice = Number(nuevoPrecio)
 		if (isNaN(nuevoPrecio) || nuevoPrecio === "") {  
 			alert("Ingrese un valor válido");  
 		} else {  
-			precioDolar.value = nuevoPrecio;  
-			localStorage.setItem("tasaDolar", nuevoPrecio);   
+			precioDolar.value = newPrice;  
+			cambioDolar.value = newPrice;  
+			localStorage.setItem("tasaDolar", newPrice.toString());   
 			totales.value.total$ = 0;  
 			totales.value.totalBs = 0;  
 			for (const item of examenesSeleccionados.value) {  
@@ -290,7 +302,7 @@
 	};
 
 	const agregarExamen = () => {
-		for (const item of exams.value) {
+		for (const item of profiles.value) {
 			const itemInArray = examenesSeleccionados.value.find((element) => element.name === item.name);
 			if (item.name === tipoDeExamen.value && !itemInArray) {
 				examenesSeleccionados.value.push(item);
@@ -425,12 +437,9 @@
 
 	const saveOrder = async () => {
 		obtenerTotales();
-		console.log('user', user.value)
-		console.log('exams', examenesSeleccionados.value)
-		console.log('metodos', metodoPagos.value)
-		/*if (user.value.id === 0){
+		if (user.value.id === 0){
 			let respUser: number | undefined = 0;
-			let respExam = [];
+			let respExam: number | undefined = 0;
 			const body: User = {
 				idUser: user.value.id,
 				passport: null,
@@ -444,53 +453,80 @@
 			const resp = await users.createUser(body);
 			respUser = resp[0].id;
 			if (respUser){
-				for(let i = 0; i < examenesSeleccionados.value.length; i++){
-					const body: Exam = {
-						idexam: examenesSeleccionados.value[i].idExam,
-						name: examenesSeleccionados.value[i].name,
-						cost_bs: examenesSeleccionados.value[i].cost_bs,
-						cost_usd: examenesSeleccionados.value[i].cost_usd,
-						status: 'Pendiente por pasar',
-						idUser: respUser
+				const examsBody: Exam = {
+					idUser: respUser,
+					total_cost_bs: totales.value.totalBs.toString(),
+					total_cost_usd: totales.value.total$.toString()
+				}
+				const examResp = await examsStore.createExam(examsBody);
+				respExam = examResp.id;
+				if (respExam){
+					for(let i = 0; i < examenesSeleccionados.value.length; i++){
+						const orderBody: Order = {
+							idExam: respExam,
+							idProfile: examenesSeleccionados.value[i].idProfile
+						}
+						await ordersStore.createOrder(orderBody)
 					}
-					const resp = await examsStore.createExam(body);
-					respExam.push(resp)
-					console.log('resp', resp, respExam)
+					for (let i = 0; i < metodoPagos.value.length; i++){
+						const paymentBody: Payment = {
+							idPayment_method: metodoPagos.value[i].idPayment_method,
+							amount_bs: metodoPagos.value[i].montoBolivares,
+							amount_usd: metodoPagos.value[i].montoDolares,
+							type: metodoPagos.value[i].tipo,
+							bank: metodoPagos.value[i].banco,
+							idExam: respExam,
+							phone: metodoPagos.value[i].telefono
+						}
+						await paymentsStore.createPayment(paymentBody)
+					}
 				}
 			}
+			const toastElement: any = document.getElementById("liveToast");
+			const toastBootstrap = Toast.getOrCreateInstance(toastElement);
+			toastBootstrap.show();
+
+			await resetOrderData();
+
+			router.push({ name: "CrearOrden" }); 
 		} else {
-
-		}*/
-		/*const orden: Orden = {
-			documentoIdentidad: documentoRef.value.value,
-			nombre: nombreRef.value.value,
-			apellido: apellidoRef.value.value,
-			genero: generoRef.value.value,
-			edad: edadRef.value.value,
-			procedencia: procedenciaRef.value.value,
-			diagnostico: diagnosticoRef.value.value,
-			examenes: examenesSeleccionados.value,
-			totalEnBs: bs,
-			totalEn$: divisas,
-			pagoBs: pagoEnBs.value,
-			pago$: pagoEnDivisas.value,
-			fechaDeCreacion: `${day}/${month}/${year}`,
-		};
-
-		if (Object.entries(orden).every(([key, value]) => key === "pagoBs" || key === "pago$" || Boolean(value))) {
-			if (totales.value.total$ != 0 || totales.value.totalBs != 0) {
-				alert("Por favor completar pago");
-			} else {
-				const toastElement: any = document.getElementById("liveToast");
-				const toastBootstrap = Toast.getOrCreateInstance(toastElement);
-				console.log(toastElement);
-				toastBootstrap.show();
+			let respExam: number | undefined = 0;
+			const examsBody: Exam = {
+				idUser: user.value.id,
+				total_cost_bs: totales.value.totalBs.toString(),
+				total_cost_usd: totales.value.total$.toString()
 			}
-		} else {
-			alert("please fill all fields");
-		}
+			const examResp = await examsStore.createExam(examsBody);
+			respExam = examResp.id;
+			if (respExam){
+				for(let i = 0; i < examenesSeleccionados.value.length; i++){
+					const orderBody: Order = {
+						idExam: respExam,
+						idProfile: examenesSeleccionados.value[i].idProfile
+					}
+					await ordersStore.createOrder(orderBody)
+				}
+				for (let i = 0; i < metodoPagos.value.length; i++){
+					const paymentBody: Payment = {
+						idPayment_method: metodoPagos.value[i].idPayment_method,
+						amount_bs: metodoPagos.value[i].montoBolivares,
+						amount_usd: metodoPagos.value[i].montoDolares,
+						type: metodoPagos.value[i].tipo,
+						bank: metodoPagos.value[i].banco,
+						idExam: respExam,
+						phone: metodoPagos.value[i].telefono
+					}
+					await paymentsStore.createPayment(paymentBody)
+				}
+			}
+			const toastElement: any = document.getElementById("liveToast");
+			const toastBootstrap = Toast.getOrCreateInstance(toastElement);
+			toastBootstrap.show();
 
-		console.log(orden);*/
+			await resetOrderData();
+
+			router.push({ name: "CrearOrden" }); 
+		}
 	};
 
 	const abrirModal = () => {  
@@ -505,6 +541,28 @@
 		metodoPagos.value = metodo;
 		closeModal();
 	};
+
+async function resetOrderData() {  
+    user.value = {  
+        id: 0,  
+        documento: '',  
+        nombre: '',  
+        apellido: '',  
+        genero: '',  
+        edad: 0,  
+        procedencia: '',  
+        diagnostico: ''  
+    };  
+    examenesSeleccionados.value = [];  
+    metodoPagos.value = [];  
+    pagoEnDivisas.value = '';  
+    pagoEnBs.value = '';  
+    totales.value = {  
+        totalBs: 0,  
+        total$: 0,  
+    };  
+    precioDolar.value = Number(localStorage.getItem("tasaDolar")) || 50; // o el valor por defecto  
+} 
 </script>
 
 <style scoped>
@@ -513,5 +571,8 @@
 			--padding-start: 20px;
 			--padding-end: 20px;
 		}
+	}
+	.btn.btn-success.col-2.w-auto.ms-1{
+		background-color: white;
 	}
 </style>
