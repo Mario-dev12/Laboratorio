@@ -19,6 +19,16 @@ class AxiosRepository {
 		return response.data;
 	}
 
+	async getAllOrders<T>(domain: string): Promise<T[]> {
+		const response = await axios.get<T[]>(`${import.meta.env.VITE_API_URL}/${domain}/orders`);
+		return response.data;
+	}
+
+	async getAllHistOrders<T>(domain: string): Promise<T[]> {
+		const response = await axios.get<T[]>(`${import.meta.env.VITE_API_URL}/${domain}/history`);
+		return response.data;
+	}
+
 	async getAllIncome<T>(domain: string, all: boolean, startDate: string, endDate: string): Promise<T[]> {
 		const response = await axios.get<T[]>(
 			`${import.meta.env.VITE_API_URL}/${domain}/ingreso?all=${all}&startDate=${startDate}&endDate=${endDate}`

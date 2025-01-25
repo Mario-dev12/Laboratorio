@@ -18,7 +18,6 @@ export interface Profile {
 	name: string;
 	cost_bs: string;
 	cost_usd: string;
-	status: string;
 	createddate?: any;
 	modifieddate?: any;
 }
@@ -38,6 +37,21 @@ export interface Order {
 	idOrder?: number;
 	idExam: number;
 	idProfile: number;
+	status: string;
+	createddate?: any;
+	modifieddate?: any;
+}
+
+export interface OrdersDay {
+	idOrder: number;
+	idExam: number;
+	status: string;
+	ci: string;
+	firstName: string;
+	lastName: string;
+	genre: string;
+	age: number;
+	profileName: string;
 	createddate?: any;
 	modifieddate?: any;
 }

@@ -26,7 +26,6 @@ CREATE TABLE IF NOT EXISTS profile
     name character varying(255) not null,
     cost_bs character varying(255),
     cost_usd character varying(255),
-    status character varying(255) NOT NULL CHECK (status IN ('Pendiente por pasar', 'Pendiente de enviar', 'Pendiente de imprimir', 'Completado')),
     createdDate timestamp with time zone NOT NULL default now(),
     modifiedDate timestamp with time zone NOT NULL default now()
 );
@@ -46,6 +45,7 @@ CREATE TABLE IF NOT EXISTS orders
     idOrder serial primary key,
     idExam integer NOT NULL references exam(idExam) ON DELETE CASCADE,
     idProfile integer NOT NULL references profile(idProfile) ON DELETE CASCADE,
+    status character varying(255) NOT NULL CHECK (status IN ('Pendiente por pasar', 'Pendiente de enviar', 'Pendiente de imprimir', 'Completado')),
     createdDate timestamp with time zone NOT NULL default now(),
     modifiedDate timestamp with time zone NOT NULL default now()
 );

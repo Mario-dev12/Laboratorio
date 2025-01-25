@@ -12,9 +12,29 @@ orderController.readOrders = async (req, res) => {
     }
 }
 
+orderController.readOrdersDay = async (req, res) => {
+  try {
+    const answer = await orderServices.readOrdersDay()
+
+    res.send(answer)
+  } catch (error) {
+    return res.status(400).send(error.stack)
+  }
+}
+
+orderController.readHistOrdersDay = async (req, res) => {
+  try {
+    const answer = await orderServices.readHistOrdersDay()
+
+    res.send(answer)
+  } catch (error) {
+    return res.status(400).send(error.stack)
+  }
+}
+
 orderController.createOrder = async (req, res) => {
   try {
-    const answer = await orderServices.createOrder(req.body.idExam, req.body.idProfile)
+    const answer = await orderServices.createOrder(req.body.idExam, req.body.idProfile, req.body.status)
     res.send(answer)
   } catch (error) {
     return res.status(400).send(error.stack)

@@ -12,6 +12,16 @@ export const orderStore = defineStore("order", {
 			this.order = response;
 			return this.order;
 		},
+		async fecthOrdersDay() {
+			const response = await axiosRepository.getAllOrders<Order>("order");
+			this.order = response;
+			return this.order;
+		},
+		async fecthHistOrdersDay() {
+			const response = await axiosRepository.getAllHistOrders<Order>("order");
+			this.order = response;
+			return this.order;
+		},
 		async createOrder(exam: Order) {
 			const response = await axiosRepository.create<Order>("order", exam);
 			this.order = response;
