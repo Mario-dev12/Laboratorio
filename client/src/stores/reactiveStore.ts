@@ -19,7 +19,6 @@ export const reactiveStore = defineStore("reactive", {
 			return this.reactives;
 		},
 		async fetchReactiveByName(name: string) {
-			console.log(name);
 			const response = await axiosRepository.getByName<Reactive>("reactive", name);
 			this.reactives = response;
 			return this.reactives;

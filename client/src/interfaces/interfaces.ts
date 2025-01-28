@@ -25,18 +25,17 @@ export interface Profile {
 
 export interface Exam {
 	id?: number;
-	idExam: number;
+	idExam?: number;
 	idUser: number;
 	total_cost_bs: string;
 	total_cost_usd: string;
-	status: string;
 	createddate?: any;
 	modifieddate?: any;
 }
 
 export interface Order {
 	id?: number;
-	idOrder: number;
+	idOrder?: number;
 	idExam: number;
 	idProfile: number;
 	createddate?: any;
@@ -102,7 +101,7 @@ export interface Payment_Method {
 }
 
 export interface Payment {
-	idPayment: number;
+	idPayment?: number;
 	idPayment_method: number;
 	idExam: number;
 	amount_bs: string;
@@ -110,8 +109,8 @@ export interface Payment {
     bank: string;
     phone: string;
     type: string;
-	createddate: any;
-	modifieddate: any;
+	createddate?: any;
+	modifieddate?: any;
 }
 
 export interface Income {
