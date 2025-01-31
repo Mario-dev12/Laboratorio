@@ -62,6 +62,7 @@ export interface OrdersDay {
 }
 
 export interface Reactive {
+	idreactive: number;
 	idReactive: number;
 	name: string;
 	createddate: any;
@@ -100,6 +101,7 @@ export interface Provider {
 }
 
 export interface Alliance {
+	idalliance: number;
 	idAlliance: number;
 	quantity: number;
 	cost_bs: string;
