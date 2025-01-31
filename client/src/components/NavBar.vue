@@ -16,7 +16,7 @@
 						<ion-icon slot="start" :icon="document"></ion-icon>
 						Crear Orden
 					</ion-button>
-					<ion-button class="border-end border-secondary" @click="() => router.push({ name: 'Órdenes' })">
+					<ion-button class="border-end border-secondary" @click="() => router.push({ name: 'OrdersView' })">
 						<ion-icon slot="start" :icon="create"></ion-icon>
 						Órdenes
 					</ion-button>
@@ -53,7 +53,7 @@
 						<ion-icon slot="start" :icon="document"></ion-icon>
 						Crear Orden
 					</ion-button>
-					<ion-button fill="clear" @click="() => router.push({ name: 'Órdenes' })">
+					<ion-button fill="clear" @click="() => router.push({ name: 'OrdersView' })">
 						<ion-icon slot="start" :icon="create"></ion-icon>
 						Órdenes
 					</ion-button>

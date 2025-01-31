@@ -12,6 +12,16 @@ export const paymentStore = defineStore("payment", {
 			this.payment = response;
 			return this.payment;
 		},
+		async fecthPaymentByExamId(id: string | number) {
+			const response = await axiosRepository.getByExamId<Payment>("payment", id);
+			this.payment = response;
+			return this.payment;
+		},
+		async fecthPaymentByExamIdAndPaymentMethodId(idexam: string | number, idpayment_method: string | number) {
+			const response = await axiosRepository.getPaymentsByExamIdAndPaymentMethodId<Payment[]>("payment", idexam, idpayment_method);
+			this.payment = response;
+			return this.payment;
+		},
 		async createPayment(exam: Payment) {
 			const response = await axiosRepository.create<Payment>("payment", exam);
 			this.payment = response;

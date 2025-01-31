@@ -6,6 +6,14 @@ orderServices.readOrders = async () => {
     return await orderRepository.readOrders()
 }
 
+orderServices.readOrderByExamIdAndProfileId = async (idexam, idprofile) => {
+    return await orderRepository.readOrderByExamIdAndProfileId(idexam, idprofile)
+}
+
+orderServices.readOrderByExamId = async id => {
+    return await orderRepository.readOrderByExamId(id)
+}
+
 orderServices.readOrdersDay = async () => {
     return await orderRepository.readOrdersDay()
 }
@@ -24,6 +32,10 @@ orderServices.updateOrder = async (id, answer) => {
 
 orderServices.deleteOrder = async id => {
     return await orderRepository.deleteOrder(id)
+}
+
+orderServices.deleteOrderByExamIdAndProfileId = async (idexam, idprofile) => {
+    return await orderRepository.deleteOrderByExamIdAndProfileId(idexam, idprofile)
 }
 
 export default orderServices

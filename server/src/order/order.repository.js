@@ -12,6 +12,25 @@ orderRepository.readOrders = async () => {
   }
 }
 
+orderRepository.readOrderByExamIdAndProfileId = async (idexam, idprofile) => {
+  try {
+    
+    const resp = await pool.query(`SELECT * FROM sp_find_order_by_examidandprofileid(${idexam}, ${idprofile})`);
+    return resp.rows[0].sp_find_order_by_examidandprofileid;
+  } catch (error) {
+    throw error;
+  }
+}
+
+orderRepository.readOrderByExamId = async (id) => {
+  try {
+    const resp = await pool.query(`SELECT * FROM sp_find_order_by_examId(${id})`);
+    return resp.rows[0].sp_find_order_by_examid;
+  } catch (error) {
+    throw error;
+  }
+}
+
 orderRepository.readOrdersDay = async () => {
   try {
     
@@ -44,9 +63,8 @@ orderRepository.createOrder = async (idExam, idProfile, status) => {
 
 orderRepository.updateOrder = async (id, answer) => {
   try {
-    
-    const resp = await pool.query(`SELECT * FROM sp_update_exam(${id}, ${answer.idExam}, ${answer.idProfile}, '${answer.status}')`);
-    return resp.rows[0].sp_update_exam;
+    const resp = await pool.query(`SELECT * FROM sp_update_order(${id}, ${answer.idExam}, ${answer.idProfile}, '${answer.status}')`);
+    return resp.rows[0].sp_update_order;
   } catch (error) {
     throw error;
   }
@@ -54,9 +72,19 @@ orderRepository.updateOrder = async (id, answer) => {
 
 orderRepository.deleteOrder = async id => {
   try {
-    
+    console.log('llega', id)
     const resp = await pool.query(`SELECT * FROM sp_delete_order(${id})`);
     return resp.rows[0].sp_delete_order;
+  } catch (error) {
+    throw error;
+  }
+}
+
+orderRepository.deleteOrderByExamIdAndProfileId = async (idexam, idprofile) => {
+  try {
+    
+    const resp = await pool.query(`SELECT * FROM sp_delete_order_by_examid_and_profileid(${idexam}, ${idprofile})`);
+    return resp.rows[0].sp_delete_order_by_examid_and_profileid;
   } catch (error) {
     throw error;
   }

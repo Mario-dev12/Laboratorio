@@ -42,8 +42,8 @@
 								<td>{{ formatearFecha(order.modifiedDate) }}</td>  
 								<td>  
 									<i class="fa-solid fa-plus" style="cursor: pointer; margin-right: 10px"></i>  
-									<i class="fas fa-edit" style="cursor: pointer; margin-right: 10px"></i>  
-									<i class="fas fa-trash" @click="deleteOrder(order.idOrden)" style="cursor: pointer"></i>  
+									<i class="fas fa-edit" @click="editOrder(order)" style="cursor: pointer; margin-right: 10px"></i>  
+									<i class="fas fa-trash" @click="deleteOrder(order.idOrder)" style="cursor: pointer"></i>  
 								</td>  
 							</tr>  
 						</tbody>  
@@ -56,10 +56,13 @@
 
 <script setup lang="ts">  
 import { IonContent, IonPage } from "@ionic/vue";  
-	import { onMounted, ref, computed } from "vue";  
-	import { orderStore } from "@/stores/orderStore";  
+import { onMounted, ref, computed, watch } from "vue";  
+import { orderStore } from "@/stores/orderStore";  
+import { OrdersDay } from "@/interfaces/interfaces";
+import { useRouter } from 'vue-router'; 
 
-	const orders = ref();  // Mantener como solo ref()  
+	const orders = ref();
+	const router = useRouter(); 
 	const searchQuery = ref("");  
 	const ordersStore = orderStore();  
 	const toast = ref({  
@@ -69,20 +72,31 @@ import { IonContent, IonPage } from "@ionic/vue";
 	});  
 
 	onMounted(async () => {  
-		orders.value = await ordersStore.fecthOrdersDay();  
+		orders.value = await ordersStore.fecthOrdersDay();
 	});  
 
-	const filteredOrders = computed(() => {  
-		if (!orders.value) return []; 
+	watch(  
+	() => ordersStore.order,  
+	(newVal, oldVal) => {  
+		if (newVal !== oldVal) {   
+			orders.value =  newVal
+		}  
+	},  
+	{ deep: true } 
+	); 
 
-		const query = searchQuery.value.toLowerCase();  
+	const filteredOrders = computed(() => {  
+	if (!orders.value) return [];   
+
+		const query = searchQuery.value ? searchQuery.value.toLowerCase() : '';   
 		return orders.value.filter((order: { firstName: any; lastName: any; ci: string; }) => {  
+			if (!order.firstName || !order.lastName || !order.ci) return false;
 			const fullName = `${order.firstName} ${order.lastName}`.toLowerCase();  
 			return (  
 				order.ci.toLowerCase().includes(query) || fullName.includes(query)  
 			);  
 		});  
-	});  
+	}); 
 
 	const showToast = (message: string) => {  
 		toast.value.message = message;  
@@ -94,6 +108,18 @@ import { IonContent, IonPage } from "@ionic/vue";
 		showToast("Orden borrada correctamente");  
 		orders.value = await ordersStore.fecthOrdersDay();  
 	};  
+
+	const editOrder = async (order: OrdersDay) => {   
+		router.push({  
+			name: 'EditarOrden',  
+			params: {  
+				idUser: order.ci,  
+				idExam: order.idExam,  
+				cost_bs: order.total_cost_bs,  
+				cost_usd: order.total_cost_usd  
+			}  
+    	});
+	};
 
 	function formatearFecha(fecha: string | number | Date) {  
 		const fechaObjeto = new Date(fecha);  

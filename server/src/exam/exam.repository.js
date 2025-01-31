@@ -23,8 +23,7 @@ examRepository.createExam = async (idUser, total_cost_bs, total_cost_usd) => {
 
 examRepository.updateExam = async (id, answer) => {
   try {
-    
-    const resp = await pool.query(`SELECT * FROM sp_update_exam(${id}, ${answer.idUser}, ${answer.idProfile}, '${answer.total_cost_bs}', '${answer.total_cost_usd}')`);
+    const resp = await pool.query(`SELECT * FROM sp_update_exam(${id}, ${answer.idUser}, '${answer.total_cost_bs}', '${answer.total_cost_usd}')`);
     return resp.rows[0].sp_update_exam;
   } catch (error) {
     throw error;

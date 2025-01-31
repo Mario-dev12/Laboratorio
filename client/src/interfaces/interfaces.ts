@@ -34,7 +34,7 @@ export interface Exam {
 
 export interface Order {
 	id?: number;
-	idOrder?: number;
+	idOrder: number;
 	idExam: number;
 	idProfile: number;
 	status: string;
@@ -45,6 +45,9 @@ export interface Order {
 export interface OrdersDay {
 	idOrder: number;
 	idExam: number;
+	idUser: number;
+	address: string;
+	idProfile: number;
 	status: string;
 	ci: string;
 	firstName: string;
@@ -52,6 +55,8 @@ export interface OrdersDay {
 	genre: string;
 	age: number;
 	profileName: string;
+	total_cost_bs: string;
+	total_cost_usd: string
 	createddate?: any;
 	modifieddate?: any;
 }

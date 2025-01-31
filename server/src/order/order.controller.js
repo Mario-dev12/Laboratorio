@@ -12,6 +12,28 @@ orderController.readOrders = async (req, res) => {
     }
 }
 
+orderController.readOrderByExamIdAndProfileId = async (req, res) => {
+  const { idexam, idprofile } = req.params
+  try {
+    const answer = await orderServices.readOrderByExamIdAndProfileId(idexam, idprofile)
+
+    res.send(answer)
+  } catch (error) {
+    return res.status(400).send(error.stack)
+  }
+}
+
+orderController.readOrderByExamId = async (req, res) => {
+  const { id } = req.params
+  try {
+    const answer = await orderServices.readOrderByExamId(id)
+
+    res.send(answer)
+  } catch (error) {
+    return res.status(400).send(error.stack)
+  }
+}
+
 orderController.readOrdersDay = async (req, res) => {
   try {
     const answer = await orderServices.readOrdersDay()
@@ -57,6 +79,17 @@ orderController.deleteOrder = async (req, res) => {
 
   try {
     const answer = await orderServices.deleteOrder(id)
+    res.send(answer)
+  } catch (error) {
+    return res.status(400).send(error.stack)
+  }
+}
+
+orderController.deleteOrderByExamIdAndProfileId = async (req, res) => {
+  const { idexam, idprofile } = req.params
+
+  try {
+    const answer = await orderServices.deleteOrderByExamIdAndProfileId(idexam, idprofile)
     res.send(answer)
   } catch (error) {
     return res.status(400).send(error.stack)

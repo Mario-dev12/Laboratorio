@@ -14,10 +14,11 @@ INSERT INTO users (ci, firstName, lastName, genre, age, address) VALUES
 
 INSERT INTO profile (name, cost_bs, cost_usd) VALUES 
 ('Perfil 20', '244,35', '5'),
-('Uroanalisis', '244,35', '5');
+('Uroanalisis', '244,35', '5'),
+('Perfil Tiroideo', '244,35', '5');
 
 INSERT INTO exam (idUser, total_cost_bs, total_cost_usd) VALUES 
-(1, '488,7', '5'),
+(1, '488,7', '10'),
 (2, '244,35', '5');
 
 INSERT INTO orders (idExam, idProfile, status) VALUES 
