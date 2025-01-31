@@ -4,7 +4,7 @@ import { Order } from "@/interfaces/interfaces";
 
 export const orderStore = defineStore("order", {
 	state: () => ({
-		order: [] as Order[] | Order,
+		order: [] as Order[] | Order | Partial<Order>,
 	}),
 	actions: {
 		async fecthOrders() {
@@ -12,8 +12,28 @@ export const orderStore = defineStore("order", {
 			this.order = response;
 			return this.order;
 		},
-		async createOrder(exam: Order) {
-			const response = await axiosRepository.create<Order>("order", exam);
+		async fecthOrderByExamId(id: string | number) {
+			const response = await axiosRepository.getByExamId<Order>("order", id);
+			this.order = response;
+			return this.order;
+		},
+		async fecthOrderByExamIdAndProfileId(idexam: string | number, idprofile: string | number) {
+			const response = await axiosRepository.getByExamIdAndProfileId<Order[]>("order", idexam, idprofile);
+			this.order = response;
+			return this.order;
+		},
+		async fecthOrdersDay() {
+			const response = await axiosRepository.getAllOrders<Order>("order");
+			this.order = response;
+			return this.order;
+		},
+		async fecthHistOrdersDay() {
+			const response = await axiosRepository.getAllHistOrders<Order>("order");
+			this.order = response;
+			return this.order;
+		},
+		async createOrder(exam: Partial<Order>) {
+			const response = await axiosRepository.create<Partial<Order>>("order", exam);
 			this.order = response;
 			return this.order;
 		},
@@ -24,6 +44,9 @@ export const orderStore = defineStore("order", {
 		},
 		async deleteOrder(id: string | number) {
 			await axiosRepository.delete("order", id);
+		},
+		async deleteOrderByExamIdAndProfileId(idexam: string | number, idprofile: string | number) {
+			await axiosRepository.deleteByExamIdAndProfileId("order", idexam, idprofile);
 		},
 	},
 });

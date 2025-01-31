@@ -19,6 +19,16 @@ class AxiosRepository {
 		return response.data;
 	}
 
+	async getAllOrders<T>(domain: string): Promise<T[]> {
+		const response = await axios.get<T[]>(`${import.meta.env.VITE_API_URL}/${domain}/orders`);
+		return response.data;
+	}
+
+	async getAllHistOrders<T>(domain: string): Promise<T[]> {
+		const response = await axios.get<T[]>(`${import.meta.env.VITE_API_URL}/${domain}/history`);
+		return response.data;
+	}
+
 	async getAllIncome<T>(domain: string, all: boolean, startDate: string, endDate: string): Promise<T[]> {
 		const response = await axios.get<T[]>(
 			`${import.meta.env.VITE_API_URL}/${domain}/ingreso?all=${all}&startDate=${startDate}&endDate=${endDate}`
@@ -35,6 +45,21 @@ class AxiosRepository {
 
 	async getById<T>(domain: string, id: string | number): Promise<T> {
 		const response = await axios.get<T>(`${import.meta.env.VITE_API_URL}/${domain}/${id}`);
+		return response.data;
+	}
+
+	async getByExamId<T>(domain: string, id: string | number): Promise<T> {
+		const response = await axios.get<T>(`${import.meta.env.VITE_API_URL}/${domain}/exam/${id}`);
+		return response.data;
+	}
+
+	async getByExamIdAndProfileId<T>(domain: string, idexam: string | number, idprofile: string | number): Promise<T> {
+		const response = await axios.get<T>(`${import.meta.env.VITE_API_URL}/${domain}/order/${idexam}/${idprofile}`);
+		return response.data;
+	}
+
+	async getPaymentsByExamIdAndPaymentMethodId<T>(domain: string, idexam: string | number, idpayment_method: string | number): Promise<T> {
+		const response = await axios.get<T>(`${import.meta.env.VITE_API_URL}/${domain}/pay/${idexam}/${idpayment_method}`);
 		return response.data;
 	}
 
@@ -68,13 +93,17 @@ class AxiosRepository {
 		return response.data;
 	}
 
-	async update<T>(domain: string, id: string | number, data: T): Promise<T> {
+	async update<T>(domain: string, id: string | number | undefined, data: T): Promise<T> {
 		const response = await axios.put<T>(`${import.meta.env.VITE_API_URL}/${domain}/${id}`, data);
 		return response.data;
 	}
 
 	async delete(domain: string, id: string | number): Promise<void> {
 		await axios.delete(`${import.meta.env.VITE_API_URL}/${domain}/${id}`);
+	}
+
+	async deleteByExamIdAndProfileId(domain: string, idexam: string | number, idprofile: string | number): Promise<void> {
+		await axios.delete(`${import.meta.env.VITE_API_URL}/${domain}/order/${idexam}/${idprofile}`);
 	}
 }
 
