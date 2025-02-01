@@ -59,7 +59,11 @@ class AxiosRepository {
 		return response.data;
 	}
 
-	async getPaymentsByExamIdAndPaymentMethodId<T>(domain: string, idexam: string | number, idpayment_method: string | number): Promise<T> {
+	async getPaymentsByExamIdAndPaymentMethodId<T>(
+		domain: string,
+		idexam: string | number,
+		idpayment_method: string | number
+	): Promise<T> {
 		const response = await axios.get<T>(`${import.meta.env.VITE_API_URL}/${domain}/pay/${idexam}/${idpayment_method}`);
 		return response.data;
 	}
@@ -96,6 +100,7 @@ class AxiosRepository {
 
 	async update<T>(domain: string, id: string | number | undefined, data: T): Promise<T> {
 		const response = await axios.put<T>(`${import.meta.env.VITE_API_URL}/${domain}/${id}`, data);
+		console.log(response);
 		return response.data;
 	}
 

@@ -41,7 +41,7 @@ profileRepository.createProfile = async (name, cost_bs, cost_usd) => {
 profileRepository.updateProfile = async (id, answer) => {
 	try {
 		const resp = await pool.query(
-			`SELECT * FROM sp_update_profile(${id}, '${answer.name}', '${answer.cost_bs}', '${answer.cost_usd}', '${answer.status}')`
+			`SELECT * FROM sp_update_profile(${id}, '${answer.name}', '${answer.cost_bs}', '${answer.cost_usd}')`
 		);
 		return resp.rows[0].sp_update_profile;
 	} catch (error) {
