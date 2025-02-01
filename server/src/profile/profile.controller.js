@@ -35,7 +35,7 @@ profileController.readProfileByType = async (req, res) => {
 
 profileController.createProfile = async (req, res) => {
 	try {
-		const answer = await profileServices.createProfile(req.body.name, req.body.cost_bs, req.body.cost_usd, req.body.status);
+		const answer = await profileServices.createProfile(req.body.name, req.body.cost_bs, req.body.cost_usd);
 		res.send(answer);
 	} catch (error) {
 		return res.status(400).send(error.stack);

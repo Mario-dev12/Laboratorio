@@ -69,14 +69,6 @@
 						</div>
 					</div>
 				</div>
-				<div class="row w-100 m-auto">
-					<div class="col-12 mb-2">
-						<div class="row w-100 m-auto">
-							<label class="col-12 p-0" for="diagnostico">Motivo/Diagnóstico:</label>
-							<textarea class="col-12" v-model="user.diagnostico" cols="50"></textarea>
-						</div>
-					</div>
-				</div>
 			</div>
 			<div class="bg-dark-subtle container p-3 rounded mt-3">
 				<div class="row w-100 m-auto">
@@ -114,7 +106,9 @@
 								</tbody>
 							</table>
 						</div>
-						<button class="btn btn-primary mt-3" @click="abrirModal">Agregar método de pago del paciente</button>
+						<button :disabled="examenesSeleccionados.length === 0" class="btn btn-primary mt-3" @click="abrirModal">
+							Agregar método de pago del paciente
+						</button>
 					</div>
 				</div>
 				<ModalAgregarMetodo
@@ -451,9 +445,10 @@
 				respExam = examResp.id;
 				if (respExam) {
 					for (let i = 0; i < examenesSeleccionados.value.length; i++) {
-						const orderBody: Order = {
+						const orderBody: Partial<Order> = {
 							idExam: respExam,
 							idProfile: examenesSeleccionados.value[i].idProfile,
+							status: "Pendiente por pasar",
 						};
 						await ordersStore.createOrder(orderBody);
 					}
@@ -489,9 +484,10 @@
 			respExam = examResp.id;
 			if (respExam) {
 				for (let i = 0; i < examenesSeleccionados.value.length; i++) {
-					const orderBody: Order = {
+					const orderBody: Partial<Order> = {
 						idExam: respExam,
 						idProfile: examenesSeleccionados.value[i].idProfile,
+						status: "Pendiente por pasar",
 					};
 					await ordersStore.createOrder(orderBody);
 				}
@@ -550,7 +546,7 @@
 			totalBs: 0,
 			total$: 0,
 		};
-		precioDolar.value = Number(localStorage.getItem("tasaDolar")) || 50; // o el valor por defecto
+		precioDolar.value = Number(localStorage.getItem("tasaDolar")) || 50;
 	}
 </script>
 

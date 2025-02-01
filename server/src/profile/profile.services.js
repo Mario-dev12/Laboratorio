@@ -14,8 +14,8 @@ profileServices.readProfileByType = async name => {
     return await profileRepository.readProfileByType(name)
 }
 
-profileServices.createProfile = async (name, cost_bs, cost_usd, status) => {
-    return await profileRepository.createProfile(name, cost_bs, cost_usd, status)
+profileServices.createProfile = async (name, cost_bs, cost_usd) => {
+    return await profileRepository.createProfile(name, cost_bs, cost_usd)
 }
 
 profileServices.updateProfile = async (id, answer) => {

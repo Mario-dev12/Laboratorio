@@ -17,7 +17,6 @@ export interface Profile {
 	name: string;
 	cost_bs: string;
 	cost_usd: string;
-	status: string;
 	createddate?: any;
 	modifieddate?: any;
 }
@@ -34,14 +33,35 @@ export interface Exam {
 
 export interface Order {
 	id?: number;
-	idOrder?: number;
+	idOrder: number;
 	idExam: number;
 	idProfile: number;
+	status: string;
+	createddate?: any;
+	modifieddate?: any;
+}
+
+export interface OrdersDay {
+	idOrder: number;
+	idExam: number;
+	idUser: number;
+	address: string;
+	idProfile: number;
+	status: string;
+	ci: string;
+	firstName: string;
+	lastName: string;
+	genre: string;
+	age: number;
+	profileName: string;
+	total_cost_bs: string;
+	total_cost_usd: string
 	createddate?: any;
 	modifieddate?: any;
 }
 
 export interface Reactive {
+	idreactive: number;
 	idReactive: number;
 	name: string;
 	createddate: any;
@@ -80,6 +100,7 @@ export interface Provider {
 }
 
 export interface Alliance {
+	idalliance: number;
 	idAlliance: number;
 	quantity: number;
 	cost_bs: string;

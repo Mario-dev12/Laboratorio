@@ -16,6 +16,14 @@
 						<ion-icon slot="start" :icon="document"></ion-icon>
 						Crear Orden
 					</ion-button>
+					<ion-button class="border-end border-secondary" @click="() => router.push({ name: 'OrdersView' })">
+						<ion-icon slot="start" :icon="create"></ion-icon>
+						Órdenes
+					</ion-button>
+					<ion-button class="border-end border-secondary" @click="() => router.push({ name: 'Historico' })">
+						<ion-icon slot="start" :icon="copy"></ion-icon>
+						Hist.Órdenes
+					</ion-button>
 					<ion-button @click="() => router.push({ name: 'Caja' })">
 						<ion-icon slot="start" :icon="calculator"></ion-icon>
 						Caja
@@ -44,6 +52,14 @@
 					<ion-button fill="clear" @click="() => router.push({ name: 'CrearOrden' })">
 						<ion-icon slot="start" :icon="document"></ion-icon>
 						Crear Orden
+					</ion-button>
+					<ion-button fill="clear" @click="() => router.push({ name: 'OrdersView' })">
+						<ion-icon slot="start" :icon="create"></ion-icon>
+						Órdenes
+					</ion-button>
+					<ion-button fill="clear" @click="() => router.push({ name: 'Historico' })">
+						<ion-icon slot="start" :icon="copy"></ion-icon>
+						Hist. Órdenes
 					</ion-button>
 					<ion-menu-toggle class="mt-2">
 						<ion-button expand="block" color="danger">
@@ -81,7 +97,7 @@
 		IonMenuToggle,
 		IonRow,
 	} from "@ionic/vue";
-	import { flask, home, document, closeOutline, calculator } from "ionicons/icons";
+	import { flask, home, document, closeOutline, calculator, create, copy } from "ionicons/icons";
 	import { useRouter } from "vue-router";
 
 	const router = useRouter();

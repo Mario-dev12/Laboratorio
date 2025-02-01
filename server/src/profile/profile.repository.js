@@ -29,9 +29,9 @@ profileRepository.readProfileByType = async (name) => {
 	}
 };
 
-profileRepository.createProfile = async (name, cost_bs, cost_usd, status) => {
+profileRepository.createProfile = async (name, cost_bs, cost_usd) => {
 	try {
-		const resp = await pool.query(`SELECT * FROM sp_create_profile('${name}', '${cost_bs}', '${cost_usd}', '${status}')`);
+		const resp = await pool.query(`SELECT * FROM sp_create_profile('${name}', '${cost_bs}', '${cost_usd}')`);
 		return resp.rows[0].sp_create_profile;
 	} catch (error) {
 		throw error;

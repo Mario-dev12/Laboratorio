@@ -4,7 +4,10 @@ import HomeView from "../views/HomeView.vue";
 import ListOfReactives from "../views/ListOfReactives.vue";
 import NumberConsultant from "../views/NumberConsultant.vue";
 import CrearOrden from "@/views/CrearOrden.vue";
-import EditUserExam from "@/views/EditUserExam.vue";
+import EditUserExam from "@/views/EditTests.vue";
+import OrdersView from "@/views/OrdersView.vue";
+import OrdersHistoryView from "@/views/OrdersHistoryView.vue";
+import EditarOrden from "@/views/EditarOrden.vue";
 
 const routes: Array<RouteRecordRaw> = [
 	{
@@ -22,6 +25,11 @@ const routes: Array<RouteRecordRaw> = [
 		component: CrearOrden,
 	},
 	{
+		path: "/editarOrden/:idUser/:idExam/:cost_bs/:cost_usd",
+		name: "EditarOrden",
+		component: EditarOrden,
+	},
+	{
 		path: "/reactivos",
 		name: "Reactivos",
 		component: ListOfReactives,
@@ -35,6 +43,16 @@ const routes: Array<RouteRecordRaw> = [
 		path: "/editarPerfil",
 		name: "EditarPerfil",
 		component: EditUserExam,
+	},
+	{
+		path: "/ordenes",
+		name: "OrdersView",
+		component: OrdersView,
+	},
+	{
+		path: "/historico",
+		name: "Historico",
+		component: OrdersHistoryView,
 	},
 ];
 

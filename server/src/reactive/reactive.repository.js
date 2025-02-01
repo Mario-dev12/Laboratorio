@@ -55,15 +55,6 @@ reactiveRepository.updateReactive = async (id, answer) => {
 	}
 };
 
-reactiveRepository.updateReactive = async (id, answer) => {
-	try {
-		const resp = await pool.query(`SELECT * FROM sp_update_reactive(${id}, '${answer.name}')`);
-		return resp.rows[0].sp_update_reactive;
-	} catch (error) {
-		throw error;
-	}
-};
-
 reactiveRepository.deleteReactive = async (id) => {
 	try {
 		const resp = await pool.query(`SELECT * FROM sp_delete_reactive(${id})`);

@@ -3,7 +3,7 @@
         <ion-header>  
             <ion-toolbar>  
                 <ion-title>  
-                    Métodos de Pago  
+                    Métodos de Pago
                     <div>  
                         Total: {{ totales.totalBs }} Bs | {{ totales.total$ }} $  
                     </div>  
@@ -62,7 +62,7 @@
                                 <option value="Dolares">Dólares</option>  
                             </select>  
                         </div>  
-                        <div class="form-group mx-2">  
+                        <div v-if="metodo.divisaEfectivo === 'Bolivares'" class="form-group mx-2">  
                             <label for="montoEfectivo">Monto:</label>  
                             <input  
                                 v-model.number="metodo.montoEfectivo"  
@@ -73,6 +73,17 @@
                                 placeholder="Ingrese el monto"  
                             />  
                         </div>  
+                        <div v-if="metodo.divisaEfectivo === 'Dolares'" class="form-group mx-2">  
+                            <label for="montoEfectivo">Monto:</label>  
+                            <input  
+                                v-model.number="metodo.montoUSD"  
+                                type="text"  
+                                class="form-control"  
+                                id="montoEfectivo"  
+                                required  
+                                placeholder="Ingrese el monto"  
+                            />  
+                        </div> 
                         <div v-if="metodo.divisaEfectivo === 'Bolivares'" class="form-group mx-2">  
                             <label for="montoEfectivoEquivalente">Monto Equivalente (USD):</label>  
                             <input  
@@ -86,7 +97,7 @@
                         <div v-if="metodo.divisaEfectivo === 'Dolares'" class="form-group mx-2">  
                             <label for="montoEfectivoBS">Monto Equivalente (BS):</label>  
                             <input  
-                                :value="(metodo.montoEfectivo * precioDolar).toFixed(2)"  
+                                :value="(metodo.montoUSD * precioDolar).toFixed(2)"  
                                 type="text"  
                                 class="form-control"  
                                 id="montoEfectivoBS"  
@@ -195,10 +206,10 @@
 
                 <ion-item-divider v-if="method && !esMontoEquivalente"></ion-item-divider> 
 
-                <a class="a-class" v-if="!esMontoEquivalente && isFormValid" @click="agregarMetodoPago">+ Nuevo Método de Pago</a>  
+                <a class="a-class" style="padding-bottom: 5px;" v-if="!esMontoEquivalente && isFormValid" @click="agregarMetodoPago">+ Nuevo Método de Pago</a>  
 
                 <ion-footer>  
-                    <ion-button :disabled="!esMontoEquivalente" expand="full" type="submit">Añadir Métodos de Pago</ion-button>  
+                    <ion-button expand="full" type="submit" :disabled="!esMontoEquivalente">Añadir Métodos de Pago</ion-button>  
                 </ion-footer>  
             </form>  
         </ion-content>  
@@ -217,6 +228,7 @@ const props = defineProps<{
         totalBs: number;  
         total$: number;  
     };  
+    paymentData: any
 }>();  
 
 const montoRestanteBolivares = ref(0);  
@@ -232,6 +244,42 @@ const metodos = ref([{ metodo: '', divisaEfectivo: '', montoEfectivo: 0, divisaD
 const closeModal = () => {  
     emit("close");  
 };  
+
+const initializeMetodos = () => { 
+    if (props.paymentData) {  
+        metodos.value = [];
+        for (let i = 0; i < props.paymentData.length; i++){
+            const methodData = {  
+                metodo: props.paymentData[i].name,  
+                divisaEfectivo: props.paymentData[i].name === "Efectivo" ? props.paymentData[i].type : '',  
+                montoEfectivo: props.paymentData[i].name === "Efectivo" ? parseFloat(props.paymentData[i].amount_bs.replace(',', '.')) : 0,  
+                divisaDebito: props.paymentData[i].name === "Debito" ? 'Bolivares' : '',  
+                banco: props.paymentData[i].bank,  
+                montoDebito: props.paymentData[i].name === "Debito" ? parseFloat(props.paymentData[i].amount_bs.replace(',', '.')) : 0,  
+                montoUSD: parseFloat(props.paymentData[i].amount_usd),  
+                divisaPagoMovil: props.paymentData[i].name === "Pago Movil" ? 'Bolivares' : '',  
+                bancoPagoMovil: props.paymentData[i].name === "Pago Movil" ? props.paymentData[i].bank : '',  
+                telefonoPagoMovil: props.paymentData[i].phone || '',  
+                montoPagoMovil: props.paymentData[i].name === "Pago Movil" ? parseFloat(props.paymentData[i].amount_bs.replace(',', '.')) : 0,  
+            }; 
+            if (methodData.metodo) {  
+                metodos.value.push(methodData);  
+            } 
+        }
+    }
+}; 
+ 
+watch(() => props.paymentData, (newValue) => {
+    if (newValue){
+        initializeMetodos(); 
+    } else {
+        metodos.value = [];
+        metodos.value.push({ metodo: '', divisaEfectivo: '', montoEfectivo: 0, divisaDebito: 'Bolivares', montoDebito: 0, montoUSD: 0, banco: '', divisaPagoMovil: 'Bolivares', bancoPagoMovil: '', montoPagoMovil: 0, telefonoPagoMovil: '' })
+    } 
+});  
+
+watch(() => metodos.value, (newValue) => { 
+});
 
 watch(  
     () => props.precioDolar,  
@@ -250,25 +298,25 @@ const isFormValid = computed(() => {
     return metodos.value.every(metodo => {  
         if (!metodo.metodo) return false;
 
-        if (metodo.metodo === 'Efectivo') {  
+        if (metodo.metodo === 'Efectivo') { 
             return (  
                 metodo.divisaEfectivo &&  
-                metodo.montoEfectivo > 0 &&
+                (metodo.divisaEfectivo === 'Bolivares' ? metodo.montoEfectivo > 0 : metodo.montoUSD > 0) &&  
                 (metodo.divisaEfectivo === 'Bolivares' ||   
-                 (metodo.divisaEfectivo === 'Dolares' && metodo.montoEfectivo > 0))  
+                 (metodo.divisaEfectivo === 'Dolares' && metodo.montoUSD > 0))  
             );  
         } else if (metodo.metodo === 'Debito') {  
             return (  
                 metodo.divisaDebito &&  
                 metodo.banco &&  
-                metodo.montoDebito >= 0  
+                metodo.montoDebito > 0  
             );  
         } else if (metodo.metodo === 'Pago Movil') {  
             return (  
                 metodo.divisaPagoMovil &&  
                 metodo.bancoPagoMovil &&  
                 metodo.telefonoPagoMovil &&  
-                metodo.montoPagoMovil >= 0  
+                metodo.montoPagoMovil > 0  
             );  
         }  
         return true;
@@ -277,7 +325,7 @@ const isFormValid = computed(() => {
 
 
 const submit = async () => {  
-    const paymentDetails = [];  
+    const paymentDetails = []; 
 
     for (const m of metodos.value) {  
         if (m.metodo) {  
@@ -297,8 +345,8 @@ const submit = async () => {
             let tipo = "";
 
             if (m.metodo === 'Efectivo') {  
-                montoBolivares = m.divisaEfectivo === 'Bolivares' ? m.montoEfectivo : m.montoEfectivo * props.precioDolar;  
-                montoDolares = m.divisaEfectivo === 'Dolares' ? m.montoEfectivo : m.montoEfectivo / props.precioDolar;  
+                montoBolivares = m.divisaEfectivo === 'Bolivares' ? m.montoEfectivo : m.montoUSD * props.precioDolar;  
+                montoDolares = m.divisaEfectivo === 'Dolares' ? m.montoUSD : m.montoEfectivo / props.precioDolar;  
                 tipo = m.divisaEfectivo;
             } else if (m.metodo === 'Debito') {  
                 montoBolivares = m.montoDebito;  
@@ -351,17 +399,17 @@ const cancelarEdicion = () => {
 
 const esMontoEquivalente = computed(() => {  
     let totalBolivares = 0;  
-    let totalDolares = 0;  
+    let totalDolares = 0; 
 
-    metodos.value.forEach(metodo => {  
+    metodos.value.forEach(metodo => { 
         if (metodo.metodo === 'Efectivo') {  
             if (metodo.divisaEfectivo === 'Bolivares') {  
                 totalBolivares += metodo.montoEfectivo;  
                 metodo.montoUSD = metodo.montoEfectivo / props.precioDolar;
                 totalDolares += metodo.montoUSD;
             } else if (metodo.divisaEfectivo === 'Dolares') {  
-                totalBolivares += metodo.montoEfectivo * props.precioDolar; 
-                totalDolares += metodo.montoEfectivo; 
+                totalBolivares += metodo.montoUSD * props.precioDolar; 
+                totalDolares += metodo.montoUSD; 
             }  
         } else if (metodo.metodo === 'Debito') {  
             totalBolivares += metodo.montoDebito;
@@ -382,7 +430,7 @@ async function calcularMontosRestantes() {
         const montoEfectivoBs = (metodo.metodo === 'Efectivo' && metodo.divisaEfectivo === 'Bolivares')  
             ? metodo.montoEfectivo  
             : (metodo.metodo === 'Efectivo' && metodo.divisaEfectivo === 'Dolares'  
-                ? metodo.montoEfectivo * props.precioDolar  
+                ? metodo.montoUSD * props.precioDolar  
                 : 0);  
 
         return acc + montoEfectivoBs +  
@@ -394,19 +442,19 @@ async function calcularMontosRestantes() {
 
     const totalDolares = metodos.value.reduce((acc, metodo) => {  
         const montoEfectivoUsd = (metodo.metodo === 'Efectivo' && metodo.divisaEfectivo === 'Dolares')  
-            ? metodo.montoEfectivo  
+            ? metodo.montoUSD  
             : (metodo.metodo === 'Efectivo' && metodo.divisaEfectivo === 'Bolivares'  
                 ? metodo.montoEfectivo / props.precioDolar  
-                : 0);  
+                : 0); 
 
         const montoPagoMovilUsd = (metodo.metodo === 'Pago Movil') ? metodo.montoPagoMovil / props.precioDolar : 0;  
 
         return acc + montoEfectivoUsd +  
                    (metodo.metodo === 'Debito' ? metodo.montoDebito / props.precioDolar : 0) +  
                    montoPagoMovilUsd;
-    }, 0);  
+    }, 0); 
 
-    montoRestanteDolares.value = props.totales.total$ - totalDolares;  
+    montoRestanteDolares.value = props.totales.total$ - totalDolares; 
 }  
 </script>  
 
