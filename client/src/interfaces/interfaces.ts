@@ -13,7 +13,6 @@ export interface User {
 }
 
 export interface Profile {
-	id?: number;
 	idProfile: number;
 	name: string;
 	cost_bs: string;
@@ -105,10 +104,10 @@ export interface Payment {
 	idPayment_method: number;
 	idExam: number;
 	amount_bs: string;
-    amount_usd: string;
-    bank: string;
-    phone: string;
-    type: string;
+	amount_usd: string;
+	bank: string;
+	phone: string;
+	type: string;
 	createddate?: any;
 	modifieddate?: any;
 }
@@ -117,7 +116,7 @@ export interface Income {
 	idExam: number;
 	examName: string;
 	cost_bs: string;
-	cost_usd: string
+	cost_usd: string;
 	createdDate: any;
 	idUser: number;
 	ci: string;

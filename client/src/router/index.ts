@@ -4,6 +4,7 @@ import HomeView from "../views/HomeView.vue";
 import ListOfReactives from "../views/ListOfReactives.vue";
 import NumberConsultant from "../views/NumberConsultant.vue";
 import CrearOrden from "@/views/CrearOrden.vue";
+import EditUserExam from "@/views/EditUserExam.vue";
 
 const routes: Array<RouteRecordRaw> = [
 	{
@@ -29,6 +30,11 @@ const routes: Array<RouteRecordRaw> = [
 		path: "/caja",
 		name: "Caja",
 		component: NumberConsultant,
+	},
+	{
+		path: "/editarPerfil",
+		name: "EditarPerfil",
+		component: EditUserExam,
 	},
 ];
 
