@@ -24,6 +24,7 @@ INSERT INTO exam (idUser, total_cost_bs, total_cost_usd) VALUES
 INSERT INTO orders (idExam, idProfile, status) VALUES 
 (1, 1, 'Pendiente por pasar'),
 (1, 2, 'Pendiente por pasar'),
+(2, 3, 'Pendiente por pasar'),
 (2, 2, 'Pendiente por pasar');
 
 INSERT INTO payment_method (name) VALUES 
@@ -37,18 +38,25 @@ INSERT INTO payment (idPayment_method, idExam, amount_bs, amount_usd, bank, phon
 (3, 2, '244,35', '5', '', '', 'Dolares');
 
 INSERT INTO unit (name, idProfile) VALUES   
-('x10/L', 1),  
-('g%', 1),  
-('%', 1),  
-('G/dl', 1),  
-('Mm/cm3', 1),  
-('ccl/mm3', 1),  
-('mm/Hora', 1),  
-('mg/dl', 1),  
+('x10/L', 1),         
+('g%', 1),                 
+('%', 1),          
+('G/dl', 1),              
+('Mm/cm3', 1),            
+('ccl/mm3', 1),         
+('mm/Hora', 1),         
+('mg/dl', 1),     
 ('gr/li', 1),  
 ('g/dl', 1),  
-('U/L', 1),  
-('gr/dl', 1);  
+('U/L', 1), 
+('gr/dl', 1),
+('µUI/mL', 1),  
+('ng/dL', 1), 
+('pg/mL', 1), 
+('mg/L', 1),
+('IU/mL', 1),
+('mmol/L', 1),
+('cells/mm3', 1);
 
 INSERT INTO reactive (name, total) VALUES   
 ('Glucosa', 5),  
@@ -119,3 +127,92 @@ INSERT INTO alliance (quantity, cost_bs, cost_usd, pay_done, pay_amount, idReact
 (5, '256.75', '5', true, '', 31, 5),  
 (5, '256.75', '5', true, '', 32, 5),  
 (5, '256.75', '5', true, '', 33, 5);
+
+INSERT INTO campo (nombre, unidad) VALUES   
+('glucosa', 'mg/dL'),
+('glicemia', 'mg/dL'),  
+('colesterol_total', 'mg/dL'),
+('colesterol_hdl', 'mg/dL'), 
+('colesterol_ldl', 'mg/dL'), 
+('trigliceridos', 'mg/dL'),
+('lipidos_totales', 'mg/dL'),
+('proteina_c_resactiva', 'mg/dL'), 
+('creatina', 'g/dL'), 
+('transaminasa_oxalacetica', 'U/L'),  
+('transaminasa_piruvica', 'U/L'),  
+('calcio', 'mg/dL'), 
+('fosforo', 'mg/dL'), 
+('bilirrubina_total', 'mg/dL'),  
+('bilirrubina_directa', 'mg/dL'),  
+('bilirrubina_indirecta', 'mg/dL'),   
+('albumina', 'g/dL'), 
+('globulina', 'g/dL'),
+('color', NULL), 
+('aspecto', NULL),
+('ph', 'Mm/cm3'),
+('densidad', 'mm/Hora'), 
+('proteinas', 'g/dL'),
+('TSH', 'µU/mL'),
+('T4', 'ng/dL'),
+('T3', 'ng/dL'),
+('Anti-TG', 'ng/mL'),
+('Anti-TPO', 'ng/mL');
+
+INSERT INTO resultados_perfil_20 (idOrder, idProfile, idCampo, resultado) VALUES  
+(1, 1, 1, 90.5),
+(1, 1, 2, 85.0),
+(1, 1, 3, 190.0), 
+(1, 1, 4, 55.0), 
+(1, 1, 5, 120.0),
+(1, 1, 6, 150.0),
+(1, 1, 7, 250.0),  
+(1, 1, 8, 5.0),  
+(1, 1, 9, 0.9),  
+(1, 1, 10, 25.0), 
+(1, 1, 11, 30.0), 
+(1, 1, 12, 9.2), 
+(1, 1, 13, 3.5), 
+(1, 1, 14, 1.0), 
+(1, 1, 15, 0.3), 
+(1, 1, 16, 0.7), 
+(1, 1, 17, 4.0), 
+(1, 1, 18, 2.5); 
+
+INSERT INTO resultados_uroanalisis (idOrder, idProfile, idCampo, resultado) VALUES  
+(2, 2, 1, 'Amarillo Claro'),
+(2, 2, 2, 'Transparente'), 
+(2, 2, 3, 6.5),
+(2, 2, 4, 1.020),
+(2, 2, 5, 10.0), 
+(2, 2, 6, 0.0), 
+(2, 2, 7, 0.0), 
+(2, 2, 8, 0.0),
+(2, 2, 9, 0.2), 
+(2, 2, 10, 'Negativo'),  
+(2, 2, 11, 'Negativo'),  
+(2, 2, 12, 3),  
+(2, 2, 13, 'Oxalato'),
+(2, 2, 14, 'Negativo'), 
+(2, 2, 15, 'Sin cristales visibles'),
+(4, 2, 1, 'Amarillo Oscuro'),
+(4, 2, 2, 'espumosa'), 
+(4, 2, 3, 6.5),
+(4, 2, 4, 1.020),
+(4, 2, 5, 10.0), 
+(4, 2, 6, 0.0), 
+(4, 2, 7, 0.0), 
+(4, 2, 8, 0.0),
+(4, 2, 9, 0.2), 
+(4, 2, 10, 'Positivo'),  
+(4, 2, 11, 'Negativo'),  
+(4, 2, 12, 2),  
+(4, 2, 13, 'Oxalato'),
+(4, 2, 14, 'Negativo'), 
+(4, 2, 15, 'Sin cristales visibles');
+
+INSERT INTO resultados_perfil_tiroideo (idOrder, idProfile, idCampo, resultado) VALUES  
+(3, 3, 24, 1.5),  
+(3, 3, 25, 4.0),
+(3, 3, 26, 100.0),
+(3, 3, 27, 5.0),
+(3, 3, 28, 1.0);

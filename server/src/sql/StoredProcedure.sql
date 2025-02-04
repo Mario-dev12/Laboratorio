@@ -1705,3 +1705,72 @@ begin
 		return v_json_resp;
 end;
 $BODY$;
+
+CREATE OR REPLACE FUNCTION sp_create_tabla_resultados(  
+    p_nombre_perfil character varying)  
+RETURNS json  
+LANGUAGE 'plpgsql'  
+COST 100  
+VOLATILE PARALLEL UNSAFE  
+AS $BODY$  
+DECLARE  
+    v_nombre_tabla TEXT;  
+    v_sql TEXT;  
+BEGIN  
+    v_nombre_tabla := 'resultados_' || lower(replace(p_nombre_perfil, ' ', '_'));  
+    
+    IF EXISTS (SELECT 1 FROM information_schema.tables   
+               WHERE table_name = v_nombre_tabla) THEN  
+        RETURN json_build_object('message', 'La tabla ya existe.', 'table_name', v_nombre_tabla);  
+    ELSE   
+        v_sql := format($sql$  
+            CREATE TABLE %I (  
+                idResultado SERIAL PRIMARY KEY,  
+				idOrder INTEGER NOT NULL REFERENCES orders(idOrder) ON DELETE CASCADE,  
+				idProfile INTEGER NOT NULL REFERENCES profile(idProfile) ON DELETE CASCADE,  
+				idCampo INTEGER NOT NULL REFERENCES campo(idCampo) ON DELETE CASCADE,  
+				resultado NUMERIC NOT NULL, 
+                createdDate timestamp with time zone NOT NULL DEFAULT now(),  
+                modifiedDate timestamp with time zone NOT NULL DEFAULT now()  
+            );  
+        $sql$, v_nombre_tabla);  
+        
+        EXECUTE v_sql;  
+
+        RETURN json_build_object('message', 'Tabla creada exitosamente.', 'table_name', v_nombre_tabla);  
+    END IF;  
+END;  
+$BODY$;
+
+CREATE OR REPLACE FUNCTION sp_agregar_campos_if_not_exists(  
+    p_campos JSONB[])   
+RETURNS json  
+LANGUAGE 'plpgsql'  
+COST 100  
+VOLATILE PARALLEL UNSAFE  
+AS $BODY$  
+DECLARE  
+    v_campos RECORD; 
+    v_nombre TEXT;  
+    v_unidad VARCHAR;  
+    v_existente integer;  
+    v_inserciones integer := 0;  
+BEGIN  
+    FOREACH v_campos IN ARRAY p_campos LOOP   
+        v_nombre := v_campos->>'nombre';  
+        v_unidad := v_campos->>'unidad';  
+ 
+        SELECT COUNT(*) INTO v_existente FROM campo WHERE nombre = v_nombre;  
+
+        IF v_existente = 0 THEN   
+            INSERT INTO campo(nombre, unidad) VALUES (v_nombre, v_unidad);  
+            v_inserciones := v_inserciones + 1;  
+        END IF;  
+    END LOOP;  
+
+    RETURN json_build_object(  
+        'message', 'Operación completada.',  
+        'nuevos_agregados', v_inserciones  
+    );  
+END;  
+$BODY$;

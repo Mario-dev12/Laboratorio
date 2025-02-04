@@ -42,6 +42,15 @@ profileController.createProfile = async (req, res) => {
   }
 }
 
+profileController.createProfileInputs = async (req, res) => {
+  try {
+    const answer = await profileServices.createProfileInputs(req.body.name, req.body.cost_bs, req.body.cost_usd, req.body.inputs)
+    res.send(answer)
+  } catch (error) {
+    return res.status(400).send(error.stack)
+  }
+}
+
 profileController.updateProfile = async (req, res) => {
   const { id } = req.params
 

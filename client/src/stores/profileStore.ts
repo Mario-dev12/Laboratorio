@@ -32,6 +32,11 @@ export const profileStore = defineStore("profile", {
 			this.profiles = response;
 			return this.profiles;
 		},
+		/*async createProfileInputs(exam: Profile, inputs: any) {
+			const response = await axiosRepository.createProfileInputs<Profile>("profile", exam, inputs);
+			this.profiles = response;
+			return this.profiles;
+		},*/
 		async updateProfile(id: string | number, data: Profile) {
 			const response = await axiosRepository.update<Profile>("profile", id, data);
 			this.profiles = response;

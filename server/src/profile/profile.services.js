@@ -18,6 +18,10 @@ profileServices.createProfile = async (name, cost_bs, cost_usd) => {
     return await profileRepository.createProfile(name, cost_bs, cost_usd)
 }
 
+profileServices.createProfileInputs = async (name, cost_bs, cost_usd, inputs) => {
+    return await profileRepository.createProfileInputs(name, cost_bs, cost_usd, inputs)
+}
+
 profileServices.updateProfile = async (id, answer) => {
     return await profileRepository.updateProfile(id, answer)
 }
