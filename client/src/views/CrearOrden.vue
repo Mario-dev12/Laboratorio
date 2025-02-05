@@ -195,7 +195,7 @@
 	import { ref, watch, onMounted } from "vue";
 	import { IonContent, IonPage } from "@ionic/vue";
 	import { userStore } from "@/stores/userStore";
-	import { User, Exam, Profile, Order, Payment } from "@/interfaces/interfaces";
+	import { User, Exam, Order, Payment } from "@/interfaces/interfaces";
 	import { Toast } from "bootstrap";
 	import ModalAgregarMetodo from "@/components/ModalAgregarMetodo.vue";
 	import { examStore } from "@/stores/examStore";

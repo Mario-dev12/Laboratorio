@@ -36,14 +36,77 @@
 						</tr>
 					</tbody>
 				</table>
-				<EditTestsModal
-					:is-open="modalOpen"
-					:perfil="selectedPerfil"
-					:create="create"
-					:update="update"
-					@close="modalOpen = false"
-					@update="updatePerfil"
-					@create="addNewPerfil" />
+
+				<div class="editar-perfil mt-4">
+					<h1 class="text-center">Perfil Nuevo</h1>
+					<div class="informacion-perfil bg-dark-subtle rounded p-3">
+						<div class="w-100 m-auto row px-2 mb-3">
+							<label class="col-12 p-0" for="documento">Nombre Del Perfil</label>
+							<input class="col-12" type="text" placeholder="Nombre" />
+						</div>
+						<div class="w-100 m-auto row px-2 mb-3">
+							<label class="col-12 p-0" for="documento">Costo En Dolares</label>
+							<input class="col-12" type="text" placeholder="Cost $" />
+						</div>
+						<div class="w-100 m-auto row px-2">
+							<label class="col-12 p-0" for="documento">Costo En Bolivares</label>
+							<input class="col-12" type="text" placeholder="Costo Bs" />
+						</div>
+					</div>
+					<h1 class="mt-4 text-center">Campos Del Perfil</h1>
+					<table class="table table-striped text-center">
+						<thead>
+							<tr>
+								<th scope="col">Name</th>
+								<th scope="col">Unit</th>
+								<th scope="col">Agregado</th>
+							</tr>
+						</thead>
+						<tbody>
+							<tr v-for="campo in camposDePerfil" :key="campo.id">
+								<td>{{ campo.nombre }}</td>
+								<td>{{ campo.unidad }}</td>
+								<td class="align-middle">
+									<input
+										type="checkbox"
+										@change="
+											(e) => {
+												addCampo(e, campo);
+											}
+										" />
+								</td>
+							</tr>
+						</tbody>
+					</table>
+					<div class="agregar-campo bg-dark-subtle rounded p-3 mb-3">
+						<div class="w-100 m-auto row px-2 mb-3">
+							<label for="campo">Nombre Del Campo</label>
+							<input type="text" placeholder="Nombre" name="campo" />
+						</div>
+						<div class="w-100 m-auto row px-2">
+							<div class="col">
+								<label for="unidad">Unidad Del Campo</label>
+							</div>
+							<div class="col d-flex align-content-center">
+								<p class="d-inline m-0 me-2">Existente</p>
+								<input class="" type="checkbox" name="existente" v-model="campoExistenteRef" @click="handleCampo" />
+							</div>
+							<div class="col d-flex align-content-center">
+								<p class="d-inline m-0 me-2">Nueva</p>
+								<input type="checkbox" name="nueva" v-model="campoNuevoRef" @click="handleCampo" />
+							</div>
+						</div>
+						<div class="w-100 m-auto row px-2 mb-3">
+							<input type="text" placeholder="Unidad" name="unidad" v-if="campoNuevoRef" />
+							<select name="campos" id="campos" v-if="campoExistenteRef">
+								<option :value="campo.unidad" v-for="campo in camposDePerfil" :key="campo.id">{{ campo.unidad }}</option>
+							</select>
+						</div>
+						<div class="d-flex justify-content-center">
+							<button class="btn btn-primary">Crear Campo</button>
+						</div>
+					</div>
+				</div>
 			</div>
 		</ion-content>
 	</ion-page>
@@ -54,7 +117,11 @@
 	import { onMounted, ref } from "vue";
 	import { profileStore } from "@/stores/profileStore";
 	import { Profile } from "@/interfaces/interfaces";
-	import EditTestsModal from "@/components/EditTestsModal.vue";
+
+	interface Campo {
+		nombre: string;
+		unidad: string;
+	}
 
 	const modalOpen = ref(false);
 	const selectedPerfil = ref();
@@ -62,6 +129,9 @@
 	const perfiles = ref<Profile[]>([]);
 	const create = ref(false);
 	const update = ref(false);
+	const campos = ref<Campo[]>([]);
+	const campoExistenteRef = ref(true);
+	const campoNuevoRef = ref(false);
 
 	onMounted(async () => {
 		perfiles.value = await tests.fecthProfiles();
@@ -75,22 +145,22 @@
 		modalOpen.value = true;
 	}
 
-	const updatePerfil = async (updatedPerfil: Profile) => {
-		console.log(updatedPerfil.idProfile);
-		await tests.updateProfile(updatedPerfil.idProfile, updatedPerfil);
-		perfiles.value = await tests.fecthProfiles();
-	};
+	// const updatePerfil = async (updatedPerfil: Profile) => {
+	// 	console.log(updatedPerfil.idProfile);
+	// 	await tests.updateProfile(updatedPerfil.idProfile, updatedPerfil);
+	// 	perfiles.value = await tests.fecthProfiles();
+	// };
+
+	// async function addNewPerfil(newPerfil: Profile) {
+	// 	console.log(newPerfil);
+	// 	await tests.createProfile(newPerfil);
+	// 	perfiles.value = await tests.fecthProfiles();
+	// }
 
 	function createPerfil() {
 		create.value = true;
 		update.value = false;
 		modalOpen.value = true;
-	}
-
-	async function addNewPerfil(newPerfil: Profile) {
-		console.log(newPerfil);
-		await tests.createProfile(newPerfil);
-		perfiles.value = await tests.fecthProfiles();
 	}
 
 	async function deletePerfil(idperfil: number) {
@@ -100,6 +170,38 @@
 			perfiles.value = await tests.fecthProfiles();
 		}
 	}
+
+	const addCampo = (event: any, campo: { nombre: string; unidad: string }) => {
+		if (event.target.checked) {
+			console.log("true");
+			campos.value.push(campo);
+			console.log(campos.value);
+		} else {
+			campos.value = campos.value.filter((item) => {
+				return item.nombre != campo.nombre;
+			});
+			console.log(campos.value);
+		}
+	};
+
+	function handleCampo() {
+		if (campoExistenteRef.value) {
+			campoExistenteRef.value = false;
+			campoNuevoRef.value = true;
+			console.log(campoExistenteRef.value);
+			console.log(campoNuevoRef.value);
+		} else {
+			campoExistenteRef.value = true;
+			campoNuevoRef.value = false;
+		}
+	}
+
+	// campos de prueba
+	const camposDePerfil = [
+		{ id: "1", nombre: "Glucosa", unidad: "mg/ml" },
+		{ id: "2", nombre: "HDL", unidad: "mg/mg" },
+		{ id: "3", nombre: "LDL", unidad: "mg/mg" },
+	];
 </script>
 
 <style scoped>
