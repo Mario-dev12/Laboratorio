@@ -2,10 +2,55 @@ import pool from "../config/database.js";
 
 const profileRepository = {};
 
+async function createProfileResults(name) {
+	try {
+		const resp = await pool.query(`SELECT * FROM sp_create_tabla_resultados('${name}')`);
+		return resp.rows[0].sp_find_all_profile;
+	} catch (error) {
+		throw error;
+	}
+}
+
+async function agregarCampos(inputs) {
+	try {
+		const camposJson = JSON.stringify(inputs);
+
+		const resp = await pool.query(`
+      SELECT public.sp_agregar_campos_if_not_exists(
+        ARRAY[
+          ${camposJson}
+        ]::jsonb[]
+      ) AS result
+    `);
+
+		return resp.rows[0].result;
+	} catch (error) {
+		throw error;
+	}
+}
+
 profileRepository.readProfiles = async () => {
 	try {
 		const resp = await pool.query(`SELECT * FROM sp_find_all_profile()`);
 		return resp.rows[0].sp_find_all_profile;
+	} catch (error) {
+		throw error;
+	}
+};
+
+profileRepository.readProfilesInputs = async () => {
+	try {
+		const resp = await pool.query(`SELECT * FROM sp_find_all_inputs()`);
+		return resp.rows[0].sp_find_all_inputs;
+	} catch (error) {
+		throw error;
+	}
+};
+
+profileRepository.readProfilesUnits = async () => {
+	try {
+		const resp = await pool.query(`SELECT * FROM sp_find_all_inputs_unit()`);
+		return resp.rows[0].sp_find_all_inputs_unit;
 	} catch (error) {
 		throw error;
 	}
@@ -32,6 +77,19 @@ profileRepository.readProfileByType = async (name) => {
 profileRepository.createProfile = async (name, cost_bs, cost_usd) => {
 	try {
 		const resp = await pool.query(`SELECT * FROM sp_create_profile('${name}', '${cost_bs}', '${cost_usd}')`);
+		//await agregarCampos(inputs);
+		await createProfileResults(name);
+		return resp.rows[0].sp_create_profile;
+	} catch (error) {
+		throw error;
+	}
+};
+
+profileRepository.createProfileInputs = async (name, cost_bs, cost_usd, inputs) => {
+	try {
+		const resp = await pool.query(`SELECT * FROM sp_create_profile('${name}', '${cost_bs}', '${cost_usd}')`);
+		await agregarCampos(inputs);
+		await createProfileResults(name);
 		return resp.rows[0].sp_create_profile;
 	} catch (error) {
 		throw error;
