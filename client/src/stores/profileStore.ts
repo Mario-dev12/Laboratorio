@@ -12,6 +12,18 @@ export const profileStore = defineStore("profile", {
 			this.profiles = response;
 			return this.profiles;
 		},
+		// Estos son el store para conseguir los campos y las unidades, las 2 comentadas
+		/*
+		async fecthProfilesInputs() {
+			const response = await axiosRepository.getAllInputs<Profile>("profile");
+			this.profiles = response;
+			return this.profiles;
+		},
+		async fecthProfilesInputUnits() {
+			const response = await axiosRepository.getAllInputUnits<Profile>("profile");
+			this.profiles = response;
+			return this.profiles;
+		},*/
 		async fecthProfilesUnrepeated() {
 			const response = await axiosRepository.getAllUnrepeated<Profile>("profile");
 			this.profiles = response;

@@ -107,7 +107,7 @@ CREATE TABLE IF NOT EXISTS alliance
 CREATE TABLE IF NOT EXISTS campo (  
     idCampo serial PRIMARY KEY,  
     nombre character varying(255) NOT NULL,  
-    unidad character varying(255) not null,
+    unidad character varying(255),
     createdDate timestamp with time zone NOT NULL default now(),
     modifiedDate timestamp with time zone NOT NULL default now()
 ); 
@@ -117,7 +117,7 @@ CREATE TABLE IF NOT EXISTS resultados_perfil_20 (
     idOrder integer NOT NULL REFERENCES orders(idOrder) ON DELETE CASCADE,  
     idProfile integer NOT NULL REFERENCES profile(idProfile) ON DELETE CASCADE,  
     idCampo integer NOT NULL REFERENCES campo(idCampo) ON DELETE CASCADE,  
-    resultado numeric NOT NULL,
+    resultado character varying(255) NOT NULL,
     createdDate timestamp with time zone NOT NULL DEFAULT now(),  
     modifiedDate timestamp with time zone NOT NULL DEFAULT now()   
 );  
@@ -127,7 +127,7 @@ CREATE TABLE IF NOT EXISTS resultados_uroanalisis (
     idOrder INTEGER NOT NULL REFERENCES orders(idOrder) ON DELETE CASCADE,  
     idProfile INTEGER NOT NULL REFERENCES profile(idProfile) ON DELETE CASCADE,  
     idCampo INTEGER NOT NULL,  
-    resultado NUMERIC NOT NULL,
+    resultado character varying(255) NOT NULL,
     createdDate timestamp with time zone NOT NULL DEFAULT now(),  
     modifiedDate timestamp with time zone NOT NULL DEFAULT now()    
 );
@@ -137,7 +137,7 @@ CREATE TABLE IF NOT EXISTS resultados_perfil_tiroideo (
     idOrder INTEGER NOT NULL REFERENCES orders(idOrder) ON DELETE CASCADE,  
     idProfile INTEGER NOT NULL REFERENCES profile(idProfile) ON DELETE CASCADE,  
     idCampo INTEGER NOT NULL REFERENCES campo(idCampo) ON DELETE CASCADE,  
-    resultado NUMERIC NOT NULL,
+    resultado character varying(255) NOT NULL,
     createdDate timestamp with time zone NOT NULL DEFAULT now(),  
     modifiedDate timestamp with time zone NOT NULL DEFAULT now()  
 );  

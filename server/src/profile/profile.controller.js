@@ -12,6 +12,26 @@ profileController.readProfiles = async (req, res) => {
     }
 }
 
+profileController.readProfilesInputs = async (req, res) => {
+  try {
+    const answer = await profileServices.readProfilesInputs()
+
+    res.send(answer)
+  } catch (error) {
+    return res.status(400).send(error.stack)
+  }
+}
+
+profileController.readProfilesUnits = async (req, res) => {
+  try {
+    const answer = await profileServices.readProfilesUnits()
+
+    res.send(answer)
+  } catch (error) {
+    return res.status(400).send(error.stack)
+  }
+}
+
 profileController.readProfilesUnrepeated = async (req, res) => {
   try {
     const answer = await profileServices.readProfilesUnrepeated()

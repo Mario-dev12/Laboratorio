@@ -39,6 +39,24 @@ profileRepository.readProfiles = async () => {
   }
 }
 
+profileRepository.readProfilesInputs = async () => {
+  try {
+    const resp = await pool.query(`SELECT * FROM sp_find_all_inputs()`);
+    return resp.rows[0].sp_find_all_inputs;
+  } catch (error) {
+    throw error;
+  }
+}
+
+profileRepository.readProfilesUnits = async () => {
+  try {
+    const resp = await pool.query(`SELECT * FROM sp_find_all_inputs_unit()`);
+    return resp.rows[0].sp_find_all_inputs_unit;
+  } catch (error) {
+    throw error;
+  }
+}
+
 profileRepository.readProfilesUnrepeated = async () => {
   try {
     

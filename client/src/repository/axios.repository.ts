@@ -14,6 +14,18 @@ class AxiosRepository {
 		return response.data;
 	}
 
+	// ESte es para conseguir todo lo de la tabla campo
+/*	async getAllInputs<T>(domain: string): Promise<T[]> {
+		const response = await axios.get<T[]>(`${import.meta.env.VITE_API_URL}/${domain}`);
+		return response.data;
+	}*/
+
+	// Este es el que solo te da las unidades (para dropdown)
+	/*async getAllInputUnits<T>(domain: string): Promise<T[]> {
+		const response = await axios.get<T[]>(`${import.meta.env.VITE_API_URL}/${domain}`);
+		return response.data;
+	}*/
+
 	async getAllUnrepeated<T>(domain: string): Promise<T[]> {
 		const response = await axios.get<T[]>(`${import.meta.env.VITE_API_URL}/${domain}/unrepeated`);
 		return response.data;

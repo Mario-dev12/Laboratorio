@@ -1706,13 +1706,14 @@ begin
 end;
 $BODY$;
 
-CREATE OR REPLACE FUNCTION sp_create_tabla_resultados(  
-    p_nombre_perfil character varying)  
-RETURNS json  
-LANGUAGE 'plpgsql'  
-COST 100  
-VOLATILE PARALLEL UNSAFE  
-AS $BODY$  
+CREATE OR REPLACE FUNCTION sp_create_tabla_resultados(
+	p_nombre_perfil character varying)
+    RETURNS json
+    LANGUAGE 'plpgsql'
+    COST 100
+    VOLATILE PARALLEL UNSAFE
+AS $BODY$
+  
 DECLARE  
     v_nombre_tabla TEXT;  
     v_sql TEXT;  
@@ -1729,7 +1730,7 @@ BEGIN
 				idOrder INTEGER NOT NULL REFERENCES orders(idOrder) ON DELETE CASCADE,  
 				idProfile INTEGER NOT NULL REFERENCES profile(idProfile) ON DELETE CASCADE,  
 				idCampo INTEGER NOT NULL REFERENCES campo(idCampo) ON DELETE CASCADE,  
-				resultado NUMERIC NOT NULL, 
+				resultado character varying(255) NOT NULL, 
                 createdDate timestamp with time zone NOT NULL DEFAULT now(),  
                 modifiedDate timestamp with time zone NOT NULL DEFAULT now()  
             );  
@@ -1773,4 +1774,52 @@ BEGIN
         'nuevos_agregados', v_inserciones  
     );  
 END;  
+$BODY$;
+
+CREATE OR REPLACE FUNCTION sp_find_all_inputs(
+	)
+    RETURNS json[]
+    LANGUAGE 'plpgsql'
+    COST 100
+    VOLATILE PARALLEL UNSAFE
+AS $BODY$
+declare 
+	v_json_resp json[];
+begin
+	select array(
+        select jsonb_build_object(
+			'idCampo', a.idCampo,
+			'nombre', a.nombre,
+            'unidad', a.unidad,
+			'createdDate', a.createdDate,
+            'modifiedDate', a.modifiedDate
+		)
+		from campo a
+        ) ::json[] into v_json_resp;
+		return v_json_resp;
+end;
+$BODY$;
+
+
+CREATE OR REPLACE FUNCTION sp_find_all_inputs_unit(
+	)
+    RETURNS json[]
+    LANGUAGE 'plpgsql'
+    COST 100
+    VOLATILE PARALLEL UNSAFE
+AS $BODY$
+declare 
+	v_json_resp json[];
+begin
+	select array(
+        select jsonb_build_object(
+			'idCampo', a.idCampo,
+            'unidad', a.unidad,
+			'createdDate', a.createdDate,
+            'modifiedDate', a.modifiedDate
+		)
+		from campo a
+        ) ::json[] into v_json_resp;
+		return v_json_resp;
+end;
 $BODY$;

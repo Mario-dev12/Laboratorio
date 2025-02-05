@@ -6,6 +6,14 @@ profileServices.readProfiles = async () => {
     return await profileRepository.readProfiles()
 }
 
+profileServices.readProfilesInputs = async () => {
+    return await profileRepository.readProfilesInputs()
+}
+
+profileServices.readProfilesUnits = async () => {
+    return await profileRepository.readProfilesUnits()
+}
+
 profileServices.readProfilesUnrepeated = async () => {
     return await profileRepository.readProfilesUnrepeated()
 }
