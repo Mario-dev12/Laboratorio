@@ -12,6 +12,26 @@ profileController.readProfiles = async (req, res) => {
     }
 }
 
+profileController.readProfilesInputs = async (req, res) => {
+  try {
+    const answer = await profileServices.readProfilesInputs()
+
+    res.send(answer)
+  } catch (error) {
+    return res.status(400).send(error.stack)
+  }
+}
+
+profileController.readProfilesUnits = async (req, res) => {
+  try {
+    const answer = await profileServices.readProfilesUnits()
+
+    res.send(answer)
+  } catch (error) {
+    return res.status(400).send(error.stack)
+  }
+}
+
 profileController.readProfilesUnrepeated = async (req, res) => {
   try {
     const answer = await profileServices.readProfilesUnrepeated()
@@ -36,6 +56,15 @@ profileController.readProfileByType = async (req, res) => {
 profileController.createProfile = async (req, res) => {
   try {
     const answer = await profileServices.createProfile(req.body.name, req.body.cost_bs, req.body.cost_usd)
+    res.send(answer)
+  } catch (error) {
+    return res.status(400).send(error.stack)
+  }
+}
+
+profileController.createProfileInputs = async (req, res) => {
+  try {
+    const answer = await profileServices.createProfileInputs(req.body.name, req.body.cost_bs, req.body.cost_usd, req.body.inputs)
     res.send(answer)
   } catch (error) {
     return res.status(400).send(error.stack)
