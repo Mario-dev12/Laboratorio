@@ -1801,25 +1801,29 @@ end;
 $BODY$;
 
 
-CREATE OR REPLACE FUNCTION sp_find_all_inputs_unit(
-	)
-    RETURNS json[]
-    LANGUAGE 'plpgsql'
-    COST 100
-    VOLATILE PARALLEL UNSAFE
-AS $BODY$
-declare 
-	v_json_resp json[];
-begin
-	select array(
-        select jsonb_build_object(
-			'idCampo', a.idCampo,
-            'unidad', a.unidad,
-			'createdDate', a.createdDate,
-            'modifiedDate', a.modifiedDate
-		)
-		from campo a
-        ) ::json[] into v_json_resp;
-		return v_json_resp;
-end;
+CREATE OR REPLACE FUNCTION sp_find_all_inputs_unit()  
+    RETURNS json[]  
+    LANGUAGE 'plpgsql'  
+    COST 100  
+    VOLATILE PARALLEL UNSAFE  
+AS $BODY$  
+DECLARE   
+    v_json_resp json[];  
+BEGIN  
+    SELECT array(  
+        SELECT jsonb_build_object(  
+            'idCampo', a.idCampo,  
+            'unidad', a.unidad,  
+            'createdDate', a.createdDate,  
+            'modifiedDate', a.modifiedDate  
+        )  
+        FROM (  
+            SELECT DISTINCT ON (unidad)   
+                idCampo, unidad, createdDate, modifiedDate   
+            FROM campo    
+        ) AS a  
+    )::json[] INTO v_json_resp;  
+
+    RETURN v_json_resp;  
+END;  
 $BODY$;
