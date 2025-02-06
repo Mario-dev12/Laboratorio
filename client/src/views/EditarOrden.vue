@@ -788,7 +788,6 @@
 			}
 		} else {  
 			if (examHasChanged){
-				console.log('examenesSeleccionados.value[0].idExam', examenesSeleccionados.value[0].idExam, examenesSeleccionados.value)
 				const examsBody: Exam = {
 					idUser: user.value.id,
 					idExam: examenesSeleccionados.value[0].idExam,

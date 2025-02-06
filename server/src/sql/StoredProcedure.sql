@@ -1744,26 +1744,25 @@ END;
 $BODY$;
 
 CREATE OR REPLACE FUNCTION sp_agregar_campos_if_not_exists(  
-    p_campos JSONB[])   
-RETURNS json  
+    p_campos jsonb[]  
+) RETURNS json  
 LANGUAGE 'plpgsql'  
 COST 100  
 VOLATILE PARALLEL UNSAFE  
 AS $BODY$  
+
 DECLARE  
-    v_campos RECORD; 
+    v_campos jsonb;  
     v_nombre TEXT;  
     v_unidad VARCHAR;  
-    v_existente integer;  
     v_inserciones integer := 0;  
 BEGIN  
     FOREACH v_campos IN ARRAY p_campos LOOP   
+
         v_nombre := v_campos->>'nombre';  
         v_unidad := v_campos->>'unidad';  
- 
-        SELECT COUNT(*) INTO v_existente FROM campo WHERE nombre = v_nombre;  
 
-        IF v_existente = 0 THEN   
+        IF NOT EXISTS (SELECT 1 FROM campo WHERE nombre = v_nombre) THEN   
             INSERT INTO campo(nombre, unidad) VALUES (v_nombre, v_unidad);  
             v_inserciones := v_inserciones + 1;  
         END IF;  
@@ -1774,7 +1773,8 @@ BEGIN
         'nuevos_agregados', v_inserciones  
     );  
 END;  
-$BODY$;
+$BODY$;  
+
 
 CREATE OR REPLACE FUNCTION sp_find_all_inputs(
 	)
