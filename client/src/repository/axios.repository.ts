@@ -15,19 +15,20 @@ class AxiosRepository {
 	}
 
 	// ESte es para conseguir todo lo de la tabla campo
-/*	async getAllInputs<T>(domain: string): Promise<T[]> {
-		const response = await axios.get<T[]>(`${import.meta.env.VITE_API_URL}/${domain}`);
+	async getAllInputs<T>(domain: string): Promise<T[]> {
+		const response = await axios.get<T[]>(`${import.meta.env.VITE_API_URL}/${domain}/input`);
 		return response.data;
-	}*/
+	}
 
-	// Este es el que solo te da las unidades (para dropdown)
-	/*async getAllInputUnits<T>(domain: string): Promise<T[]> {
-		const response = await axios.get<T[]>(`${import.meta.env.VITE_API_URL}/${domain}`);
+	//  Este es el que solo te da las unidades (para dropdown)
+	async getAllInputUnits<T>(domain: string): Promise<T[]> {
+		const response = await axios.get<T[]>(`${import.meta.env.VITE_API_URL}/${domain}/unit`);
 		return response.data;
-	}*/
+	}
 
 	async getAllUnrepeated<T>(domain: string): Promise<T[]> {
 		const response = await axios.get<T[]>(`${import.meta.env.VITE_API_URL}/${domain}/unrepeated`);
+		console.log(response);
 		return response.data;
 	}
 
@@ -70,7 +71,11 @@ class AxiosRepository {
 		return response.data;
 	}
 
-	async getPaymentsByExamIdAndPaymentMethodId<T>(domain: string, idexam: string | number, idpayment_method: string | number): Promise<T> {
+	async getPaymentsByExamIdAndPaymentMethodId<T>(
+		domain: string,
+		idexam: string | number,
+		idpayment_method: string | number
+	): Promise<T> {
 		const response = await axios.get<T>(`${import.meta.env.VITE_API_URL}/${domain}/pay/${idexam}/${idpayment_method}`);
 		return response.data;
 	}
@@ -107,20 +112,22 @@ class AxiosRepository {
 
 	// Aqui esta el nuevo create de los campos, se tiene que pasar dos bodys en uno.
 	//para data debes enviar la información del perfil en data y en inputs envia los campos de esta manera:
-	// por ejemplo:[{ nombre: 'Hemoglobina', unidad: 'g/%' },  
-    // { nombre: 'Colesterol', unidad: 'mg/dl' },  
-    // { nombre: 'Hematocrito', unidad: '%' }]
-/*	async createProfileInputs<T>(domain: string, data: T, inputs: T): Promise<T> {
-		const requestData = {  
-			data,  
-			inputs  
-		};  
-		const response = await axios.post<T>(`${import.meta.env.VITE_API_URL}/${domain}`, requestData);
+	// por ejemplo:[{ nombre: 'Hemoglobina', unidad: 'g/%' },
+	// { nombre: 'Colesterol', unidad: 'mg/dl' },
+	// { nombre: 'Hematocrito', unidad: '%' }]
+	async createProfileInputs<T>(domain: string, data: T, inputs: T): Promise<T> {
+		const requestData = {
+			data,
+			inputs,
+		};
+		console.log(requestData);
+		const response = await axios.post<T>(`${import.meta.env.VITE_API_URL}/${domain}/inputs`, requestData);
 		return response.data;
-	}*/
+	}
 
 	async update<T>(domain: string, id: string | number | undefined, data: T): Promise<T> {
 		const response = await axios.put<T>(`${import.meta.env.VITE_API_URL}/${domain}/${id}`, data);
+		console.log(response);
 		return response.data;
 	}
 

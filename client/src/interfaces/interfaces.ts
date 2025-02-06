@@ -13,7 +13,6 @@ export interface User {
 }
 
 export interface Profile {
-	id?: number;
 	idProfile: number;
 	name: string;
 	cost_bs: string;
@@ -56,7 +55,7 @@ export interface OrdersDay {
 	age: number;
 	profileName: string;
 	total_cost_bs: string;
-	total_cost_usd: string
+	total_cost_usd: string;
 	createddate?: any;
 	modifieddate?: any;
 }
@@ -86,11 +85,10 @@ export interface ReactiveProvider {
 }
 
 export interface Unit {
-	idUnit: number;
-	name: string;
-	idProfile: number;
-	createddate: any;
-	modifieddate: any;
+	idCampo: number;
+	unidad: string;
+	createddate?: any;
+	modifieddate?: any;
 }
 
 export interface Provider {
@@ -126,10 +124,10 @@ export interface Payment {
 	idPayment_method: number;
 	idExam: number;
 	amount_bs: string;
-    amount_usd: string;
-    bank: string;
-    phone: string;
-    type: string;
+	amount_usd: string;
+	bank: string;
+	phone: string;
+	type: string;
 	createddate?: any;
 	modifieddate?: any;
 }
@@ -138,7 +136,7 @@ export interface Income {
 	idExam: number;
 	examName: string;
 	cost_bs: string;
-	cost_usd: string
+	cost_usd: string;
 	createdDate: any;
 	idUser: number;
 	ci: string;
@@ -166,4 +164,12 @@ export interface Bill {
 	providerName: string;
 	idReactive: number;
 	reactiveName: string;
+}
+
+export interface Campo {
+	idCampo?: number;
+	nombre: string;
+	unidad: string;
+	createddate?: any;
+	modifieddate?: any;
 }
