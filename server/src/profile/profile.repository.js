@@ -4,8 +4,9 @@ const profileRepository = {};
 
 async function createProfileResults(name) {
 	try {
+		console.log("name", name);
 		const resp = await pool.query(`SELECT * FROM sp_create_tabla_resultados('${name}')`);
-		return resp.rows[0].sp_find_all_profile;
+		return resp.rows[0].sp_create_tabla_resultados;
 	} catch (error) {
 		throw error;
 	}
@@ -88,8 +89,8 @@ profileRepository.createProfile = async (name, cost_bs, cost_usd) => {
 profileRepository.createProfileInputs = async (name, cost_bs, cost_usd, inputs) => {
 	try {
 		const resp = await pool.query(`SELECT * FROM sp_create_profile('${name}', '${cost_bs}', '${cost_usd}')`);
-		await agregarCampos(inputs);
 		await createProfileResults(name);
+		await agregarCampos(inputs);
 		return resp.rows[0].sp_create_profile;
 	} catch (error) {
 		throw error;

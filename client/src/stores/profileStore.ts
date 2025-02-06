@@ -1,10 +1,12 @@
 import { defineStore } from "pinia";
 import { axiosRepository } from "@/repository/axios.repository";
-import { Profile } from "@/interfaces/interfaces";
+import { Profile, Campo, Unit } from "@/interfaces/interfaces";
 
 export const profileStore = defineStore("profile", {
 	state: () => ({
-		profiles: [] as Profile[] | Profile,
+		profiles: [] as Profile[] | Profile | Partial<Profile>,
+		inputs: [] as Campo[] | Campo,
+		units: [] as Unit[] | Unit,
 	}),
 	actions: {
 		async fecthProfiles() {
@@ -13,17 +15,17 @@ export const profileStore = defineStore("profile", {
 			return this.profiles;
 		},
 		// Estos son el store para conseguir los campos y las unidades, las 2 comentadas
-		/*
+
 		async fecthProfilesInputs() {
-			const response = await axiosRepository.getAllInputs<Profile>("profile");
-			this.profiles = response;
-			return this.profiles;
+			const response = await axiosRepository.getAllInputs<Campo>("profile");
+			this.inputs = response;
+			return this.inputs;
 		},
 		async fecthProfilesInputUnits() {
-			const response = await axiosRepository.getAllInputUnits<Profile>("profile");
-			this.profiles = response;
-			return this.profiles;
-		},*/
+			const response = await axiosRepository.getAllInputUnits<Unit>("profile");
+			this.units = response;
+			return this.units;
+		},
 		async fecthProfilesUnrepeated() {
 			const response = await axiosRepository.getAllUnrepeated<Profile>("profile");
 			this.profiles = response;
@@ -44,11 +46,11 @@ export const profileStore = defineStore("profile", {
 			this.profiles = response;
 			return this.profiles;
 		},
-		/*async createProfileInputs(exam: Profile, inputs: any) {
-			const response = await axiosRepository.createProfileInputs<Profile>("profile", exam, inputs);
+		async createProfileInputs(exam: Partial<Profile>, inputs: any) {
+			const response = await axiosRepository.createProfileInputs<Partial<Profile>>("profile", exam, inputs);
 			this.profiles = response;
 			return this.profiles;
-		},*/
+		},
 		async updateProfile(id: string | number, data: Profile) {
 			const response = await axiosRepository.update<Profile>("profile", id, data);
 			this.profiles = response;

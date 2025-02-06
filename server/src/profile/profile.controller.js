@@ -13,24 +13,24 @@ profileController.readProfiles = async (req, res) => {
 };
 
 profileController.readProfilesInputs = async (req, res) => {
-  try {
-    const answer = await profileServices.readProfilesInputs()
+	try {
+		const answer = await profileServices.readProfilesInputs();
 
-    res.send(answer)
-  } catch (error) {
-    return res.status(400).send(error.stack)
-  }
-}
+		res.send(answer);
+	} catch (error) {
+		return res.status(400).send(error.stack);
+	}
+};
 
 profileController.readProfilesUnits = async (req, res) => {
-  try {
-    const answer = await profileServices.readProfilesUnits()
+	try {
+		const answer = await profileServices.readProfilesUnits();
 
-    res.send(answer)
-  } catch (error) {
-    return res.status(400).send(error.stack)
-  }
-}
+		res.send(answer);
+	} catch (error) {
+		return res.status(400).send(error.stack);
+	}
+};
 
 profileController.readProfilesUnrepeated = async (req, res) => {
 	try {
@@ -63,13 +63,18 @@ profileController.createProfile = async (req, res) => {
 };
 
 profileController.createProfileInputs = async (req, res) => {
-  try {
-    const answer = await profileServices.createProfileInputs(req.body.name, req.body.cost_bs, req.body.cost_usd, req.body.inputs)
-    res.send(answer)
-  } catch (error) {
-    return res.status(400).send(error.stack)
-  }
-}
+	try {
+		const answer = await profileServices.createProfileInputs(
+			req.body.data.name,
+			req.body.data.cost_bs,
+			req.body.data.cost_usd,
+			req.body.inputs
+		);
+		res.send(answer);
+	} catch (error) {
+		return res.status(400).send(error.stack);
+	}
+};
 
 profileController.updateProfile = async (req, res) => {
 	const { id } = req.params;

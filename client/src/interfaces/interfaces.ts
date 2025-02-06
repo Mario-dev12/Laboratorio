@@ -55,7 +55,7 @@ export interface OrdersDay {
 	age: number;
 	profileName: string;
 	total_cost_bs: string;
-	total_cost_usd: string
+	total_cost_usd: string;
 	createddate?: any;
 	modifieddate?: any;
 }
@@ -85,11 +85,10 @@ export interface ReactiveProvider {
 }
 
 export interface Unit {
-	idUnit: number;
-	name: string;
-	idProfile: number;
-	createddate: any;
-	modifieddate: any;
+	idCampo: number;
+	unidad: string;
+	createddate?: any;
+	modifieddate?: any;
 }
 
 export interface Provider {
@@ -165,4 +164,12 @@ export interface Bill {
 	providerName: string;
 	idReactive: number;
 	reactiveName: string;
+}
+
+export interface Campo {
+	idCampo?: number;
+	nombre: string;
+	unidad: string;
+	createddate?: any;
+	modifieddate?: any;
 }
