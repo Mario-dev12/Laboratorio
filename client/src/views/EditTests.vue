@@ -8,34 +8,36 @@
 				<div class="d-flex justify-content-end mb-3">
 					<ion-button @click="createPerfil" color="primary">+ Perfil</ion-button>
 				</div>
-				<table class="table table-striped text-center">
-					<thead>
-						<tr>
-							<th scope="col">ID</th>
-							<th scope="col">Name</th>
-							<th scope="col">Cost $</th>
-							<th scope="col">Cost Bs</th>
-							<th scope="col">Acciones</th>
-						</tr>
-					</thead>
-					<tbody>
-						<tr v-for="perfil in perfiles" :key="perfil.idProfile">
-							<td>{{ perfil.idProfile }}</td>
-							<td>
-								{{ perfil.name }}
-							</td>
+				<div class="perfiles">
+					<table class="table table-striped text-center">
+						<thead>
+							<tr>
+								<th scope="col">ID</th>
+								<th scope="col">Name</th>
+								<th scope="col">Cost $</th>
+								<th scope="col">Cost Bs</th>
+								<th scope="col">Acciones</th>
+							</tr>
+						</thead>
+						<tbody>
+							<tr v-for="perfil in perfiles" :key="perfil.idProfile">
+								<td>{{ perfil.idProfile }}</td>
+								<td>
+									{{ perfil.name }}
+								</td>
 
-							<td>${{ perfil.cost_usd }}</td>
+								<td>${{ perfil.cost_usd }}</td>
 
-							<td>Bs{{ perfil.cost_bs }}</td>
+								<td>Bs{{ perfil.cost_bs }}</td>
 
-							<td class="align-middle">
-								<i class="fas fa-edit" style="cursor: pointer; margin-right: 10px" @click="editPerfil(perfil)"></i>
-								<i class="fas fa-trash" style="cursor: pointer" @click="deletePerfil(perfil.idProfile)"></i>
-							</td>
-						</tr>
-					</tbody>
-				</table>
+								<td class="align-middle">
+									<i class="fas fa-edit" style="cursor: pointer; margin-right: 10px" @click="editPerfil(perfil)"></i>
+									<i class="fas fa-trash" style="cursor: pointer" @click="deletePerfil(perfil.idProfile)"></i>
+								</td>
+							</tr>
+						</tbody>
+					</table>
+				</div>
 
 				<div class="editar-perfil mt-4">
 					<h1 class="text-center">Perfil Nuevo</h1>
@@ -54,30 +56,32 @@
 						</div>
 					</div>
 					<h1 class="mt-4 text-center">Campos Del Perfil</h1>
-					<table class="table table-striped text-center">
-						<thead>
-							<tr>
-								<th scope="col">Name</th>
-								<th scope="col">Unit</th>
-								<th scope="col">Agregado</th>
-							</tr>
-						</thead>
-						<tbody>
-							<tr v-for="campo in camposExistentes" :key="campo.idCampo">
-								<td>{{ campo.nombre }}</td>
-								<td>{{ campo.unidad }}</td>
-								<td class="align-middle">
-									<input
-										type="checkbox"
-										@change="
-											(e) => {
-												addCampo(e, campo);
-											}
-										" />
-								</td>
-							</tr>
-						</tbody>
-					</table>
+					<div class="campos mb-5">
+						<table class="table table-striped text-center">
+							<thead>
+								<tr>
+									<th scope="col">Name</th>
+									<th scope="col">Unit</th>
+									<th scope="col">Agregado</th>
+								</tr>
+							</thead>
+							<tbody>
+								<tr v-for="campo in camposExistentes" :key="campo.idCampo">
+									<td>{{ campo.nombre }}</td>
+									<td>{{ campo.unidad }}</td>
+									<td class="align-middle">
+										<input
+											type="checkbox"
+											@change="
+												(e) => {
+													addCampo(e, campo);
+												}
+											" />
+									</td>
+								</tr>
+							</tbody>
+						</table>
+					</div>
 					<div class="agregar-campo bg-dark-subtle rounded p-3 mb-3">
 						<div class="w-100 m-auto row px-2 mb-3">
 							<label for="campo">Nombre Del Campo</label>
@@ -274,5 +278,11 @@
 <style scoped>
 	.perfiles:not(:last-child) {
 		margin-bottom: 15px;
+	}
+
+	.campos,
+	.perfiles {
+		height: 600px;
+		overflow-y: auto;
 	}
 </style>
