@@ -39,7 +39,7 @@
 					</table>
 				</div>
 
-				<div class="editar-perfil mt-4">
+				<div class="editar-perfil mt-4" v-if="create" ref="edicionPerfil">
 					<h1 class="text-center">Perfil Nuevo</h1>
 					<div class="informacion-perfil bg-dark-subtle rounded p-3">
 						<div class="w-100 m-auto row px-2 mb-3">
@@ -56,7 +56,7 @@
 						</div>
 					</div>
 					<h1 class="mt-4 text-center">Campos Del Perfil</h1>
-					<div class="campos mb-5">
+					<div class="campos">
 						<table class="table table-striped text-center">
 							<thead>
 								<tr>
@@ -76,45 +76,56 @@
 												(e) => {
 													addCampo(e, campo);
 												}
-											" />
+											"
+											v-if="!campo.checked" />
+										<input
+											type="checkbox"
+											@change="
+												(e) => {
+													addCampo(e, campo);
+												}
+											"
+											checked
+											v-if="campo.checked" />
 									</td>
 								</tr>
 							</tbody>
 						</table>
 					</div>
-					<div class="agregar-campo bg-dark-subtle rounded p-3 mb-3">
-						<div class="w-100 m-auto row px-2 mb-3">
-							<label for="campo">Nombre Del Campo</label>
-							<input type="text" placeholder="Nombre" name="campo" ref="nombreCampo" />
+					<div class="d-flex justify-content-center mt-3 mb-3">
+						<button class="btn btn-primary mb-4" @click="crearPerfil">Crear Perfil</button>
+						<button class="btn btn-primary mb-4 ms-5" @click="adicionarCampo">+Campo</button>
+					</div>
+				</div>
+				<div class="agregar-campo bg-dark-subtle rounded p-3 mb-3" v-if="crearCampo" ref="edicionCampo">
+					<div class="w-100 m-auto row px-2 mb-3">
+						<label for="campo">Nombre Del Campo</label>
+						<input type="text" placeholder="Nombre" name="campo" ref="nombreCampo" />
+					</div>
+					<div class="w-100 m-auto row px-2">
+						<div class="col">
+							<label for="unidad">Unidad Del Campo</label>
 						</div>
-						<div class="w-100 m-auto row px-2">
-							<div class="col">
-								<label for="unidad">Unidad Del Campo</label>
-							</div>
-							<div class="col d-flex align-content-center">
-								<p class="d-inline m-0 me-2">Existente</p>
-								<input class="" type="checkbox" name="existente" v-model="unidadExistenteRef" @click="handleCampo" />
-							</div>
-							<div class="col d-flex align-content-center">
-								<p class="d-inline m-0 me-2">Nueva</p>
-								<input type="checkbox" name="nueva" v-model="unidadNuevoRef" @click="handleCampo" />
-							</div>
+						<div class="col d-flex align-content-center">
+							<p class="d-inline m-0 me-2">Existente</p>
+							<input class="" type="checkbox" name="existente" v-model="unidadExistenteRef" @click="handleCampo" />
 						</div>
-						<div class="w-100 m-auto row px-2 mb-3">
-							<input type="text" placeholder="Unidad" name="unidad" v-if="unidadNuevoRef" ref="nombreUnidadNueva" />
-							<select name="campos" id="campos" v-if="unidadExistenteRef" ref="nombreUnidadExistente">
-								<option value="">Seleccionar</option>
-								<option :value="unidad.unidad" v-for="unidad in unidadesDeCampos" :key="unidad.idCampo">
-									{{ unidad.unidad }}
-								</option>
-							</select>
-						</div>
-						<div class="d-flex justify-content-center">
-							<button class="btn btn-primary" @click="createCampo">Crear Campo</button>
+						<div class="col d-flex align-content-center">
+							<p class="d-inline m-0 me-2">Nueva</p>
+							<input type="checkbox" name="nueva" v-model="unidadNuevoRef" @click="handleCampo" />
 						</div>
 					</div>
+					<div class="w-100 m-auto row px-2 mb-3">
+						<input type="text" placeholder="Unidad" name="unidad" v-if="unidadNuevoRef" ref="nombreUnidadNueva" />
+						<select name="campos" id="campos" v-if="unidadExistenteRef" ref="nombreUnidadExistente">
+							<option value="">Seleccionar</option>
+							<option :value="unidad.unidad" v-for="unidad in unidadesDeCampos" :key="unidad.idCampo">
+								{{ unidad.unidad }}
+							</option>
+						</select>
+					</div>
 					<div class="d-flex justify-content-center">
-						<button class="btn btn-primary mb-4" @click="crearPerfil">Crear Perfil</button>
+						<button class="btn btn-primary" @click="createCampo">Crear Campo</button>
 					</div>
 				</div>
 			</div>
@@ -124,16 +135,16 @@
 
 <script setup lang="ts">
 	import { IonContent, IonPage, IonButton } from "@ionic/vue";
-	import { onMounted, ref } from "vue";
+	import { onMounted, ref, nextTick } from "vue";
 	import { profileStore } from "@/stores/profileStore";
 	import { Profile, Campo, Unit } from "@/interfaces/interfaces";
 
 	interface CampoNuevo {
 		nombre: string;
 		unidad: string;
+		checked?: boolean;
 	}
 
-	const modalOpen = ref(false);
 	const selectedPerfil = ref();
 	const tests = profileStore();
 	const perfiles = ref<Profile[]>([]);
@@ -150,6 +161,9 @@
 	const nombrePerfilNuevo = ref();
 	const costoBsPerfilNuevo = ref();
 	const costoDolaresPerfilNuevo = ref();
+	const crearCampo = ref(false);
+	const edicionPerfil = ref();
+	const edicionCampo = ref();
 
 	const dataPerfilNuevo: Partial<Profile> = {
 		name: "",
@@ -170,7 +184,6 @@
 		selectedPerfil.value = perfil;
 		create.value = false;
 		update.value = true;
-		modalOpen.value = true;
 	}
 
 	// const updatePerfil = async (updatedPerfil: Profile) => {
@@ -179,16 +192,13 @@
 	// 	perfiles.value = await tests.fecthProfiles();
 	// };
 
-	// async function addNewPerfil(newPerfil: Profile) {
-	// 	console.log(newPerfil);
-	// 	await tests.createProfile(newPerfil);
-	// 	perfiles.value = await tests.fecthProfiles();
-	// }
-
-	function createPerfil() {
-		create.value = true;
+	async function createPerfil() {
+		create.value = !create.value;
 		update.value = false;
-		modalOpen.value = true;
+		await nextTick();
+		if (edicionPerfil.value) {
+			edicionPerfil.value.scrollIntoView({ behavior: "smooth" });
+		}
 	}
 
 	async function deletePerfil(idperfil: number) {
@@ -199,11 +209,11 @@
 		}
 	}
 
-	const addCampo = (event: any, campo: { nombre: string; unidad: string }) => {
+	const addCampo = (event: any, campo: { nombre: string; unidad: string; checked?: boolean }) => {
 		if (event.target.checked) {
 			console.log("true");
-			const { nombre, unidad } = campo;
-			const newCampo = { nombre, unidad };
+			const { nombre, unidad, checked } = campo;
+			const newCampo = { nombre, unidad, checked };
 			campos.value.push(newCampo);
 			console.log(campos.value);
 		} else {
@@ -230,6 +240,7 @@
 		const dataCampoNuevo: CampoNuevo = {
 			nombre: "",
 			unidad: "",
+			checked: true,
 		};
 		if (!nombreCampo.value.value) {
 			alert("ingresar el nombre del campo");
@@ -244,7 +255,9 @@
 				dataCampoNuevo.unidad = nombreUnidadExistente.value.value;
 			}
 		}
+		campos.value.push(dataCampoNuevo);
 		console.log(dataCampoNuevo);
+		console.log(campos.value);
 		camposExistentes.value.push(dataCampoNuevo);
 	};
 
@@ -263,16 +276,18 @@
 				alert("El perfil debe contener al menos 1 campo");
 			} else {
 				tests.createProfileInputs(dataPerfilNuevo, campos.value);
+				create.value = false;
 			}
 		}
 	}
 
-	// campos de prueba
-	// const camposDePerfil = [
-	// 	{ id: "1", nombre: "Glucosa", unidad: "mg/ml" },
-	// 	{ id: "2", nombre: "HDL", unidad: "mg/mg" },
-	// 	{ id: "3", nombre: "LDL", unidad: "mg/mg" },
-	// ];
+	const adicionarCampo = async () => {
+		crearCampo.value = !crearCampo.value;
+		await nextTick();
+		if (edicionCampo.value) {
+			edicionCampo.value.scrollIntoView({ behavior: "smooth" });
+		}
+	};
 </script>
 
 <style scoped>
@@ -282,7 +297,7 @@
 
 	.campos,
 	.perfiles {
-		height: 600px;
+		height: 400px;
 		overflow-y: auto;
 	}
 </style>
