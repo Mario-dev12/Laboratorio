@@ -261,7 +261,7 @@
 		camposExistentes.value.push(dataCampoNuevo);
 	};
 
-	function crearPerfil() {
+	async function crearPerfil() {
 		if (!nombrePerfilNuevo.value.value || !costoBsPerfilNuevo.value.value || !costoDolaresPerfilNuevo.value.value) {
 			alert("por favor completar datos del perfil");
 			console.log(nombrePerfilNuevo.value.value);
@@ -275,8 +275,17 @@
 			if (!campos.value.length) {
 				alert("El perfil debe contener al menos 1 campo");
 			} else {
-				tests.createProfileInputs(dataPerfilNuevo, campos.value);
+				const camposNuevos = campos.value.map(({ nombre, unidad }) => ({ nombre, unidad }));
+				console.log(camposNuevos);
+				tests.createProfileInputs(dataPerfilNuevo, camposNuevos).then(async () => {
+					perfiles.value = await tests.fecthProfiles();
+					camposExistentes.value = await tests.fecthProfilesInputs();
+					unidadesDeCampos.value = await tests.fecthProfilesInputUnits();
+				});
 				create.value = false;
+				crearCampo.value = false;
+
+				/*traer de nuevo perfiles, campos y unidades */
 			}
 		}
 	}
