@@ -139,12 +139,6 @@
 	import { profileStore } from "@/stores/profileStore";
 	import { Profile, Campo, Unit } from "@/interfaces/interfaces";
 
-	interface CampoNuevo {
-		nombre: string;
-		unidad: string;
-		checked?: boolean;
-	}
-
 	const selectedPerfil = ref();
 	const tests = profileStore();
 	const perfiles = ref<Profile[]>([]);
@@ -171,13 +165,16 @@
 		cost_usd: "",
 	};
 
+	interface CampoNuevo {
+		nombre: string;
+		unidad: string;
+		checked?: boolean;
+	}
+
 	onMounted(async () => {
 		perfiles.value = await tests.fecthProfiles();
-		console.log(perfiles.value);
 		camposExistentes.value = await tests.fecthProfilesInputs();
-		console.log(camposExistentes.value);
 		unidadesDeCampos.value = await tests.fecthProfilesInputUnits();
-		console.log(unidadesDeCampos.value);
 	});
 
 	function editPerfil(perfil: any) {
@@ -194,7 +191,7 @@
 
 	async function createPerfil() {
 		create.value = !create.value;
-		update.value = false;
+		crearCampo.value = false;
 		await nextTick();
 		if (edicionPerfil.value) {
 			edicionPerfil.value.scrollIntoView({ behavior: "smooth" });
@@ -228,8 +225,6 @@
 		if (unidadExistenteRef.value) {
 			unidadExistenteRef.value = false;
 			unidadNuevoRef.value = true;
-			console.log(unidadExistenteRef.value);
-			console.log(unidadNuevoRef.value);
 		} else {
 			unidadExistenteRef.value = true;
 			unidadNuevoRef.value = false;
@@ -278,14 +273,13 @@
 				const camposNuevos = campos.value.map(({ nombre, unidad }) => ({ nombre, unidad }));
 				console.log(camposNuevos);
 				tests.createProfileInputs(dataPerfilNuevo, camposNuevos).then(async () => {
+					/*traer de nuevo perfiles, campos y unidades */
 					perfiles.value = await tests.fecthProfiles();
 					camposExistentes.value = await tests.fecthProfilesInputs();
 					unidadesDeCampos.value = await tests.fecthProfilesInputUnits();
 				});
 				create.value = false;
 				crearCampo.value = false;
-
-				/*traer de nuevo perfiles, campos y unidades */
 			}
 		}
 	}
