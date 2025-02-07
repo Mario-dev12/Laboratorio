@@ -110,11 +110,9 @@
 	};
 
 	const createPerfil = () => {
-		console.log(nameInputRef.value.value);
 		newPerfil.value!.name = nameInputRef.value.value;
 		newPerfil.value!.cost_usd = costUsdInputRef.value.value;
 		newPerfil.value!.cost_bs = costBsInputRef.value.value;
-		console.log(newPerfil.value);
 		emit("create", { ...newPerfil.value });
 		closeModal();
 	};
@@ -122,7 +120,6 @@
 	watch(
 		() => props.perfil,
 		(newPerfil) => {
-			console.log(newPerfil);
 			const { idProfile, name, cost_bs, cost_usd } = newPerfil;
 			selectedPerfil.value = { idProfile, name, cost_bs, cost_usd };
 		}

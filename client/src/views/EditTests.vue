@@ -26,9 +26,9 @@
 									{{ perfil.name }}
 								</td>
 
-								<td>${{ perfil.cost_usd }}</td>
+								<td>$ {{ perfil.cost_usd }}</td>
 
-								<td>Bs{{ perfil.cost_bs }}</td>
+								<td>Bs {{ perfil.cost_bs }}</td>
 
 								<td class="align-middle">
 									<i class="fas fa-edit" style="cursor: pointer; margin-right: 10px" @click="editPerfil(perfil)"></i>

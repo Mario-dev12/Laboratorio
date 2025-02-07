@@ -4,7 +4,6 @@ const profileRepository = {};
 
 async function createProfileResults(name) {
 	try {
-		console.log("name", name);
 		const resp = await pool.query(`SELECT * FROM sp_create_tabla_resultados('${name}')`);
 		return resp.rows[0].sp_create_tabla_resultados;
 	} catch (error) {
@@ -12,23 +11,26 @@ async function createProfileResults(name) {
 	}
 }
 
-async function agregarCampos(inputs) {
-	try {
-		const camposJson = JSON.stringify(inputs);
+async function agregarCampos(inputs) {  
+    try {  
+        const camposJson = inputs  
+            .map(input => `('${JSON.stringify(input)}'::jsonb)`) 
+            .join(',');
 
-		const resp = await pool.query(`
-      SELECT public.sp_agregar_campos_if_not_exists(
-        ARRAY[
-          ${camposJson}
-        ]::jsonb[]
-      ) AS result
-    `);
+        const query = `  
+        SELECT * FROM sp_agregar_campos_if_not_exists(  
+            ARRAY[  
+                ${camposJson}  
+            ]::jsonb[]  
+        ) AS result  
+        `;  
 
-		return resp.rows[0].result;
-	} catch (error) {
-		throw error;
-	}
-}
+        const resp = await pool.query(query);  
+        return resp.rows[0].result;  
+    } catch (error) {  
+        throw error;  
+    }  
+}   
 
 profileRepository.readProfiles = async () => {
 	try {
