@@ -1827,3 +1827,47 @@ BEGIN
     RETURN v_json_resp;  
 END;  
 $BODY$;
+
+sp_find_all_inputs_by_profileCREATE OR REPLACE FUNCTION sp_find_all_inputs_by_profile(p_idProfile INTEGER)  
+RETURNS json[]   
+LANGUAGE 'plpgsql'  
+COST 100  
+VOLATILE PARALLEL UNSAFE  
+AS $BODY$  
+DECLARE  
+    v_json_resp json[];  
+    v_nombre_tabla TEXT;  
+    v_query TEXT;  
+BEGIN   
+    SELECT name INTO v_nombre_tabla  
+    FROM profile  
+    WHERE idProfile = p_idProfile;  
+ 
+    IF v_nombre_tabla IS NULL THEN  
+        RAISE EXCEPTION 'Perfil no encontrado';  
+    END IF;  
+
+    v_nombre_tabla := format('resultados_%s', lower(replace(v_nombre_tabla, ' ', '_')));  
+
+    IF NOT EXISTS (  
+        SELECT 1   
+        FROM information_schema.tables   
+        WHERE table_name = v_nombre_tabla  
+    ) THEN  
+        RAISE EXCEPTION 'La tabla % no existe', v_nombre_tabla;  
+    END IF;  
+
+    EXECUTE format('SELECT array_agg(jsonb_build_object(  
+                        ''idCampo'', c.idCampo,  
+                        ''nombre'', c.nombre,  
+                        ''unidad'', c.unidad,    
+                        ''createdDate'', r.createdDate,  
+                        ''modifiedDate'', r.modifiedDate  
+                     ))  
+                     FROM %I r  
+                     JOIN campo c ON r.idCampo = c.idCampo  
+                     WHERE r.idProfile = %L', v_nombre_tabla, p_idProfile) INTO v_json_resp;  
+
+    RETURN v_json_resp;  
+END;  
+$BODY$;

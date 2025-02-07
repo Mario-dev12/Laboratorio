@@ -50,6 +50,15 @@ profileRepository.readProfilesInputs = async () => {
 	}
 };
 
+profileRepository.readInputsByProfile = async (id) => {
+	try {
+		const resp = await pool.query(`SELECT * FROM sp_find_all_inputs_by_profile(${id})`);
+		return resp.rows[0].sp_find_all_inputs_by_profile;
+	} catch (error) {
+		throw error;
+	}
+};
+
 profileRepository.readProfilesUnits = async () => {
 	try {
 		const resp = await pool.query(`SELECT * FROM sp_find_all_inputs_unit()`);

@@ -10,6 +10,10 @@ profileServices.readProfilesInputs = async () => {
     return await profileRepository.readProfilesInputs()
 }
 
+profileServices.readInputsByProfile = async id => {
+    return await profileRepository.readInputsByProfile(id)
+}
+
 profileServices.readProfilesUnits = async () => {
     return await profileRepository.readProfilesUnits()
 }

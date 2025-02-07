@@ -22,6 +22,17 @@ profileController.readProfilesInputs = async (req, res) => {
 	}
 };
 
+profileController.readInputsByProfile = async (req, res) => {
+	try {
+		const { id } = req.params;
+		const answer = await profileServices.readInputsByProfile(id);
+
+		res.send(answer);
+	} catch (error) {
+		return res.status(400).send(error.stack);
+	}
+};
+
 profileController.readProfilesUnits = async (req, res) => {
 	try {
 		const answer = await profileServices.readProfilesUnits();
