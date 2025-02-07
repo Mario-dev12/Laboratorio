@@ -40,7 +40,8 @@
 				</div>
 
 				<div class="editar-perfil mt-4" v-if="create" ref="edicionPerfil">
-					<h1 class="text-center">Perfil Nuevo</h1>
+					<h1 class="text-center" v-if="!update">Perfil Nuevo</h1>
+					<h1 class="text-center" v-if="update">{{ selectedPerfil }}</h1>
 					<div class="informacion-perfil bg-dark-subtle rounded p-3">
 						<div class="w-100 m-auto row px-2 mb-3">
 							<label class="col-12 p-0" for="documento">Nombre Del Perfil</label>
@@ -77,16 +78,7 @@
 													addCampo(e, campo);
 												}
 											"
-											v-if="!campo.checked" />
-										<input
-											type="checkbox"
-											@change="
-												(e) => {
-													addCampo(e, campo);
-												}
-											"
-											checked
-											v-if="campo.checked" />
+											:checked="ischecked(campo)" />
 									</td>
 								</tr>
 							</tbody>
@@ -158,6 +150,7 @@
 	const crearCampo = ref(false);
 	const edicionPerfil = ref();
 	const edicionCampo = ref();
+	const camposDelPerfil = ref();
 
 	const dataPerfilNuevo: Partial<Profile> = {
 		name: "",
@@ -177,10 +170,32 @@
 		unidadesDeCampos.value = await tests.fecthProfilesInputUnits();
 	});
 
-	function editPerfil(perfil: any) {
-		selectedPerfil.value = perfil;
-		create.value = false;
+	async function editPerfil(perfil: any) {
+		camposDelPerfil.value = await tests.fetchInputsByProfileId(perfil.idProfile);
+		selectedPerfil.value = perfil.name;
+		create.value = true;
 		update.value = true;
+		crearCampo.value = false;
+		await nextTick();
+		if (edicionPerfil.value) {
+			edicionPerfil.value.scrollIntoView({ behavior: "smooth" });
+		}
+	}
+
+	function ischecked(campo: any) {
+		if (
+			(camposDelPerfil.value &&
+				camposDelPerfil.value.some((item: any) => {
+					return item.idCampo === campo.idCampo;
+				})) ||
+			campo.checked == true
+		) {
+			campos.value.push(campo);
+			console.log(campos.value);
+			return true;
+		} else {
+			return false;
+		}
 	}
 
 	// const updatePerfil = async (updatedPerfil: Profile) => {
@@ -208,16 +223,13 @@
 
 	const addCampo = (event: any, campo: { nombre: string; unidad: string; checked?: boolean }) => {
 		if (event.target.checked) {
-			console.log("true");
 			const { nombre, unidad, checked } = campo;
 			const newCampo = { nombre, unidad, checked };
 			campos.value.push(newCampo);
-			console.log(campos.value);
 		} else {
 			campos.value = campos.value.filter((item) => {
 				return item.nombre != campo.nombre;
 			});
-			console.log(campos.value);
 		}
 	};
 
@@ -240,38 +252,28 @@
 		if (!nombreCampo.value.value) {
 			alert("ingresar el nombre del campo");
 		} else {
-			console.log(nombreCampo.value.value);
 			dataCampoNuevo.nombre = nombreCampo.value.value;
 			if (unidadNuevoRef.value && nombreUnidadNueva.value.value) {
-				console.log(nombreUnidadNueva.value.value);
 				dataCampoNuevo.unidad = nombreUnidadNueva.value.value;
 			} else if (unidadExistenteRef.value && nombreUnidadExistente.value.value) {
-				console.log(nombreUnidadExistente.value.value);
 				dataCampoNuevo.unidad = nombreUnidadExistente.value.value;
 			}
 		}
 		campos.value.push(dataCampoNuevo);
-		console.log(dataCampoNuevo);
-		console.log(campos.value);
-		camposExistentes.value.push(dataCampoNuevo);
+		camposExistentes.value.unshift(dataCampoNuevo);
 	};
 
 	async function crearPerfil() {
 		if (!nombrePerfilNuevo.value.value || !costoBsPerfilNuevo.value.value || !costoDolaresPerfilNuevo.value.value) {
 			alert("por favor completar datos del perfil");
-			console.log(nombrePerfilNuevo.value.value);
-			console.log(costoDolaresPerfilNuevo.value.value);
-			console.log(costoBsPerfilNuevo.value.value);
 		} else {
 			dataPerfilNuevo.name = nombrePerfilNuevo.value.value;
 			dataPerfilNuevo.cost_usd = costoDolaresPerfilNuevo.value.value;
 			dataPerfilNuevo.cost_bs = costoBsPerfilNuevo.value.value;
-			console.log(dataPerfilNuevo);
 			if (!campos.value.length) {
 				alert("El perfil debe contener al menos 1 campo");
 			} else {
 				const camposNuevos = campos.value.map(({ nombre, unidad }) => ({ nombre, unidad }));
-				console.log(camposNuevos);
 				tests.createProfileInputs(dataPerfilNuevo, camposNuevos).then(async () => {
 					/*traer de nuevo perfiles, campos y unidades */
 					perfiles.value = await tests.fecthProfiles();
