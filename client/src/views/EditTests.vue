@@ -85,8 +85,9 @@
 						</table>
 					</div>
 					<div class="d-flex justify-content-center mt-3 mb-3">
-						<button class="btn btn-primary mb-4" @click="crearPerfil">Crear Perfil</button>
-						<button class="btn btn-primary mb-4 ms-5" @click="adicionarCampo">+Campo</button>
+						<button class="btn btn-primary mb-4" @click="crearPerfil" v-if="!update">Crear Perfil</button>
+						<button class="btn btn-primary mb-4" v-if="update">Guardar Cambios</button>
+						<button class="btn btn-primary mb-4 ms-5" @click="adicionarCampo">+ Campo</button>
 					</div>
 				</div>
 				<div class="agregar-campo bg-dark-subtle rounded p-3 mb-3" v-if="crearCampo" ref="edicionCampo">
@@ -121,15 +122,24 @@
 					</div>
 				</div>
 			</div>
+			<ion-toast
+				:class="toast.class"
+				:icon="toast.icon"
+				:is-open="isOpen"
+				:message="toast.message"
+				duration="2000"
+				@didDismiss="setOpen(false)"
+				position="top"></ion-toast>
 		</ion-content>
 	</ion-page>
 </template>
 
 <script setup lang="ts">
-	import { IonContent, IonPage, IonButton } from "@ionic/vue";
+	import { IonContent, IonPage, IonButton, IonToast } from "@ionic/vue";
 	import { onMounted, ref, nextTick } from "vue";
 	import { profileStore } from "@/stores/profileStore";
 	import { Profile, Campo, Unit } from "@/interfaces/interfaces";
+	import { checkboxOutline, closeCircleOutline, alertCircleOutline } from "ionicons/icons";
 
 	const selectedPerfil = ref();
 	const tests = profileStore();
@@ -151,6 +161,13 @@
 	const edicionPerfil = ref();
 	const edicionCampo = ref();
 	const camposDelPerfil = ref();
+	const isOpen = ref(false);
+	const toast = ref({
+		isOpen: false,
+		message: "",
+		class: "",
+		icon: null,
+	});
 
 	const dataPerfilNuevo: Partial<Profile> = {
 		name: "",
@@ -169,6 +186,18 @@
 		camposExistentes.value = await tests.fecthProfilesInputs();
 		unidadesDeCampos.value = await tests.fecthProfilesInputUnits();
 	});
+
+	const setOpen = (state: boolean) => {
+		isOpen.value = state;
+	};
+
+	const showToast = (message: string, style: string, icon: any) => {
+		toast.value.message = message;
+		toast.value.isOpen = true;
+		toast.value.class = style;
+		toast.value.icon = icon;
+		setOpen(true);
+	};
 
 	async function editPerfil(perfil: any) {
 		camposDelPerfil.value = await tests.fetchInputsByProfileId(perfil.idProfile);
@@ -191,7 +220,6 @@
 			campo.checked == true
 		) {
 			campos.value.push(campo);
-			console.log(campos.value);
 			return true;
 		} else {
 			return false;
@@ -205,7 +233,9 @@
 	// };
 
 	async function createPerfil() {
-		create.value = !create.value;
+		camposDelPerfil.value = null;
+		create.value = true;
+		update.value = false;
 		crearCampo.value = false;
 		await nextTick();
 		if (edicionPerfil.value) {
@@ -214,10 +244,10 @@
 	}
 
 	async function deletePerfil(idperfil: number) {
-		console.log(idperfil);
 		if (confirm("Borrar Perfil?")) {
 			await tests.deleteProfile(idperfil);
 			perfiles.value = await tests.fecthProfiles();
+			showToast("Perfil borrado", "borrar", closeCircleOutline);
 		}
 	}
 
@@ -273,15 +303,24 @@
 			if (!campos.value.length) {
 				alert("El perfil debe contener al menos 1 campo");
 			} else {
-				const camposNuevos = campos.value.map(({ nombre, unidad }) => ({ nombre, unidad }));
-				tests.createProfileInputs(dataPerfilNuevo, camposNuevos).then(async () => {
-					/*traer de nuevo perfiles, campos y unidades */
-					perfiles.value = await tests.fecthProfiles();
-					camposExistentes.value = await tests.fecthProfilesInputs();
-					unidadesDeCampos.value = await tests.fecthProfilesInputUnits();
-				});
-				create.value = false;
-				crearCampo.value = false;
+				if (
+					perfiles.value.some((item) => {
+						return item.name === dataPerfilNuevo.name;
+					})
+				) {
+					showToast("Perfil Ya Existe", "warning", alertCircleOutline);
+				} else {
+					const camposNuevos = campos.value.map(({ nombre, unidad }) => ({ nombre, unidad }));
+					tests.createProfileInputs(dataPerfilNuevo, camposNuevos).then(async () => {
+						/*traer de nuevo perfiles, campos y unidades */
+						perfiles.value = await tests.fecthProfiles();
+						camposExistentes.value = await tests.fecthProfilesInputs();
+						unidadesDeCampos.value = await tests.fecthProfilesInputUnits();
+					});
+					showToast("Perfil creado Exitosamente!", "creado", checkboxOutline);
+					create.value = false;
+					crearCampo.value = false;
+				}
 			}
 		}
 	}
@@ -302,7 +341,22 @@
 
 	.campos,
 	.perfiles {
-		height: 400px;
+		max-height: 400px;
 		overflow-y: auto;
+	}
+
+	ion-toast.creado {
+		--background: rgb(0, 204, 0);
+		--color: #323232;
+	}
+
+	ion-toast.borrar {
+		--background: rgb(229, 0, 0);
+		--color: #323232;
+	}
+
+	ion-toast.warning {
+		--background: rgb(219, 248, 0);
+		--color: #323232;
 	}
 </style>
