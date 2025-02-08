@@ -305,14 +305,25 @@
 			} else {
 				if (  
 					perfiles.value.some((item) => {  
-						// Limpiar y normalizar ambos valores eliminando espacios y convirtiendo a minúsculas.  
-						const nombrePerfilExistente = item.name.replace(/\s+/g, ' ').trim().toLowerCase();  
-						const nombrePerfilNuevoLimpiado = dataPerfilNuevo.name?.replace(/\s+/g, ' ').trim().toLowerCase();  
+						const nombrePerfilExistente = item.name  
+							.normalize("NFD") 
+							.replace(/[\u0300-\u036f]/g, "") 
+							.replace(/\s+/g, ' ')  
+							.trim()  
+							.toLowerCase();
+ 
+						const nombrePerfilNuevoLimpiado = dataPerfilNuevo.name  
+							?.normalize("NFD")  
+							.replace(/[\u0300-\u036f]/g, "")  
+							.replace(/\s+/g, ' ')  
+							.trim()  
+							.toLowerCase() || '';
+
 						return nombrePerfilExistente === nombrePerfilNuevoLimpiado;  
 					})  
 				) {  
 					showToast("Perfil Ya Existe", "warning", alertCircleOutline);  
-				}  else {
+				} else {
 					const camposNuevos = campos.value.map(({ nombre, unidad }) => ({ nombre, unidad }));
 					tests.createProfileInputs(dataPerfilNuevo, camposNuevos).then(async () => {
 						/*traer de nuevo perfiles, campos y unidades */
