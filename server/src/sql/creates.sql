@@ -72,15 +72,6 @@ CREATE TABLE IF NOT EXISTS payment
     modifiedDate timestamp with time zone NOT NULL default now()
 );
 
-CREATE TABLE IF NOT EXISTS unit
-(
-    idUnit serial primary key,
-    name character varying(255) not null,
-    idProfile integer NOT NULL references profile(idProfile) ON DELETE CASCADE,
-    createdDate timestamp with time zone NOT NULL default now(),
-    modifiedDate timestamp with time zone NOT NULL default now()
-);
-
 CREATE TABLE IF NOT EXISTS reactive
 (
     idReactive serial primary key,
@@ -112,11 +103,18 @@ CREATE TABLE IF NOT EXISTS campo (
     modifiedDate timestamp with time zone NOT NULL default now()
 ); 
 
+CREATE TABLE IF NOT EXISTS campo_perfil (  
+    idCampo_perfil serial PRIMARY KEY,  
+    idCampo integer NOT NULL REFERENCES campo(idCampo) ON DELETE CASCADE,
+    idProfile integer NOT NULL REFERENCES profile(idProfile) ON DELETE CASCADE, 
+    createdDate timestamp with time zone NOT NULL default now(),
+    modifiedDate timestamp with time zone NOT NULL default now()
+); 
+
 CREATE TABLE IF NOT EXISTS resultados_perfil_20 (  
     idResultado SERIAL PRIMARY KEY,  
     idOrder integer NOT NULL REFERENCES orders(idOrder) ON DELETE CASCADE,  
-    idProfile integer NOT NULL REFERENCES profile(idProfile) ON DELETE CASCADE,  
-    idCampo integer NOT NULL REFERENCES campo(idCampo) ON DELETE CASCADE,  
+    idCampo_perfil integer NOT NULL REFERENCES campo_perfil(idCampo_perfil) ON DELETE CASCADE,  
     resultado character varying(255) NOT NULL,
     createdDate timestamp with time zone NOT NULL DEFAULT now(),  
     modifiedDate timestamp with time zone NOT NULL DEFAULT now()   
@@ -124,9 +122,8 @@ CREATE TABLE IF NOT EXISTS resultados_perfil_20 (
 
 CREATE TABLE IF NOT EXISTS resultados_uroanalisis (  
     idResultado SERIAL PRIMARY KEY,  
-    idOrder INTEGER NOT NULL REFERENCES orders(idOrder) ON DELETE CASCADE,  
-    idProfile INTEGER NOT NULL REFERENCES profile(idProfile) ON DELETE CASCADE,  
-    idCampo INTEGER NOT NULL,  
+    idOrder INTEGER NOT NULL REFERENCES orders(idOrder) ON DELETE CASCADE,   
+    idCampo_perfil integer NOT NULL REFERENCES campo_perfil(idCampo_perfil) ON DELETE CASCADE,   
     resultado character varying(255) NOT NULL,
     createdDate timestamp with time zone NOT NULL DEFAULT now(),  
     modifiedDate timestamp with time zone NOT NULL DEFAULT now()    
@@ -135,8 +132,7 @@ CREATE TABLE IF NOT EXISTS resultados_uroanalisis (
 CREATE TABLE IF NOT EXISTS resultados_perfil_tiroideo (  
     idResultado SERIAL PRIMARY KEY,  
     idOrder INTEGER NOT NULL REFERENCES orders(idOrder) ON DELETE CASCADE,  
-    idProfile INTEGER NOT NULL REFERENCES profile(idProfile) ON DELETE CASCADE,  
-    idCampo INTEGER NOT NULL REFERENCES campo(idCampo) ON DELETE CASCADE,  
+    idCampo_perfil integer NOT NULL REFERENCES campo_perfil(idCampo_perfil) ON DELETE CASCADE,   
     resultado character varying(255) NOT NULL,
     createdDate timestamp with time zone NOT NULL DEFAULT now(),  
     modifiedDate timestamp with time zone NOT NULL DEFAULT now()  

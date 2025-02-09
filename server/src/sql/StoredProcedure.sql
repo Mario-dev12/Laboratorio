@@ -425,6 +425,34 @@ begin
 end;
 $BODY$;
 
+CREATE OR REPLACE FUNCTION sp_delete_input(
+	p_id integer)
+    RETURNS character varying
+    LANGUAGE 'plpgsql'
+    COST 100
+    VOLATILE PARALLEL UNSAFE
+AS $BODY$
+begin
+	delete from campo
+	where idCampo = p_id;
+	return 'Se ha borrado el campo correctamente';
+end;
+$BODY$;
+
+CREATE OR REPLACE FUNCTION sp_delete_input_profile(
+	p_id integer)
+    RETURNS character varying
+    LANGUAGE 'plpgsql'
+    COST 100
+    VOLATILE PARALLEL UNSAFE
+AS $BODY$
+begin
+	delete from campo_perfil
+	where idCampo_perfil = p_id;
+	return 'Se ha borrado el campo correctamente';
+end;
+$BODY$;
+
 CREATE OR REPLACE FUNCTION sp_create_alliance(
 	p_quantity integer,
 	p_cost_bs character varying,
@@ -677,7 +705,6 @@ begin
 	end if;
 end;
 $BODY$;
-
 
 CREATE OR REPLACE FUNCTION sp_update_alliance(
 	p_id integer,
@@ -1075,6 +1102,72 @@ begin
 	return json_build_object(
 		'idProvider', p_id,
 		'name', v_name,
+		'createdDate', v_createdDate,
+		'modifiedDate', v_modifiedDate
+	);
+end;
+$BODY$;
+
+CREATE OR REPLACE FUNCTION sp_update_inputs(
+	p_id integer,
+	p_nombre character varying,
+	p_unidad character varying)
+    RETURNS json
+    LANGUAGE 'plpgsql'
+    COST 100
+    VOLATILE PARALLEL UNSAFE
+AS $BODY$
+declare
+	v_nombre                              character varying;
+	v_unidad                                    character varying;
+	v_createdDate                       TIMESTAMP;
+	v_modifiedDate                      TIMESTAMP;
+	v_id                                    integer;
+begin
+	update campo
+	set nombre = p_nombre, unidad = p_unidad, modifiedDate = now()
+	where idCampo = p_id;
+	select u.nombre into v_nombre from campo u where idCampo = p_id;
+	select u.unidad into v_unidad from campo u where idCampo = p_id;
+	select u.createdDate into v_createdDate from campo u where idCampo = p_id;
+	select u.modifiedDate into v_modifiedDate from campo u where idCampo = p_id;
+	return json_build_object(
+		'idCampo', p_id,
+		'name', v_nombre,
+		'unit', v_unidad,
+		'createdDate', v_createdDate,
+		'modifiedDate', v_modifiedDate
+	);
+end;
+$BODY$;
+
+CREATE OR REPLACE FUNCTION sp_update_input_profile(
+	p_id integer,
+	p_idCampo integer,
+	p_idProfile integer)
+    RETURNS json
+    LANGUAGE 'plpgsql'
+    COST 100
+    VOLATILE PARALLEL UNSAFE
+AS $BODY$
+declare
+	v_idCampo                              integer;
+	v_idProfile                                   integer;
+	v_createdDate                       TIMESTAMP;
+	v_modifiedDate                      TIMESTAMP;
+	v_id                                    integer;
+begin
+	update campo_perfil
+	set idCampo = p_idCampo, idProfile = p_idProfile, modifiedDate = now()
+	where idCampo_perfil = p_id;
+	select u.idCampo into v_idCampo from campo_perfil u where idCampo_perfil = p_id;
+	select u.idProfile into v_idProfile from campo_perfil u where idCampo_perfil = p_id;
+	select u.createdDate into v_createdDate from campo_perfil u where idCampo_perfil = p_id;
+	select u.modifiedDate into v_modifiedDate from campo_perfil u where idCampo_perfil = p_id;
+	return json_build_object(
+		'idCampo_perfil', p_id,
+		'idCampo', v_idCampo,
+		'idProfile', v_idProfile,
 		'createdDate', v_createdDate,
 		'modifiedDate', v_modifiedDate
 	);
@@ -1727,12 +1820,11 @@ BEGIN
         v_sql := format($sql$  
             CREATE TABLE %I (  
                 idResultado SERIAL PRIMARY KEY,  
-				idOrder INTEGER NOT NULL REFERENCES orders(idOrder) ON DELETE CASCADE,  
-				idProfile INTEGER NOT NULL REFERENCES profile(idProfile) ON DELETE CASCADE,  
-				idCampo INTEGER NOT NULL REFERENCES campo(idCampo) ON DELETE CASCADE,  
-				resultado character varying(255) NOT NULL, 
-                createdDate timestamp with time zone NOT NULL DEFAULT now(),  
-                modifiedDate timestamp with time zone NOT NULL DEFAULT now()  
+				idOrder integer NOT NULL REFERENCES orders(idOrder) ON DELETE CASCADE,  
+				idCampo_perfil integer NOT NULL REFERENCES campo_perfil(idCampo_perfil) ON DELETE CASCADE,  
+				resultado character varying(255) NOT NULL,
+				createdDate timestamp with time zone NOT NULL DEFAULT now(),  
+				modifiedDate timestamp with time zone NOT NULL DEFAULT now()  
             );  
         $sql$, v_nombre_tabla);  
         
@@ -1756,14 +1848,25 @@ DECLARE
     v_nombre TEXT;  
     v_unidad VARCHAR;  
     v_inserciones integer := 0;  
+    v_unidad_existente VARCHAR;  
 BEGIN  
     FOREACH v_campos IN ARRAY p_campos LOOP   
 
         v_nombre := v_campos->>'nombre';  
         v_unidad := v_campos->>'unidad';  
+ 
+        IF NOT EXISTS (SELECT 1 FROM campo WHERE nombre = v_nombre) THEN  
+        
+            SELECT unidad INTO v_unidad_existente   
+            FROM campo   
+            WHERE unidad = v_unidad   
+            LIMIT 1;  
 
-        IF NOT EXISTS (SELECT 1 FROM campo WHERE nombre = v_nombre) THEN   
-            INSERT INTO campo(nombre, unidad) VALUES (v_nombre, v_unidad);  
+            IF v_unidad_existente IS NULL THEN  
+                v_unidad_existente := v_unidad; 
+            END IF;  
+ 
+            INSERT INTO campo(nombre, unidad) VALUES (v_nombre, v_unidad_existente);  
             v_inserciones := v_inserciones + 1;  
         END IF;  
     END LOOP;  
@@ -1773,8 +1876,7 @@ BEGIN
         'nuevos_agregados', v_inserciones  
     );  
 END;  
-$BODY$;  
-
+$BODY$; 
 
 CREATE OR REPLACE FUNCTION sp_find_all_inputs(
 	)
@@ -1828,46 +1930,81 @@ BEGIN
 END;  
 $BODY$;
 
-sp_find_all_inputs_by_profileCREATE OR REPLACE FUNCTION sp_find_all_inputs_by_profile(p_idProfile INTEGER)  
-RETURNS json[]   
-LANGUAGE 'plpgsql'  
-COST 100  
-VOLATILE PARALLEL UNSAFE  
-AS $BODY$  
-DECLARE  
-    v_json_resp json[];  
-    v_nombre_tabla TEXT;  
-    v_query TEXT;  
-BEGIN   
-    SELECT name INTO v_nombre_tabla  
-    FROM profile  
-    WHERE idProfile = p_idProfile;  
- 
-    IF v_nombre_tabla IS NULL THEN  
-        RAISE EXCEPTION 'Perfil no encontrado';  
-    END IF;  
-
-    v_nombre_tabla := format('resultados_%s', lower(replace(v_nombre_tabla, ' ', '_')));  
-
-    IF NOT EXISTS (  
-        SELECT 1   
-        FROM information_schema.tables   
-        WHERE table_name = v_nombre_tabla  
-    ) THEN  
-        RAISE EXCEPTION 'La tabla % no existe', v_nombre_tabla;  
-    END IF;  
-
-    EXECUTE format('SELECT array_agg(jsonb_build_object(  
-                        ''idCampo'', c.idCampo,  
-                        ''nombre'', c.nombre,  
-                        ''unidad'', c.unidad,    
-                        ''createdDate'', r.createdDate,  
-                        ''modifiedDate'', r.modifiedDate  
-                     ))  
-                     FROM %I r  
-                     JOIN campo c ON r.idCampo = c.idCampo  
-                     WHERE r.idProfile = %L', v_nombre_tabla, p_idProfile) INTO v_json_resp;  
-
-    RETURN v_json_resp;  
-END;  
+CREATE OR REPLACE FUNCTION sp_find_all_inputs_by_profile(
+	p_idProfile INTEGER
+	)
+    RETURNS json[]
+    LANGUAGE 'plpgsql'
+    COST 100
+    VOLATILE PARALLEL UNSAFE
+AS $BODY$
+declare 
+	v_json_resp json[];
+begin
+	select array(
+        select jsonb_build_object(
+			'idCampo', c.idCampo,
+			'idCampo_perfil', cp.idCampo_perfil,
+			'nombre', c.nombre,
+            'unidad', c.unidad,
+			'createdDate', cp.createdDate,
+            'modifiedDate', cp.modifiedDate
+		)
+		from campo_perfil cp, profile p, campo c 
+		where cp.idprofile = p.idprofile
+		and cp.idcampo = c.idcampo
+		and cp.idprofile = p_idProfile
+        ) ::json[] into v_json_resp;
+		return v_json_resp;
+end;
 $BODY$;
+
+CREATE OR REPLACE FUNCTION sp_find_input_by_profile_and_input(
+	p_idCampo INTEGER,
+	p_idProfile INTEGER
+	)
+    RETURNS json[]
+    LANGUAGE 'plpgsql'
+    COST 100
+    VOLATILE PARALLEL UNSAFE
+AS $BODY$
+declare 
+	v_json_resp json[];
+begin
+	select array(
+        select jsonb_build_object(
+			'idCampo_perfil', cp.idCampo_perfil,
+			'idCampo', cp.idCampo,
+            'idProfile', cp.idProfile,
+			'createdDate', cp.createdDate,
+            'modifiedDate', cp.modifiedDate
+		)
+		from campo_perfil cp
+		where cp.idCampo = p_idCampo
+		and cp.idProfile = p_idProfile
+        ) ::json[] into v_json_resp;
+		return v_json_resp;
+end;
+$BODY$;
+
+CREATE OR REPLACE FUNCTION insertar_campo_perfil(perfil_id INT, campos JSONB)  
+RETURNS VOID AS $$  
+DECLARE  
+    elemento JSONB;
+    campo_id INT;  
+BEGIN  
+    FOR elemento IN SELECT * FROM jsonb_array_elements(campos)
+    LOOP   
+        SELECT idCampo INTO campo_id  
+        FROM campo  
+        WHERE nombre = elemento->>'nombre';
+   
+        IF campo_id IS NOT NULL THEN  
+            INSERT INTO campo_perfil (idCampo, idProfile)  
+            VALUES (campo_id, perfil_id);  
+        ELSE  
+            RAISE WARNING 'Campo no encontrado: %', elemento->>'nombre';  
+        END IF;  
+    END LOOP;  
+END;   
+$$ LANGUAGE plpgsql;

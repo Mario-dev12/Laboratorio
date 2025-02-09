@@ -303,12 +303,26 @@
 			if (!campos.value.length) {
 				alert("El perfil debe contener al menos 1 campo");
 			} else {
-				if (
-					perfiles.value.some((item) => {
-						return item.name === dataPerfilNuevo.name;
-					})
-				) {
-					showToast("Perfil Ya Existe", "warning", alertCircleOutline);
+				if (  
+					perfiles.value.some((item) => {  
+						const nombrePerfilExistente = item.name  
+							.normalize("NFD") 
+							.replace(/[\u0300-\u036f]/g, "") 
+							.replace(/\s+/g, ' ')  
+							.trim()  
+							.toLowerCase();
+ 
+						const nombrePerfilNuevoLimpiado = dataPerfilNuevo.name  
+							?.normalize("NFD")  
+							.replace(/[\u0300-\u036f]/g, "")  
+							.replace(/\s+/g, ' ')  
+							.trim()  
+							.toLowerCase() || '';
+
+						return nombrePerfilExistente === nombrePerfilNuevoLimpiado;  
+					})  
+				) {  
+					showToast("Perfil Ya Existe", "warning", alertCircleOutline);  
 				} else {
 					const camposNuevos = campos.value.map(({ nombre, unidad }) => ({ nombre, unidad }));
 					tests.createProfileInputs(dataPerfilNuevo, camposNuevos).then(async () => {

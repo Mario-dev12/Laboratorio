@@ -63,6 +63,11 @@ class AxiosRepository {
 		return response.data;
 	}
 
+	async readInputsProfileByProfile<T>(domain: string, idCampo: string | number, idProfile: string | number): Promise<T> {
+		const response = await axios.get<T>(`${import.meta.env.VITE_API_URL}/${domain}/inputsprofile/${idCampo}/${idProfile}`);
+		return response.data;
+	}
+
 	async getByExamId<T>(domain: string, id: string | number): Promise<T> {
 		const response = await axios.get<T>(`${import.meta.env.VITE_API_URL}/${domain}/exam/${id}`);
 		return response.data;
@@ -126,8 +131,26 @@ class AxiosRepository {
 		return response.data;
 	}
 
+	async updateInputs<T>(domain: string, id: string | number | undefined, data: T): Promise<T> {
+		const response = await axios.put<T>(`${import.meta.env.VITE_API_URL}/${domain}/input/${id}`, data);
+		return response.data;
+	}
+
+	async updateInputsProfile<T>(domain: string, id: string | number | undefined, data: T): Promise<T> {
+		const response = await axios.put<T>(`${import.meta.env.VITE_API_URL}/${domain}/profileinputs/${id}`, data);
+		return response.data;
+	}
+
 	async delete(domain: string, id: string | number): Promise<void> {
 		await axios.delete(`${import.meta.env.VITE_API_URL}/${domain}/${id}`);
+	}
+
+	async deleteInputs(domain: string, id: string | number): Promise<void> {
+		await axios.delete(`${import.meta.env.VITE_API_URL}/${domain}/input/${id}`);
+	}
+
+	async deleteInputsProfile(domain: string, id: string | number): Promise<void> {
+		await axios.delete(`${import.meta.env.VITE_API_URL}/${domain}/profileinputs/${id}`);
 	}
 
 	async deleteByExamIdAndProfileId(domain: string, idexam: string | number, idprofile: string | number): Promise<void> {

@@ -33,6 +33,17 @@ profileController.readInputsByProfile = async (req, res) => {
 	}
 };
 
+profileController.readInputsProfileByProfile = async (req, res) => {
+	try {
+		const { idCampo, idProfile } = req.params;
+		const answer = await profileServices.readInputsProfileByProfile(idCampo, idProfile);
+
+		res.send(answer);
+	} catch (error) {
+		return res.status(400).send(error.stack);
+	}
+};
+
 profileController.readProfilesUnits = async (req, res) => {
 	try {
 		const answer = await profileServices.readProfilesUnits();
@@ -98,11 +109,55 @@ profileController.updateProfile = async (req, res) => {
 	}
 };
 
+profileController.updateInputs = async (req, res) => {
+	const { id } = req.params;
+
+	try {
+		const answer = await profileServices.updateInputs(id, req.body);
+		res.send(answer);
+	} catch (error) {
+		return res.status(400).send(error.message);
+	}
+};
+
+profileController.updateInputsProfile = async (req, res) => {
+	const { id } = req.params;
+
+	try {
+		const answer = await profileServices.updateInputsProfile(id, req.body);
+		res.send(answer);
+	} catch (error) {
+		return res.status(400).send(error.message);
+	}
+};
+
 profileController.deleteProfile = async (req, res) => {
 	const { id } = req.params;
 
 	try {
 		const answer = await profileServices.deleteProfile(id);
+		res.send(answer);
+	} catch (error) {
+		return res.status(400).send(error.stack);
+	}
+};
+
+profileController.deleteInputs = async (req, res) => {
+	const { id } = req.params;
+
+	try {
+		const answer = await profileServices.deleteInputs(id);
+		res.send(answer);
+	} catch (error) {
+		return res.status(400).send(error.stack);
+	}
+};
+
+profileController.deleteInputsProfile = async (req, res) => {
+	const { id } = req.params;
+
+	try {
+		const answer = await profileServices.deleteInputsProfile(id);
 		res.send(answer);
 	} catch (error) {
 		return res.status(400).send(error.stack);
