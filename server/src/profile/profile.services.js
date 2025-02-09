@@ -14,6 +14,10 @@ profileServices.readInputsByProfile = async id => {
     return await profileRepository.readInputsByProfile(id)
 }
 
+profileServices.readInputsProfileByProfile = async (idCampo, idProfile) => {
+    return await profileRepository.readInputsProfileByProfile(idCampo, idProfile)
+}
+
 profileServices.readProfilesUnits = async () => {
     return await profileRepository.readProfilesUnits()
 }
@@ -38,8 +42,24 @@ profileServices.updateProfile = async (id, answer) => {
     return await profileRepository.updateProfile(id, answer)
 }
 
+profileServices.updateInputs = async (id, answer) => {
+    return await profileRepository.updateInputs(id, answer)
+}
+
+profileServices.updateInputsProfile = async (id, answer) => {
+    return await profileRepository.updateInputsProfile(id, answer)
+}
+
 profileServices.deleteProfile = async id => {
     return await profileRepository.deleteProfile(id)
+}
+
+profileServices.deleteInputs = async id => {
+    return await profileRepository.deleteInputs(id)
+}
+
+profileServices.deleteInputsProfile = async id => {
+    return await profileRepository.deleteInputsProfile(id)
 }
 
 export default profileServices
