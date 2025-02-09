@@ -73,6 +73,7 @@ import { useRouter } from 'vue-router';
 
 	onMounted(async () => {  
 		orders.value = await ordersStore.fecthOrdersDay();
+		console.log('oo', orders.value)
 	});  
 
 	watch(  
@@ -114,7 +115,8 @@ import { useRouter } from 'vue-router';
 			name: 'EditarOrden',  
 			params: {  
 				idUser: order.ci,  
-				idExam: order.idExam,  
+				idExam: order.idExam, 
+				idOrder: order.idOrder,  
 				cost_bs: order.total_cost_bs,  
 				cost_usd: order.total_cost_usd  
 			}  

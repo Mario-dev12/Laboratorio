@@ -8,6 +8,7 @@ import EditUserExam from "@/views/EditTests.vue";
 import OrdersView from "@/views/OrdersView.vue";
 import OrdersHistoryView from "@/views/OrdersHistoryView.vue";
 import EditarOrden from "@/views/EditarOrden.vue";
+import TemplatePDF from "@/views/TemplatePDF.vue"
 
 const routes: Array<RouteRecordRaw> = [
 	{
@@ -25,7 +26,7 @@ const routes: Array<RouteRecordRaw> = [
 		component: CrearOrden,
 	},
 	{
-		path: "/editarOrden/:idUser/:idExam/:cost_bs/:cost_usd",
+		path: "/editarOrden/:idUser/:idExam/:idOrder/:cost_bs/:cost_usd",
 		name: "EditarOrden",
 		component: EditarOrden,
 	},
@@ -53,6 +54,11 @@ const routes: Array<RouteRecordRaw> = [
 		path: "/historico",
 		name: "Historico",
 		component: OrdersHistoryView,
+	},
+	{
+		path: "/reporte",
+		name: "Reporte",
+		component: TemplatePDF,
 	},
 ];
 
