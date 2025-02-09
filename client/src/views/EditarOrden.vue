@@ -119,7 +119,7 @@
 			<div class="factura container mt-3 mb-4 bg-dark-subtle rounded p-3">
 				<div class="row w-100 m-auto mb-1">
 					<div class="col">Numero de orden</div>
-					<div class="col">1</div>
+					<div class="col">{{idOrder}}</div>
 				</div>
 				<div class="row w-100 m-auto mb-1">
 					<div class="col">Fecha</div>
@@ -243,7 +243,8 @@
 	});
 
     const idUser = ref(route.params.idUser);  
-    const idExam = ref(route.params.idExam);  
+    const idExam = ref(route.params.idExam);
+	const idOrder = ref(route.params.idOrder);  
     const cost_bs = ref(route.params.cost_bs);  
     const cost_usd = ref(route.params.cost_usd);
 	const totalDolar = ref();
