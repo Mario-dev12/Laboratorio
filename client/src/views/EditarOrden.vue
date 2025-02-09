@@ -127,11 +127,11 @@
 				</div>
 				<div class="row w-100 m-auto mb-1">
 					<div class="col">Total En Bs</div>
-					<div class="col">Bs: {{ totales.totalBs }}</div>
+					<div class="col">Bs: {{ (totales.totalBs).toFixed(2) }}</div>
 				</div>
 				<div class="row w-100 m-auto mb-1">
 					<div class="col">Total En $</div>
-					<div class="col">$: {{ totales.total$ }}</div>
+					<div class="col">$: {{ (totales.total$).toFixed(2) }}</div>
 				</div>
 				<div v-if="paymentData && paymentData.length > 0" class="mt-3">  
 					<div class="row w-100 m-auto mt-3">  
@@ -315,7 +315,7 @@
 		for (const item of profiles.value) {  
 			const itemInArray = examenesSeleccionados.value.find((element) => element.name === item.name);  
 			
-			if (item.name === tipoDeExamen.value && !itemInArray) {  
+			if (item.name === tipoDeExamen.value && !itemInArray) {   
 				examenesSeleccionados.value = [...examenesSeleccionados.value, { ...item }];  
 
 				originalOrdersData.value = originalOrdersData.value.filter((originalItem: { name: string; }) => originalItem.name !== item.name);  
@@ -335,7 +335,7 @@
 
 		originalPaymentData.value = null;  
 		tipoDeExamen.value = "";  
-	};   
+	};    
 
 	const actualizarCostosEnBs = () => {  
 		examenesSeleccionados.value.forEach((examen) => {  
@@ -383,7 +383,7 @@
 	});
 
 	watch(examenesSeleccionados, (newValue, oldValue) => {
-		if (newValue.length) {
+		if (newValue.length && oldValue) {
 			if (newValue.length < oldValue.length) {
 				totales.value.totalBs -= newValue[0].cost_usd * precioDolar.value;
 				totales.value.total$ -= newValue[0].cost_usd;
@@ -395,7 +395,7 @@
 			totales.value.totalBs = 0;
 			totales.value.total$ = 0;
 		}
-	});
+	}, { immediate: true, deep: true });
 
 	watch(pagoEnDivisas, (newValue) => {
 		const totales2 = {
