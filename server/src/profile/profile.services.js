@@ -30,8 +30,16 @@ profileServices.readProfileByType = async name => {
     return await profileRepository.readProfileByType(name)
 }
 
+profileServices.readInputsResults = async name => {
+    return await profileRepository.readInputsResults(name)
+}
+
 profileServices.createProfile = async (name, cost_bs, cost_usd) => {
     return await profileRepository.createProfile(name, cost_bs, cost_usd)
+}
+
+profileServices.createInputsInProfile = async (idProfile, inputs) => {
+    return await profileRepository.createInputsInProfile(idProfile, inputs)
 }
 
 profileServices.createProfileInputs = async (name, cost_bs, cost_usd, inputs) => {
@@ -56,6 +64,10 @@ profileServices.deleteProfile = async id => {
 
 profileServices.deleteInputs = async id => {
     return await profileRepository.deleteInputs(id)
+}
+
+profileServices.deleteInputsInProfile = async (idProfile, inputs) => {
+    return await profileRepository.deleteInputsInProfile(idProfile, inputs)
 }
 
 profileServices.deleteInputsProfile = async id => {

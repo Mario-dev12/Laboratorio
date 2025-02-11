@@ -107,7 +107,10 @@ INSERT INTO alliance (quantity, cost_bs, cost_usd, pay_done, pay_amount, idReact
 (5, '256.75', '5', true, '', 32, 5),  
 (5, '256.75', '5', true, '', 33, 5);
 
-INSERT INTO campo (nombre, unidad) VALUES   
+INSERT INTO campo (nombre, unidad) VALUES  
+('hematies', 'x10/L'),
+('hemoglobina', 'g/%'),  
+('hematocrito', '%'), 
 ('glucosa', 'mg/dL'),
 ('glicemia', 'mg/dL'),  
 ('colesterol_total', 'mg/dL'),
@@ -131,6 +134,8 @@ INSERT INTO campo (nombre, unidad) VALUES
 ('ph', 'Mm/cm3'),
 ('densidad', 'mm/Hora'), 
 ('proteinas', 'g/dL'),
+('leucocitos', '2-3XC'),
+('cristales', NULL),
 ('TSH', 'µU/mL'),
 ('T4', 'ng/dL'),
 ('T3', 'ng/dL'),
@@ -156,16 +161,21 @@ INSERT INTO campo_perfil (idCampo, idProfile) VALUES
 (16, 1),
 (17, 1),
 (18, 1),
-(19, 2),
-(20, 2),
-(21, 2),
+(19, 1),
+(20, 1),
+(21, 1),
 (22, 2),
 (23, 2),
-(24, 3),
-(25, 3),
-(26, 3),
-(27, 3),
-(28, 3);
+(24, 2),
+(25, 2),
+(26, 2),
+(27, 2),
+(28, 2),
+(29, 3),
+(30, 3),
+(31, 3),
+(32, 3),
+(33, 3);
 
 INSERT INTO resultados_perfil_20 (idOrder, idCampo_perfil, resultado) VALUES  
 (1, 1, 90.5),
@@ -185,23 +195,30 @@ INSERT INTO resultados_perfil_20 (idOrder, idCampo_perfil, resultado) VALUES
 (1, 15, 0.3), 
 (1, 16, 0.7), 
 (1, 17, 4.0), 
-(1, 18, 2.5); 
+(1, 18, 2.5),
+(1, 19, 0.7), 
+(1, 20, 4.0), 
+(1, 21, 2.5); 
 
 INSERT INTO resultados_uroanalisis (idOrder, idCampo_perfil, resultado) VALUES  
-(2, 19, 'Amarillo Claro'),
-(2, 20, 'Transparente'), 
-(2, 21, 6.5),
-(2, 22, 1.020),
-(2, 23, 10.0), 
-(4, 19, 'Amarillo Oscuro'),
-(4, 20, 'espumosa'), 
-(4, 21, 6.5),
-(4, 22, 1.020),
-(4, 23, 10.0);
+(2, 22, 'Amarillo Claro'),
+(2, 23, 'Transparente'), 
+(2, 24, 6.5),
+(2, 25, 1.020),
+(2, 26, 10.0), 
+(2, 27, '3-4XC'),
+(2, 28, 'No prentes'),
+(4, 22, 'Amarillo Oscuro'),
+(4, 23, 'espumosa'), 
+(4, 24, 6.5),
+(4, 25, 1.020),
+(4, 26, 10.0),
+(4, 27, '3-4XC'),
+(4, 28, 'Oxalato de calcio');
 
 INSERT INTO resultados_perfil_tiroideo (idOrder, idCampo_perfil, resultado) VALUES  
-(3, 24, 1.5),  
-(3, 25, 4.0),
-(3, 26, 100.0),
-(3, 27, 5.0),
-(3, 28, 1.0);
+(3, 28, 1.5),  
+(3, 30, 4.0),
+(3, 31, 100.0),
+(3, 32, 5.0),
+(3, 33, 1.0);

@@ -13,12 +13,15 @@ profileRouter.delete('/:id', profileController.deleteProfile)
 //Inputs
 profileRouter.get('/input', profileController.readProfilesInputs)
 profileRouter.get('/unit', profileController.readProfilesUnits)
+profileRouter.get('/inputresults/:name', profileController.readInputsResults)
 profileRouter.get('/inputs/:id', profileController.readInputsByProfile)
 profileRouter.get('/inputsprofile/:idCampo/:idProfile', profileController.readInputsProfileByProfile)
 profileRouter.post('/inputs', profileController.createProfileInputs)
+profileRouter.post('/inputsinprofile', profileController.createInputsInProfile)
 profileRouter.put('/input/:id', profileController.updateInputs)
 profileRouter.put('/profileinputs/:id', profileController.updateInputsProfile)
 profileRouter.delete('/input/:id', profileController.deleteInputs)
+profileRouter.delete('/inputsinprofile', profileController.deleteInputsInProfile)
 profileRouter.delete('/profileinputs/:id', profileController.deleteInputsProfile)
 
 export default profileRouter

@@ -75,9 +75,29 @@ profileController.readProfileByType = async (req, res) => {
 	}
 };
 
+profileController.readInputsResults = async (req, res) => {
+	try {
+		const { name } = req.params;
+		const answer = await profileServices.readInputsResults(name);
+
+		res.send(answer);
+	} catch (error) {
+		return res.status(400).send(error.stack);
+	}
+};
+
 profileController.createProfile = async (req, res) => {
 	try {
 		const answer = await profileServices.createProfile(req.body.name, req.body.cost_bs, req.body.cost_usd);
+		res.send(answer);
+	} catch (error) {
+		return res.status(400).send(error.stack);
+	}
+};
+
+profileController.createInputsInProfile = async (req, res) => {
+	try {
+		const answer = await profileServices.createInputsInProfile(req.body.idProfile, req.body.inputs);
 		res.send(answer);
 	} catch (error) {
 		return res.status(400).send(error.stack);
@@ -147,6 +167,15 @@ profileController.deleteInputs = async (req, res) => {
 
 	try {
 		const answer = await profileServices.deleteInputs(id);
+		res.send(answer);
+	} catch (error) {
+		return res.status(400).send(error.stack);
+	}
+};
+
+profileController.deleteInputsInProfile = async (req, res) => {
+	try {
+		const answer = await profileServices.deleteInputsInProfile(req.body.idProfile, req.body.inputs);
 		res.send(answer);
 	} catch (error) {
 		return res.status(400).send(error.stack);
