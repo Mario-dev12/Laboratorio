@@ -60,6 +60,7 @@ export const profileStore = defineStore("profile", {
 			this.profiles = response;
 			return this.profiles;
 		},
+		// Este es el create
 		async createInputsInProfile(exam: Profile) {
 			const response = await axiosRepository.createInputsInProfile<Profile>("profile", exam);
 			this.profiles = response;
@@ -91,6 +92,7 @@ export const profileStore = defineStore("profile", {
 		async deleteInputs(id: string | number) {
 			await axiosRepository.deleteInputs("profile", id);
 		},
+		//Este es el delete
 		async deleteInputsInProfile(data: any) {
 			await axiosRepository.deleteInputsInProfile("profile", data);
 		},
