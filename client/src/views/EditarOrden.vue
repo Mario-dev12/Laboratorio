@@ -215,6 +215,8 @@
 	const precioDolar = ref(Number(localStorage.getItem("tasaDolar")) || 50);
 	const cambioDolar = ref(precioDolar.value);
 	const metodoPagos = ref();
+	let bs: number = 0;
+	let divisas: number = 0;
 	const showChangeDolar = ref(false);
 	const mostrarModal = ref(false);
 	const profiles = ref();
