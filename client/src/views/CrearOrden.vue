@@ -122,7 +122,7 @@
 			<div class="factura container mt-3 mb-4 bg-dark-subtle rounded p-3">
 				<div class="row w-100 m-auto mb-1">
 					<div class="col">Numero de orden</div>
-					<div class="col">1</div>
+					<div class="col">{{numeroOrden}}</div>
 				</div>
 				<div class="row w-100 m-auto mb-1">
 					<div class="col">Fecha</div>
@@ -219,6 +219,8 @@
 	const showChangeDolar = ref(false);
 	const mostrarModal = ref(false);
 	const profiles = ref();
+	const order = ref();
+	const numeroOrden = ref<number>(0);  
 	const examsStore = examStore();
 	const ordersStore = orderStore();
 	const profilesStore = profileStore();
@@ -247,7 +249,22 @@
 			cost_bs: parseFloat(exam.cost_bs.replace(",", ".")),
 			cost_usd: parseFloat(exam.cost_usd),
 		}));
+		order.value = await ordersStore.fecthOrders();
+		crearOrden();
 	});
+
+	const crearOrden = () => {  
+		const fechaHoy = new Date();  
+		const hoyString = fechaHoy.toISOString().split('T')[0]; 
+
+		const ordenesHoy = order.value.filter((orden: { createdDate: string | number | Date; }) => {  
+			const fechaOrden = new Date(orden.createdDate);  
+			const ordenString = fechaOrden.toISOString().split('T')[0];  
+			return ordenString === hoyString;
+		});  
+
+		numeroOrden.value = ordenesHoy.length + 1;  
+	};  
 
 	interface Examen {
 		name: string;

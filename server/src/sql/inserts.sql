@@ -19,7 +19,7 @@ INSERT INTO profile (name, cost_bs, cost_usd) VALUES
 
 INSERT INTO exam (idUser, total_cost_bs, total_cost_usd) VALUES 
 (1, '488,7', '10'),
-(2, '244,35', '5');
+(2, '488,7', '10');
 
 INSERT INTO orders (idExam, idProfile, status) VALUES 
 (1, 1, 'Pendiente por pasar'),
@@ -35,7 +35,7 @@ INSERT INTO payment_method (name) VALUES
 INSERT INTO payment (idPayment_method, idExam, amount_bs, amount_usd, bank, phone, type) VALUES 
 (1, 1, '244,35', '5', 'Mercantil', '', 'Bolivares'),
 (2, 1, '244,35', '5', 'Venezuela', '0414-894432', 'Bolivares'),
-(3, 2, '244,35', '5', '', '', 'Dolares');
+(3, 2, '488,7', '10', '', '', 'Dolares');
 
 INSERT INTO reactive (name, total) VALUES   
 ('Glucosa', 5),  
