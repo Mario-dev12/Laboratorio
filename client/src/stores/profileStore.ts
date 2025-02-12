@@ -50,8 +50,19 @@ export const profileStore = defineStore("profile", {
 			this.profiles = response;
 			return this.profiles;
 		},
+		async fetchProfileByInputsName(name: string) {
+			const response = await axiosRepository.getInputsByProfileName<Profile>("profile", name);
+			this.profiles = response;
+			return this.profiles;
+		},
 		async createProfile(exam: Profile) {
 			const response = await axiosRepository.create<Profile>("profile", exam);
+			this.profiles = response;
+			return this.profiles;
+		},
+		// Este es el create
+		async createInputsInProfile(exam: Profile) {
+			const response = await axiosRepository.createInputsInProfile<Profile>("profile", exam);
 			this.profiles = response;
 			return this.profiles;
 		},
@@ -80,6 +91,10 @@ export const profileStore = defineStore("profile", {
 		},
 		async deleteInputs(id: string | number) {
 			await axiosRepository.deleteInputs("profile", id);
+		},
+		//Este es el delete
+		async deleteInputsInProfile(data: any) {
+			await axiosRepository.deleteInputsInProfile("profile", data);
 		},
 		async deleteInputsProfile(id: string | number) {
 			await axiosRepository.deleteInputsProfile("profile", id);

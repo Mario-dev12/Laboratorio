@@ -30,7 +30,7 @@ async function agregarCampos(inputs) {
 	}
 }
 
-async function createProfileInputs(id, inputs) {
+async function createProfileInputsTable(id, inputs) {
 	try {
 		const inputsJSON = JSON.stringify(inputs);
 
@@ -106,6 +106,15 @@ profileRepository.readProfileByType = async (name) => {
 	}
 };
 
+profileRepository.readInputsResults = async (name) => {
+	try {
+		const resp = await pool.query(`SELECT * FROM obtener_perfil_json('${name}')`);
+		return resp.rows[0].obtener_perfil_json;
+	} catch (error) {
+		throw error;
+	}
+};
+
 profileRepository.createProfile = async (name, cost_bs, cost_usd) => {
 	try {
 		const resp = await pool.query(`SELECT * FROM sp_create_profile('${name}', '${cost_bs}', '${cost_usd}')`);
@@ -117,12 +126,23 @@ profileRepository.createProfile = async (name, cost_bs, cost_usd) => {
 	}
 };
 
+profileRepository.createInputsInProfile = async (idProfile, inputs) => {
+	try {
+		const formattedInputs = `{${inputs.join(",")}}`;
+
+		const resp = await pool.query(`SELECT insertar_campo_perfil(${idProfile}, '${formattedInputs}'::integer[])`);
+		return resp.rows[0].agregar_en_campo_perfil;
+	} catch (error) {
+		throw error;
+	}
+};
+
 profileRepository.createProfileInputs = async (name, cost_bs, cost_usd, inputs) => {
 	try {
 		const resp = await pool.query(`SELECT * FROM sp_create_profile('${name}', '${cost_bs}', '${cost_usd}')`);
 		await createProfileResults(name);
 		await agregarCampos(inputs);
-		await createProfileInputs(resp.rows[0].sp_create_profile.id, inputs);
+		await createProfileInputsTable(resp.rows[0].sp_create_profile.id, inputs);
 		return resp.rows[0].sp_create_profile;
 	} catch (error) {
 		throw error;
@@ -172,6 +192,16 @@ profileRepository.deleteInputs = async (id) => {
 	try {
 		const resp = await pool.query(`SELECT * FROM sp_delete_input(${id})`);
 		return resp.rows[0].sp_delete_input;
+	} catch (error) {
+		throw error;
+	}
+};
+
+profileRepository.deleteInputsInProfile = async (idProfile, inputs) => {
+	try {
+		const formattedInputs = `{${inputs.join(",")}}`;
+		const resp = await pool.query(`SELECT eliminar_campo_perfil(${idProfile}, '${formattedInputs}'::integer[])`);
+		return resp.rows[0].eliminar_campo_perfil;
 	} catch (error) {
 		throw error;
 	}
