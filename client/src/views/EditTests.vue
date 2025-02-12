@@ -171,6 +171,8 @@
 	const edicionCampo = ref();
 	const camposDelPerfil = ref();
 	const isOpen = ref(false);
+	const camposAgregados = ref<CampoNuevo[]>([]);
+	const camposEliminados = ref<CampoNuevo[]>([]);
 	const toast = ref({
 		isOpen: false,
 		message: "",
@@ -209,6 +211,7 @@
 	};
 
 	async function editPerfil(perfil: any) {
+		console.log(campos.value);
 		camposDelPerfil.value = await tests.fetchInputsByProfileId(perfil.idProfile);
 		selectedPerfil.value = perfil;
 		perfilName.value = perfil.name;
@@ -229,7 +232,6 @@
 				})) ||
 			campo.checked == true
 		) {
-			campos.value.push(campo);
 			return true;
 		} else {
 			return false;
@@ -247,8 +249,6 @@
 			selectedPerfil.value.name = nombrePerfilNuevo.value.value;
 			selectedPerfil.value.cost_bs = costoBsPerfilNuevo.value.value;
 			selectedPerfil.value.cost_usd = costoDolaresPerfilNuevo.value.value;
-			console.log(selectedPerfil.value.idProfile);
-			console.log(selectedPerfil.value);
 			tests.updateProfile(selectedPerfil.value.idProfile, selectedPerfil.value).then(async () => {
 				perfiles.value = await tests.fecthProfiles();
 				alert("perfil actualizado");
@@ -258,6 +258,7 @@
 
 	async function createPerfil() {
 		camposDelPerfil.value = null;
+		campos.value = [];
 		create.value = true;
 		update.value = false;
 		crearCampo.value = false;
@@ -276,15 +277,20 @@
 	}
 
 	const addCampo = (event: any, campo: { nombre: string; unidad: string; checked?: boolean }) => {
-		if (event.target.checked) {
-			const { nombre, unidad, checked } = campo;
-			const newCampo = { nombre, unidad, checked };
-			campos.value.push(newCampo);
-		} else {
-			campos.value = campos.value.filter((item) => {
-				return item.nombre != campo.nombre;
-			});
+		const { nombre, unidad, checked } = campo;
+		const newCampo = { nombre, unidad, checked };
+		if (create.value) {
+			if (event.target.checked) {
+				camposAgregados.value.push(newCampo);
+			} else {
+				camposAgregados.value = camposAgregados.value.filter((item) => {
+					item.nombre != campo.nombre;
+				});
+			}
 		}
+		console.log(camposAgregados.value);
+		console.log(camposEliminados.value);
+		console.log(campos.value);
 	};
 
 	function handleCampo() {
@@ -324,7 +330,7 @@
 			dataPerfilNuevo.name = nombrePerfilNuevo.value.value;
 			dataPerfilNuevo.cost_usd = costoDolaresPerfilNuevo.value.value;
 			dataPerfilNuevo.cost_bs = costoBsPerfilNuevo.value.value;
-			if (!campos.value.length) {
+			if (!camposAgregados.value.length) {
 				alert("El perfil debe contener al menos 1 campo");
 			} else {
 				if (
@@ -349,7 +355,7 @@
 				) {
 					showToast("Perfil Ya Existe", "warning", alertCircleOutline);
 				} else {
-					const camposNuevos = campos.value.map(({ nombre, unidad }) => ({ nombre, unidad }));
+					const camposNuevos = camposAgregados.value.map(({ nombre, unidad }) => ({ nombre, unidad }));
 					tests.createProfileInputs(dataPerfilNuevo, camposNuevos).then(async () => {
 						/*traer de nuevo perfiles, campos y unidades */
 						perfiles.value = await tests.fecthProfiles();
