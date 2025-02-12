@@ -175,7 +175,7 @@ profileController.deleteInputs = async (req, res) => {
 
 profileController.deleteInputsInProfile = async (req, res) => {
 	try {
-		const answer = await profileServices.deleteInputsInProfile(req.body.data.idProfile, req.body.data.inputs);
+		const answer = await profileServices.deleteInputsInProfile(req.body.data.idProfile, req.body.data.idsArray);
 		res.send(answer);
 	} catch (error) {
 		return res.status(400).send(error.stack);
