@@ -2017,56 +2017,68 @@ BEGIN
     IF nomb_perfil = 'Perfil 20' THEN  
         resultado := json_build_object(  
             'Hematología Completa', json_build_object(  
-                'Hematies', (SELECT unidad FROM campo WHERE nombre = 'hematies'),  
-                'Hemoglobina', (SELECT unidad FROM campo WHERE nombre = 'hemoglobina'),  
-                'Hematocrito', (SELECT unidad FROM campo WHERE nombre = 'hematocrito')  
+                'resultado', json_build_array(  
+                    json_build_object('nombre', 'Hematies', 'unidad', (SELECT unidad FROM campo WHERE nombre = 'hematies')),  
+                    json_build_object('nombre', 'Hemoglobina', 'unidad', (SELECT unidad FROM campo WHERE nombre = 'hemoglobina')),  
+                    json_build_object('nombre', 'Hematocrito', 'unidad', (SELECT unidad FROM campo WHERE nombre = 'hematocrito'))  
+                )  
             ),  
             'Química Sanguinea', json_build_object(  
-                'glicemia', (SELECT unidad FROM campo WHERE nombre = 'glicemia'),  
-                'colesterol_total', (SELECT unidad FROM campo WHERE nombre = 'colesterol_total'),  
-                'colesterol_hdl', (SELECT unidad FROM campo WHERE nombre = 'colesterol_hdl'),  
-                'colesterol_ldl', (SELECT unidad FROM campo WHERE nombre = 'colesterol_ldl'),  
-                'trigliceridos', (SELECT unidad FROM campo WHERE nombre = 'trigliceridos'),  
-                'lipidos_totales', (SELECT unidad FROM campo WHERE nombre = 'lipidos_totales'),  
-                'proteina_c_resactiva', (SELECT unidad FROM campo WHERE nombre = 'proteina_c_resactiva'),  
-                'creatina', (SELECT unidad FROM campo WHERE nombre = 'creatina'),  
-                'transaminasa_oxalacetica', (SELECT unidad FROM campo WHERE nombre = 'transaminasa_oxalacetica'),  
-                'transaminasa_piruvica', (SELECT unidad FROM campo WHERE nombre = 'transaminasa_piruvica'),  
-                'calcio', (SELECT unidad FROM campo WHERE nombre = 'calcio'),  
-                'fosforo', (SELECT unidad FROM campo WHERE nombre = 'fosforo'),  
-                'bilirrubina_total', (SELECT unidad FROM campo WHERE nombre = 'bilirrubina_total'),  
-                'bilirrubina_directa', (SELECT unidad FROM campo WHERE nombre = 'bilirrubina_directa'),  
-                'bilirrubina_indirecta', (SELECT unidad FROM campo WHERE nombre = 'bilirrubina_indirecta'),  
-                'albumina', (SELECT unidad FROM campo WHERE nombre = 'albumina'),  
-                'globulina', (SELECT unidad FROM campo WHERE nombre = 'globulina')  
+                'resultado', json_build_array(  
+                    json_build_object('nombre', 'glicemia', 'unidad', (SELECT unidad FROM campo WHERE nombre = 'glicemia')),  
+                    json_build_object('nombre', 'colesterol_total', 'unidad', (SELECT unidad FROM campo WHERE nombre = 'colesterol_total')),  
+                    json_build_object('nombre', 'colesterol_hdl', 'unidad', (SELECT unidad FROM campo WHERE nombre = 'colesterol_hdl')),  
+                    json_build_object('nombre', 'colesterol_ldl', 'unidad', (SELECT unidad FROM campo WHERE nombre = 'colesterol_ldl')),  
+                    json_build_object('nombre', 'trigliceridos', 'unidad', (SELECT unidad FROM campo WHERE nombre = 'trigliceridos')),  
+                    json_build_object('nombre', 'lipidos_totales', 'unidad', (SELECT unidad FROM campo WHERE nombre = 'lipidos_totales')),  
+                    json_build_object('nombre', 'proteina_c_resactiva', 'unidad', (SELECT unidad FROM campo WHERE nombre = 'proteina_c_resactiva')),  
+                    json_build_object('nombre', 'creatina', 'unidad', (SELECT unidad FROM campo WHERE nombre = 'creatina')),  
+                    json_build_object('nombre', 'transaminasa_oxalacetica', 'unidad', (SELECT unidad FROM campo WHERE nombre = 'transaminasa_oxalacetica')),  
+                    json_build_object('nombre', 'transaminasa_piruvica', 'unidad', (SELECT unidad FROM campo WHERE nombre = 'transaminasa_piruvica')),  
+                    json_build_object('nombre', 'calcio', 'unidad', (SELECT unidad FROM campo WHERE nombre = 'calcio')),  
+                    json_build_object('nombre', 'fosforo', 'unidad', (SELECT unidad FROM campo WHERE nombre = 'fosforo')),  
+                    json_build_object('nombre', 'bilirrubina_total', 'unidad', (SELECT unidad FROM campo WHERE nombre = 'bilirrubina_total')),  
+                    json_build_object('nombre', 'bilirrubina_directa', 'unidad', (SELECT unidad FROM campo WHERE nombre = 'bilirrubina_directa')),  
+                    json_build_object('nombre', 'bilirrubina_indirecta', 'unidad', (SELECT unidad FROM campo WHERE nombre = 'bilirrubina_indirecta')),  
+                    json_build_object('nombre', 'albumina', 'unidad', (SELECT unidad FROM campo WHERE nombre = 'albumina')),  
+                    json_build_object('nombre', 'globulina', 'unidad', (SELECT unidad FROM campo WHERE nombre = 'globulina'))  
+                )  
             )  
         );  
 
     ELSIF nomb_perfil = 'Uroanalisis' THEN  
         resultado := json_build_object(  
             'Uroanalisis', json_build_object(  
-                'color', (SELECT unidad FROM campo WHERE nombre = 'color'),  
-                'aspecto', (SELECT unidad FROM campo WHERE nombre = 'aspecto'),  
-                'ph', (SELECT unidad FROM campo WHERE nombre = 'ph'),  
-                'densidad', (SELECT unidad FROM campo WHERE nombre = 'densidad')  
+                'resultado', json_build_array(  
+                    json_build_object('nombre', 'color', 'unidad', (SELECT unidad FROM campo WHERE nombre = 'color')),  
+                    json_build_object('nombre', 'aspecto', 'unidad', (SELECT unidad FROM campo WHERE nombre = 'aspecto')),  
+                    json_build_object('nombre', 'ph', 'unidad', (SELECT unidad FROM campo WHERE nombre = 'ph')),  
+                    json_build_object('nombre', 'densidad', 'unidad', (SELECT unidad FROM campo WHERE nombre = 'densidad'))  
+                )  
             ),  
             'Análisis microscopico', json_build_object(  
-                'leucocitos', (SELECT unidad FROM campo WHERE nombre = 'leucocitos'),  
-                'cristales', (SELECT unidad FROM campo WHERE nombre = 'cristales')  
+                'resultado', json_build_array(  
+                    json_build_object('nombre', 'leucocitos', 'unidad', (SELECT unidad FROM campo WHERE nombre = 'leucocitos')),  
+                    json_build_object('nombre', 'cristales', 'unidad', (SELECT unidad FROM campo WHERE nombre = 'cristales'))  
+                )  
             ),  
             'Análisis Químico', json_build_object(  
-                'proteinas', (SELECT unidad FROM campo WHERE nombre = 'proteinas')  
+                'resultado', json_build_array(  
+                    json_build_object('nombre', 'proteinas', 'unidad', (SELECT unidad FROM campo WHERE nombre = 'proteinas'))  
+                )  
             )  
         );  
     
     ELSIF nomb_perfil = 'Perfil Tiroideo' THEN  
         resultado := json_build_object(  
             'Perfil tiroideo', json_build_object(  
-                'TSH', (SELECT unidad FROM campo WHERE nombre = 'TSH'),  
-                'T4', (SELECT unidad FROM campo WHERE nombre = 'T4'),  
-                'T3', (SELECT unidad FROM campo WHERE nombre = 'T3'),  
-                'Anti-TG', (SELECT unidad FROM campo WHERE nombre = 'Anti-TG'),  
-                'Anti-TPO', (SELECT unidad FROM campo WHERE nombre = 'Anti-TPO')  
+                'resultado', json_build_array(  
+                    json_build_object('nombre', 'TSH', 'unidad', (SELECT unidad FROM campo WHERE nombre = 'TSH')),  
+                    json_build_object('nombre', 'T4', 'unidad', (SELECT unidad FROM campo WHERE nombre = 'T4')),  
+                    json_build_object('nombre', 'T3', 'unidad', (SELECT unidad FROM campo WHERE nombre = 'T3')),  
+                    json_build_object('nombre', 'Anti-TG', 'unidad', (SELECT unidad FROM campo WHERE nombre = 'Anti-TG')),  
+                    json_build_object('nombre', 'Anti-TPO', 'unidad', (SELECT unidad FROM campo WHERE nombre = 'Anti-TPO'))  
+                )  
             )  
         );  
     
