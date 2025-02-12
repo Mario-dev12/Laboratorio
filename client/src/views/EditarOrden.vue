@@ -322,21 +322,16 @@
 			if (item.name === tipoDeExamen.value && !itemInArray) {
 				examenesSeleccionados.value = [...examenesSeleccionados.value, { ...item }];
 
-				if (item.name === tipoDeExamen.value && !itemInArray) {
-					examenesSeleccionados.value = [...examenesSeleccionados.value, { ...item }];
+				originalOrdersData.value = originalOrdersData.value.filter(
+					(originalItem: { name: string }) => originalItem.name !== item.name
+				);
 
-					originalOrdersData.value = originalOrdersData.value.filter(
-						(originalItem: { name: string }) => originalItem.name !== item.name
-					);
-
-					pagoEnBs.value = "";
-					pagoEnDivisas.value = "";
-				}
+				pagoEnBs.value = "";
+				pagoEnDivisas.value = "";
 			}
-
-			originalPaymentData.value = null;
-			tipoDeExamen.value = "";
 		}
+
+		paymentData.value = null;
 
 		if (originalPaymentData.value) {
 			for (let i = 0; i < originalPaymentData.value.length; i++) {
