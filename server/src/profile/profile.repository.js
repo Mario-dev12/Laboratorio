@@ -132,7 +132,7 @@ profileRepository.createInputsInProfile = async (idProfile, inputs) => {
 	try {
 		const formattedInputs = `{${inputs.join(",")}}`;
 		  
-		const resp = await pool.query(`SELECT insertar_campo_perfil(${idProfile}, '${formattedInputs}'::integer[])`);
+		const resp = await pool.query(`SELECT agregar_en_campo_perfil(${idProfile}, '${formattedInputs}'::integer[])`);
 		return resp.rows[0].agregar_en_campo_perfil;
 	} catch (error) {
 		throw error;
