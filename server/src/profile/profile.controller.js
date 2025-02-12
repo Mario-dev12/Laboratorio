@@ -97,7 +97,7 @@ profileController.createProfile = async (req, res) => {
 
 profileController.createInputsInProfile = async (req, res) => {
 	try {
-		const answer = await profileServices.createInputsInProfile(req.body.idProfile, req.body.inputs);
+		const answer = await profileServices.createInputsInProfile(req.body.data.idProfile, req.body.data.inputs);
 		res.send(answer);
 	} catch (error) {
 		return res.status(400).send(error.stack);
@@ -175,7 +175,7 @@ profileController.deleteInputs = async (req, res) => {
 
 profileController.deleteInputsInProfile = async (req, res) => {
 	try {
-		const answer = await profileServices.deleteInputsInProfile(req.body.idProfile, req.body.inputs);
+		const answer = await profileServices.deleteInputsInProfile(req.body.data.idProfile, req.body.data.idsArray);
 		res.send(answer);
 	} catch (error) {
 		return res.status(400).send(error.stack);
