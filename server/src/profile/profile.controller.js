@@ -97,7 +97,7 @@ profileController.createProfile = async (req, res) => {
 
 profileController.createInputsInProfile = async (req, res) => {
 	try {
-		const answer = await profileServices.createInputsInProfile(req.body.data.idProfile, req.body.data.inputs);
+		const answer = await profileServices.createInputsInProfile(req.body.data, req.body.inputs);
 		res.send(answer);
 	} catch (error) {
 		return res.status(400).send(error.stack);

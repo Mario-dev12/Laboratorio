@@ -39,7 +39,7 @@
 					</table>
 				</div>
 
-				<div class="editar-perfil mt-4" v-if="create" ref="edicionPerfil">
+				<div class="editar-perfil mt-4" v-if="create || update" ref="edicionPerfil">
 					<h1 class="text-center" v-if="!update">Perfil Nuevo</h1>
 					<h1 class="text-center" v-if="update">{{ perfilName }}</h1>
 					<div class="informacion-perfil bg-dark-subtle rounded p-3">
@@ -171,8 +171,8 @@
 	const edicionCampo = ref();
 	const camposDelPerfil = ref();
 	const isOpen = ref(false);
-	const camposAgregados = ref<CampoNuevo[]>([]);
-	const camposEliminados = ref<CampoNuevo[]>([]);
+	const idCamposAgregados = ref<number[]>([]);
+	const idCamposEliminados = ref<number[]>([]);
 	const toast = ref({
 		isOpen: false,
 		message: "",
@@ -187,6 +187,7 @@
 	};
 
 	interface CampoNuevo {
+		idCampo: number;
 		nombre: string;
 		unidad: string;
 		checked?: boolean;
@@ -211,11 +212,10 @@
 	};
 
 	async function editPerfil(perfil: any) {
-		console.log(campos.value);
 		camposDelPerfil.value = await tests.fetchInputsByProfileId(perfil.idProfile);
 		selectedPerfil.value = perfil;
 		perfilName.value = perfil.name;
-		create.value = true;
+		create.value = false;
 		update.value = true;
 		crearCampo.value = false;
 		await nextTick();
@@ -254,6 +254,12 @@
 				alert("perfil actualizado");
 			});
 		}
+
+		if (idCamposAgregados.value) {
+			console.log(selectedPerfil.value.idProfile);
+			console.log(idCamposAgregados.value);
+			tests.createInputsInProfile(selectedPerfil.value.idProfile, idCamposAgregados.value);
+		}
 	};
 
 	async function createPerfil() {
@@ -276,21 +282,60 @@
 		}
 	}
 
-	const addCampo = (event: any, campo: { nombre: string; unidad: string; checked?: boolean }) => {
-		const { nombre, unidad, checked } = campo;
-		const newCampo = { nombre, unidad, checked };
+	const addCampo = (event: any, campo: Campo) => {
 		if (create.value) {
 			if (event.target.checked) {
-				camposAgregados.value.push(newCampo);
+				idCamposAgregados.value.push(campo.idCampo);
+				campos.value.push(campo);
 			} else {
-				camposAgregados.value = camposAgregados.value.filter((item) => {
-					item.nombre != campo.nombre;
+				idCamposAgregados.value = idCamposAgregados.value.filter((item) => {
+					return item != campo.idCampo;
+				});
+				campos.value = campos.value.filter((item) => {
+					return item.nombre != campo.nombre;
 				});
 			}
+		} else if (update.value) {
+			if (event.target.checked) {
+				if (
+					!camposDelPerfil.value.some((item: any) => {
+						return item.idCampo === campo.idCampo;
+					})
+				) {
+					idCamposAgregados.value.push(campo.idCampo);
+					idCamposEliminados.value = idCamposEliminados.value.filter((item) => {
+						item != campo.idCampo;
+					});
+					console.log(idCamposAgregados.value);
+					console.log(idCamposEliminados.value);
+				} else {
+					idCamposEliminados.value = idCamposEliminados.value.filter((item) => {
+						item != campo.idCampo;
+					});
+					console.log(idCamposAgregados.value);
+					console.log(idCamposEliminados.value);
+				}
+			} else {
+				if (
+					camposDelPerfil.value.some((item: any) => {
+						return item.idCampo === campo.idCampo;
+					})
+				) {
+					idCamposEliminados.value.push(campo.idCampo);
+					idCamposAgregados.value = idCamposAgregados.value.filter((item) => {
+						return item != campo.idCampo;
+					});
+					console.log(idCamposAgregados.value);
+					console.log(idCamposEliminados.value);
+				} else {
+					idCamposAgregados.value = idCamposAgregados.value.filter((item) => {
+						return item != campo.idCampo;
+					});
+					console.log(idCamposAgregados.value);
+					console.log(idCamposEliminados.value);
+				}
+			}
 		}
-		console.log(camposAgregados.value);
-		console.log(camposEliminados.value);
-		console.log(campos.value);
 	};
 
 	function handleCampo() {
@@ -305,6 +350,7 @@
 
 	const createCampo = () => {
 		const dataCampoNuevo: CampoNuevo = {
+			idCampo: 0,
 			nombre: "",
 			unidad: "",
 			checked: true,
@@ -330,7 +376,7 @@
 			dataPerfilNuevo.name = nombrePerfilNuevo.value.value;
 			dataPerfilNuevo.cost_usd = costoDolaresPerfilNuevo.value.value;
 			dataPerfilNuevo.cost_bs = costoBsPerfilNuevo.value.value;
-			if (!camposAgregados.value.length) {
+			if (!campos.value.length) {
 				alert("El perfil debe contener al menos 1 campo");
 			} else {
 				if (
@@ -355,7 +401,7 @@
 				) {
 					showToast("Perfil Ya Existe", "warning", alertCircleOutline);
 				} else {
-					const camposNuevos = camposAgregados.value.map(({ nombre, unidad }) => ({ nombre, unidad }));
+					const camposNuevos = campos.value.map(({ nombre, unidad }) => ({ nombre, unidad }));
 					tests.createProfileInputs(dataPerfilNuevo, camposNuevos).then(async () => {
 						/*traer de nuevo perfiles, campos y unidades */
 						perfiles.value = await tests.fecthProfiles();
