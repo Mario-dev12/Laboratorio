@@ -2008,3 +2008,98 @@ BEGIN
     END LOOP;  
 END;   
 $$ LANGUAGE plpgsql;
+
+CREATE OR REPLACE FUNCTION obtener_perfil_json(nomb_perfil character varying)  
+RETURNS JSON AS $$  
+DECLARE  
+    resultado JSON;  
+BEGIN  
+    IF nomb_perfil = 'Perfil 20' THEN  
+        resultado := json_build_object(  
+            'Hematología Completa', json_build_object(  
+                'Hematies', (SELECT unidad FROM campo WHERE nombre = 'hematies'),  
+                'Hemoglobina', (SELECT unidad FROM campo WHERE nombre = 'hemoglobina'),  
+                'Hematocrito', (SELECT unidad FROM campo WHERE nombre = 'hematocrito')  
+            ),  
+            'Química Sanguinea', json_build_object(  
+                'glicemia', (SELECT unidad FROM campo WHERE nombre = 'glicemia'),  
+                'colesterol_total', (SELECT unidad FROM campo WHERE nombre = 'colesterol_total'),  
+                'colesterol_hdl', (SELECT unidad FROM campo WHERE nombre = 'colesterol_hdl'),  
+                'colesterol_ldl', (SELECT unidad FROM campo WHERE nombre = 'colesterol_ldl'),  
+                'trigliceridos', (SELECT unidad FROM campo WHERE nombre = 'trigliceridos'),  
+                'lipidos_totales', (SELECT unidad FROM campo WHERE nombre = 'lipidos_totales'),  
+                'proteina_c_resactiva', (SELECT unidad FROM campo WHERE nombre = 'proteina_c_resactiva'),  
+                'creatina', (SELECT unidad FROM campo WHERE nombre = 'creatina'),  
+                'transaminasa_oxalacetica', (SELECT unidad FROM campo WHERE nombre = 'transaminasa_oxalacetica'),  
+                'transaminasa_piruvica', (SELECT unidad FROM campo WHERE nombre = 'transaminasa_piruvica'),  
+                'calcio', (SELECT unidad FROM campo WHERE nombre = 'calcio'),  
+                'fosforo', (SELECT unidad FROM campo WHERE nombre = 'fosforo'),  
+                'bilirrubina_total', (SELECT unidad FROM campo WHERE nombre = 'bilirrubina_total'),  
+                'bilirrubina_directa', (SELECT unidad FROM campo WHERE nombre = 'bilirrubina_directa'),  
+                'bilirrubina_indirecta', (SELECT unidad FROM campo WHERE nombre = 'bilirrubina_indirecta'),  
+                'albumina', (SELECT unidad FROM campo WHERE nombre = 'albumina'),  
+                'globulina', (SELECT unidad FROM campo WHERE nombre = 'globulina')  
+            )  
+        );  
+
+    ELSIF nomb_perfil = 'Uroanalisis' THEN  
+        resultado := json_build_object(  
+            'Uroanalisis', json_build_object(  
+                'color', (SELECT unidad FROM campo WHERE nombre = 'color'),  
+                'aspecto', (SELECT unidad FROM campo WHERE nombre = 'aspecto'),  
+                'ph', (SELECT unidad FROM campo WHERE nombre = 'ph'),  
+                'densidad', (SELECT unidad FROM campo WHERE nombre = 'densidad')  
+            ),  
+            'Análisis microscopico', json_build_object(  
+                'leucocitos', (SELECT unidad FROM campo WHERE nombre = 'leucocitos'),  
+                'cristales', (SELECT unidad FROM campo WHERE nombre = 'cristales')  
+            ),  
+            'Análisis Químico', json_build_object(  
+                'proteinas', (SELECT unidad FROM campo WHERE nombre = 'proteinas')  
+            )  
+        );  
+    
+    ELSIF nomb_perfil = 'Perfil Tiroideo' THEN  
+        resultado := json_build_object(  
+            'Perfil tiroideo', json_build_object(  
+                'TSH', (SELECT unidad FROM campo WHERE nombre = 'TSH'),  
+                'T4', (SELECT unidad FROM campo WHERE nombre = 'T4'),  
+                'T3', (SELECT unidad FROM campo WHERE nombre = 'T3'),  
+                'Anti-TG', (SELECT unidad FROM campo WHERE nombre = 'Anti-TG'),  
+                'Anti-TPO', (SELECT unidad FROM campo WHERE nombre = 'Anti-TPO')  
+            )  
+        );  
+    
+    ELSE  
+        RAISE EXCEPTION 'Perfil no reconocido: %', nomb_perfil;  
+    END IF;  
+
+    RETURN resultado;  
+END;  
+$$ LANGUAGE plpgsql;
+
+CREATE OR REPLACE FUNCTION agregar_en_campo_perfil(p_idProfile integer, p_idCampos integer[])  
+RETURNS void AS $$  
+DECLARE  
+    campo integer;  
+BEGIN  
+    FOREACH campo IN ARRAY p_idCampos  
+    LOOP  
+        INSERT INTO campo_perfil (idCampo, idProfile)  
+        VALUES (campo, p_idProfile);  
+    END LOOP;  
+END;  
+$$ LANGUAGE plpgsql;  
+
+CREATE OR REPLACE FUNCTION eliminar_campo_perfil(p_idProfile integer, p_idCampos integer[])  
+RETURNS void AS $$  
+DECLARE  
+    campo integer;  
+BEGIN  
+    FOREACH campo IN ARRAY p_idCampos  
+    LOOP  
+        DELETE FROM campo_perfil  
+        WHERE idCampo = campo AND idProfile = p_idProfile;  
+    END LOOP;  
+END;  
+$$ LANGUAGE plpgsql;  
