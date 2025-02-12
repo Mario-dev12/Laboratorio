@@ -61,7 +61,7 @@ export const profileStore = defineStore("profile", {
 			return this.profiles;
 		},
 		// Este es el create
-		async createInputsInProfile(exam: Profile) {
+		async createInputsInProfile(exam: any) {
 			const response = await axiosRepository.createInputsInProfile<Profile>("profile", exam);
 			this.profiles = response;
 			return this.profiles;
