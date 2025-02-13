@@ -93,8 +93,8 @@ export const profileStore = defineStore("profile", {
 			await axiosRepository.deleteInputs("profile", id);
 		},
 		//Este es el delete
-		async deleteInputsInProfile(data: any) {
-			await axiosRepository.deleteInputsInProfile("profile", data);
+		async deleteInputsInProfile(exam: any, inputs: number[]) {
+			await axiosRepository.deleteInputsInProfile("profile", exam, inputs);
 		},
 		async deleteInputsProfile(id: string | number) {
 			await axiosRepository.deleteInputsProfile("profile", id);

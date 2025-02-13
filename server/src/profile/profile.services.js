@@ -66,8 +66,14 @@ profileServices.deleteInputs = async id => {
     return await profileRepository.deleteInputs(id)
 }
 
-profileServices.deleteInputsInProfile = async (idProfile, inputs) => {
-    return await profileRepository.deleteInputsInProfile(idProfile, inputs)
+profileServices.deleteInputsInProfile = async (idProfile, idsArray) => {
+    let input = [];
+    let numerosComoCadenas = idsArray.split(",");
+
+    for (let i = 0; i < numerosComoCadenas.length; i++) {
+        input.push(Number(numerosComoCadenas[i]));
+    }
+    return await profileRepository.deleteInputsInProfile(Number(idProfile), input)
 }
 
 profileServices.deleteInputsProfile = async id => {

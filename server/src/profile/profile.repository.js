@@ -131,7 +131,6 @@ profileRepository.createInputsInProfile = async (idProfile, inputs) => {
 	console.log(inputs);
 	try {
 		const formattedInputs = `{${inputs.join(",")}}`;
-		console.log(formattedInputs);
 		const resp = await pool.query(`SELECT agregar_en_campo_perfil(${idProfile}, '${formattedInputs}'::integer[])`);
 		return resp.rows[0].agregar_en_campo_perfil;
 	} catch (error) {
@@ -199,9 +198,9 @@ profileRepository.deleteInputs = async (id) => {
 	}
 };
 
-profileRepository.deleteInputsInProfile = async (idProfile, inputs) => {
+profileRepository.deleteInputsInProfile = async (idProfile, idsArray) => {
 	try {
-		const formattedInputs = `{${inputs.join(",")}}`;
+		const formattedInputs = `{${idsArray.join(",")}}`;
 		const resp = await pool.query(`SELECT eliminar_campo_perfil(${idProfile}, '${formattedInputs}'::integer[])`);
 		return resp.rows[0].eliminar_campo_perfil;
 	} catch (error) {
