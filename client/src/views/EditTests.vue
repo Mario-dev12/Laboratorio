@@ -265,11 +265,9 @@
 		if (idCamposEliminados.value.length) {
 			console.log(idCamposEliminados.value);
 
-			const data = {
-				idProfile: selectedPerfil.value.idProfile,
-				idsArray: idCamposEliminados.value,
-			};
-			tests.deleteInputsInProfile(data);
+			tests.deleteInputsInProfile(selectedPerfil.value.idProfile, idCamposEliminados.value);
+
+			showToast("Perfil Actualizado Exitosamente!", "creado", checkboxOutline);
 		}
 	};
 
