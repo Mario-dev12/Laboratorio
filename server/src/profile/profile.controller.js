@@ -174,7 +174,7 @@ profileController.deleteInputs = async (req, res) => {
 };
 
 profileController.deleteInputsInProfile = async (req, res) => {
-	console.log("body", req.body);
+	console.log("body", req.query);
 	try {
 		const answer = await profileServices.deleteInputsInProfile(req.body.data.idProfile, req.body.data.idsArray);
 		res.send(answer);
