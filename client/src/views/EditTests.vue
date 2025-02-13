@@ -39,21 +39,29 @@
 					</table>
 				</div>
 
-				<div class="editar-perfil mt-4" v-if="create" ref="edicionPerfil">
+				<div class="editar-perfil mt-4" v-if="create || update" ref="edicionPerfil">
 					<h1 class="text-center" v-if="!update">Perfil Nuevo</h1>
-					<h1 class="text-center" v-if="update">{{ selectedPerfil }}</h1>
+					<h1 class="text-center" v-if="update">{{ perfilName }}</h1>
 					<div class="informacion-perfil bg-dark-subtle rounded p-3">
 						<div class="w-100 m-auto row px-2 mb-3">
 							<label class="col-12 p-0" for="documento">Nombre Del Perfil</label>
-							<input class="col-12" type="text" placeholder="Nombre" ref="nombrePerfilNuevo" />
+							<input class="col-12" type="text" :placeholder="update ? selectedPerfil.name : 'Nombre'" ref="nombrePerfilNuevo" />
 						</div>
 						<div class="w-100 m-auto row px-2 mb-3">
 							<label class="col-12 p-0" for="documento">Costo En Dolares</label>
-							<input class="col-12" type="text" placeholder="Cost $" ref="costoDolaresPerfilNuevo" />
+							<input
+								class="col-12"
+								type="text"
+								:placeholder="update ? selectedPerfil.cost_usd : 'Costo $'"
+								ref="costoDolaresPerfilNuevo" />
 						</div>
 						<div class="w-100 m-auto row px-2">
 							<label class="col-12 p-0" for="documento">Costo En Bolivares</label>
-							<input class="col-12" type="text" placeholder="Costo Bs" ref="costoBsPerfilNuevo" />
+							<input
+								class="col-12"
+								type="text"
+								:placeholder="update ? selectedPerfil.cost_bs : 'Costo Bs'"
+								ref="costoBsPerfilNuevo" />
 						</div>
 					</div>
 					<h1 class="mt-4 text-center">Campos Del Perfil</h1>
@@ -86,7 +94,7 @@
 					</div>
 					<div class="d-flex justify-content-center mt-3 mb-3">
 						<button class="btn btn-primary mb-4" @click="crearPerfil" v-if="!update">Crear Perfil</button>
-						<button class="btn btn-primary mb-4" v-if="update">Guardar Cambios</button>
+						<button class="btn btn-primary mb-4" v-if="update" @click="updatePerfil">Guardar Cambios</button>
 						<button class="btn btn-primary mb-4 ms-5" @click="adicionarCampo">+ Campo</button>
 					</div>
 				</div>
@@ -141,6 +149,7 @@
 	import { Profile, Campo, Unit } from "@/interfaces/interfaces";
 	import { checkboxOutline, closeCircleOutline, alertCircleOutline } from "ionicons/icons";
 
+	const perfilName = ref();
 	const selectedPerfil = ref();
 	const tests = profileStore();
 	const perfiles = ref<Profile[]>([]);
@@ -162,6 +171,8 @@
 	const edicionCampo = ref();
 	const camposDelPerfil = ref();
 	const isOpen = ref(false);
+	const idCamposAgregados = ref<number[]>([]);
+	const idCamposEliminados = ref<number[]>([]);
 	const toast = ref({
 		isOpen: false,
 		message: "",
@@ -176,6 +187,7 @@
 	};
 
 	interface CampoNuevo {
+		idCampo: number;
 		nombre: string;
 		unidad: string;
 		checked?: boolean;
@@ -201,8 +213,9 @@
 
 	async function editPerfil(perfil: any) {
 		camposDelPerfil.value = await tests.fetchInputsByProfileId(perfil.idProfile);
-		selectedPerfil.value = perfil.name;
-		create.value = true;
+		selectedPerfil.value = perfil;
+		perfilName.value = perfil.name;
+		create.value = false;
 		update.value = true;
 		crearCampo.value = false;
 		await nextTick();
@@ -219,21 +232,50 @@
 				})) ||
 			campo.checked == true
 		) {
-			campos.value.push(campo);
 			return true;
 		} else {
 			return false;
 		}
 	}
 
-	// const updatePerfil = async (updatedPerfil: Profile) => {
-	// 	console.log(updatedPerfil.idProfile);
-	// 	await tests.updateProfile(updatedPerfil.idProfile, updatedPerfil);
-	// 	perfiles.value = await tests.fecthProfiles();
-	// };
+	const updatePerfil = async () => {
+		if (
+			selectedPerfil.value.name.trim() == nombrePerfilNuevo.value.value.trim() &&
+			selectedPerfil.value.cost_usd == costoDolaresPerfilNuevo.value.value &&
+			selectedPerfil.value.cost_bs == costoBsPerfilNuevo.value.value
+		) {
+			alert("datos del perfil no han cambiado");
+		} else {
+			selectedPerfil.value.name = nombrePerfilNuevo.value.value;
+			selectedPerfil.value.cost_bs = costoBsPerfilNuevo.value.value;
+			selectedPerfil.value.cost_usd = costoDolaresPerfilNuevo.value.value;
+			tests.updateProfile(selectedPerfil.value.idProfile, selectedPerfil.value).then(async () => {
+				perfiles.value = await tests.fecthProfiles();
+				alert("perfil actualizado");
+			});
+		}
+
+		if (idCamposAgregados.value.length) {
+			console.log(selectedPerfil.value.idProfile);
+			console.log(idCamposAgregados.value);
+			tests.createInputsInProfile(selectedPerfil.value.idProfile, idCamposAgregados.value);
+			showToast("Perfil Actualizado Exitosamente!", "creado", checkboxOutline);
+		}
+
+		if (idCamposEliminados.value.length) {
+			console.log(idCamposEliminados.value);
+
+			const data = {
+				idProfile: selectedPerfil.value.idProfile,
+				idsArray: idCamposEliminados.value,
+			};
+			tests.deleteInputsInProfile(data);
+		}
+	};
 
 	async function createPerfil() {
 		camposDelPerfil.value = null;
+		campos.value = [];
 		create.value = true;
 		update.value = false;
 		crearCampo.value = false;
@@ -251,15 +293,59 @@
 		}
 	}
 
-	const addCampo = (event: any, campo: { nombre: string; unidad: string; checked?: boolean }) => {
-		if (event.target.checked) {
-			const { nombre, unidad, checked } = campo;
-			const newCampo = { nombre, unidad, checked };
-			campos.value.push(newCampo);
-		} else {
-			campos.value = campos.value.filter((item) => {
-				return item.nombre != campo.nombre;
-			});
+	const addCampo = (event: any, campo: Campo) => {
+		if (create.value) {
+			if (event.target.checked) {
+				idCamposAgregados.value.push(campo.idCampo);
+				campos.value.push(campo);
+			} else {
+				idCamposAgregados.value = idCamposAgregados.value.filter((item) => {
+					return item != campo.idCampo;
+				});
+				campos.value = campos.value.filter((item) => {
+					return item.nombre != campo.nombre;
+				});
+			}
+		} else if (update.value) {
+			if (event.target.checked) {
+				if (
+					!camposDelPerfil.value.some((item: any) => {
+						return item.idCampo === campo.idCampo;
+					})
+				) {
+					idCamposAgregados.value.push(campo.idCampo);
+					idCamposEliminados.value = idCamposEliminados.value.filter((item) => {
+						item != campo.idCampo;
+					});
+					console.log(idCamposAgregados.value);
+					console.log(idCamposEliminados.value);
+				} else {
+					idCamposEliminados.value = idCamposEliminados.value.filter((item) => {
+						item != campo.idCampo;
+					});
+					console.log(idCamposAgregados.value);
+					console.log(idCamposEliminados.value);
+				}
+			} else {
+				if (
+					camposDelPerfil.value.some((item: any) => {
+						return item.idCampo === campo.idCampo;
+					})
+				) {
+					idCamposEliminados.value.push(campo.idCampo);
+					idCamposAgregados.value = idCamposAgregados.value.filter((item) => {
+						return item != campo.idCampo;
+					});
+					console.log(idCamposAgregados.value);
+					console.log(idCamposEliminados.value);
+				} else {
+					idCamposAgregados.value = idCamposAgregados.value.filter((item) => {
+						return item != campo.idCampo;
+					});
+					console.log(idCamposAgregados.value);
+					console.log(idCamposEliminados.value);
+				}
+			}
 		}
 	};
 
@@ -275,6 +361,7 @@
 
 	const createCampo = () => {
 		const dataCampoNuevo: CampoNuevo = {
+			idCampo: 0,
 			nombre: "",
 			unidad: "",
 			checked: true,
@@ -303,26 +390,27 @@
 			if (!campos.value.length) {
 				alert("El perfil debe contener al menos 1 campo");
 			} else {
-				if (  
-					perfiles.value.some((item) => {  
-						const nombrePerfilExistente = item.name  
-							.normalize("NFD") 
-							.replace(/[\u0300-\u036f]/g, "") 
-							.replace(/\s+/g, ' ')  
-							.trim()  
+				if (
+					perfiles.value.some((item) => {
+						const nombrePerfilExistente = item.name
+							.normalize("NFD")
+							.replace(/[\u0300-\u036f]/g, "")
+							.replace(/\s+/g, " ")
+							.trim()
 							.toLowerCase();
- 
-						const nombrePerfilNuevoLimpiado = dataPerfilNuevo.name  
-							?.normalize("NFD")  
-							.replace(/[\u0300-\u036f]/g, "")  
-							.replace(/\s+/g, ' ')  
-							.trim()  
-							.toLowerCase() || '';
 
-						return nombrePerfilExistente === nombrePerfilNuevoLimpiado;  
-					})  
-				) {  
-					showToast("Perfil Ya Existe", "warning", alertCircleOutline);  
+						const nombrePerfilNuevoLimpiado =
+							dataPerfilNuevo.name
+								?.normalize("NFD")
+								.replace(/[\u0300-\u036f]/g, "")
+								.replace(/\s+/g, " ")
+								.trim()
+								.toLowerCase() || "";
+
+						return nombrePerfilExistente === nombrePerfilNuevoLimpiado;
+					})
+				) {
+					showToast("Perfil Ya Existe", "warning", alertCircleOutline);
 				} else {
 					const camposNuevos = campos.value.map(({ nombre, unidad }) => ({ nombre, unidad }));
 					tests.createProfileInputs(dataPerfilNuevo, camposNuevos).then(async () => {
