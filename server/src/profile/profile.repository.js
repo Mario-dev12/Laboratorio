@@ -11,38 +11,36 @@ async function createProfileResults(name) {
 	}
 }
 
-async function agregarCampos(inputs) {  
-    try {  
-        const camposJson = inputs  
-            .map(input => `('${JSON.stringify(input)}'::jsonb)`) 
-            .join(',');
+async function agregarCampos(inputs) {
+	try {
+		const camposJson = inputs.map((input) => `('${JSON.stringify(input)}'::jsonb)`).join(",");
 
-        const query = `  
-        SELECT * FROM sp_agregar_campos_if_not_exists(  
-            ARRAY[  
-                ${camposJson}  
-            ]::jsonb[]  
-        ) AS result  
-        `;  
+		const query = `
+        SELECT * FROM sp_agregar_campos_if_not_exists(
+            ARRAY[
+                ${camposJson}
+            ]::jsonb[]
+        ) AS result
+        `;
 
-        const resp = await pool.query(query);  
-        return resp.rows[0].result;  
-    } catch (error) {  
-        throw error;  
-    }  
-}   
+		const resp = await pool.query(query);
+		return resp.rows[0].result;
+	} catch (error) {
+		throw error;
+	}
+}
 
-async function createProfileInputsTable(id, inputs) {  
-    try {    
-        const inputsJSON = JSON.stringify(inputs);  
-        
-        await pool.query(`SELECT insertar_campo_perfil(\$1, \$2)`, [id, inputsJSON]);  
-         
-        return { success: true, message: 'Campos insertados correctamente' };  
-    } catch (error) {  
-        console.error('Error al insertar campos:', error);
-        throw error;  
-    }  
+async function createProfileInputsTable(id, inputs) {
+	try {
+		const inputsJSON = JSON.stringify(inputs);
+
+		await pool.query(`SELECT insertar_campo_perfil(\$1, \$2)`, [id, inputsJSON]);
+
+		return { success: true, message: "Campos insertados correctamente" };
+	} catch (error) {
+		console.error("Error al insertar campos:", error);
+		throw error;
+	}
 }
 
 profileRepository.readProfiles = async () => {
@@ -129,10 +127,12 @@ profileRepository.createProfile = async (name, cost_bs, cost_usd) => {
 };
 
 profileRepository.createInputsInProfile = async (idProfile, inputs) => {
+	console.log(idProfile);
+	console.log(inputs);
 	try {
 		const formattedInputs = `{${inputs.join(",")}}`;
-		  
-		const resp = await pool.query(`SELECT insertar_campo_perfil(${idProfile}, '${formattedInputs}'::integer[])`);
+		console.log(formattedInputs);
+		const resp = await pool.query(`SELECT agregar_en_campo_perfil(${idProfile}, '${formattedInputs}'::integer[])`);
 		return resp.rows[0].agregar_en_campo_perfil;
 	} catch (error) {
 		throw error;
@@ -144,7 +144,7 @@ profileRepository.createProfileInputs = async (name, cost_bs, cost_usd, inputs) 
 		const resp = await pool.query(`SELECT * FROM sp_create_profile('${name}', '${cost_bs}', '${cost_usd}')`);
 		await createProfileResults(name);
 		await agregarCampos(inputs);
-		await createProfileInputsTable(resp.rows[0].sp_create_profile.id, inputs)
+		await createProfileInputsTable(resp.rows[0].sp_create_profile.id, inputs);
 		return resp.rows[0].sp_create_profile;
 	} catch (error) {
 		throw error;
@@ -163,10 +163,9 @@ profileRepository.updateProfile = async (id, answer) => {
 };
 
 profileRepository.updateInputs = async (id, answer) => {
+	console.log(answer);
 	try {
-		const resp = await pool.query(
-			`SELECT * FROM sp_update_inputs(${id}, '${answer.nombre}', '${answer.unidad}')`
-		);
+		const resp = await pool.query(`SELECT * FROM sp_update_inputs(${id}, '${answer.nombre}', '${answer.unidad}')`);
 		return resp.rows[0].sp_update_inputs;
 	} catch (error) {
 		throw error;
@@ -175,9 +174,7 @@ profileRepository.updateInputs = async (id, answer) => {
 
 profileRepository.updateInputsProfile = async (id, answer) => {
 	try {
-		const resp = await pool.query(
-			`SELECT * FROM sp_update_input_profile(${id}, ${answer.idCampo}, ${answer.idProfile})`
-		);
+		const resp = await pool.query(`SELECT * FROM sp_update_input_profile(${id}, ${answer.idCampo}, ${answer.idProfile})`);
 		return resp.rows[0].sp_update_input_profile;
 	} catch (error) {
 		throw error;

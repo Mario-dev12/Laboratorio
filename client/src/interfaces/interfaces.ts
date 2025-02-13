@@ -167,7 +167,7 @@ export interface Bill {
 }
 
 export interface Campo {
-	idCampo?: number;
+	idCampo: number;
 	nombre: string;
 	unidad: string;
 	checked?: boolean;
