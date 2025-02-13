@@ -21,7 +21,7 @@ profileRouter.post("/inputsinprofile", profileController.createInputsInProfile);
 profileRouter.put("/input/:id", profileController.updateInputs);
 profileRouter.put("/profileinputs/:id", profileController.updateInputsProfile);
 profileRouter.delete("/input/:id", profileController.deleteInputs);
-profileRouter.delete("/inputsinprofile", profileController.deleteInputsInProfile);
+profileRouter.delete("/inputsinprofile/:idProfile/:idsArray", profileController.deleteInputsInProfile);
 profileRouter.delete("/profileinputs/:id", profileController.deleteInputsProfile);
 
 export default profileRouter;

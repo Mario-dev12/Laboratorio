@@ -44,8 +44,8 @@
 									<i   
 										class="fa-solid fa-plus"   
 										style="cursor: pointer; margin-right: 10px"   
-										@click="openModal(order.profileName)"   
-									></i>  
+										@click="openTabsView(order.profileName)"   
+									></i>    
 									<i class="fas fa-edit" @click="editOrder(order)" style="cursor: pointer; margin-right: 10px"></i>  
 									<i class="fas fa-trash" @click="deleteOrder(order.idOrder)" style="cursor: pointer"></i>  
 								</td>  
@@ -53,10 +53,6 @@
 						</tbody>  
 					</table>  
 				</div>   
-				<AddResultsModal   
-				:isOpen="isModalOpen"
-				:nombre="modalName"  
-				@close="closeModal" /> 
 			</div>  
 		</ion-content>  
 	</ion-page>  
@@ -68,7 +64,6 @@ import { onMounted, ref, computed, watch } from "vue";
 import { orderStore } from "@/stores/orderStore";  
 import { OrdersDay } from "@/interfaces/interfaces";  
 import { useRouter } from 'vue-router';   
-import AddResultsModal from '@/components/AddResultsModal.vue';
 
 const orders = ref();  
 const router = useRouter();   
@@ -134,13 +129,11 @@ const editOrder = async (order: OrdersDay) => {
 	});  
 };  
 
-const openModal = (order: string) => {  
-	modalName.value = order;
-	isModalOpen.value = true;
-};  
-
-const closeModal = () => {  
-	isModalOpen.value = false;  
+const openTabsView = (profileName: string) => {  
+    router.push({  
+        name: 'Results',
+        query: { profileName }  
+    });  
 };  
 
 function formatearFecha(fecha: string | number | Date) {  
