@@ -255,10 +255,21 @@
 			});
 		}
 
-		if (idCamposAgregados.value) {
+		if (idCamposAgregados.value.length) {
 			console.log(selectedPerfil.value.idProfile);
 			console.log(idCamposAgregados.value);
 			tests.createInputsInProfile(selectedPerfil.value.idProfile, idCamposAgregados.value);
+			showToast("Perfil Actualizado Exitosamente!", "creado", checkboxOutline);
+		}
+
+		if (idCamposEliminados.value.length) {
+			console.log(idCamposEliminados.value);
+
+			const data = {
+				idProfile: selectedPerfil.value.idProfile,
+				idsArray: idCamposEliminados.value,
+			};
+			tests.deleteInputsInProfile(data);
 		}
 	};
 
