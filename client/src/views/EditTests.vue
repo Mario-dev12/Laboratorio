@@ -42,57 +42,57 @@
 				<div class="editar-perfil mt-4" v-if="create || update" ref="edicionPerfil">
 					<h1 class="text-center" v-if="!update">Perfil Nuevo</h1>
 					<h1 class="text-center" v-if="update">{{ perfilName }}</h1>
-					<div v-if="!update" class="informacion-perfil bg-dark-subtle rounded p-3">
+					<div class="informacion-perfil bg-dark-subtle rounded p-3">
 						<div class="w-100 m-auto row px-2 mb-3">
 							<label class="col-12 p-0" for="documento">Nombre Del Perfil</label>
-							<input class="col-12" type="text" :placeholder="update ? selectedPerfil.name : 'Nombre'" ref="nombrePerfilNuevo" />
+							<input
+								v-if="!update"
+								class="col-12"
+								type="text"
+								:placeholder="update ? selectedPerfil.name : 'Nombre'"
+								ref="nombrePerfilNuevo" />
+							<input
+								v-else
+								class="col-12"
+								type="text"
+								v-model="selectedPerfil.name"
+								:placeholder="create ? 'Nombre' : ''"
+								ref="nombrePerfilNuevo" />
 						</div>
 						<div class="w-100 m-auto row px-2 mb-3">
 							<label class="col-12 p-0" for="documento">Costo En Dolares</label>
 							<input
+								v-if="!update"
 								class="col-12"
 								type="text"
 								:placeholder="update ? selectedPerfil.cost_usd : 'Costo $'"
+								ref="costoDolaresPerfilNuevo" />
+							<input
+								v-else
+								class="col-12"
+								type="text"
+								v-model="selectedPerfil.cost_usd"
+								:placeholder="create ? 'Costo $' : ''"
 								ref="costoDolaresPerfilNuevo" />
 						</div>
 						<div class="w-100 m-auto row px-2">
 							<label class="col-12 p-0" for="documento">Costo En Bolivares</label>
 							<input
+								v-if="!update"
 								class="col-12"
 								type="text"
 								:placeholder="update ? selectedPerfil.cost_bs : 'Costo Bs'"
 								ref="costoBsPerfilNuevo" />
+							<input
+								v-else
+								class="col-12"
+								type="text"
+								v-model="selectedPerfil.cost_bs"
+								:placeholder="create ? 'Costo Bs' : ''"
+								ref="costoBsPerfilNuevo" />
 						</div>
 					</div>
-					<div v-else class="informacion-perfil bg-dark-subtle rounded p-3">  
-						<div class="w-100 m-auto row px-2 mb-3">  
-							<label class="col-12 p-0" for="documento">Nombre Del Perfil</label>  
-							<input  
-								class="col-12"  
-								type="text"  
-								v-model="selectedPerfil.name"   
-								:placeholder="create ? 'Nombre' : ''"   
-								ref="nombrePerfilNuevo" />  
-						</div>  
-						<div class="w-100 m-auto row px-2 mb-3">  
-							<label class="col-12 p-0" for="documento">Costo En Dolares</label>  
-							<input  
-								class="col-12"  
-								type="text"  
-								v-model="selectedPerfil.cost_usd"   
-								:placeholder="create ? 'Costo $' : ''"   
-								ref="costoDolaresPerfilNuevo" />  
-						</div>  
-						<div class="w-100 m-auto row px-2">  
-							<label class="col-12 p-0" for="documento">Costo En Bolivares</label>  
-							<input  
-								class="col-12"  
-								type="text"  
-								v-model="selectedPerfil.cost_bs"   
-								:placeholder="create ? 'Costo Bs' : ''"   
-								ref="costoBsPerfilNuevo" />  
-						</div>  
-					</div>
+
 					<h1 class="mt-4 text-center">Campos Del Perfil</h1>
 					<div class="campos">
 						<table class="table table-striped text-center">
@@ -154,6 +154,10 @@
 							</option>
 						</select>
 					</div>
+					<div class="w-100 m-auto row px-2 mb-3">
+						<label for="valorReferencial">Valores Referenciales</label>
+						<input type="text" placeholder="Valor Referencial" name="valorReferencial" ref="valorReferencial" />
+					</div>
 					<div class="d-flex justify-content-center">
 						<button class="btn btn-primary" @click="createCampo">Crear Campo</button>
 					</div>
@@ -192,6 +196,7 @@
 	const nombreCampo = ref();
 	const nombreUnidadNueva = ref();
 	const nombreUnidadExistente = ref();
+	const valorReferencial = ref();
 	const nombrePerfilNuevo = ref();
 	const costoBsPerfilNuevo = ref();
 	const costoDolaresPerfilNuevo = ref();
@@ -219,6 +224,7 @@
 		idCampo: number;
 		nombre: string;
 		unidad: string;
+		referencial: string;
 		checked?: boolean;
 	}
 
@@ -248,7 +254,7 @@
 		update.value = true;
 		crearCampo.value = false;
 		await nextTick();
-		if (!update.value){
+		if (!update.value) {
 			nombrePerfilNuevo.value.value = "";
 			costoBsPerfilNuevo.value.value = "";
 			costoDolaresPerfilNuevo.value.value = "";
@@ -289,28 +295,40 @@
 				crearCampo.value = false;
 			}
 		} else {
-			console.log(selectedPerfil.value);
-			nombrePerfilNuevo.value.value ? (selectedPerfil.value.name = nombrePerfilNuevo.value.value) : null;
-			costoBsPerfilNuevo.value.value ? (selectedPerfil.value.cost_bs = costoBsPerfilNuevo.value.value) : null;
-			costoDolaresPerfilNuevo.value.value ? (selectedPerfil.value.cost_usd = costoDolaresPerfilNuevo.value.value) : null;
-			tests.updateProfile(selectedPerfil.value.idProfile, selectedPerfil.value);
+			if (
+				isNaN(costoBsPerfilNuevo.value.value) ||
+				isNaN(costoDolaresPerfilNuevo.value.value) ||
+				!isNaN(nombrePerfilNuevo.value.value)
+			) {
+				alert("Por Favor Ingresar Datos Validos");
+			} else {
+				selectedPerfil.value.name = nombrePerfilNuevo.value.value;
+				selectedPerfil.value.cost_bs = costoBsPerfilNuevo.value.value;
+				selectedPerfil.value.cost_usd = costoDolaresPerfilNuevo.value.value;
 
-			if (campos.value.length){
-				await tests.createInputs(selectedPerfil.value.idProfile, campos.value)
-			}
+				tests.updateProfile(selectedPerfil.value.idProfile, selectedPerfil.value);
+				if (campos.value.length) {
+					await tests.createInputs(selectedPerfil.value.idProfile, campos.value);
+				}
 
-			if (idCamposAgregados.value.length) {
-				console.log("campos agregados");
-				tests.createInputsInProfile(selectedPerfil.value.idProfile, idCamposAgregados.value);
-			}
+				if (idCamposAgregados.value.length) {
+					console.log("campos agregados");
+					tests.createInputsInProfile(selectedPerfil.value.idProfile, idCamposAgregados.value);
+				}
 
-			if (idCamposEliminados.value.length) {
-				console.log("campos eliminados");
-				tests.deleteInputsInProfile(selectedPerfil.value.idProfile, idCamposEliminados.value);
+				if (idCamposAgregados.value.length) {
+					console.log("campos agregados");
+					tests.createInputsInProfile(selectedPerfil.value.idProfile, idCamposAgregados.value);
+				}
+
+				if (idCamposEliminados.value.length) {
+					console.log("campos eliminados");
+					tests.deleteInputsInProfile(selectedPerfil.value.idProfile, idCamposEliminados.value);
+				}
+				showToast("Perfil Actualizado Exitosamente!", "creado", checkboxOutline);
+				update.value = false;
+				crearCampo.value = false;
 			}
-			showToast("Perfil Actualizado Exitosamente!", "creado", checkboxOutline);
-			update.value = false;
-			crearCampo.value = false;
 		}
 	};
 
@@ -337,7 +355,7 @@
 		}
 	}
 
-	const addCampo = (event: any, campo: Campo) => {
+	const addCampo = async (event: any, campo: Campo) => {
 		if (create.value) {
 			if (event.target.checked) {
 				idCamposAgregados.value.push(campo.idCampo);
@@ -347,11 +365,21 @@
 					return item != campo.idCampo;
 				});
 				campos.value = campos.value.filter((item) => {
-					return item.nombre != campo.nombre;
+					return item.nombre.trim() != campo.nombre.trim();
 				});
 			}
 		} else if (update.value) {
 			if (event.target.checked) {
+				const camposEnExistencia = await tests.fecthProfilesInputs();
+				console.log(camposEnExistencia);
+				if (
+					!camposEnExistencia.some((item) => {
+						return item.nombre.trim() === campo.nombre.trim();
+					})
+				) {
+					campos.value.push(campo);
+					console.log(campos.value);
+				}
 				if (
 					!camposDelPerfil.value.some((item: any) => {
 						return item.idCampo === campo.idCampo;
@@ -361,16 +389,16 @@
 					idCamposEliminados.value = idCamposEliminados.value.filter((item) => {
 						item != campo.idCampo;
 					});
-					console.log(idCamposAgregados.value);
-					console.log(idCamposEliminados.value);
 				} else {
 					idCamposEliminados.value = idCamposEliminados.value.filter((item) => {
 						item != campo.idCampo;
 					});
-					console.log(idCamposAgregados.value);
-					console.log(idCamposEliminados.value);
 				}
 			} else {
+				campos.value = campos.value.filter((item) => {
+					return item.nombre.trim() != campo.nombre.trim();
+				});
+				console.log(campos.value);
 				if (
 					camposDelPerfil.value.some((item: any) => {
 						return item.idCampo === campo.idCampo;
@@ -380,14 +408,10 @@
 					idCamposAgregados.value = idCamposAgregados.value.filter((item) => {
 						return item != campo.idCampo;
 					});
-					console.log(idCamposAgregados.value);
-					console.log(idCamposEliminados.value);
 				} else {
 					idCamposAgregados.value = idCamposAgregados.value.filter((item) => {
 						return item != campo.idCampo;
 					});
-					console.log(idCamposAgregados.value);
-					console.log(idCamposEliminados.value);
 				}
 			}
 		}
@@ -408,67 +432,92 @@
 			idCampo: 0,
 			nombre: "",
 			unidad: "",
+			referencial: "",
 			checked: true,
 		};
-		if (!nombreCampo.value.value) {
-			alert("ingresar el nombre del campo");
+		if (
+			!nombreCampo.value.value ||
+			(unidadNuevoRef.value && !nombreUnidadNueva.value.value) ||
+			(unidadExistenteRef.value && nombreUnidadExistente.value.value === "default")
+		) {
+			alert("Por Favor Completar Datos Del Campo");
 		} else {
-			dataCampoNuevo.nombre = nombreCampo.value.value;
-			if (unidadNuevoRef.value && nombreUnidadNueva.value.value) {
-				dataCampoNuevo.unidad = nombreUnidadNueva.value.value;
-				nombreUnidadNueva.value.value = "";
-			} else if (unidadExistenteRef.value && nombreUnidadExistente.value.value) {
-				dataCampoNuevo.unidad = nombreUnidadExistente.value.value;
-				nombreUnidadExistente.value.value = "default";
+			if (
+				camposExistentes.value.some((campo) => {
+					return campo.nombre.trim() === nombreCampo.value.value.trim();
+				})
+			) {
+				alert("Ya Existe Un Campo Con Ese Nombre");
+			} else {
+				dataCampoNuevo.nombre = nombreCampo.value.value;
+				if (valorReferencial.value.value) {
+					dataCampoNuevo.referencial = valorReferencial.value.value;
+				}
+				if (unidadNuevoRef.value && nombreUnidadNueva.value.value) {
+					dataCampoNuevo.unidad = nombreUnidadNueva.value.value;
+					nombreUnidadNueva.value.value = "";
+				} else if (unidadExistenteRef.value && nombreUnidadExistente.value.value) {
+					dataCampoNuevo.unidad = nombreUnidadExistente.value.value;
+					nombreUnidadExistente.value.value = "default";
+				}
+				campos.value.push(dataCampoNuevo);
+				camposExistentes.value.unshift(dataCampoNuevo);
+				nombreCampo.value.value = "";
 			}
 		}
-		campos.value.push(dataCampoNuevo);
-		camposExistentes.value.unshift(dataCampoNuevo);
-		nombreCampo.value.value = "";
 	};
 
 	async function crearPerfil() {
 		if (!nombrePerfilNuevo.value.value || !costoBsPerfilNuevo.value.value || !costoDolaresPerfilNuevo.value.value) {
 			alert("por favor completar datos del perfil");
 		} else {
-			dataPerfilNuevo.name = nombrePerfilNuevo.value.value;
-			dataPerfilNuevo.cost_usd = costoDolaresPerfilNuevo.value.value;
-			dataPerfilNuevo.cost_bs = costoBsPerfilNuevo.value.value;
-			if (!campos.value.length) {
-				alert("El perfil debe contener al menos 1 campo");
+			if (
+				isNaN(costoDolaresPerfilNuevo.value.value) ||
+				isNaN(costoBsPerfilNuevo.value.value) ||
+				!isNaN(nombrePerfilNuevo.value.value)
+			) {
+				alert("Por Favor Ingresar Datos Validos");
 			} else {
-				if (
-					perfiles.value.some((item) => {
-						const nombrePerfilExistente = item.name
-							.normalize("NFD")
-							.replace(/[\u0300-\u036f]/g, "")
-							.replace(/\s+/g, " ")
-							.trim()
-							.toLowerCase();
+				dataPerfilNuevo.name = nombrePerfilNuevo.value.value;
+				dataPerfilNuevo.cost_usd = costoDolaresPerfilNuevo.value.value;
+				dataPerfilNuevo.cost_bs = costoBsPerfilNuevo.value.value;
 
-						const nombrePerfilNuevoLimpiado =
-							dataPerfilNuevo.name
-								?.normalize("NFD")
+				if (!campos.value.length) {
+					alert("El perfil debe contener al menos 1 campo");
+				} else {
+					if (
+						perfiles.value.some((item) => {
+							const nombrePerfilExistente = item.name
+								.normalize("NFD")
 								.replace(/[\u0300-\u036f]/g, "")
 								.replace(/\s+/g, " ")
 								.trim()
-								.toLowerCase() || "";
+								.toLowerCase();
 
-						return nombrePerfilExistente === nombrePerfilNuevoLimpiado;
-					})
-				) {
-					showToast("Perfil Ya Existe", "warning", alertCircleOutline);
-				} else {
-					const camposNuevos = campos.value.map(({ nombre, unidad }) => ({ nombre, unidad }));
-					tests.createProfileInputs(dataPerfilNuevo, camposNuevos).then(async () => {
-						/*traer de nuevo perfiles, campos y unidades */
-						perfiles.value = await tests.fecthProfiles();
-						camposExistentes.value = await tests.fecthProfilesInputs();
-						unidadesDeCampos.value = await tests.fecthProfilesInputUnits();
-					});
-					showToast("Perfil creado Exitosamente!", "creado", checkboxOutline);
-					create.value = false;
-					crearCampo.value = false;
+							const nombrePerfilNuevoLimpiado =
+								dataPerfilNuevo.name
+									?.normalize("NFD")
+									.replace(/[\u0300-\u036f]/g, "")
+									.replace(/\s+/g, " ")
+									.trim()
+									.toLowerCase() || "";
+
+							return nombrePerfilExistente === nombrePerfilNuevoLimpiado;
+						})
+					) {
+						showToast("Perfil Ya Existe", "warning", alertCircleOutline);
+					} else {
+						const camposNuevos = campos.value.map(({ nombre, unidad, referencial }) => ({ nombre, unidad, referencial }));
+						tests.createProfileInputs(dataPerfilNuevo, camposNuevos).then(async () => {
+							/*traer de nuevo perfiles, campos y unidades */
+							perfiles.value = await tests.fecthProfiles();
+							camposExistentes.value = await tests.fecthProfilesInputs();
+							unidadesDeCampos.value = await tests.fecthProfilesInputUnits();
+						});
+						showToast("Perfil creado Exitosamente!", "creado", checkboxOutline);
+						create.value = false;
+						crearCampo.value = false;
+					}
 				}
 			}
 		}
