@@ -196,6 +196,7 @@
 	const nombreCampo = ref();
 	const nombreUnidadNueva = ref();
 	const nombreUnidadExistente = ref();
+	const valorReferencial = ref();
 	const nombrePerfilNuevo = ref();
 	const costoBsPerfilNuevo = ref();
 	const costoDolaresPerfilNuevo = ref();
@@ -223,6 +224,7 @@
 		idCampo: number;
 		nombre: string;
 		unidad: string;
+		referencial: string;
 		checked?: boolean;
 	}
 
@@ -353,7 +355,7 @@
 		}
 	}
 
-	const addCampo = (event: any, campo: Campo) => {
+	const addCampo = async (event: any, campo: Campo) => {
 		if (create.value) {
 			if (event.target.checked) {
 				idCamposAgregados.value.push(campo.idCampo);
@@ -363,11 +365,21 @@
 					return item != campo.idCampo;
 				});
 				campos.value = campos.value.filter((item) => {
-					return item.nombre != campo.nombre;
+					return item.nombre.trim() != campo.nombre.trim();
 				});
 			}
 		} else if (update.value) {
 			if (event.target.checked) {
+				const camposEnExistencia = await tests.fecthProfilesInputs();
+				console.log(camposEnExistencia);
+				if (
+					!camposEnExistencia.some((item) => {
+						return item.nombre.trim() === campo.nombre.trim();
+					})
+				) {
+					campos.value.push(campo);
+					console.log(campos.value);
+				}
 				if (
 					!camposDelPerfil.value.some((item: any) => {
 						return item.idCampo === campo.idCampo;
@@ -377,16 +389,16 @@
 					idCamposEliminados.value = idCamposEliminados.value.filter((item) => {
 						item != campo.idCampo;
 					});
-					console.log(idCamposAgregados.value);
-					console.log(idCamposEliminados.value);
 				} else {
 					idCamposEliminados.value = idCamposEliminados.value.filter((item) => {
 						item != campo.idCampo;
 					});
-					console.log(idCamposAgregados.value);
-					console.log(idCamposEliminados.value);
 				}
 			} else {
+				campos.value = campos.value.filter((item) => {
+					return item.nombre.trim() != campo.nombre.trim();
+				});
+				console.log(campos.value);
 				if (
 					camposDelPerfil.value.some((item: any) => {
 						return item.idCampo === campo.idCampo;
@@ -396,14 +408,10 @@
 					idCamposAgregados.value = idCamposAgregados.value.filter((item) => {
 						return item != campo.idCampo;
 					});
-					console.log(idCamposAgregados.value);
-					console.log(idCamposEliminados.value);
 				} else {
 					idCamposAgregados.value = idCamposAgregados.value.filter((item) => {
 						return item != campo.idCampo;
 					});
-					console.log(idCamposAgregados.value);
-					console.log(idCamposEliminados.value);
 				}
 			}
 		}
@@ -424,6 +432,7 @@
 			idCampo: 0,
 			nombre: "",
 			unidad: "",
+			referencial: "",
 			checked: true,
 		};
 		if (
@@ -441,6 +450,9 @@
 				alert("Ya Existe Un Campo Con Ese Nombre");
 			} else {
 				dataCampoNuevo.nombre = nombreCampo.value.value;
+				if (valorReferencial.value.value) {
+					dataCampoNuevo.referencial = valorReferencial.value.value;
+				}
 				if (unidadNuevoRef.value && nombreUnidadNueva.value.value) {
 					dataCampoNuevo.unidad = nombreUnidadNueva.value.value;
 					nombreUnidadNueva.value.value = "";
@@ -495,7 +507,7 @@
 					) {
 						showToast("Perfil Ya Existe", "warning", alertCircleOutline);
 					} else {
-						const camposNuevos = campos.value.map(({ nombre, unidad }) => ({ nombre, unidad }));
+						const camposNuevos = campos.value.map(({ nombre, unidad, referencial }) => ({ nombre, unidad, referencial }));
 						tests.createProfileInputs(dataPerfilNuevo, camposNuevos).then(async () => {
 							/*traer de nuevo perfiles, campos y unidades */
 							perfiles.value = await tests.fecthProfiles();
