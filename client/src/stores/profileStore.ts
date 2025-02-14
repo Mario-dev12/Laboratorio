@@ -66,6 +66,11 @@ export const profileStore = defineStore("profile", {
 			this.profiles = response;
 			return this.profiles;
 		},
+		async createInputs(exam: any, inputs: any) {
+			const response = await axiosRepository.createInputs<Profile>("profile", exam, inputs);
+			this.profiles = response;
+			return this.profiles;
+		},
 		async createProfileInputs(exam: Partial<Profile>, inputs: any) {
 			const response = await axiosRepository.createProfileInputs<Partial<Profile>>("profile", exam, inputs);
 			this.profiles = response;

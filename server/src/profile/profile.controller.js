@@ -104,6 +104,15 @@ profileController.createInputsInProfile = async (req, res) => {
 	}
 };
 
+profileController.createInputs = async (req, res) => {
+	try {
+		const answer = await profileServices.createInputs(req.body.data, req.body.inputs);
+		res.send(answer);
+	} catch (error) {
+		return res.status(400).send(error.stack);
+	}
+};
+
 profileController.createProfileInputs = async (req, res) => {
 	try {
 		const answer = await profileServices.createProfileInputs(

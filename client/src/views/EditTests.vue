@@ -305,6 +305,14 @@
 				selectedPerfil.value.cost_usd = costoDolaresPerfilNuevo.value.value;
 
 				tests.updateProfile(selectedPerfil.value.idProfile, selectedPerfil.value);
+				if (campos.value.length) {
+					await tests.createInputs(selectedPerfil.value.idProfile, campos.value);
+				}
+
+				if (idCamposAgregados.value.length) {
+					console.log("campos agregados");
+					tests.createInputsInProfile(selectedPerfil.value.idProfile, idCamposAgregados.value);
+				}
 
 				if (idCamposAgregados.value.length) {
 					console.log("campos agregados");
