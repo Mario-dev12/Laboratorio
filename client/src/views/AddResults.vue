@@ -42,7 +42,14 @@
                                         <tbody>  
                                             <tr v-for="(item, idx) in currentResults.firstTable" :key="idx">  
                                                 <td>{{ item.nombre }}</td>  
-                                                <td>{{ item.value }}</td>  
+                                                <td>  
+                                                    <input   
+                                                        type="text"   
+                                                        v-model="item.value"   
+                                                        placeholder="Escribe un valor"   
+                                                        class="input-field"   
+                                                    />  
+                                                </td>  
                                                 <td>{{ item.unidad }}</td>  
                                             </tr>  
                                         </tbody>  
@@ -63,7 +70,14 @@
                                         <tbody>  
                                             <tr v-for="(item, idx) in currentResults.secondTable" :key="idx">  
                                                 <td>{{ item.nombre }}</td>  
-                                                <td>{{ item.value }}</td>  
+                                                <td>  
+                                                    <input   
+                                                        type="text"   
+                                                        v-model="item.value"   
+                                                        placeholder="Escribe un valor"   
+                                                        class="input-field"   
+                                                    />  
+                                                </td>  
                                                 <td>{{ item.unidad }}</td>  
                                             </tr>  
                                         </tbody>  
@@ -76,7 +90,7 @@
                 <div v-else>  
                     <h3>No hay pestañas disponibles.</h3>  
                 </div>  
-            </div>
+            </div>  
         </ion-content>  
     </ion-page>  
 </template>  
@@ -148,12 +162,12 @@ const goBack = () => {
 
 .table-container {  
     display: flex;  
-    justify-content: space-between;
+    justify-content: space-between;  
     flex-wrap: wrap;  
 }  
 
 .table-wrapper {  
-    flex: 1;
+    flex: 1;  
     margin-right: 10px;   
 }  
 
@@ -170,16 +184,25 @@ table {
 th,  
 td {  
     border: 1px solid black;  
-    padding: 5px; 
+    padding: 5px;   
     text-align: left;  
 }  
 
 th {  
     background-color: #f2f2f2;  
-    width: 80px;
+    width: 80px;  
 }  
 
 td {  
     width: 60px;  
+    height: 40px;  
 }  
-</style>  
+
+.input-field {  
+    width: 100%; 
+    height: 100%;
+    border: none;
+    padding: 4px;
+    box-sizing: border-box; 
+}  
+</style>

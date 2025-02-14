@@ -42,7 +42,7 @@
 				<div class="editar-perfil mt-4" v-if="create || update" ref="edicionPerfil">
 					<h1 class="text-center" v-if="!update">Perfil Nuevo</h1>
 					<h1 class="text-center" v-if="update">{{ perfilName }}</h1>
-					<div class="informacion-perfil bg-dark-subtle rounded p-3">
+					<div v-if="!update" class="informacion-perfil bg-dark-subtle rounded p-3">
 						<div class="w-100 m-auto row px-2 mb-3">
 							<label class="col-12 p-0" for="documento">Nombre Del Perfil</label>
 							<input class="col-12" type="text" :placeholder="update ? selectedPerfil.name : 'Nombre'" ref="nombrePerfilNuevo" />
@@ -63,6 +63,35 @@
 								:placeholder="update ? selectedPerfil.cost_bs : 'Costo Bs'"
 								ref="costoBsPerfilNuevo" />
 						</div>
+					</div>
+					<div v-else class="informacion-perfil bg-dark-subtle rounded p-3">  
+						<div class="w-100 m-auto row px-2 mb-3">  
+							<label class="col-12 p-0" for="documento">Nombre Del Perfil</label>  
+							<input  
+								class="col-12"  
+								type="text"  
+								v-model="selectedPerfil.name"   
+								:placeholder="create ? 'Nombre' : ''"   
+								ref="nombrePerfilNuevo" />  
+						</div>  
+						<div class="w-100 m-auto row px-2 mb-3">  
+							<label class="col-12 p-0" for="documento">Costo En Dolares</label>  
+							<input  
+								class="col-12"  
+								type="text"  
+								v-model="selectedPerfil.cost_usd"   
+								:placeholder="create ? 'Costo $' : ''"   
+								ref="costoDolaresPerfilNuevo" />  
+						</div>  
+						<div class="w-100 m-auto row px-2">  
+							<label class="col-12 p-0" for="documento">Costo En Bolivares</label>  
+							<input  
+								class="col-12"  
+								type="text"  
+								v-model="selectedPerfil.cost_bs"   
+								:placeholder="create ? 'Costo Bs' : ''"   
+								ref="costoBsPerfilNuevo" />  
+						</div>  
 					</div>
 					<h1 class="mt-4 text-center">Campos Del Perfil</h1>
 					<div class="campos">
@@ -219,9 +248,11 @@
 		update.value = true;
 		crearCampo.value = false;
 		await nextTick();
-		nombrePerfilNuevo.value.value = "";
-		costoBsPerfilNuevo.value.value = "";
-		costoDolaresPerfilNuevo.value.value = "";
+		if (!update.value){
+			nombrePerfilNuevo.value.value = "";
+			costoBsPerfilNuevo.value.value = "";
+			costoDolaresPerfilNuevo.value.value = "";
+		}
 		if (edicionPerfil.value) {
 			edicionPerfil.value.scrollIntoView({ behavior: "smooth" });
 		}
@@ -255,6 +286,7 @@
 				}
 				showToast("Perfil Actualizado Exitosamente!", "creado", checkboxOutline);
 				update.value = false;
+				crearCampo.value = false;
 			}
 		} else {
 			console.log(selectedPerfil.value);
@@ -274,6 +306,7 @@
 			}
 			showToast("Perfil Actualizado Exitosamente!", "creado", checkboxOutline);
 			update.value = false;
+			crearCampo.value = false;
 		}
 	};
 
