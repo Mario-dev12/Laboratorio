@@ -18,6 +18,7 @@ profileRouter.get("/inputs/:id", profileController.readInputsByProfile);
 profileRouter.get("/inputsprofile/:idCampo/:idProfile", profileController.readInputsProfileByProfile);
 profileRouter.post("/inputs", profileController.createProfileInputs);
 profileRouter.post("/inputsinprofile", profileController.createInputsInProfile);
+profileRouter.post("/createinputs", profileController.createInputs);
 profileRouter.put("/input/:id", profileController.updateInputs);
 profileRouter.put("/profileinputs/:id", profileController.updateInputsProfile);
 profileRouter.delete("/input/:id", profileController.deleteInputs);

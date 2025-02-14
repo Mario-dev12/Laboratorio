@@ -42,6 +42,10 @@ profileServices.createInputsInProfile = async (idProfile, inputs) => {
     return await profileRepository.createInputsInProfile(idProfile, inputs)
 }
 
+profileServices.createInputs = async (idProfile, inputs) => {
+    return await profileRepository.createInputs(idProfile, inputs)
+}
+
 profileServices.createProfileInputs = async (name, cost_bs, cost_usd, inputs) => {
     return await profileRepository.createProfileInputs(name, cost_bs, cost_usd, inputs)
 }
