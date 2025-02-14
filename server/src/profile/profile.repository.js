@@ -138,6 +138,18 @@ profileRepository.createInputsInProfile = async (idProfile, inputs) => {
 	}
 };
 
+profileRepository.createInputs = async (idProfile, inputs) => {
+	console.log(idProfile);
+	console.log(inputs);
+	try {
+		await agregarCampos(inputs);
+		await createProfileInputsTable(idProfile, inputs);
+		return 'Exitoso';
+	} catch (error) {
+		throw error;
+	}
+};
+
 profileRepository.createProfileInputs = async (name, cost_bs, cost_usd, inputs) => {
 	try {
 		const resp = await pool.query(`SELECT * FROM sp_create_profile('${name}', '${cost_bs}', '${cost_usd}')`);

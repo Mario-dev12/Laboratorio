@@ -131,6 +131,15 @@ class AxiosRepository {
 		return response.data;
 	}
 
+	async createInputs<T>(domain: string, data: T, inputs: T): Promise<T> {
+		const requestData = {
+			data,
+			inputs,
+		};
+		const response = await axios.post<T>(`${import.meta.env.VITE_API_URL}/${domain}/createinputs`, requestData);
+		return response.data;
+	}
+
 	async createProfileInputs<T>(domain: string, data: T, inputs: T): Promise<T> {
 		const requestData = {
 			data,
