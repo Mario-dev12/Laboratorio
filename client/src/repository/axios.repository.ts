@@ -160,7 +160,6 @@ class AxiosRepository {
 	}
 
 	async deleteInputsInProfile(domain: string, idProfile: number, idsArray: number[]): Promise<void> {
-		console.log(idsArray, idProfile);
 		await axios.delete(`${import.meta.env.VITE_API_URL}/${domain}/inputsinprofile/${idProfile}/${idsArray}`);
 	}
 

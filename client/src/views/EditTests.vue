@@ -119,7 +119,7 @@
 					<div class="w-100 m-auto row px-2 mb-3">
 						<input type="text" placeholder="Unidad" name="unidad" v-if="unidadNuevoRef" ref="nombreUnidadNueva" />
 						<select name="campos" id="campos" v-if="unidadExistenteRef" ref="nombreUnidadExistente">
-							<option value="">Seleccionar</option>
+							<option value="default">Seleccionar</option>
 							<option :value="unidad.unidad" v-for="unidad in unidadesDeCampos" :key="unidad.idCampo">
 								{{ unidad.unidad }}
 							</option>
@@ -219,6 +219,9 @@
 		update.value = true;
 		crearCampo.value = false;
 		await nextTick();
+		nombrePerfilNuevo.value.value = "";
+		costoBsPerfilNuevo.value.value = "";
+		costoDolaresPerfilNuevo.value.value = "";
 		if (edicionPerfil.value) {
 			edicionPerfil.value.scrollIntoView({ behavior: "smooth" });
 		}
@@ -239,35 +242,38 @@
 	}
 
 	const updatePerfil = async () => {
-		if (
-			selectedPerfil.value.name.trim() == nombrePerfilNuevo.value.value.trim() &&
-			selectedPerfil.value.cost_usd == costoDolaresPerfilNuevo.value.value &&
-			selectedPerfil.value.cost_bs == costoBsPerfilNuevo.value.value
-		) {
-			alert("datos del perfil no han cambiado");
+		if (!nombrePerfilNuevo.value.value && !costoDolaresPerfilNuevo.value.value && !costoBsPerfilNuevo.value.value) {
+			if (idCamposAgregados.value.length || idCamposEliminados.value.length) {
+				if (idCamposAgregados.value.length) {
+					console.log("campos agregados");
+					tests.createInputsInProfile(selectedPerfil.value.idProfile, idCamposAgregados.value);
+				}
+
+				if (idCamposEliminados.value.length) {
+					console.log("campos eliminados");
+					tests.deleteInputsInProfile(selectedPerfil.value.idProfile, idCamposEliminados.value);
+				}
+				showToast("Perfil Actualizado Exitosamente!", "creado", checkboxOutline);
+				update.value = false;
+			}
 		} else {
-			selectedPerfil.value.name = nombrePerfilNuevo.value.value;
-			selectedPerfil.value.cost_bs = costoBsPerfilNuevo.value.value;
-			selectedPerfil.value.cost_usd = costoDolaresPerfilNuevo.value.value;
-			tests.updateProfile(selectedPerfil.value.idProfile, selectedPerfil.value).then(async () => {
-				perfiles.value = await tests.fecthProfiles();
-				alert("perfil actualizado");
-			});
-		}
+			console.log(selectedPerfil.value);
+			nombrePerfilNuevo.value.value ? (selectedPerfil.value.name = nombrePerfilNuevo.value.value) : null;
+			costoBsPerfilNuevo.value.value ? (selectedPerfil.value.cost_bs = costoBsPerfilNuevo.value.value) : null;
+			costoDolaresPerfilNuevo.value.value ? (selectedPerfil.value.cost_usd = costoDolaresPerfilNuevo.value.value) : null;
+			tests.updateProfile(selectedPerfil.value.idProfile, selectedPerfil.value);
 
-		if (idCamposAgregados.value.length) {
-			console.log(selectedPerfil.value.idProfile);
-			console.log(idCamposAgregados.value);
-			tests.createInputsInProfile(selectedPerfil.value.idProfile, idCamposAgregados.value);
+			if (idCamposAgregados.value.length) {
+				console.log("campos agregados");
+				tests.createInputsInProfile(selectedPerfil.value.idProfile, idCamposAgregados.value);
+			}
+
+			if (idCamposEliminados.value.length) {
+				console.log("campos eliminados");
+				tests.deleteInputsInProfile(selectedPerfil.value.idProfile, idCamposEliminados.value);
+			}
 			showToast("Perfil Actualizado Exitosamente!", "creado", checkboxOutline);
-		}
-
-		if (idCamposEliminados.value.length) {
-			console.log(idCamposEliminados.value);
-
-			tests.deleteInputsInProfile(selectedPerfil.value.idProfile, idCamposEliminados.value);
-
-			showToast("Perfil Actualizado Exitosamente!", "creado", checkboxOutline);
+			update.value = false;
 		}
 	};
 
@@ -278,6 +284,9 @@
 		update.value = false;
 		crearCampo.value = false;
 		await nextTick();
+		nombrePerfilNuevo.value.value = "";
+		costoBsPerfilNuevo.value.value = "";
+		costoDolaresPerfilNuevo.value.value = "";
 		if (edicionPerfil.value) {
 			edicionPerfil.value.scrollIntoView({ behavior: "smooth" });
 		}
@@ -370,12 +379,15 @@
 			dataCampoNuevo.nombre = nombreCampo.value.value;
 			if (unidadNuevoRef.value && nombreUnidadNueva.value.value) {
 				dataCampoNuevo.unidad = nombreUnidadNueva.value.value;
+				nombreUnidadNueva.value.value = "";
 			} else if (unidadExistenteRef.value && nombreUnidadExistente.value.value) {
 				dataCampoNuevo.unidad = nombreUnidadExistente.value.value;
+				nombreUnidadExistente.value.value = "default";
 			}
 		}
 		campos.value.push(dataCampoNuevo);
 		camposExistentes.value.unshift(dataCampoNuevo);
+		nombreCampo.value.value = "";
 	};
 
 	async function crearPerfil() {
