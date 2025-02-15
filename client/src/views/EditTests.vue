@@ -296,8 +296,8 @@
 			}
 		} else {
 			if (
-				isNaN(costoBsPerfilNuevo.value.value) ||
-				isNaN(costoDolaresPerfilNuevo.value.value) ||
+				isNaN(costoDolaresPerfilNuevo.value.value.replace(',', '.')) ||  
+    			isNaN(costoBsPerfilNuevo.value.value.replace(',', '.')) ||
 				!isNaN(nombrePerfilNuevo.value.value)
 			) {
 				alert("Por Favor Ingresar Datos Validos");
@@ -472,8 +472,8 @@
 			alert("por favor completar datos del perfil");
 		} else {
 			if (
-				isNaN(costoDolaresPerfilNuevo.value.value) ||
-				isNaN(costoBsPerfilNuevo.value.value) ||
+				isNaN(costoDolaresPerfilNuevo.value.value.replace(',', '.')) ||  
+    			isNaN(costoBsPerfilNuevo.value.value.replace(',', '.')) ||
 				!isNaN(nombrePerfilNuevo.value.value)
 			) {
 				alert("Por Favor Ingresar Datos Validos");
