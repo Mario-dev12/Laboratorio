@@ -99,6 +99,7 @@ CREATE TABLE IF NOT EXISTS campo (
     idCampo serial PRIMARY KEY,  
     nombre character varying(255) NOT NULL,  
     unidad character varying(255),
+    valor_referencial character varying(255),
     createdDate timestamp with time zone NOT NULL default now(),
     modifiedDate timestamp with time zone NOT NULL default now()
 ); 
