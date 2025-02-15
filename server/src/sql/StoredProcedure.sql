@@ -1846,14 +1846,18 @@ AS $BODY$
 DECLARE  
     v_campos jsonb;  
     v_nombre TEXT;  
-    v_unidad VARCHAR;  
+    v_unidad VARCHAR;
+	v_valor_referencial VARCHAR;  
     v_inserciones integer := 0;  
     v_unidad_existente VARCHAR;  
 BEGIN  
     FOREACH v_campos IN ARRAY p_campos LOOP   
 
         v_nombre := v_campos->>'nombre';  
-        v_unidad := v_campos->>'unidad';  
+        v_unidad := v_campos->>'unidad';
+		v_valor_referencial := v_campos->>'referencial';  
+
+		RAISE NOTICE 'El valor referencial es: %', v_valor_referencial; 
  
         IF NOT EXISTS (SELECT 1 FROM campo WHERE nombre = v_nombre) THEN  
         
@@ -1866,7 +1870,7 @@ BEGIN
                 v_unidad_existente := v_unidad; 
             END IF;  
  
-            INSERT INTO campo(nombre, unidad) VALUES (v_nombre, v_unidad_existente);  
+            INSERT INTO campo(nombre, unidad, valor_referencial) VALUES (v_nombre, v_unidad_existente, v_valor_referencial);  
             v_inserciones := v_inserciones + 1;  
         END IF;  
     END LOOP;  
@@ -1893,6 +1897,7 @@ begin
 			'idCampo', a.idCampo,
 			'nombre', a.nombre,
             'unidad', a.unidad,
+			'valor_referencial', a.valor_referencial,
 			'createdDate', a.createdDate,
             'modifiedDate', a.modifiedDate
 		)
@@ -1901,7 +1906,6 @@ begin
 		return v_json_resp;
 end;
 $BODY$;
-
 
 CREATE OR REPLACE FUNCTION sp_find_all_inputs_unit()  
     RETURNS json[]  
@@ -1915,13 +1919,14 @@ BEGIN
     SELECT array(  
         SELECT jsonb_build_object(  
             'idCampo', a.idCampo,  
-            'unidad', a.unidad,  
+            'unidad', a.unidad, 
+			'valor_referencial', a.valor_referencial, 
             'createdDate', a.createdDate,  
             'modifiedDate', a.modifiedDate  
         )  
         FROM (  
             SELECT DISTINCT ON (unidad)   
-                idCampo, unidad, createdDate, modifiedDate   
+                idCampo, unidad, valor_referencial, createdDate, modifiedDate   
             FROM campo    
         ) AS a  
     )::json[] INTO v_json_resp;  
@@ -1947,6 +1952,7 @@ begin
 			'idCampo_perfil', cp.idCampo_perfil,
 			'nombre', c.nombre,
             'unidad', c.unidad,
+			'valor_referencial', c.valor_referencial, 
 			'createdDate', cp.createdDate,
             'modifiedDate', cp.modifiedDate
 		)
