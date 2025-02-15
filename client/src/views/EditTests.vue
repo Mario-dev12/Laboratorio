@@ -296,8 +296,8 @@
 			}
 		} else {
 			if (
-				isNaN(costoDolaresPerfilNuevo.value.value.replace(',', '.')) ||  
-    			isNaN(costoBsPerfilNuevo.value.value.replace(',', '.')) ||
+				isNaN(costoDolaresPerfilNuevo.value.value.replace(",", ".")) ||
+				isNaN(costoBsPerfilNuevo.value.value.replace(",", ".")) ||
 				!isNaN(nombrePerfilNuevo.value.value)
 			) {
 				alert("Por Favor Ingresar Datos Validos");
@@ -442,27 +442,32 @@
 		) {
 			alert("Por Favor Completar Datos Del Campo");
 		} else {
-			if (
-				camposExistentes.value.some((campo) => {
-					return campo.nombre.trim() === nombreCampo.value.value.trim();
-				})
-			) {
-				alert("Ya Existe Un Campo Con Ese Nombre");
+			if (!isNaN(nombreCampo.value.value)) {
+				alert("Por Favor Intruduce Un Nombre De Campo Valido");
 			} else {
-				dataCampoNuevo.nombre = nombreCampo.value.value;
-				if (valorReferencial.value.value) {
-					dataCampoNuevo.referencial = valorReferencial.value.value;
+				if (
+					camposExistentes.value.some((campo) => {
+						return campo.nombre.trim() === nombreCampo.value.value.trim();
+					})
+				) {
+					alert("Ya Existe Un Campo Con Ese Nombre");
+				} else {
+					dataCampoNuevo.nombre = nombreCampo.value.value;
+					if (valorReferencial.value.value) {
+						dataCampoNuevo.referencial = valorReferencial.value.value;
+					}
+					if (unidadNuevoRef.value && nombreUnidadNueva.value.value) {
+						dataCampoNuevo.unidad = nombreUnidadNueva.value.value;
+						nombreUnidadNueva.value.value = "";
+					} else if (unidadExistenteRef.value && nombreUnidadExistente.value.value) {
+						dataCampoNuevo.unidad = nombreUnidadExistente.value.value;
+						nombreUnidadExistente.value.value = "default";
+					}
+					campos.value.push(dataCampoNuevo);
+					camposExistentes.value.unshift(dataCampoNuevo);
+					nombreCampo.value.value = "";
+					valorReferencial.value.value = "";
 				}
-				if (unidadNuevoRef.value && nombreUnidadNueva.value.value) {
-					dataCampoNuevo.unidad = nombreUnidadNueva.value.value;
-					nombreUnidadNueva.value.value = "";
-				} else if (unidadExistenteRef.value && nombreUnidadExistente.value.value) {
-					dataCampoNuevo.unidad = nombreUnidadExistente.value.value;
-					nombreUnidadExistente.value.value = "default";
-				}
-				campos.value.push(dataCampoNuevo);
-				camposExistentes.value.unshift(dataCampoNuevo);
-				nombreCampo.value.value = "";
 			}
 		}
 	};
@@ -472,8 +477,8 @@
 			alert("por favor completar datos del perfil");
 		} else {
 			if (
-				isNaN(costoDolaresPerfilNuevo.value.value.replace(',', '.')) ||  
-    			isNaN(costoBsPerfilNuevo.value.value.replace(',', '.')) ||
+				isNaN(costoDolaresPerfilNuevo.value.value.replace(",", ".")) ||
+				isNaN(costoBsPerfilNuevo.value.value.replace(",", ".")) ||
 				!isNaN(nombrePerfilNuevo.value.value)
 			) {
 				alert("Por Favor Ingresar Datos Validos");
