@@ -1856,8 +1856,6 @@ BEGIN
         v_nombre := v_campos->>'nombre';  
         v_unidad := v_campos->>'unidad';
 		v_valor_referencial := v_campos->>'referencial';  
-
-		RAISE NOTICE 'El valor referencial es: %', v_valor_referencial; 
  
         IF NOT EXISTS (SELECT 1 FROM campo WHERE nombre = v_nombre) THEN  
         
