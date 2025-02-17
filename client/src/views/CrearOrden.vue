@@ -122,7 +122,7 @@
 			<div class="factura container mt-3 mb-4 bg-dark-subtle rounded p-3">
 				<div class="row w-100 m-auto mb-1">
 					<div class="col">Numero de orden</div>
-					<div class="col">{{numeroOrden}}</div>
+					<div class="col">{{ numeroOrden }}</div>
 				</div>
 				<div class="row w-100 m-auto mb-1">
 					<div class="col">Fecha</div>
@@ -153,56 +153,31 @@
 			<div class="row w-100 m-auto justify-content-center mb-4">
 				<button class="btn btn-primary w-auto" @click="saveOrder">Guardar Orden</button>
 			</div>
-			<div class="toast-container position-fixed top-0 end-0 p-3 z-3">
-				<div
-					id="searchClientToast"
-					class="toast align-items-center text-bg-warning border-0 text-white"
-					role="alert"
-					aria-live="assertive"
-					aria-atomic="true">
-					<div class="d-flex">
-						<div class="toast-body">No se encontró cliente con ese documento de identidad</div>
-						<button
-							type="button"
-							class="btn-close btn-close-white me-2 m-auto"
-							data-bs-dismiss="toast"
-							aria-label="Close"></button>
-					</div>
-				</div>
-			</div>
-			<div class="toast-container position-fixed top-0 end-0 p-3 z-3">
-				<div
-					id="liveToast"
-					class="toast align-items-center text-bg-primary border-0"
-					role="alert"
-					aria-live="assertive"
-					aria-atomic="true">
-					<div class="d-flex">
-						<div class="toast-body">Orden Creada Exitosamente!!</div>
-						<button
-							type="button"
-							class="btn-close btn-close-white me-2 m-auto"
-							data-bs-dismiss="toast"
-							aria-label="Close"></button>
-					</div>
-				</div>
-			</div>
+			<ion-toast
+				:class="toast.class"
+				:icon="toast.icon"
+				:is-open="isOpen"
+				:message="toast.message"
+				duration="2000"
+				@didDismiss="setOpen(false)"
+				position="top">
+			</ion-toast>
 		</ion-content>
 	</ion-page>
 </template>
 
 <script setup lang="ts">
 	import { ref, watch, onMounted } from "vue";
-	import { IonContent, IonPage } from "@ionic/vue";
+	import { IonContent, IonPage, IonToast } from "@ionic/vue";
 	import { userStore } from "@/stores/userStore";
 	import { User, Exam, Order, Payment } from "@/interfaces/interfaces";
-	import { Toast } from "bootstrap";
 	import ModalAgregarMetodo from "@/components/ModalAgregarMetodo.vue";
 	import { examStore } from "@/stores/examStore";
 	import { profileStore } from "@/stores/profileStore";
 	import { orderStore } from "@/stores/orderStore";
 	import { paymentStore } from "@/stores/paymentStore";
 	import { useRouter } from "vue-router";
+	import { checkboxOutline, alertCircleOutline } from "ionicons/icons";
 
 	const tipoDeExamen = ref();
 	const pagoEnDivisas = ref();
@@ -220,12 +195,21 @@
 	const mostrarModal = ref(false);
 	const profiles = ref();
 	const order = ref();
-	const numeroOrden = ref<number>(0);  
+	const numeroOrden = ref<number>(0);
 	const examsStore = examStore();
 	const ordersStore = orderStore();
 	const profilesStore = profileStore();
 	const paymentsStore = paymentStore();
 	const router = useRouter();
+	const isOpen = ref(false);
+
+	const toast = ref({
+		isOpen: false,
+		message: "",
+		class: "",
+		icon: null,
+	});
+
 	const user = ref({
 		id: 0,
 		documento: "",
@@ -242,6 +226,18 @@
 		total$: 0,
 	});
 
+	const setOpen = (state: boolean) => {
+		isOpen.value = state;
+	};
+
+	const showToast = (message: string, style: string, icon: any) => {
+		toast.value.message = message;
+		toast.value.isOpen = true;
+		toast.value.class = style;
+		toast.value.icon = icon;
+		setOpen(true);
+	};
+
 	onMounted(async () => {
 		profiles.value = await profilesStore.fecthProfiles();
 		profiles.value = profiles.value.map((exam: { cost_bs: string; cost_usd: string }) => ({
@@ -253,18 +249,18 @@
 		crearOrden();
 	});
 
-	const crearOrden = () => {  
-		const fechaHoy = new Date();  
-		const hoyString = fechaHoy.toISOString().split('T')[0]; 
+	const crearOrden = () => {
+		const fechaHoy = new Date();
+		const hoyString = fechaHoy.toISOString().split("T")[0];
 
-		const ordenesHoy = order.value.filter((orden: { createdDate: string | number | Date; }) => {  
-			const fechaOrden = new Date(orden.createdDate);  
-			const ordenString = fechaOrden.toISOString().split('T')[0];  
+		const ordenesHoy = order.value.filter((orden: { createdDate: string | number | Date }) => {
+			const fechaOrden = new Date(orden.createdDate);
+			const ordenString = fechaOrden.toISOString().split("T")[0];
 			return ordenString === hoyString;
-		});  
+		});
 
-		numeroOrden.value = ordenesHoy.length + 1;  
-	};  
+		numeroOrden.value = ordenesHoy.length + 1;
+	};
 
 	interface Examen {
 		name: string;
@@ -285,9 +281,7 @@
 				user.value.edad = currentClient[0].age;
 				user.value.procedencia = currentClient[0].address;
 			} else {
-				const clientToast: any = document.getElementById("searchClientToast");
-				const toastBootstrap = Toast.getOrCreateInstance(clientToast);
-				toastBootstrap.show();
+				showToast("No Se Encontro Cliente Con Ese Documento De Identidad", "warning", alertCircleOutline);
 			}
 		} else {
 			alert("Ingrese documento de identidad");
@@ -437,97 +431,113 @@
 	});
 
 	const saveOrder = async () => {
-		if (user.value.id === 0) {
-			let respUser: number | undefined = 0;
-			let respExam: number | undefined = 0;
-			const body: User = {
-				idUser: user.value.id,
-				passport: null,
-				ci: user.value.documento,
-				firstName: user.value.nombre,
-				lastName: user.value.apellido,
-				genre: user.value.genero === "masculino" ? "M" : user.value.genero === "femenino" ? "F" : "",
-				age: user.value.edad,
-				address: user.value.procedencia,
-			};
-			const resp = await users.createUser(body);
-			respUser = resp[0].id;
-			if (respUser) {
-				const examsBody: Exam = {
-					idUser: respUser,
-					total_cost_bs: totales.value.totalBs.toString(),
-					total_cost_usd: totales.value.total$.toString(),
-				};
-				const examResp = await examsStore.createExam(examsBody);
-				respExam = examResp.id;
-				if (respExam) {
-					for (let i = 0; i < examenesSeleccionados.value.length; i++) {
-						const orderBody: Partial<Order> = {
-							idExam: respExam,
-							idProfile: examenesSeleccionados.value[i].idProfile,
-							status: "Pendiente por pasar",
-						};
-						await ordersStore.createOrder(orderBody);
-					}
-					for (let i = 0; i < metodoPagos.value.length; i++) {
-						const paymentBody: Payment = {
-							idPayment_method: metodoPagos.value[i].idPayment_method,
-							amount_bs: metodoPagos.value[i].montoBolivares,
-							amount_usd: metodoPagos.value[i].montoDolares,
-							type: metodoPagos.value[i].tipo,
-							bank: metodoPagos.value[i].banco,
-							idExam: respExam,
-							phone: metodoPagos.value[i].telefono,
-						};
-						await paymentsStore.createPayment(paymentBody);
-					}
-				}
-			}
-			const toastElement: any = document.getElementById("liveToast");
-			const toastBootstrap = Toast.getOrCreateInstance(toastElement);
-			toastBootstrap.show();
-
-			await resetOrderData();
-
-			router.push({ name: "CrearOrden" });
+		if (
+			!user.value.documento ||
+			!user.value.nombre ||
+			!user.value.apellido ||
+			!user.value.genero ||
+			!user.value.edad ||
+			!user.value.procedencia
+		) {
+			alert("Por Favor Ingresar Completar Datos Del cliente");
 		} else {
-			let respExam: number | undefined = 0;
-			const examsBody: Exam = {
-				idUser: user.value.id,
-				total_cost_bs: totales.value.totalBs.toString(),
-				total_cost_usd: totales.value.total$.toString(),
-			};
-			const examResp = await examsStore.createExam(examsBody);
-			respExam = examResp.id;
-			if (respExam) {
-				for (let i = 0; i < examenesSeleccionados.value.length; i++) {
-					const orderBody: Partial<Order> = {
-						idExam: respExam,
-						idProfile: examenesSeleccionados.value[i].idProfile,
-						status: "Pendiente por pasar",
-					};
-					await ordersStore.createOrder(orderBody);
-				}
-				for (let i = 0; i < metodoPagos.value.length; i++) {
-					const paymentBody: Payment = {
-						idPayment_method: metodoPagos.value[i].idPayment_method,
-						amount_bs: metodoPagos.value[i].montoBolivares,
-						amount_usd: metodoPagos.value[i].montoDolares,
-						type: metodoPagos.value[i].tipo,
-						bank: metodoPagos.value[i].banco,
-						idExam: respExam,
-						phone: metodoPagos.value[i].telefono,
-					};
-					await paymentsStore.createPayment(paymentBody);
+			if (!examenesSeleccionados.value.length) {
+				console.log(metodoPagos.value);
+				showToast("Por Favor Agregar Examenes A Realizar", "warning", checkboxOutline);
+			} else {
+				if (!metodoPagos.value || !metodoPagos.value.length) {
+					showToast("Por Favor Ingresar Metodos De Pago", "warning", checkboxOutline);
+				} else {
+					if (user.value.id === 0) {
+						let respUser: number | undefined = 0;
+						let respExam: number | undefined = 0;
+						const body: User = {
+							idUser: user.value.id,
+							passport: null,
+							ci: user.value.documento,
+							firstName: user.value.nombre,
+							lastName: user.value.apellido,
+							genre: user.value.genero === "masculino" ? "M" : user.value.genero === "femenino" ? "F" : "",
+							age: user.value.edad,
+							address: user.value.procedencia,
+						};
+						const resp = await users.createUser(body);
+						respUser = resp[0].id;
+						if (respUser) {
+							const examsBody: Exam = {
+								idUser: respUser,
+								total_cost_bs: totales.value.totalBs.toString(),
+								total_cost_usd: totales.value.total$.toString(),
+							};
+							const examResp = await examsStore.createExam(examsBody);
+							respExam = examResp.id;
+							if (respExam) {
+								for (let i = 0; i < examenesSeleccionados.value.length; i++) {
+									const orderBody: Partial<Order> = {
+										idExam: respExam,
+										idProfile: examenesSeleccionados.value[i].idProfile,
+										status: "Pendiente por pasar",
+									};
+									await ordersStore.createOrder(orderBody);
+								}
+								for (let i = 0; i < metodoPagos.value.length; i++) {
+									const paymentBody: Payment = {
+										idPayment_method: metodoPagos.value[i].idPayment_method,
+										amount_bs: metodoPagos.value[i].montoBolivares,
+										amount_usd: metodoPagos.value[i].montoDolares,
+										type: metodoPagos.value[i].tipo,
+										bank: metodoPagos.value[i].banco,
+										idExam: respExam,
+										phone: metodoPagos.value[i].telefono,
+									};
+									await paymentsStore.createPayment(paymentBody);
+								}
+							}
+						}
+						showToast("Orden Creada Exitosamente!!", "creado", checkboxOutline);
+
+						await resetOrderData();
+
+						router.push({ name: "CrearOrden" });
+					} else {
+						let respExam: number | undefined = 0;
+						const examsBody: Exam = {
+							idUser: user.value.id,
+							total_cost_bs: totales.value.totalBs.toString(),
+							total_cost_usd: totales.value.total$.toString(),
+						};
+						const examResp = await examsStore.createExam(examsBody);
+						respExam = examResp.id;
+						if (respExam) {
+							for (let i = 0; i < examenesSeleccionados.value.length; i++) {
+								const orderBody: Partial<Order> = {
+									idExam: respExam,
+									idProfile: examenesSeleccionados.value[i].idProfile,
+									status: "Pendiente por pasar",
+								};
+								await ordersStore.createOrder(orderBody);
+							}
+							for (let i = 0; i < metodoPagos.value.length; i++) {
+								const paymentBody: Payment = {
+									idPayment_method: metodoPagos.value[i].idPayment_method,
+									amount_bs: metodoPagos.value[i].montoBolivares,
+									amount_usd: metodoPagos.value[i].montoDolares,
+									type: metodoPagos.value[i].tipo,
+									bank: metodoPagos.value[i].banco,
+									idExam: respExam,
+									phone: metodoPagos.value[i].telefono,
+								};
+								await paymentsStore.createPayment(paymentBody);
+							}
+						}
+						showToast("Orden Creada Exitosamente!!", "creado", checkboxOutline);
+
+						await resetOrderData();
+
+						router.push({ name: "CrearOrden" });
+					}
 				}
 			}
-			const toastElement: any = document.getElementById("liveToast");
-			const toastBootstrap = Toast.getOrCreateInstance(toastElement);
-			toastBootstrap.show();
-
-			await resetOrderData();
-
-			router.push({ name: "CrearOrden" });
 		}
 	};
 
@@ -576,5 +586,20 @@
 	}
 	.btn.btn-success.col-2.w-auto.ms-1 {
 		background-color: white;
+	}
+
+	ion-toast.creado {
+		--background: rgb(0, 204, 0);
+		--color: #323232;
+	}
+
+	ion-toast.borrar {
+		--background: rgb(229, 0, 0);
+		--color: #323232;
+	}
+
+	ion-toast.warning {
+		--background: rgb(219, 248, 0);
+		--color: #323232;
 	}
 </style>

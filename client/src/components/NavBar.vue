@@ -8,6 +8,10 @@
 						<ion-icon slot="start" :icon="home"></ion-icon>
 						Home
 					</ion-button>
+					<ion-button class="border-end border-secondary" fill="clear" @click="() => router.push({ name: 'EditarPerfil' })">
+						<ion-icon slot="start" :icon="pencilSharp"></ion-icon>
+						Editar Perfil
+					</ion-button>
 					<ion-button class="border-end border-secondary" @click="() => router.push({ name: 'Reactivos' })">
 						<ion-icon slot="start" :icon="flask"></ion-icon>
 						Reactivos
@@ -97,7 +101,7 @@
 		IonMenuToggle,
 		IonRow,
 	} from "@ionic/vue";
-	import { flask, home, document, closeOutline, calculator, create, copy } from "ionicons/icons";
+	import { flask, home, document, closeOutline, calculator, create, copy, pencilSharp } from "ionicons/icons";
 	import { useRouter } from "vue-router";
 
 	const router = useRouter();
