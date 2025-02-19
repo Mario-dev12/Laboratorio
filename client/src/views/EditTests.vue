@@ -296,38 +296,65 @@
 			}
 		} else {
 			if (
-				isNaN(costoDolaresPerfilNuevo.value.value.replace(',', '.')) ||  
-    			isNaN(costoBsPerfilNuevo.value.value.replace(',', '.')) ||
+				isNaN(costoDolaresPerfilNuevo.value.value.replace(",", ".")) ||
+				isNaN(costoBsPerfilNuevo.value.value.replace(",", ".")) ||
 				!isNaN(nombrePerfilNuevo.value.value)
 			) {
 				alert("Por Favor Ingresar Datos Validos");
 			} else {
-				selectedPerfil.value.name = nombrePerfilNuevo.value.value;
-				selectedPerfil.value.cost_bs = costoBsPerfilNuevo.value.value;
-				selectedPerfil.value.cost_usd = costoDolaresPerfilNuevo.value.value;
+				const perfilesMenosSeleccionado = perfiles.value.filter((perfil) => {
+					return perfil.idProfile != selectedPerfil.value.idProfile;
+				});
 
-				tests.updateProfile(selectedPerfil.value.idProfile, selectedPerfil.value);
-				if (campos.value.length) {
-					await tests.createInputs(selectedPerfil.value.idProfile, campos.value);
-				}
+				if (
+					perfilesMenosSeleccionado.some((item) => {
+						const nombrePerfilExistente = item.name
+							.normalize("NFD")
+							.replace(/[\u0300-\u036f]/g, "")
+							.replace(/\s+/g, " ")
+							.trim()
+							.toLowerCase();
 
-				if (idCamposAgregados.value.length) {
-					console.log("campos agregados");
-					tests.createInputsInProfile(selectedPerfil.value.idProfile, idCamposAgregados.value);
-				}
+						const nombrePerfilEditadoLimpiado =
+							nombrePerfilNuevo.value.value
+								?.normalize("NFD")
+								.replace(/[\u0300-\u036f]/g, "")
+								.replace(/\s+/g, " ")
+								.trim()
+								.toLowerCase() || "";
 
-				if (idCamposAgregados.value.length) {
-					console.log("campos agregados");
-					tests.createInputsInProfile(selectedPerfil.value.idProfile, idCamposAgregados.value);
-				}
+						return nombrePerfilExistente === nombrePerfilEditadoLimpiado;
+					})
+				) {
+					showToast("Perfil Ya Existe", "warning", alertCircleOutline);
+				} else {
+					selectedPerfil.value.name = nombrePerfilNuevo.value.value;
+					selectedPerfil.value.cost_bs = costoBsPerfilNuevo.value.value;
+					selectedPerfil.value.cost_usd = costoDolaresPerfilNuevo.value.value;
 
-				if (idCamposEliminados.value.length) {
-					console.log("campos eliminados");
-					tests.deleteInputsInProfile(selectedPerfil.value.idProfile, idCamposEliminados.value);
+					tests.updateProfile(selectedPerfil.value.idProfile, selectedPerfil.value);
+					if (campos.value.length) {
+						await tests.createInputs(selectedPerfil.value.idProfile, campos.value);
+					}
+
+					if (idCamposAgregados.value.length) {
+						console.log("campos agregados");
+						tests.createInputsInProfile(selectedPerfil.value.idProfile, idCamposAgregados.value);
+					}
+
+					if (idCamposAgregados.value.length) {
+						console.log("campos agregados");
+						tests.createInputsInProfile(selectedPerfil.value.idProfile, idCamposAgregados.value);
+					}
+
+					if (idCamposEliminados.value.length) {
+						console.log("campos eliminados");
+						tests.deleteInputsInProfile(selectedPerfil.value.idProfile, idCamposEliminados.value);
+					}
+					showToast("Perfil Actualizado Exitosamente!", "creado", checkboxOutline);
+					update.value = false;
+					crearCampo.value = false;
 				}
-				showToast("Perfil Actualizado Exitosamente!", "creado", checkboxOutline);
-				update.value = false;
-				crearCampo.value = false;
 			}
 		}
 	};
@@ -442,27 +469,32 @@
 		) {
 			alert("Por Favor Completar Datos Del Campo");
 		} else {
-			if (
-				camposExistentes.value.some((campo) => {
-					return campo.nombre.trim() === nombreCampo.value.value.trim();
-				})
-			) {
-				alert("Ya Existe Un Campo Con Ese Nombre");
+			if (!isNaN(nombreCampo.value.value)) {
+				alert("Por Favor Intruduce Un Nombre De Campo Valido");
 			} else {
-				dataCampoNuevo.nombre = nombreCampo.value.value;
-				if (valorReferencial.value.value) {
-					dataCampoNuevo.referencial = valorReferencial.value.value;
+				if (
+					camposExistentes.value.some((campo) => {
+						return campo.nombre.trim() === nombreCampo.value.value.trim();
+					})
+				) {
+					alert("Ya Existe Un Campo Con Ese Nombre");
+				} else {
+					dataCampoNuevo.nombre = nombreCampo.value.value;
+					if (valorReferencial.value.value) {
+						dataCampoNuevo.referencial = valorReferencial.value.value;
+					}
+					if (unidadNuevoRef.value && nombreUnidadNueva.value.value) {
+						dataCampoNuevo.unidad = nombreUnidadNueva.value.value;
+						nombreUnidadNueva.value.value = "";
+					} else if (unidadExistenteRef.value && nombreUnidadExistente.value.value) {
+						dataCampoNuevo.unidad = nombreUnidadExistente.value.value;
+						nombreUnidadExistente.value.value = "default";
+					}
+					campos.value.push(dataCampoNuevo);
+					camposExistentes.value.unshift(dataCampoNuevo);
+					nombreCampo.value.value = "";
+					valorReferencial.value.value = "";
 				}
-				if (unidadNuevoRef.value && nombreUnidadNueva.value.value) {
-					dataCampoNuevo.unidad = nombreUnidadNueva.value.value;
-					nombreUnidadNueva.value.value = "";
-				} else if (unidadExistenteRef.value && nombreUnidadExistente.value.value) {
-					dataCampoNuevo.unidad = nombreUnidadExistente.value.value;
-					nombreUnidadExistente.value.value = "default";
-				}
-				campos.value.push(dataCampoNuevo);
-				camposExistentes.value.unshift(dataCampoNuevo);
-				nombreCampo.value.value = "";
 			}
 		}
 	};
@@ -472,8 +504,8 @@
 			alert("por favor completar datos del perfil");
 		} else {
 			if (
-				isNaN(costoDolaresPerfilNuevo.value.value.replace(',', '.')) ||  
-    			isNaN(costoBsPerfilNuevo.value.value.replace(',', '.')) ||
+				isNaN(costoDolaresPerfilNuevo.value.value.replace(",", ".")) ||
+				isNaN(costoBsPerfilNuevo.value.value.replace(",", ".")) ||
 				!isNaN(nombrePerfilNuevo.value.value)
 			) {
 				alert("Por Favor Ingresar Datos Validos");
