@@ -75,18 +75,15 @@ const toast = ref({
 	duration: 2000,  
 });  
 
-const isModalOpen = ref(false);  
-const modalName = ref("");  
-
 onMounted(async () => {  
 	orders.value = await ordersStore.fecthOrdersDay();  
 });  
 
 watch(  
 	() => ordersStore.order,  
-	(newVal, oldVal) => {  
-		if (newVal !== oldVal) {   
-			orders.value = newVal;  
+	async (newVal, oldVal) => {  
+		if (newVal !== oldVal) {  
+			orders.value = await ordersStore.fecthOrdersDay();
 		}  
 	},  
 	{ deep: true }  
@@ -124,7 +121,7 @@ const editOrder = async (order: OrdersDay) => {
 			idExam: order.idExam,   
 			idOrder: order.idOrder,  
 			cost_bs: order.total_cost_bs,  
-			cost_usd: order.total_cost_usd  
+			cost_usd: order.total_cost_usd
 		}  
 	});  
 };  
