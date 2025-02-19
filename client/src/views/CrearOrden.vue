@@ -1,35 +1,38 @@
 <template>
 	<ion-page>
 		<ion-content>
-			<div class="d-flex mt-4 ms-5">
-				<div class="p-3 bg-dark-subtle rounded text-center">
-					<h2>Tasa del Dolar</h2>
-					<h3>Bs: {{ precioDolar }}</h3>
-					<button
-						class="btn btn-primary mb-2"
-						v-if="!showChangeDolar"
-						@click="
-							() => {
-								showChangeDolar = !showChangeDolar;
-							}
-						">
-						Editar
-					</button>
-					<div v-if="showChangeDolar">
-						<input class="d-block mb-2" type="text" v-model="cambioDolar" />
-						<button class="d-block btn btn-primary w-auto mx-auto" @click="cambiarPrecioDolar(cambioDolar)">
-							Cambiar tasa del dolar
+			<div class="container p-0">
+				<div class="d-flex mt-4">
+					<div class="p-3 bg-dark-subtle rounded text-center">
+						<h3>Tasa del Dolar</h3>
+						<h4>Bs: {{ precioDolar }}</h4>
+						<button
+							class="btn btn-primary mb-2"
+							v-if="!showChangeDolar"
+							@click="
+								() => {
+									showChangeDolar = !showChangeDolar;
+								}
+							">
+							Editar
 						</button>
+						<div v-if="showChangeDolar">
+							<input class="d-block mb-2" type="text" v-model="cambioDolar" />
+							<button class="d-block btn btn-primary w-auto mx-auto" @click="cambiarPrecioDolar(cambioDolar)">
+								Cambiar tasa del dolar
+							</button>
+						</div>
 					</div>
 				</div>
 			</div>
 			<div class="container mt-2 p-3 bg-dark-subtle rounded">
+				<h3 class="mb-3">Información Del Cliente</h3>
 				<div class="w-100 m-auto row px-2">
 					<label class="col-12 p-0" for="documento">Documento de identidad</label>
 					<div class="col-12 p-0">
 						<div class="row w-100 m-auto pe-1 justify-content-between">
 							<input class="col-10" type="text" placeholder="Documento de identidad" v-model="user.documento" />
-							<button class="btn btn-success col-2 w-auto ms-1" @click="searchClient">🔎</button>
+							<button class="btn btn-primary col-2 w-auto ms-1" @click="searchClient">🔎</button>
 						</div>
 					</div>
 				</div>
@@ -68,9 +71,22 @@
 							<input class="col w-auto" type="text" placeholder="Ingrese la procedencia" v-model="user.procedencia" />
 						</div>
 					</div>
+					<div class="col-12 mb-2">
+						<div class="row w-100 m-auto">
+							<label class="col align-content-center p-0" for="Email">Correo Electrónico</label>
+							<input class="col w-auto" type="text" placeholder="Email" />
+						</div>
+					</div>
+					<div class="col-12 mb-2">
+						<div class="row w-100 m-auto">
+							<label class="col align-content-center p-0" for="teléfono">Numero Telefónico</label>
+							<input class="col w-auto" type="text" placeholder="Ingrese Numero Telefónico" />
+						</div>
+					</div>
 				</div>
 			</div>
 			<div class="bg-dark-subtle container p-3 rounded mt-3">
+				<h3 class="mb-3">Exámenes</h3>
 				<div class="row w-100 m-auto">
 					<div class="col-12">
 						<div class="row w-100 m-auto">
@@ -120,6 +136,7 @@
 					@add="guardarMetodoPago" />
 			</div>
 			<div class="factura container mt-3 mb-4 bg-dark-subtle rounded p-3">
+				<h3 class="mb-3">Factura</h3>
 				<div class="row w-100 m-auto mb-1">
 					<div class="col">Numero de orden</div>
 					<div class="col">{{ numeroOrden }}</div>
@@ -137,8 +154,8 @@
 					<div class="col">$: {{ totales.total$ }}</div>
 				</div>
 				<div v-if="metodoPagos && metodoPagos.length > 0" class="mt-3">
-					<div class="row w-100 m-auto mt-3">
-						<div class="col">Métodos de Pago</div>
+					<div class="row w-100 m-auto mt-4">
+						<h5 class="col">Métodos de Pago</h5>
 					</div>
 
 					<div v-for="(metodo, index) in metodoPagos" :key="index" class="row w-100 m-auto mb-1">
@@ -180,8 +197,6 @@
 	import { checkboxOutline, alertCircleOutline } from "ionicons/icons";
 
 	const tipoDeExamen = ref();
-	const pagoEnDivisas = ref();
-	const pagoEnBs = ref();
 	const examenesSeleccionados = ref<Examen[]>([]);
 	const today = new Date();
 	const day = today.getUTCDate();
@@ -202,6 +217,8 @@
 	const paymentsStore = paymentStore();
 	const router = useRouter();
 	const isOpen = ref(false);
+	const totalPagadoDolares = ref();
+	const totalPagadoBs = ref();
 
 	const toast = ref({
 		isOpen: false,
@@ -245,11 +262,11 @@
 			cost_bs: parseFloat(exam.cost_bs.replace(",", ".")),
 			cost_usd: parseFloat(exam.cost_usd),
 		}));
-		order.value = await ordersStore.fecthOrders();
 		crearOrden();
 	});
 
-	const crearOrden = () => {
+	const crearOrden = async () => {
+		order.value = await ordersStore.fecthOrders();
 		const fechaHoy = new Date();
 		const hoyString = fechaHoy.toISOString().split("T")[0];
 
@@ -302,6 +319,7 @@
 				totales.value.totalBs += item.cost_usd * precioDolar.value;
 				totales.value.total$ += item.cost_usd;
 			}
+			showChangeDolar.value = false;
 		}
 	};
 
@@ -311,8 +329,8 @@
 			if (item.name === tipoDeExamen.value && !itemInArray) {
 				examenesSeleccionados.value.push(item);
 				examenesSeleccionados.value = [...examenesSeleccionados.value];
-				pagoEnBs.value = "";
-				pagoEnDivisas.value = "";
+				totales.value.totalBs += item.cost_usd * precioDolar.value;
+				totales.value.total$ += item.cost_usd;
 			}
 		}
 
@@ -327,107 +345,16 @@
 
 	function eliminarExamen(examen: string) {
 		examenesSeleccionados.value = examenesSeleccionados.value.filter((item) => {
+			if (item.name === examen) {
+				totales.value.totalBs -= item.cost_usd * precioDolar.value;
+				totales.value.total$ -= item.cost_usd;
+			}
 			return item.name !== examen;
 		});
 	}
 
 	watch(precioDolar, () => {
 		actualizarCostosEnBs();
-	});
-
-	watch(examenesSeleccionados, (newValue, oldValue) => {
-		if (newValue.length) {
-			if (newValue.length < oldValue.length) {
-				totales.value.totalBs -= newValue[0].cost_usd * precioDolar.value;
-				totales.value.total$ -= newValue[0].cost_usd;
-			} else if (newValue.length >= oldValue.length) {
-				totales.value.totalBs += newValue[0].cost_usd * precioDolar.value;
-				totales.value.total$ += newValue[0].cost_usd;
-			}
-		} else {
-			totales.value.totalBs = 0;
-			totales.value.total$ = 0;
-		}
-	});
-
-	watch(pagoEnDivisas, (newValue) => {
-		const totales2 = {
-			totalBs: 0,
-			total$: 0,
-		};
-
-		for (const item of examenesSeleccionados.value) {
-			totales2.total$ += item.cost_usd;
-			totales2.totalBs += item.cost_usd * precioDolar.value;
-		}
-
-		if (examenesSeleccionados.value.length) {
-			if (pagoEnBs.value) {
-				if (newValue) {
-					totales2.totalBs -= newValue * precioDolar.value;
-					totales2.totalBs -= pagoEnBs.value;
-					totales2.total$ -= newValue;
-					totales2.total$ -= pagoEnBs.value / precioDolar.value;
-					totales.value.totalBs = totales2.totalBs;
-					totales.value.total$ = totales2.total$;
-				} else {
-					totales2.totalBs -= pagoEnBs.value;
-					totales2.total$ -= pagoEnBs.value / precioDolar.value;
-					totales.value.totalBs = totales2.totalBs;
-					totales.value.total$ = totales2.total$;
-				}
-			} else {
-				if (newValue) {
-					totales2.totalBs -= newValue * precioDolar.value;
-					totales2.total$ -= newValue;
-					totales.value.totalBs = totales2.totalBs;
-					totales.value.total$ = totales2.total$;
-				} else {
-					totales.value.totalBs = totales2.totalBs;
-					totales.value.total$ = totales2.total$;
-				}
-			}
-		}
-	});
-
-	watch(pagoEnBs, (newValue) => {
-		const totales2 = {
-			totalBs: 0,
-			total$: 0,
-		};
-
-		for (const item of examenesSeleccionados.value) {
-			totales2.total$ += item.cost_usd;
-			totales2.totalBs += item.cost_usd * precioDolar.value;
-		}
-
-		if (examenesSeleccionados.value.length) {
-			if (pagoEnDivisas.value) {
-				if (newValue) {
-					totales2.totalBs -= newValue;
-					totales2.totalBs -= pagoEnDivisas.value * precioDolar.value;
-					totales2.total$ -= pagoEnDivisas.value;
-					totales2.total$ -= newValue / precioDolar.value;
-					totales.value.totalBs = totales2.totalBs;
-					totales.value.total$ = totales2.total$;
-				} else {
-					totales2.totalBs -= pagoEnDivisas.value * precioDolar.value;
-					totales2.total$ -= pagoEnDivisas.value;
-					totales.value.totalBs = totales2.totalBs;
-					totales.value.total$ = totales2.total$;
-				}
-			} else {
-				if (newValue) {
-					totales2.totalBs -= newValue;
-					totales2.total$ -= newValue / precioDolar.value;
-					totales.value.totalBs = totales2.totalBs;
-					totales.value.total$ = totales2.total$;
-				} else {
-					totales.value.totalBs = totales2.totalBs;
-					totales.value.total$ = totales2.total$;
-				}
-			}
-		}
 	});
 
 	const saveOrder = async () => {
@@ -439,10 +366,9 @@
 			!user.value.edad ||
 			!user.value.procedencia
 		) {
-			alert("Por Favor Ingresar Completar Datos Del cliente");
+			alert("Por Favor Completar Datos Del Cliente");
 		} else {
 			if (!examenesSeleccionados.value.length) {
-				console.log(metodoPagos.value);
 				showToast("Por Favor Agregar Examenes A Realizar", "warning", checkboxOutline);
 			} else {
 				if (!metodoPagos.value || !metodoPagos.value.length) {
@@ -495,9 +421,8 @@
 							}
 						}
 						showToast("Orden Creada Exitosamente!!", "creado", checkboxOutline);
-
+						crearOrden();
 						await resetOrderData();
-
 						router.push({ name: "CrearOrden" });
 					} else {
 						let respExam: number | undefined = 0;
@@ -531,9 +456,8 @@
 							}
 						}
 						showToast("Orden Creada Exitosamente!!", "creado", checkboxOutline);
-
+						crearOrden();
 						await resetOrderData();
-
 						router.push({ name: "CrearOrden" });
 					}
 				}
@@ -551,6 +475,12 @@
 
 	const guardarMetodoPago = (metodo: any) => {
 		metodoPagos.value = metodo;
+		totalPagadoDolares.value = 0;
+		totalPagadoBs.value = 0;
+		for (const payment of metodo) {
+			totalPagadoDolares.value += Number(payment.montoDolares);
+			totalPagadoBs.value += Number(payment.montoBolivares);
+		}
 		closeModal();
 	};
 
@@ -567,8 +497,6 @@
 		};
 		examenesSeleccionados.value = [];
 		metodoPagos.value = [];
-		pagoEnDivisas.value = "";
-		pagoEnBs.value = "";
 		totales.value = {
 			totalBs: 0,
 			total$: 0,
@@ -583,9 +511,6 @@
 			--padding-start: 20px;
 			--padding-end: 20px;
 		}
-	}
-	.btn.btn-success.col-2.w-auto.ms-1 {
-		background-color: white;
 	}
 
 	ion-toast.creado {

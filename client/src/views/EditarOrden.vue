@@ -1,10 +1,10 @@
 <template>
 	<ion-page>
 		<ion-content>
-			<div class="d-flex mt-4 ms-5">
+			<div class="d-flex mt-4 p-0 container">
 				<div class="p-3 bg-dark-subtle rounded text-center">
-					<h2>Tasa del Dolar</h2>
-					<h3>Bs: {{ precioDolar }}</h3>
+					<h3>Tasa del Dolar</h3>
+					<h4>Bs: {{ precioDolar }}</h4>
 					<button
 						class="btn btn-primary mb-2"
 						v-if="!showChangeDolar"
@@ -24,6 +24,7 @@
 				</div>
 			</div>
 			<div class="container mt-2 p-3 bg-dark-subtle rounded">
+				<h3 class="mb-3">Información Del Cliente</h3>
 				<div class="w-100 m-auto row px-2">
 					<label class="col-12 p-0" for="documento">Documento de identidad</label>
 					<div class="col-12 p-0">
@@ -70,6 +71,7 @@
 				</div>
 			</div>
 			<div class="bg-dark-subtle container p-3 rounded mt-3">
+				<h3 class="mb-3">Exámenes</h3>
 				<div class="row w-100 m-auto">
 					<div class="col-12">
 						<div class="row w-100 m-auto">
@@ -120,6 +122,7 @@
 					@add="guardarMetodoPago" />
 			</div>
 			<div class="factura container mt-3 mb-4 bg-dark-subtle rounded p-3">
+				<h3 class="mb-3">Factura</h3>
 				<div class="row w-100 m-auto mb-1">
 					<div class="col">Numero de orden</div>
 					<div class="col">{{ idOrder }}</div>
@@ -153,56 +156,32 @@
 			<div class="row w-100 m-auto justify-content-center mb-4">
 				<button class="btn btn-primary w-auto" @click="saveOrder">Guardar Edición</button>
 			</div>
-			<div class="toast-container position-fixed top-0 end-0 p-3 z-3">
-				<div
-					id="searchClientToast"
-					class="toast align-items-center text-bg-warning border-0 text-white"
-					role="alert"
-					aria-live="assertive"
-					aria-atomic="true">
-					<div class="d-flex">
-						<div class="toast-body">No se encontró cliente con ese documento de identidad</div>
-						<button
-							type="button"
-							class="btn-close btn-close-white me-2 m-auto"
-							data-bs-dismiss="toast"
-							aria-label="Close"></button>
-					</div>
-				</div>
-			</div>
-			<div class="toast-container position-fixed top-0 end-0 p-3 z-3">
-				<div
-					id="liveToast"
-					class="toast align-items-center text-bg-primary border-0"
-					role="alert"
-					aria-live="assertive"
-					aria-atomic="true">
-					<div class="d-flex">
-						<div class="toast-body">Orden Creada Exitosamente!!</div>
-						<button
-							type="button"
-							class="btn-close btn-close-white me-2 m-auto"
-							data-bs-dismiss="toast"
-							aria-label="Close"></button>
-					</div>
-				</div>
-			</div>
+
+			<ion-toast
+				:class="toast.class"
+				:icon="toast.icon"
+				:is-open="isOpen"
+				:message="toast.message"
+				duration="2000"
+				@didDismiss="setOpen(false)"
+				position="top">
+			</ion-toast>
 		</ion-content>
 	</ion-page>
 </template>
 
 <script setup lang="ts">
 	import { ref, watch, onMounted } from "vue";
-	import { IonContent, IonPage } from "@ionic/vue";
+	import { IonContent, IonPage, IonToast } from "@ionic/vue";
 	import { userStore } from "@/stores/userStore";
 	import { User, Exam, Order, Payment } from "@/interfaces/interfaces";
-	import { Toast } from "bootstrap";
 	import ModalEditarMetodo from "@/components/ModalEditarMetodo.vue";
 	import { examStore } from "@/stores/examStore";
 	import { profileStore } from "@/stores/profileStore";
 	import { orderStore } from "@/stores/orderStore";
 	import { paymentStore } from "@/stores/paymentStore";
 	import { useRoute, useRouter } from "vue-router";
+	import { checkboxOutline } from "ionicons/icons";
 
 	const tipoDeExamen = ref();
 	const pagoEnDivisas = ref();
@@ -215,8 +194,6 @@
 	const precioDolar = ref(Number(localStorage.getItem("tasaDolar")) || 50);
 	const cambioDolar = ref(precioDolar.value);
 	const metodoPagos = ref();
-	let bs: number = 0;
-	let divisas: number = 0;
 	const showChangeDolar = ref(false);
 	const mostrarModal = ref(false);
 	const profiles = ref();
@@ -227,6 +204,11 @@
 	const usersStore = userStore();
 	const router = useRouter();
 	const route = useRoute();
+	const userData = ref();
+	const orderData = ref();
+	const paymentData = ref();
+	const isOpen = ref(false);
+
 	const user = ref({
 		id: 0,
 		documento: "",
@@ -236,9 +218,25 @@
 		edad: 0,
 		procedencia: "",
 	});
-	const userData = ref();
-	const orderData = ref();
-	const paymentData = ref();
+
+	const toast = ref({
+		isOpen: false,
+		message: "",
+		class: "",
+		icon: null,
+	});
+
+	const showToast = (message: string, style: string, icon: any) => {
+		toast.value.message = message;
+		toast.value.isOpen = true;
+		toast.value.class = style;
+		toast.value.icon = icon;
+		setOpen(true);
+	};
+
+	const setOpen = (state: boolean) => {
+		isOpen.value = state;
+	};
 
 	const totales = ref({
 		totalBs: 0,
@@ -271,6 +269,8 @@
 				cost_usd: Number(item.cost_usd),
 				name: item.name,
 			});
+			totales.value.totalBs += Number(item.cost_usd) * precioDolar.value;
+			totales.value.total$ += Number(item.cost_usd);
 		}
 		user.value.apellido = userData.value[0].lastName;
 		user.value.documento = userData.value[0].ci;
@@ -312,6 +312,7 @@
 				totales.value.totalBs += item.cost_usd * precioDolar.value;
 				totales.value.total$ += item.cost_usd;
 			}
+			showChangeDolar.value = false;
 		}
 	};
 
@@ -325,6 +326,9 @@
 				originalOrdersData.value = originalOrdersData.value.filter(
 					(originalItem: { name: string }) => originalItem.name !== item.name
 				);
+
+				totales.value.totalBs += item.cost_usd * precioDolar.value;
+				totales.value.total$ += item.cost_usd;
 
 				pagoEnBs.value = "";
 				pagoEnDivisas.value = "";
@@ -353,6 +357,8 @@
 		const resp: { name: string; cost_usd: number; cost_bs: number; idExam: number; idProfile: number }[] = [];
 		examenesSeleccionados.value = examenesSeleccionados.value.filter((item) => {
 			if (item.name === examen) {
+				totales.value.totalBs -= Number(item.cost_usd) * precioDolar.value;
+				totales.value.total$ -= Number(item.cost_usd);
 				resp.push(item);
 			}
 			return item.name !== examen;
@@ -373,131 +379,7 @@
 		actualizarCostosEnBs();
 	});
 
-	watch(examenesSeleccionados.value, (newValue, oldValue) => {
-		if (newValue.length) {
-			if (newValue.length < oldValue.length) {
-				totales.value.totalBs -= newValue[0].cost_usd * precioDolar.value;
-				totales.value.total$ -= newValue[0].cost_usd;
-			} else if (newValue.length >= oldValue.length) {
-				totales.value.totalBs += newValue[0].cost_usd * precioDolar.value;
-				totales.value.total$ += newValue[0].cost_usd;
-			}
-		} else {
-			totales.value.totalBs = 0;
-			totales.value.total$ = 0;
-		}
-	});
-
-	watch(
-		examenesSeleccionados,
-		(newValue, oldValue) => {
-			if (newValue.length && oldValue) {
-				if (newValue.length < oldValue.length) {
-					totales.value.totalBs -= newValue[0].cost_usd * precioDolar.value;
-					totales.value.total$ -= newValue[0].cost_usd;
-				} else if (newValue.length >= oldValue.length) {
-					totales.value.totalBs += newValue[0].cost_usd * precioDolar.value;
-					totales.value.total$ += newValue[0].cost_usd;
-				}
-			} else {
-				totales.value.totalBs = 0;
-				totales.value.total$ = 0;
-			}
-		},
-		{ immediate: true, deep: true }
-	);
-
-	watch(pagoEnDivisas, (newValue) => {
-		const totales2 = {
-			totalBs: 0,
-			total$: 0,
-		};
-
-		for (const item of examenesSeleccionados.value) {
-			totales2.total$ += item.cost_usd;
-			totales2.totalBs += item.cost_usd * precioDolar.value;
-		}
-
-		if (examenesSeleccionados.value.length) {
-			if (pagoEnBs.value) {
-				if (newValue) {
-					totales2.totalBs -= newValue * precioDolar.value;
-					totales2.totalBs -= pagoEnBs.value;
-					totales2.total$ -= newValue;
-					totales2.total$ -= pagoEnBs.value / precioDolar.value;
-					totales.value.totalBs = totales2.totalBs;
-					totales.value.total$ = totales2.total$;
-				} else {
-					totales2.totalBs -= pagoEnBs.value;
-					totales2.total$ -= pagoEnBs.value / precioDolar.value;
-					totales.value.totalBs = totales2.totalBs;
-					totales.value.total$ = totales2.total$;
-				}
-			} else {
-				if (newValue) {
-					totales2.totalBs -= newValue * precioDolar.value;
-					totales2.total$ -= newValue;
-					totales.value.totalBs = totales2.totalBs;
-					totales.value.total$ = totales2.total$;
-				} else {
-					totales.value.totalBs = totales2.totalBs;
-					totales.value.total$ = totales2.total$;
-				}
-			}
-		}
-	});
-
-	watch(pagoEnBs, (newValue) => {
-		const totales2 = {
-			totalBs: 0,
-			total$: 0,
-		};
-
-		for (const item of examenesSeleccionados.value) {
-			totales2.total$ += item.cost_usd;
-			totales2.totalBs += item.cost_usd * precioDolar.value;
-		}
-
-		if (examenesSeleccionados.value.length) {
-			if (pagoEnDivisas.value) {
-				if (newValue) {
-					totales2.totalBs -= newValue;
-					totales2.totalBs -= pagoEnDivisas.value * precioDolar.value;
-					totales2.total$ -= pagoEnDivisas.value;
-					totales2.total$ -= newValue / precioDolar.value;
-					totales.value.totalBs = totales2.totalBs;
-					totales.value.total$ = totales2.total$;
-				} else {
-					totales2.totalBs -= pagoEnDivisas.value * precioDolar.value;
-					totales2.total$ -= pagoEnDivisas.value;
-					totales.value.totalBs = totales2.totalBs;
-					totales.value.total$ = totales2.total$;
-				}
-			} else {
-				if (newValue) {
-					totales2.totalBs -= newValue;
-					totales2.total$ -= newValue / precioDolar.value;
-					totales.value.totalBs = totales2.totalBs;
-					totales.value.total$ = totales2.total$;
-				} else {
-					totales.value.totalBs = totales2.totalBs;
-					totales.value.total$ = totales2.total$;
-				}
-			}
-		}
-	});
-
-	function obtenerTotales() {
-		bs = 0;
-		divisas = 0;
-		for (const item of examenesSeleccionados.value) {
-			divisas += item.cost_usd;
-			bs += item.cost_usd * precioDolar.value;
-		}
-	}
-
 	const saveOrder = async () => {
-		obtenerTotales();
 		const userHasChanged = JSON.stringify(user.value) !== JSON.stringify(originalUserData.value);
 		const examHasChanged =
 			JSON.stringify(cost_bs.value) !== JSON.stringify(totales.value.totalBs.toString()) &&
@@ -525,10 +407,10 @@
 				};
 				const resp = await examsStore.updateExam(examenesSeleccionados.value[0].idExam, examsBody);
 				if (orderHasChanged) {
-					let orders = [];
-					let respIguales = [];
-					let respDif = [];
-					let respUni = [];
+					const orders = [];
+					const respIguales = [];
+					const respDif = [];
+					const respUni = [];
 					for (let i = 0; i < originalOrdersData.value.length; i++) {
 						const orderData: Partial<Order[]> = await ordersStore.fecthOrderByExamIdAndProfileId(
 							originalOrdersData.value[i].idExam,
@@ -536,20 +418,20 @@
 						);
 						orders.push(orderData);
 					}
-					let resultadosIguales = originalOrdersData.value.filter((originalOrder: { idExam: number; idProfile: number }) =>
+					const resultadosIguales = originalOrdersData.value.filter((originalOrder: { idExam: number; idProfile: number }) =>
 						examenesSeleccionados.value.some(
 							(examenSeleccionado) =>
 								examenSeleccionado.idExam === originalOrder.idExam && examenSeleccionado.idProfile === originalOrder.idProfile
 						)
 					);
-					let resultadosDiferentes = originalOrdersData.value.filter(
+					const resultadosDiferentes = originalOrdersData.value.filter(
 						(originalOrder: { idExam: number; idProfile: number }) =>
 							!examenesSeleccionados.value.some(
 								(examenSeleccionado) =>
 									examenSeleccionado.idExam === originalOrder.idExam && examenSeleccionado.idProfile === originalOrder.idProfile
 							)
 					);
-					let resultadosUnicosExamenes = examenesSeleccionados.value.filter(
+					const resultadosUnicosExamenes = examenesSeleccionados.value.filter(
 						(examenSeleccionado) =>
 							!originalOrdersData.value.some(
 								(originalOrder: { idExam: number; idProfile: number }) => originalOrder.idProfile === examenSeleccionado.idProfile
@@ -607,9 +489,7 @@
 							await paymentsStore.createPayment(paymentBody);
 						}
 
-						const toastElement: any = document.getElementById("liveToast");
-						const toastBootstrap = Toast.getOrCreateInstance(toastElement);
-						toastBootstrap.show();
+						showToast("Cambios Guardados Con Éxito", "creado", checkboxOutline);
 
 						await resetOrderData();
 
@@ -619,9 +499,7 @@
 
 						router.push({ name: "OrdersView" });
 					} else {
-						const toastElement: any = document.getElementById("liveToast");
-						const toastBootstrap = Toast.getOrCreateInstance(toastElement);
-						toastBootstrap.show();
+						showToast("Cambios Guardados Con Éxito", "creado", checkboxOutline);
 
 						await resetOrderData();
 
@@ -646,9 +524,7 @@
 							await paymentsStore.createPayment(paymentBody);
 						}
 
-						const toastElement: any = document.getElementById("liveToast");
-						const toastBootstrap = Toast.getOrCreateInstance(toastElement);
-						toastBootstrap.show();
+						showToast("Cambios Guardados Con Éxito", "creado", checkboxOutline);
 
 						await resetOrderData();
 
@@ -658,9 +534,7 @@
 
 						router.push({ name: "OrdersView" });
 					} else {
-						const toastElement: any = document.getElementById("liveToast");
-						const toastBootstrap = Toast.getOrCreateInstance(toastElement);
-						toastBootstrap.show();
+						showToast("Cambios Guardados Con Éxito", "creado", checkboxOutline);
 
 						await resetOrderData();
 
@@ -673,10 +547,10 @@
 				}
 			} else {
 				if (orderHasChanged) {
-					let orders = [];
-					let respIguales = [];
-					let respDif = [];
-					let respUni = [];
+					const orders = [];
+					const respIguales = [];
+					const respDif = [];
+					const respUni = [];
 					for (let i = 0; i < originalOrdersData.value.length; i++) {
 						const orderData: Partial<Order[]> = await ordersStore.fecthOrderByExamIdAndProfileId(
 							originalOrdersData.value[i].idExam,
@@ -684,20 +558,20 @@
 						);
 						orders.push(orderData);
 					}
-					let resultadosIguales = originalOrdersData.value.filter((originalOrder: { idExam: number; idProfile: number }) =>
+					const resultadosIguales = originalOrdersData.value.filter((originalOrder: { idExam: number; idProfile: number }) =>
 						examenesSeleccionados.value.some(
 							(examenSeleccionado) =>
 								examenSeleccionado.idExam === originalOrder.idExam && examenSeleccionado.idProfile === originalOrder.idProfile
 						)
 					);
-					let resultadosDiferentes = originalOrdersData.value.filter(
+					const resultadosDiferentes = originalOrdersData.value.filter(
 						(originalOrder: { idExam: number; idProfile: number }) =>
 							!examenesSeleccionados.value.some(
 								(examenSeleccionado) =>
 									examenSeleccionado.idExam === originalOrder.idExam && examenSeleccionado.idProfile === originalOrder.idProfile
 							)
 					);
-					let resultadosUnicosExamenes = examenesSeleccionados.value.filter(
+					const resultadosUnicosExamenes = examenesSeleccionados.value.filter(
 						(examenSeleccionado) =>
 							!originalOrdersData.value.some(
 								(originalOrder: { idExam: number; idProfile: number }) => originalOrder.idProfile === examenSeleccionado.idProfile
@@ -755,9 +629,7 @@
 							await paymentsStore.createPayment(paymentBody);
 						}
 
-						const toastElement: any = document.getElementById("liveToast");
-						const toastBootstrap = Toast.getOrCreateInstance(toastElement);
-						toastBootstrap.show();
+						showToast("Cambios Guardados Con Éxito", "creado", checkboxOutline);
 
 						await resetOrderData();
 
@@ -767,10 +639,7 @@
 
 						router.push({ name: "OrdersView" });
 					} else {
-						const toastElement: any = document.getElementById("liveToast");
-						const toastBootstrap = Toast.getOrCreateInstance(toastElement);
-						toastBootstrap.show();
-
+						showToast("Cambios Guardados Con Éxito", "creado", checkboxOutline);
 						await resetOrderData();
 
 						await ordersStore.fecthOrdersDay();
@@ -794,9 +663,7 @@
 							await paymentsStore.createPayment(paymentBody);
 						}
 
-						const toastElement: any = document.getElementById("liveToast");
-						const toastBootstrap = Toast.getOrCreateInstance(toastElement);
-						toastBootstrap.show();
+						showToast("Cambios Guardados Con Éxito", "creado", checkboxOutline);
 
 						await resetOrderData();
 
@@ -806,9 +673,7 @@
 
 						router.push({ name: "OrdersView" });
 					} else {
-						const toastElement: any = document.getElementById("liveToast");
-						const toastBootstrap = Toast.getOrCreateInstance(toastElement);
-						toastBootstrap.show();
+						showToast("Cambios Guardados Con Éxito", "creado", checkboxOutline);
 
 						await resetOrderData();
 
@@ -830,10 +695,10 @@
 				};
 				const resp = await examsStore.updateExam(examenesSeleccionados.value[0].idExam, examsBody);
 				if (orderHasChanged) {
-					let orders = [];
-					let respIguales = [];
-					let respDif = [];
-					let respUni = [];
+					const orders = [];
+					const respIguales = [];
+					const respDif = [];
+					const respUni = [];
 					for (let i = 0; i < originalOrdersData.value.length; i++) {
 						const orderData: Partial<Order[]> = await ordersStore.fecthOrderByExamIdAndProfileId(
 							originalOrdersData.value[i].idExam,
@@ -912,9 +777,7 @@
 							await paymentsStore.createPayment(paymentBody);
 						}
 
-						const toastElement: any = document.getElementById("liveToast");
-						const toastBootstrap = Toast.getOrCreateInstance(toastElement);
-						toastBootstrap.show();
+						showToast("Cambios Guardados Con Éxito", "creado", checkboxOutline);
 
 						await resetOrderData();
 
@@ -924,9 +787,7 @@
 
 						router.push({ name: "OrdersView" });
 					} else {
-						const toastElement: any = document.getElementById("liveToast");
-						const toastBootstrap = Toast.getOrCreateInstance(toastElement);
-						toastBootstrap.show();
+						showToast("Cambios Guardados Con Éxito", "creado", checkboxOutline);
 
 						await resetOrderData();
 
@@ -951,9 +812,7 @@
 							await paymentsStore.createPayment(paymentBody);
 						}
 
-						const toastElement: any = document.getElementById("liveToast");
-						const toastBootstrap = Toast.getOrCreateInstance(toastElement);
-						toastBootstrap.show();
+						showToast("Cambios Guardados Con Éxito", "creado", checkboxOutline);
 
 						await resetOrderData();
 
@@ -963,9 +822,7 @@
 
 						router.push({ name: "OrdersView" });
 					} else {
-						const toastElement: any = document.getElementById("liveToast");
-						const toastBootstrap = Toast.getOrCreateInstance(toastElement);
-						toastBootstrap.show();
+						showToast("Cambios Guardados Con Éxito", "creado", checkboxOutline);
 
 						await resetOrderData();
 
@@ -1060,9 +917,7 @@
 							await paymentsStore.createPayment(paymentBody);
 						}
 
-						const toastElement: any = document.getElementById("liveToast");
-						const toastBootstrap = Toast.getOrCreateInstance(toastElement);
-						toastBootstrap.show();
+						showToast("Cambios Guardados Con Éxito", "creado", checkboxOutline);
 
 						await resetOrderData();
 
@@ -1072,9 +927,7 @@
 
 						router.push({ name: "OrdersView" });
 					} else {
-						const toastElement: any = document.getElementById("liveToast");
-						const toastBootstrap = Toast.getOrCreateInstance(toastElement);
-						toastBootstrap.show();
+						showToast("Cambios Guardados Con Éxito", "creado", checkboxOutline);
 
 						await resetOrderData();
 
@@ -1102,9 +955,7 @@
 							await paymentsStore.createPayment(paymentBody);
 						}
 
-						const toastElement: any = document.getElementById("liveToast");
-						const toastBootstrap = Toast.getOrCreateInstance(toastElement);
-						toastBootstrap.show();
+						showToast("Cambios Guardados Con Éxito", "creado", checkboxOutline);
 
 						await resetOrderData();
 
@@ -1114,9 +965,7 @@
 
 						router.push({ name: "OrdersView" });
 					} else {
-						const toastElement: any = document.getElementById("liveToast");
-						const toastBootstrap = Toast.getOrCreateInstance(toastElement);
-						toastBootstrap.show();
+						showToast("Cambios Guardados Con Éxito", "creado", checkboxOutline);
 
 						await resetOrderData();
 
@@ -1185,7 +1034,19 @@
 			--padding-end: 20px;
 		}
 	}
-	.btn.btn-success.col-2.w-auto.ms-1 {
-		background-color: white;
+
+	ion-toast.creado {
+		--background: rgb(0, 204, 0);
+		--color: #323232;
+	}
+
+	ion-toast.borrar {
+		--background: rgb(229, 0, 0);
+		--color: #323232;
+	}
+
+	ion-toast.warning {
+		--background: rgb(219, 248, 0);
+		--color: #323232;
 	}
 </style>
