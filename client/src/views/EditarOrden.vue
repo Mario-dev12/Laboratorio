@@ -386,6 +386,7 @@
 			JSON.stringify(cost_usd.value) !== JSON.stringify(totales.value.total$.toString());
 		const orderHasChanged = JSON.stringify(examenesSeleccionados.value) !== JSON.stringify(originalOrdersData.value);
 		const paymentsHasChanged = JSON.stringify(paymentData.value) !== JSON.stringify(originalPaymentData.value);
+
 		if (userHasChanged) {
 			const userBody: User = {
 				idUser: user.value.id,
@@ -397,588 +398,130 @@
 				lastName: user.value.apellido,
 				passport: 0,
 			};
-			const resp = await usersStore.updateUser(user.value.id, userBody);
-			if (examHasChanged) {
+			await usersStore.updateUser(user.value.id, userBody);
+		}
+
+		if (examHasChanged) {
 				const examsBody: Exam = {
 					idUser: user.value.id,
 					idExam: examenesSeleccionados.value[0].idExam,
 					total_cost_bs: totales.value.totalBs.toString(),
 					total_cost_usd: totales.value.total$.toString(),
 				};
-				const resp = await examsStore.updateExam(examenesSeleccionados.value[0].idExam, examsBody);
-				if (orderHasChanged) {
-					const orders = [];
-					const respIguales = [];
-					const respDif = [];
-					const respUni = [];
-					for (let i = 0; i < originalOrdersData.value.length; i++) {
-						const orderData: Partial<Order[]> = await ordersStore.fecthOrderByExamIdAndProfileId(
-							originalOrdersData.value[i].idExam,
-							originalOrdersData.value[i].idProfile
-						);
-						orders.push(orderData);
-					}
-					const resultadosIguales = originalOrdersData.value.filter((originalOrder: { idExam: number; idProfile: number }) =>
-						examenesSeleccionados.value.some(
-							(examenSeleccionado) =>
-								examenSeleccionado.idExam === originalOrder.idExam && examenSeleccionado.idProfile === originalOrder.idProfile
-						)
-					);
-					const resultadosDiferentes = originalOrdersData.value.filter(
-						(originalOrder: { idExam: number; idProfile: number }) =>
-							!examenesSeleccionados.value.some(
-								(examenSeleccionado) =>
-									examenSeleccionado.idExam === originalOrder.idExam && examenSeleccionado.idProfile === originalOrder.idProfile
-							)
-					);
-					const resultadosUnicosExamenes = examenesSeleccionados.value.filter(
-						(examenSeleccionado) =>
-							!originalOrdersData.value.some(
-								(originalOrder: { idExam: number; idProfile: number }) => originalOrder.idProfile === examenSeleccionado.idProfile
-							)
-					);
-					for (let i = 0; i < resultadosIguales.length; i++) {
-						const orderData = await ordersStore.fecthOrderByExamIdAndProfileId(
-							resultadosIguales[i].idExam,
-							resultadosIguales[i].idProfile
-						);
-						respIguales.push(orderData);
-					}
-					for (let i = 0; i < resultadosDiferentes.length; i++) {
-						const orderData = await ordersStore.fecthOrderByExamIdAndProfileId(
-							resultadosIguales[i].idExam,
-							resultadosIguales[i].idProfile
-						);
-						respDif.push(orderData);
-					}
-					for (let i = 0; i < resultadosUnicosExamenes.length; i++) {
-						respUni.push(resultadosUnicosExamenes[i]);
-					}
-					for (let i = 0; i < respIguales.length; i++) {
-						const orderBody: Order = {
-							idOrder: respIguales[i][0].idOrder,
-							idExam: respIguales[i][0].idExam,
-							idProfile: respIguales[i][0].idProfile,
-							status: respIguales[i][0].status,
-						};
-						const resp = await ordersStore.updateOrder(respIguales[i][0].idOrder, orderBody);
-					}
-					for (let i = 0; i < respUni.length; i++) {
-						const orderBody: Partial<Order> = {
-							idExam: respIguales[0][0].idExam,
-							idProfile: respUni[i].idProfile,
-							status: "Pendiente por pasar",
-						};
-						await ordersStore.createOrder(orderBody);
-					}
+				await examsStore.updateExam(examenesSeleccionados.value[0].idExam, examsBody);
+		}
 
-					for (let i = 0; i < respDif.length; i++) {
-						await ordersStore.deleteOrder(respIguales[i][0].idOrder);
-					}
-					if (paymentsHasChanged) {
-						for (let i = 0; i < metodoPagos.value.length; i++) {
-							const paymentBody: Payment = {
-								idPayment_method: metodoPagos.value[i].idPayment_method,
-								amount_bs: metodoPagos.value[i].montoBolivares,
-								amount_usd: metodoPagos.value[i].montoDolares,
-								type: metodoPagos.value[i].tipo,
-								bank: metodoPagos.value[i].banco,
-								idExam: examenesSeleccionados.value[0].idExam,
-								phone: metodoPagos.value[i].telefono,
-							};
-							await paymentsStore.createPayment(paymentBody);
-						}
-
-						showToast("Cambios Guardados Con Éxito", "creado", checkboxOutline);
-
-						await resetOrderData();
-
-						await ordersStore.fecthOrdersDay();
-
-						await ordersStore.fecthHistOrdersDay();
-
-						router.push({ name: "OrdersView" });
-					} else {
-						showToast("Cambios Guardados Con Éxito", "creado", checkboxOutline);
-
-						await resetOrderData();
-
-						await ordersStore.fecthOrdersDay();
-
-						await ordersStore.fecthHistOrdersDay();
-
-						router.push({ name: "OrdersView" });
-					}
-				} else {
-					if (paymentsHasChanged) {
-						for (let i = 0; i < metodoPagos.value.length; i++) {
-							const paymentBody: Payment = {
-								idPayment_method: metodoPagos.value[i].idPayment_method,
-								amount_bs: metodoPagos.value[i].montoBolivares,
-								amount_usd: metodoPagos.value[i].montoDolares,
-								type: metodoPagos.value[i].tipo,
-								bank: metodoPagos.value[i].banco,
-								idExam: examenesSeleccionados.value[0].idExam,
-								phone: metodoPagos.value[i].telefono,
-							};
-							await paymentsStore.createPayment(paymentBody);
-						}
-
-						showToast("Cambios Guardados Con Éxito", "creado", checkboxOutline);
-
-						await resetOrderData();
-
-						await ordersStore.fecthOrdersDay();
-
-						await ordersStore.fecthHistOrdersDay();
-
-						router.push({ name: "OrdersView" });
-					} else {
-						showToast("Cambios Guardados Con Éxito", "creado", checkboxOutline);
-
-						await resetOrderData();
-
-						await ordersStore.fecthOrdersDay();
-
-						await ordersStore.fecthHistOrdersDay();
-
-						router.push({ name: "OrdersView" });
-					}
-				}
-			} else {
-				if (orderHasChanged) {
-					const orders = [];
-					const respIguales = [];
-					const respDif = [];
-					const respUni = [];
-					for (let i = 0; i < originalOrdersData.value.length; i++) {
-						const orderData: Partial<Order[]> = await ordersStore.fecthOrderByExamIdAndProfileId(
-							originalOrdersData.value[i].idExam,
-							originalOrdersData.value[i].idProfile
-						);
-						orders.push(orderData);
-					}
-					const resultadosIguales = originalOrdersData.value.filter((originalOrder: { idExam: number; idProfile: number }) =>
-						examenesSeleccionados.value.some(
-							(examenSeleccionado) =>
-								examenSeleccionado.idExam === originalOrder.idExam && examenSeleccionado.idProfile === originalOrder.idProfile
-						)
-					);
-					const resultadosDiferentes = originalOrdersData.value.filter(
-						(originalOrder: { idExam: number; idProfile: number }) =>
-							!examenesSeleccionados.value.some(
-								(examenSeleccionado) =>
-									examenSeleccionado.idExam === originalOrder.idExam && examenSeleccionado.idProfile === originalOrder.idProfile
-							)
-					);
-					const resultadosUnicosExamenes = examenesSeleccionados.value.filter(
-						(examenSeleccionado) =>
-							!originalOrdersData.value.some(
-								(originalOrder: { idExam: number; idProfile: number }) => originalOrder.idProfile === examenSeleccionado.idProfile
-							)
-					);
-					for (let i = 0; i < resultadosIguales.length; i++) {
-						const orderData = await ordersStore.fecthOrderByExamIdAndProfileId(
-							resultadosIguales[i].idExam,
-							resultadosIguales[i].idProfile
-						);
-						respIguales.push(orderData);
-					}
-					for (let i = 0; i < resultadosDiferentes.length; i++) {
-						const orderData = await ordersStore.fecthOrderByExamIdAndProfileId(
-							resultadosIguales[i].idExam,
-							resultadosIguales[i].idProfile
-						);
-						respDif.push(orderData);
-					}
-					for (let i = 0; i < resultadosUnicosExamenes.length; i++) {
-						respUni.push(resultadosUnicosExamenes[i]);
-					}
-					for (let i = 0; i < respIguales.length; i++) {
-						const orderBody: Order = {
-							idOrder: respIguales[i][0].idOrder,
-							idExam: respIguales[i][0].idExam,
-							idProfile: respIguales[i][0].idProfile,
-							status: respIguales[i][0].status,
-						};
-						const resp = await ordersStore.updateOrder(respIguales[i][0].idOrder, orderBody);
-					}
-					for (let i = 0; i < respUni.length; i++) {
-						const orderBody: Partial<Order> = {
-							idExam: respIguales[0][0].idExam,
-							idProfile: respUni[i].idProfile,
-							status: "Pendiente por pasar",
-						};
-						await ordersStore.createOrder(orderBody);
-					}
-
-					for (let i = 0; i < respDif.length; i++) {
-						await ordersStore.deleteOrder(respIguales[i][0].idOrder);
-					}
-					if (paymentsHasChanged) {
-						for (let i = 0; i < metodoPagos.value.length; i++) {
-							const paymentBody: Payment = {
-								idPayment_method: metodoPagos.value[i].idPayment_method,
-								amount_bs: metodoPagos.value[i].montoBolivares,
-								amount_usd: metodoPagos.value[i].montoDolares,
-								type: metodoPagos.value[i].tipo,
-								bank: metodoPagos.value[i].banco,
-								idExam: examenesSeleccionados.value[0].idExam,
-								phone: metodoPagos.value[i].telefono,
-							};
-							await paymentsStore.createPayment(paymentBody);
-						}
-
-						showToast("Cambios Guardados Con Éxito", "creado", checkboxOutline);
-
-						await resetOrderData();
-
-						await ordersStore.fecthOrdersDay();
-
-						await ordersStore.fecthHistOrdersDay();
-
-						router.push({ name: "OrdersView" });
-					} else {
-						showToast("Cambios Guardados Con Éxito", "creado", checkboxOutline);
-						await resetOrderData();
-
-						await ordersStore.fecthOrdersDay();
-
-						await ordersStore.fecthHistOrdersDay();
-
-						router.push({ name: "OrdersView" });
-					}
-				} else {
-					if (paymentsHasChanged) {
-						for (let i = 0; i < metodoPagos.value.length; i++) {
-							const paymentBody: Payment = {
-								idPayment_method: metodoPagos.value[i].idPayment_method,
-								amount_bs: metodoPagos.value[i].montoBolivares,
-								amount_usd: metodoPagos.value[i].montoDolares,
-								type: metodoPagos.value[i].tipo,
-								bank: metodoPagos.value[i].banco,
-								idExam: examenesSeleccionados.value[0].idExam,
-								phone: metodoPagos.value[i].telefono,
-							};
-							await paymentsStore.createPayment(paymentBody);
-						}
-
-						showToast("Cambios Guardados Con Éxito", "creado", checkboxOutline);
-
-						await resetOrderData();
-
-						await ordersStore.fecthOrdersDay();
-
-						await ordersStore.fecthHistOrdersDay();
-
-						router.push({ name: "OrdersView" });
-					} else {
-						showToast("Cambios Guardados Con Éxito", "creado", checkboxOutline);
-
-						await resetOrderData();
-
-						await ordersStore.fecthOrdersDay();
-
-						await ordersStore.fecthHistOrdersDay();
-
-						router.push({ name: "OrdersView" });
-					}
-				}
+		if (orderHasChanged) {
+			const orders = [];
+			const respIguales = [];
+			const respDif = [];
+			const respUni = [];
+			for (let i = 0; i < originalOrdersData.value.length; i++) {
+				const orderData: Partial<Order[]> = await ordersStore.fecthOrderByExamIdAndProfileId(
+					originalOrdersData.value[i].idExam,
+					originalOrdersData.value[i].idProfile
+				);
+				orders.push(orderData);
 			}
-		} else {
-			if (examHasChanged) {
-				const examsBody: Exam = {
-					idUser: user.value.id,
-					idExam: examenesSeleccionados.value[0].idExam,
-					total_cost_bs: totales.value.totalBs.toString(),
-					total_cost_usd: totales.value.total$.toString(),
+			const resultadosIguales = originalOrdersData.value.filter((originalOrder: { idExam: number; idProfile: number }) =>
+				examenesSeleccionados.value.some(
+					(examenSeleccionado) =>
+						examenSeleccionado.idExam === originalOrder.idExam && examenSeleccionado.idProfile === originalOrder.idProfile
+				)
+			);
+			const resultadosDiferentes = originalOrdersData.value.filter(
+				(originalOrder: { idExam: number; idProfile: number }) =>
+					!examenesSeleccionados.value.some(
+						(examenSeleccionado) =>
+							examenSeleccionado.idExam === originalOrder.idExam && examenSeleccionado.idProfile === originalOrder.idProfile
+					)
+			);
+			const resultadosUnicosExamenes = examenesSeleccionados.value.filter(
+				(examenSeleccionado) =>
+					!originalOrdersData.value.some(
+						(originalOrder: { idExam: number; idProfile: number }) => originalOrder.idProfile === examenSeleccionado.idProfile
+					)
+			);
+			for (let i = 0; i < resultadosIguales.length; i++) {
+				const orderData = await ordersStore.fecthOrderByExamIdAndProfileId(
+					resultadosIguales[i].idExam,
+					resultadosIguales[i].idProfile
+				);
+				respIguales.push(orderData);
+			}
+			for (let i = 0; i < resultadosDiferentes.length; i++) {
+				const orderData = await ordersStore.fecthOrderByExamIdAndProfileId(
+					resultadosIguales[i].idExam,
+					resultadosIguales[i].idProfile
+				);
+				respDif.push(orderData);
+			}
+			for (let i = 0; i < resultadosUnicosExamenes.length; i++) {
+				respUni.push(resultadosUnicosExamenes[i]);
+			}
+			for (let i = 0; i < respIguales.length; i++) {
+				const orderBody: Order = {
+					idOrder: respIguales[i][0].idOrder,
+					idExam: respIguales[i][0].idExam,
+					idProfile: respIguales[i][0].idProfile,
+					status: respIguales[i][0].status,
 				};
-				const resp = await examsStore.updateExam(examenesSeleccionados.value[0].idExam, examsBody);
-				if (orderHasChanged) {
-					const orders = [];
-					const respIguales = [];
-					const respDif = [];
-					const respUni = [];
-					for (let i = 0; i < originalOrdersData.value.length; i++) {
-						const orderData: Partial<Order[]> = await ordersStore.fecthOrderByExamIdAndProfileId(
-							originalOrdersData.value[i].idExam,
-							originalOrdersData.value[i].idProfile
-						);
-						orders.push(orderData);
-					}
-					let resultadosIguales = originalOrdersData.value.filter((originalOrder: { idExam: number; idProfile: number }) =>
-						examenesSeleccionados.value.some(
-							(examenSeleccionado) =>
-								examenSeleccionado.idExam === originalOrder.idExam && examenSeleccionado.idProfile === originalOrder.idProfile
-						)
-					);
-					let resultadosDiferentes = originalOrdersData.value.filter(
-						(originalOrder: { idExam: number; idProfile: number }) =>
-							!examenesSeleccionados.value.some(
-								(examenSeleccionado) =>
-									examenSeleccionado.idExam === originalOrder.idExam && examenSeleccionado.idProfile === originalOrder.idProfile
-							)
-					);
-					let resultadosUnicosExamenes = examenesSeleccionados.value.filter(
-						(examenSeleccionado) =>
-							!originalOrdersData.value.some(
-								(originalOrder: { idExam: number; idProfile: number }) => originalOrder.idProfile === examenSeleccionado.idProfile
-							)
-					);
-					for (let i = 0; i < resultadosIguales.length; i++) {
-						const orderData = await ordersStore.fecthOrderByExamIdAndProfileId(
-							resultadosIguales[i].idExam,
-							resultadosIguales[i].idProfile
-						);
-						respIguales.push(orderData);
-					}
-					for (let i = 0; i < resultadosDiferentes.length; i++) {
-						const orderData = await ordersStore.fecthOrderByExamIdAndProfileId(
-							resultadosIguales[i].idExam,
-							resultadosIguales[i].idProfile
-						);
-						respDif.push(orderData);
-					}
-					for (let i = 0; i < resultadosUnicosExamenes.length; i++) {
-						respUni.push(resultadosUnicosExamenes[i]);
-					}
-					for (let i = 0; i < respIguales.length; i++) {
-						const orderBody: Order = {
-							idOrder: respIguales[i][0].idOrder,
-							idExam: respIguales[i][0].idExam,
-							idProfile: respIguales[i][0].idProfile,
-							status: respIguales[i][0].status,
-						};
-						const resp = await ordersStore.updateOrder(respIguales[i][0].idOrder, orderBody);
-					}
-					for (let i = 0; i < respUni.length; i++) {
-						const orderBody: Partial<Order> = {
-							idExam: respIguales[0][0].idExam,
-							idProfile: respUni[i].idProfile,
-							status: "Pendiente por pasar",
-						};
-						await ordersStore.createOrder(orderBody);
-					}
+				await ordersStore.updateOrder(respIguales[i][0].idOrder, orderBody);
+			}
+			for (let i = 0; i < respUni.length; i++) {
+				const orderBody: Partial<Order> = {
+					idExam: respIguales[0][0].idExam,
+					idProfile: respUni[i].idProfile,
+					status: "Pendiente por pasar",
+				};
+				await ordersStore.createOrder(orderBody);
+			}
 
-					for (let i = 0; i < respDif.length; i++) {
-						await ordersStore.deleteOrder(respIguales[i][0].idOrder);
-					}
-					if (paymentsHasChanged) {
-						for (let i = 0; i < metodoPagos.value.length; i++) {
-							const paymentBody: Payment = {
-								idPayment_method: metodoPagos.value[i].idPayment_method,
-								amount_bs: metodoPagos.value[i].montoBolivares,
-								amount_usd: metodoPagos.value[i].montoDolares,
-								type: metodoPagos.value[i].tipo,
-								bank: metodoPagos.value[i].banco,
-								idExam: examenesSeleccionados.value[0].idExam,
-								phone: metodoPagos.value[i].telefono,
-							};
-							await paymentsStore.createPayment(paymentBody);
-						}
-
-						showToast("Cambios Guardados Con Éxito", "creado", checkboxOutline);
-
-						await resetOrderData();
-
-						await ordersStore.fecthOrdersDay();
-
-						await ordersStore.fecthHistOrdersDay();
-
-						router.push({ name: "OrdersView" });
-					} else {
-						showToast("Cambios Guardados Con Éxito", "creado", checkboxOutline);
-
-						await resetOrderData();
-
-						await ordersStore.fecthOrdersDay();
-
-						await ordersStore.fecthHistOrdersDay();
-
-						router.push({ name: "OrdersView" });
-					}
-				} else {
-					if (paymentsHasChanged) {
-						for (let i = 0; i < metodoPagos.value.length; i++) {
-							const paymentBody: Payment = {
-								idPayment_method: metodoPagos.value[i].idPayment_method,
-								amount_bs: metodoPagos.value[i].montoBolivares,
-								amount_usd: metodoPagos.value[i].montoDolares,
-								type: metodoPagos.value[i].tipo,
-								bank: metodoPagos.value[i].banco,
-								idExam: examenesSeleccionados.value[0].idExam,
-								phone: metodoPagos.value[i].telefono,
-							};
-							await paymentsStore.createPayment(paymentBody);
-						}
-
-						showToast("Cambios Guardados Con Éxito", "creado", checkboxOutline);
-
-						await resetOrderData();
-
-						await ordersStore.fecthOrdersDay();
-
-						await ordersStore.fecthHistOrdersDay();
-
-						router.push({ name: "OrdersView" });
-					} else {
-						showToast("Cambios Guardados Con Éxito", "creado", checkboxOutline);
-
-						await resetOrderData();
-
-						await ordersStore.fecthOrdersDay();
-
-						await ordersStore.fecthHistOrdersDay();
-
-						router.push({ name: "OrdersView" });
-					}
-				}
-			} else {
-				if (orderHasChanged) {
-					let orders = [];
-					let respIguales = [];
-					let respDif = [];
-					let respUni = [];
-					for (let i = 0; i < originalOrdersData.value.length; i++) {
-						const orderData: Partial<Order[]> = await ordersStore.fecthOrderByExamIdAndProfileId(
-							originalOrdersData.value[i].idExam,
-							originalOrdersData.value[i].idProfile
-						);
-						orders.push(orderData);
-					}
-					let resultadosIguales = originalOrdersData.value.filter((originalOrder: { idExam: number; idProfile: number }) =>
-						examenesSeleccionados.value.some(
-							(examenSeleccionado) =>
-								examenSeleccionado.idExam === originalOrder.idExam && examenSeleccionado.idProfile === originalOrder.idProfile
-						)
-					);
-					let resultadosDiferentes = originalOrdersData.value.filter(
-						(originalOrder: { idExam: number; idProfile: number }) =>
-							!examenesSeleccionados.value.some(
-								(examenSeleccionado) =>
-									examenSeleccionado.idExam === originalOrder.idExam && examenSeleccionado.idProfile === originalOrder.idProfile
-							)
-					);
-					let resultadosUnicosExamenes = examenesSeleccionados.value.filter(
-						(examenSeleccionado) =>
-							!originalOrdersData.value.some(
-								(originalOrder: { idExam: number; idProfile: number }) => originalOrder.idProfile === examenSeleccionado.idProfile
-							)
-					);
-					for (let i = 0; i < resultadosIguales.length; i++) {
-						const orderData = await ordersStore.fecthOrderByExamIdAndProfileId(
-							resultadosIguales[i].idExam,
-							resultadosIguales[i].idProfile
-						);
-						respIguales.push(orderData);
-					}
-					for (let i = 0; i < resultadosDiferentes.length; i++) {
-						const orderData = await ordersStore.fecthOrderByExamIdAndProfileId(
-							resultadosIguales[i].idExam,
-							resultadosIguales[i].idProfile
-						);
-						respDif.push(orderData);
-					}
-					for (let i = 0; i < resultadosUnicosExamenes.length; i++) {
-						respUni.push(resultadosUnicosExamenes[i]);
-					}
-					for (let i = 0; i < respIguales.length; i++) {
-						const orderBody: Order = {
-							idOrder: respIguales[i][0].idOrder,
-							idExam: respIguales[i][0].idExam,
-							idProfile: respIguales[i][0].idProfile,
-							status: respIguales[i][0].status,
-						};
-						const resp = await ordersStore.updateOrder(respIguales[i][0].idOrder, orderBody);
-					}
-					for (let i = 0; i < respUni.length; i++) {
-						const orderBody: Partial<Order> = {
-							idExam: respIguales[0][0].idExam,
-							idProfile: respUni[i].idProfile,
-							status: "Pendiente por pasar",
-						};
-						await ordersStore.createOrder(orderBody);
-					}
-
-					for (let i = 0; i < respDif.length; i++) {
-						await ordersStore.deleteOrder(respIguales[i][0].idOrder);
-					}
-					if (paymentsHasChanged) {
-						for (let i = 0; i < metodoPagos.value.length; i++) {
-							const paymentBody: Payment = {
-								idPayment_method: metodoPagos.value[i].idPayment_method,
-								amount_bs: metodoPagos.value[i].montoBolivares,
-								amount_usd: metodoPagos.value[i].montoDolares,
-								type: metodoPagos.value[i].tipo,
-								bank: metodoPagos.value[i].banco,
-								idExam: examenesSeleccionados.value[0].idExam,
-								phone: metodoPagos.value[i].telefono,
-							};
-							await paymentsStore.createPayment(paymentBody);
-						}
-
-						showToast("Cambios Guardados Con Éxito", "creado", checkboxOutline);
-
-						await resetOrderData();
-
-						await ordersStore.fecthOrdersDay();
-
-						await ordersStore.fecthHistOrdersDay();
-
-						router.push({ name: "OrdersView" });
-					} else {
-						showToast("Cambios Guardados Con Éxito", "creado", checkboxOutline);
-
-						await resetOrderData();
-
-						await ordersStore.fecthOrdersDay();
-
-						await ordersStore.fecthHistOrdersDay();
-
-						router.push({ name: "OrdersView" });
-					}
-				} else {
-					if (paymentsHasChanged) {
-						for (let i = 0; i < originalPaymentData.value.length; i++) {
-							await paymentsStore.deletePayment(originalPaymentData.value[i].idPayment);
-						}
-						for (let i = 0; i < metodoPagos.value.length; i++) {
-							const paymentBody: Payment = {
-								idPayment_method: metodoPagos.value[i].idPayment_method,
-								amount_bs: metodoPagos.value[i].montoBolivares,
-								amount_usd: metodoPagos.value[i].montoDolares,
-								type: metodoPagos.value[i].tipo,
-								bank: metodoPagos.value[i].banco,
-								idExam: examenesSeleccionados.value[0].idExam,
-								phone: metodoPagos.value[i].telefono,
-							};
-							await paymentsStore.createPayment(paymentBody);
-						}
-
-						showToast("Cambios Guardados Con Éxito", "creado", checkboxOutline);
-
-						await resetOrderData();
-
-						await ordersStore.fecthOrdersDay();
-
-						await ordersStore.fecthHistOrdersDay();
-
-						router.push({ name: "OrdersView" });
-					} else {
-						showToast("Cambios Guardados Con Éxito", "creado", checkboxOutline);
-
-						await resetOrderData();
-
-						await ordersStore.fecthOrdersDay();
-
-						await ordersStore.fecthHistOrdersDay();
-
-						router.push({ name: "OrdersView" });
-					}
-				}
+			for (let i = 0; i < respDif.length; i++) {
+				await ordersStore.deleteOrder(respIguales[i][0].idOrder);
 			}
 		}
-	};
+
+		if (paymentsHasChanged) {
+			if (originalPaymentData.value){
+				for (let i = 0; i < originalPaymentData.value.length; i++) {
+					await paymentsStore.deletePayment(originalPaymentData.value[i].idPayment);
+				}
+			}
+			for (let i = 0; i < metodoPagos.value.length; i++) {
+				const paymentBody: Payment = {
+					idPayment_method: metodoPagos.value[i].idPayment_method,
+					amount_bs: metodoPagos.value[i].montoBolivares,
+					amount_usd: metodoPagos.value[i].montoDolares,
+					type: metodoPagos.value[i].tipo,
+					bank: metodoPagos.value[i].banco,
+					idExam: examenesSeleccionados.value[0].idExam,
+					phone: metodoPagos.value[i].telefono,
+				};
+				await paymentsStore.createPayment(paymentBody);
+			}
+
+			showToast("Cambios Guardados Con Éxito", "creado", checkboxOutline);
+
+			await resetOrderData();
+
+			await ordersStore.fecthOrdersDay();
+
+			await ordersStore.fecthHistOrdersDay();
+
+			router.push({ name: "OrdersView" });
+		}
+
+		showToast("Cambios Guardados Con Éxito", "creado", checkboxOutline);
+
+		await resetOrderData();
+
+		await ordersStore.fecthOrdersDay();
+
+		await ordersStore.fecthHistOrdersDay();
+
+		router.push({ name: "OrdersView" });
+	}
 
 	const abrirModal = () => {
 		mostrarModal.value = true;
