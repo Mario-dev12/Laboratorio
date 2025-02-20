@@ -16,6 +16,8 @@ CREATE TABLE IF NOT EXISTS users
     genre CHAR(1) NOT NULL CHECK (genre IN ('M', 'F', 'm', 'f')),
     age integer not null,
     address character varying(255) not null,
+    phone character varying(255),
+    email character varying(255),
     createdDate timestamp with time zone NOT NULL default now(),
     modifiedDate timestamp with time zone NOT NULL default now()
 );

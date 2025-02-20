@@ -36,7 +36,7 @@ usersController.readUserByName = async (req, res) => {
 
 usersController.createUser = async (req, res) => {
   try {
-    const answer = await usersServices.createUser(req.body.ci, req.body.passport, req.body.firstName, req.body.lastName, req.body.genre, req.body.age, req.body.address)
+    const answer = await usersServices.createUser(req.body.ci, req.body.passport, req.body.firstName, req.body.lastName, req.body.genre, req.body.age, req.body.address, req.body.phone, req.body.email)
     res.send(answer)
   } catch (error) {
     return res.status(400).send(error.stack)
