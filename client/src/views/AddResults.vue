@@ -84,6 +84,12 @@
                                     </table>  
                                 </div>  
                             </div>  
+                            <div class="row w-100 m-auto mb-4 mt-2 mr-1">
+                                <button class="btn btn-primary w-auto" @click="redirectToWhatsApp">Enviar por WhatsApp</button>
+                            </div>
+                            <div class="row w-100 m-auto mb-4 mt-2 mr-1">
+                                <button class="btn btn-primary w-auto" @click="sendMailNodeMailer">Enviar por Correo</button>
+                            </div>
                         </ion-content>  
                     </ion-tab>  
                 </ion-tabs>  
@@ -99,7 +105,8 @@
 import { ref, onMounted } from 'vue';  
 import { IonPage, IonButton, IonContent, IonTab, IonTabBar, IonTabs, IonTabButton, IonLabel, IonHeader, IonToolbar, IonTitle, IonButtons } from "@ionic/vue";    
 import { useRoute, useRouter } from 'vue-router';  
-import { profileStore } from '@/stores/profileStore';  
+import { profileStore } from '@/stores/profileStore'; 
+import { mailStore } from '@/stores/mailStore';  
 
 const route = useRoute();  
 const router = useRouter();  
@@ -109,6 +116,7 @@ const profileData = ref<{ [key: string]: any }>({});
 const currentResults = ref<any>({ firstTable: [], secondTable: [] });  
 
 const profilesStore = profileStore();  
+const mailsStore = mailStore(); 
 
 onMounted(async () => {  
     const queryProfileName = route.query.profileName;  
@@ -148,6 +156,25 @@ const loadTabResults = (tabName: string) => {
 const goBack = () => {  
     router.back();  
 };  
+
+const redirectToWhatsApp = () => {  
+  const phoneNumber = '584123456789';
+  const message = encodeURIComponent('Hola, por favor adjunta el documento en formato PDF que necesitas enviar.'); 
+  const url = `https://api.whatsapp.com/send?phone=${phoneNumber}&text=${message}`;  
+  
+  window.open(url, '_blank');  
+}  
+
+const sendMailNodeMailer = async () => {
+    const data = {
+        pdfPath: 'ruta/a/resultado.pdf',
+        destinatario: 'destinatario@hotmail.com' , 
+        provider: 'gmail',
+        userEmail: 'tu-email@gmail.com',
+        userPassword: 'tu-contraseña',
+    }
+    await mailsStore.sendEmail(data)
+}
 </script>  
 
 <style scoped>  
