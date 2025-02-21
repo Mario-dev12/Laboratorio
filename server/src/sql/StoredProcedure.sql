@@ -1600,43 +1600,52 @@ begin
 end;
 $BODY$;
 
-CREATE OR REPLACE FUNCTION sp_find_all_order_day(
-	)
-    RETURNS json[]
-    LANGUAGE 'plpgsql'
-    COST 100
-    VOLATILE PARALLEL UNSAFE
-AS $BODY$
-  
+CREATE OR REPLACE FUNCTION sp_find_all_order_day()  
+    RETURNS json[]  
+    LANGUAGE 'plpgsql'  
+    COST 100  
+    VOLATILE PARALLEL UNSAFE  
+AS $BODY$  
+
 DECLARE   
     v_json_resp json[];  
 BEGIN  
     SELECT array(  
         SELECT jsonb_build_object(  
-            'idOrder', o.idOrder,  
-            'idExam', o.idexam, 
-			'idProfile', p.idProfile, 
-            'status', o.status,  
-			'idUser', u.idUser,
-			'address', u.address,
+            'idUser', u.idUser,  
+            'address', u.address,  
             'ci', u.ci,  
             'firstName', u.firstname,  
             'lastName', u.lastname,  
             'genre', u.genre,  
-            'age', u.age,  
-			'phone', u.phone,
-			'email', u.email,
-            'profileName', p.name,
-			'total_cost_bs', e.total_cost_bs,
-			'total_cost_usd', e.total_cost_usd,
-            'createdDate', o.createddate,  
-            'modifiedDate', o.modifieddate  
+            'age', u.age,   
+            'orders', jsonb_agg(  
+                jsonb_build_object(  
+                    'idOrder', o.idOrder,  
+                    'idExam', o.idexam,   
+                    'status', o.status,  
+                    'total_cost_bs', e.total_cost_bs,  
+                    'total_cost_usd', e.total_cost_usd,  
+                    'createdDate', o.createddate,  
+                    'modifiedDate', o.modifieddate,  
+                    'profiles', (  
+                        SELECT jsonb_agg(  
+                            jsonb_build_object(  
+                                'idProfile', p.idProfile,  
+                                'profileName', p.name  
+                            )  
+                        )  
+                        FROM profile p  
+                        WHERE p.idProfile = o.idProfile 
+                    )  
+                )  
+            )  
         )  
-        FROM orders o  
-        JOIN profile p ON o.idprofile = p.idprofile  
-        JOIN exam e ON o.idexam = e.idexam  
-        JOIN users u ON e.iduser = u.iduser  
-        WHERE o.status IN ('Pendiente por pasar', 'Pendiente de enviar', 'Pendiente de imprimir')
+        FROM users u  
+        JOIN exam e ON u.idUser = e.idUser  
+        JOIN orders o ON o.idExam = e.idExam  
+        WHERE o.status IN ('Pendiente por pasar', 'Pendiente de enviar', 'Pendiente de imprimir')  
+        GROUP BY u.idUser  
     )::json[] INTO v_json_resp;  
 
     RETURN v_json_resp;  

@@ -119,15 +119,22 @@ const profilesStore = profileStore();
 const mailsStore = mailStore(); 
 
 onMounted(async () => {  
-    const queryProfileName = route.query.profileName;  
-    if (typeof queryProfileName === 'string') {  
-        profileName.value = queryProfileName;  
+    const queryProfileNames = route.query.profileNames;   
+
+    if (typeof queryProfileNames === 'string') {  
+        const parsedProfileNames = JSON.parse(queryProfileNames);  
+
+        if (parsedProfileNames.length > 0) {  
+            profileName.value = parsedProfileNames[0]; 
+        }  
     }  
+
     await fetchProfile(profileName.value);  
+    
     if (tabNames.value.length > 0) {  
         loadTabResults(tabNames.value[0]);  
     }  
-});  
+});   
 
 const fetchProfile = async (nombre: string) => {  
     profileData.value = await profilesStore.fetchProfileByInputsName(nombre);  
