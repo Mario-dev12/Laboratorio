@@ -41,6 +41,8 @@ begin
 			'genre', a.genre,
 			'age', a.age,
 			'address', a.address,
+			'phone', a.phone,
+			'email', a.email,
 			'createdDate', a.createdDate,
             'modifiedDate', a.modifiedDate
 		)
@@ -275,6 +277,8 @@ begin
 			'genre', a.genre,
 			'age', a.age,
 			'address', a.address,
+			'phone', a.phone,
+			'email', a.email,
 			'createdDate', a.createdDate,
             'modifiedDate', a.modifiedDate
 		)
@@ -600,7 +604,9 @@ CREATE OR REPLACE FUNCTION sp_create_users(
 	p_lastname character varying,
 	p_genre character varying,
 	p_age integer,
-	p_address character varying)
+	p_address character varying,
+	p_phone character varying,
+	p_email character varying)
     RETURNS json
     LANGUAGE 'plpgsql'
     COST 100
@@ -610,8 +616,8 @@ declare
 	v_id                                    integer;
 	v_returning_id                                 integer;
 begin
-		Insert into users(ci, passport, firstName, lastName, genre, age, address) 
-		VALUES (p_ci, p_passport, p_firstName, p_lastName, p_genre, p_age, p_address)
+		Insert into users(ci, passport, firstName, lastName, genre, age, address, phone, email) 
+		VALUES (p_ci, p_passport, p_firstName, p_lastName, p_genre, p_age, p_address, p_phone, p_email)
 		RETURNING iduser INTO v_returning_id;
 		return json_build_object('message', 'Inserción exitosa.', 
 								 'id', v_returning_id);
@@ -1034,7 +1040,9 @@ CREATE OR REPLACE FUNCTION sp_update_users(
 	p_lastName character varying,
 	p_genre character varying,
 	p_age integer,
-	p_address character varying)
+	p_address character varying,
+	p_phone character varying,
+	p_email character varying)
     RETURNS json
     LANGUAGE 'plpgsql'
     COST 100
@@ -1048,12 +1056,14 @@ declare
 	v_genre                              character varying;
 	v_age                              integer;
 	v_address                              character varying;
+	v_phone                              character varying;
+	v_email                              character varying;
 	v_createdDate                       TIMESTAMP;
 	v_modifiedDate                      TIMESTAMP;
 	v_id                                    integer;
 begin
 	update users
-	set ci = p_ci, passport = p_passport, firstName = p_firstName, lastName = p_lastName, genre = p_genre, age = p_age, address = p_address, modifiedDate = now()
+	set ci = p_ci, passport = p_passport, firstName = p_firstName, lastName = p_lastName, genre = p_genre, age = p_age, address = p_address, phone = p_phone, email = p_email, modifiedDate = now()
 	where idusers = p_id;
 	select u.ci into v_ci from users u where idusers = p_id;
 	select u.passport into v_passport from users u where idusers = p_id;
@@ -1062,6 +1072,8 @@ begin
 	select u.genre into v_genre from users u where idusers = p_id;
 	select u.age into v_age from users u where idusers = p_id;
 	select u.address into v_address from users u where idusers = p_id;
+	select u.phone into v_phone from users u where idusers = p_id;
+	select u.email into v_email from users u where idusers = p_id;
 	select u.createdDate into v_createdDate from users u where idusers = p_id;
 	select u.modifiedDate into v_modifiedDate from users u where idusers = p_id;
 	return json_build_object(
@@ -1073,6 +1085,8 @@ begin
 		'genre', v_genre,
 		'age', v_age,
 		'address', v_address,
+		'phone', v_phone,
+		'email', v_email,
 		'createdDate', v_createdDate,
 		'modifiedDate', v_modifiedDate
 	);
@@ -1194,6 +1208,8 @@ begin
 			'genre', a.genre,
 			'age', a.age,
 			'address', a.address,
+			'phone', a.phone,
+			'email', a.email,
 			'createdDate', a.createdDate,
             'modifiedDate', a.modifiedDate
 		)
@@ -1584,41 +1600,52 @@ begin
 end;
 $BODY$;
 
-CREATE OR REPLACE FUNCTION sp_find_all_order_day(
-	)
-    RETURNS json[]
-    LANGUAGE 'plpgsql'
-    COST 100
-    VOLATILE PARALLEL UNSAFE
-AS $BODY$
-  
+CREATE OR REPLACE FUNCTION sp_find_all_order_day()  
+    RETURNS json[]  
+    LANGUAGE 'plpgsql'  
+    COST 100  
+    VOLATILE PARALLEL UNSAFE  
+AS $BODY$  
+
 DECLARE   
     v_json_resp json[];  
 BEGIN  
     SELECT array(  
         SELECT jsonb_build_object(  
-            'idOrder', o.idOrder,  
-            'idExam', o.idexam, 
-			'idProfile', p.idProfile, 
-            'status', o.status,  
-			'idUser', u.idUser,
-			'address', u.address,
+            'idUser', u.idUser,  
+            'address', u.address,  
             'ci', u.ci,  
             'firstName', u.firstname,  
             'lastName', u.lastname,  
             'genre', u.genre,  
-            'age', u.age,  
-            'profileName', p.name,
-			'total_cost_bs', e.total_cost_bs,
-			'total_cost_usd', e.total_cost_usd,
-            'createdDate', o.createddate,  
-            'modifiedDate', o.modifieddate  
+            'age', u.age,   
+            'orders', jsonb_agg(  
+                jsonb_build_object(  
+                    'idOrder', o.idOrder,  
+                    'idExam', o.idexam,   
+                    'status', o.status,  
+                    'total_cost_bs', e.total_cost_bs,  
+                    'total_cost_usd', e.total_cost_usd,  
+                    'createdDate', o.createddate,  
+                    'modifiedDate', o.modifieddate,  
+                    'profiles', (  
+                        SELECT jsonb_agg(  
+                            jsonb_build_object(  
+                                'idProfile', p.idProfile,  
+                                'profileName', p.name  
+                            )  
+                        )  
+                        FROM profile p  
+                        WHERE p.idProfile = o.idProfile 
+                    )  
+                )  
+            )  
         )  
-        FROM orders o  
-        JOIN profile p ON o.idprofile = p.idprofile  
-        JOIN exam e ON o.idexam = e.idexam  
-        JOIN users u ON e.iduser = u.iduser  
-        WHERE o.status IN ('Pendiente por pasar', 'Pendiente de enviar', 'Pendiente de imprimir')
+        FROM users u  
+        JOIN exam e ON u.idUser = e.idUser  
+        JOIN orders o ON o.idExam = e.idExam  
+        WHERE o.status IN ('Pendiente por pasar', 'Pendiente de enviar', 'Pendiente de imprimir')  
+        GROUP BY u.idUser  
     )::json[] INTO v_json_resp;  
 
     RETURN v_json_resp;  
@@ -1645,6 +1672,8 @@ begin
 			'lastName', u.lastname,
 			'genre', u.genre,
 			'age', u.age,
+			'phone', u.phone,
+			'email', u.email,
 			'profileName', p.name,
 			'createdDate', o.createddate,
             'modifiedDate', o.modifieddate

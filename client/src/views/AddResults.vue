@@ -65,6 +65,12 @@
 									</table>
 								</div>
 							</div>
+							<div class="row w-100 m-auto mb-4 mt-2 mr-1">
+								<button class="btn btn-primary w-auto" @click="redirectToWhatsApp">Enviar por WhatsApp</button>
+							</div>
+							<div class="row w-100 m-auto mb-4 mt-2 mr-1">
+								<button class="btn btn-primary w-auto" @click="sendMailNodeMailer">Enviar por Correo</button>
+							</div>
 						</ion-content>
 					</ion-tab>
 				</ion-tabs>
@@ -94,6 +100,7 @@
 	} from "@ionic/vue";
 	import { useRoute, useRouter } from "vue-router";
 	import { profileStore } from "@/stores/profileStore";
+	import { mailStore } from "@/stores/mailStore";
 
 	const route = useRoute();
 	const router = useRouter();
@@ -103,13 +110,21 @@
 	const currentResults = ref<any>({ firstTable: [], secondTable: [] });
 
 	const profilesStore = profileStore();
+	const mailsStore = mailStore();
 
 	onMounted(async () => {
-		const queryProfileName = route.query.profileName;
-		if (typeof queryProfileName === "string") {
-			profileName.value = queryProfileName;
+		const queryProfileNames = route.query.profileNames;
+
+		if (typeof queryProfileNames === "string") {
+			const parsedProfileNames = JSON.parse(queryProfileNames);
+
+			if (parsedProfileNames.length > 0) {
+				profileName.value = parsedProfileNames[0];
+			}
 		}
+
 		await fetchProfile(profileName.value);
+
 		if (tabNames.value.length > 0) {
 			loadTabResults(tabNames.value[0]);
 		}
@@ -143,6 +158,25 @@
 
 	const goBack = () => {
 		router.back();
+	};
+
+	const redirectToWhatsApp = () => {
+		const phoneNumber = "584123456789";
+		const message = encodeURIComponent("Hola, por favor adjunta el documento en formato PDF que necesitas enviar.");
+		const url = `https://api.whatsapp.com/send?phone=${phoneNumber}&text=${message}`;
+
+		window.open(url, "_blank");
+	};
+
+	const sendMailNodeMailer = async () => {
+		const data = {
+			pdfPath: "ruta/a/resultado.pdf",
+			destinatario: "destinatario@hotmail.com",
+			provider: "gmail",
+			userEmail: "tu-email@gmail.com",
+			userPassword: "tu-contraseña",
+		};
+		await mailsStore.sendEmail(data);
 	};
 </script>
 

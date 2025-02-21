@@ -29,10 +29,10 @@ usersRepository.readUserByName = async (name) => {
 	}
 };
 
-usersRepository.createUser = async (ci, passport, firstName, lastName, genre, age, address) => {
+usersRepository.createUser = async (ci, passport, firstName, lastName, genre, age, address, phone, email) => {
 	try {
 		const resp = await pool.query(
-			`SELECT * FROM sp_create_users('${ci}', '${passport}', '${firstName}', '${lastName}', '${genre}', ${age}, '${address}')`
+			`SELECT * FROM sp_create_users('${ci}', '${passport}', '${firstName}', '${lastName}', '${genre}', ${age}, '${address}', '${phone}', '${email}')`
 		);
 		return resp.rows[0].sp_create_users;
 	} catch (error) {
@@ -43,7 +43,7 @@ usersRepository.createUser = async (ci, passport, firstName, lastName, genre, ag
 usersRepository.updateUser = async (id, answer) => {
 	try {
 		const resp = await pool.query(
-			`SELECT * FROM sp_update_users(${id}, '${answer.ci}', '${answer.passport}', '${answer.firstName}', '${answer.lastName}', '${answer.genre}', ${answer.age}, '${answer.address}')`
+			`SELECT * FROM sp_update_users(${id}, '${answer.ci}', '${answer.passport}', '${answer.firstName}', '${answer.lastName}', '${answer.genre}', ${answer.age}, '${answer.address}', '${answer.phone}', '${answer.email}')`
 		);
 		return resp.rows[0].sp_update_users;
 	} catch (error) {

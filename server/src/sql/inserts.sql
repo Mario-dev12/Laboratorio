@@ -5,12 +5,12 @@ INSERT INTO provider (name) VALUES
 ('Lucía Torres'),  
 ('Pedro Sánchez');
 
-INSERT INTO users (ci, firstName, lastName, genre, age, address) VALUES  
-('1234567', 'Juan', 'Pérez', 'M', 30, 'Calle Falsa 123, Ciudad X'),  
-('2345678', 'María', 'Gómez', 'F', 28, 'Avenida Siempre Viva 742, Ciudad Y'),  
-('3456789', 'Carlos', 'Fernández', 'M', 35, 'Bulevar de los Sueños Rotos, Ciudad Z'),  
-('4567890', 'Lucía', 'Torres', 'F', 22, 'Camino de la Libertad, Ciudad W'),  
-('5678901', 'Pedro', 'Sánchez', 'M', 40, 'Ruta del Progreso 99, Ciudad V'); 
+INSERT INTO users (ci, firstName, lastName, genre, age, address, phone, email) VALUES  
+('1234567', 'Juan', 'Pérez', 'M', 30, 'Calle Falsa 123, Ciudad X', '+5812345678', 'juanperez@gmail.com'),  
+('2345678', 'María', 'Gómez', 'F', 28, 'Avenida Siempre Viva 742, Ciudad Y', '', 'mariagomez@hotmail.com'),  
+('3456789', 'Carlos', 'Fernández', 'M', 35, 'Bulevar de los Sueños Rotos, Ciudad Z', '+5834598764', ''),  
+('4567890', 'Lucía', 'Torres', 'F', 22, 'Camino de la Libertad, Ciudad W', '', ''),  
+('5678901', 'Pedro', 'Sánchez', 'M', 40, 'Ruta del Progreso 99, Ciudad V', '', ''); 
 
 INSERT INTO profile (name, cost_bs, cost_usd) VALUES 
 ('Perfil 20', '244,35', '5'),

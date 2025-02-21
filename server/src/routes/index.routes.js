@@ -11,6 +11,7 @@ import boxRouter from "../box/box.routes.js";
 import paymentRouter from "../payment/payment.routes.js";
 import profileRouter from "../profile/profile.routes.js";
 import orderRouter from "../order/order.routes.js"
+import mailRouter from "../mail/mail.routes.js"
 
 const routerModule = Router();
 
@@ -25,5 +26,6 @@ routerModule.use("/reactive", reactiveRouter);
 routerModule.use("/unit", unitRouter);
 routerModule.use("/users", usersRouter);
 routerModule.use("/box", boxRouter);
+routerModule.use("/mail", mailRouter);
 
 export default routerModule
