@@ -14,8 +14,8 @@ usersServices.readUserById = async id => {
     return await usersRepository.readUserById(id)
 }
 
-usersServices.createUser = async (ci, passport, firstName, lastName, genre, age, address) => {
-    return await usersRepository.createUser(ci, passport, firstName, lastName, genre, age, address)
+usersServices.createUser = async (ci, passport, firstName, lastName, genre, age, address, phone, email) => {
+    return await usersRepository.createUser(ci, passport, firstName, lastName, genre, age, address, phone, email)
 }
 
 usersServices.updateUser = async (id, answer) => {
