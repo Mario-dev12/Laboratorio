@@ -365,8 +365,7 @@
 		});
 		paymentData.value = null;
 
-		if (!originalPaymentData.value) {
-		} else {
+		if (originalPaymentData.value) {
 			for (let i = 0; i < originalPaymentData.value.length; i++) {
 				await paymentsStore.deletePayment(originalPaymentData.value[i].idPayment);
 			}
@@ -402,13 +401,13 @@
 		}
 
 		if (examHasChanged) {
-				const examsBody: Exam = {
-					idUser: user.value.id,
-					idExam: examenesSeleccionados.value[0].idExam,
-					total_cost_bs: totales.value.totalBs.toString(),
-					total_cost_usd: totales.value.total$.toString(),
-				};
-				await examsStore.updateExam(examenesSeleccionados.value[0].idExam, examsBody);
+			const examsBody: Exam = {
+				idUser: user.value.id,
+				idExam: examenesSeleccionados.value[0].idExam,
+				total_cost_bs: totales.value.totalBs.toString(),
+				total_cost_usd: totales.value.total$.toString(),
+			};
+			await examsStore.updateExam(examenesSeleccionados.value[0].idExam, examsBody);
 		}
 
 		if (orderHasChanged) {
@@ -483,7 +482,7 @@
 		}
 
 		if (paymentsHasChanged) {
-			if (originalPaymentData.value){
+			if (originalPaymentData.value) {
 				for (let i = 0; i < originalPaymentData.value.length; i++) {
 					await paymentsStore.deletePayment(originalPaymentData.value[i].idPayment);
 				}
@@ -521,7 +520,7 @@
 		await ordersStore.fecthHistOrdersDay();
 
 		router.push({ name: "OrdersView" });
-	}
+	};
 
 	const abrirModal = () => {
 		mostrarModal.value = true;
