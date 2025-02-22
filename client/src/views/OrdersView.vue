@@ -69,7 +69,6 @@
 import { IonContent, IonPage } from "@ionic/vue";
 import { onMounted, ref, computed, watch } from "vue";
 import { orderStore } from "@/stores/orderStore";
-import { OrdersDay } from "@/interfaces/interfaces";
 import { useRouter } from "vue-router";
 
 const orders = ref();  
@@ -88,12 +87,26 @@ onMounted(async () => {
 	orders.value = await ordersStore.fecthOrdersDay(true, '');    
 });  
 
+router.beforeEach(async (to, from, next) => {
+		if (to.name === "OrdersView") {
+			if (selectedDate.value) {  
+				const dateISO = selectedDate.value;
+				const [year, month, day] = dateISO.split('-');
+				const formattedDate = `${day}-${month}-${year}`; 
+
+				orders.value = await ordersStore.fecthOrdersDay(false, formattedDate);  
+			} else {   
+				orders.value = await ordersStore.fecthOrdersDay(true, '');  
+			}  
+		}
+		next();
+});
+
 const toggleDetails = (order: any) => {
 	expandedOrder.value = expandedOrder.value === order.idUser ? null : order.idUser;
 };
 
 const openTabsView = (profileName: any) => {
-	console.log(profileName);
 	const profileNamesArray = profileName.orders.flatMap((order: { profiles: any[] }) =>
 		order.profiles.map((profile: { profileName: any }) => profile.profileName)
 	);
