@@ -75,15 +75,12 @@
 		orders.value = await ordersStore.fecthOrdersDay();
 	});
 
-	watch(
-		() => ordersStore.order,
-		async (newVal, oldVal) => {
-			if (newVal !== oldVal) {
-				orders.value = await ordersStore.fecthOrdersDay();
-			}
-		},
-		{ deep: true }
-	);
+	router.beforeEach(async (to, from, next) => {
+		if (to.name === "OrdersView") {
+			orders.value = await ordersStore.fecthOrdersDay();
+		}
+		next();
+	});
 
 	const filteredOrders = computed(() => {
 		if (!orders.value) return [];
@@ -120,11 +117,12 @@
 	};
 
 	const openTabsView = (profileName: any) => {
+		console.log(profileName);
 		const profileNamesArray = profileName.orders.flatMap((order: { profiles: any[] }) =>
 			order.profiles.map((profile: { profileName: any }) => profile.profileName)
 		);
 		router.push({
-			name: "Results",
+			name: "Results2",
 			query: { profileNames: JSON.stringify(profileNamesArray) },
 		});
 	};
@@ -132,14 +130,6 @@
 	const toggleDetails = (order: any) => {
 		expandedOrder.value = expandedOrder.value === order.idUser ? null : order.idUser;
 	};
-
-	function formatearFecha(fecha: string | number | Date) {
-		const fechaObjeto = new Date(fecha);
-		const dia = String(fechaObjeto.getDate()).padStart(2, "0");
-		const mes = String(fechaObjeto.getMonth() + 1).padStart(2, "0");
-		const año = fechaObjeto.getFullYear();
-		return `${dia}-${mes}-${año}`;
-	}
 </script>
 
 <style scoped>

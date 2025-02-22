@@ -5,7 +5,7 @@
 				<div class="perfiles mt-3">
 					<h4>Perfiles</h4>
 					<div class="row w-100 m-auto gap-2">
-						<div class="col btn btn-light" v-for="(profile, index) in profiles" :key="index" @click="handleSection(index)">
+						<div class="col btn btn-light" v-for="(profile, index) in profileNames" :key="index" @click="handleSection(index)">
 							{{ profile }}
 						</div>
 					</div>
@@ -53,7 +53,7 @@
 	const profilesStore = profileStore();
 	const route = useRoute();
 	let profiles: string[] = [];
-	let profileName: any = "";
+	let profileNames: any = "";
 	const profilesData = ref<any[]>([]);
 	const sectionNames = ref();
 	const sectionData = ref();
@@ -62,8 +62,9 @@
 	profiles = ["Perfil 20", "Uroanalisis", "Perfil Tiroideo"];
 
 	onMounted(async () => {
-		profileName = route.query.profileName;
-		console.log(profileName);
+		profileNames = route.query.profileNames;
+		profileNames = JSON.parse(profileNames);
+		console.log(profileNames);
 		for (const profile of profiles) {
 			const profileSection = await profilesStore.fetchProfileByInputsName(profile);
 			profilesData.value.push(profileSection);
