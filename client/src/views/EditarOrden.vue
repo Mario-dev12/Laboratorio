@@ -500,8 +500,6 @@
 
 		await resetOrderData();
 
-		await ordersStore.fecthOrdersDay();
-
 		await ordersStore.fecthHistOrdersDay();
 
 		router.push({ name: "OrdersView" });

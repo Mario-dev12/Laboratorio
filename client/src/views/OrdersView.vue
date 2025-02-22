@@ -4,9 +4,21 @@
 			<div class="container mt-3">
 				<h2 class="text-center mb-4">Lista de Órdenes</h2>
 
-				<div class="mb-3">
-					<input type="text" placeholder="Buscar por Documento o Nombre" v-model="searchQuery" class="form-control" />
-				</div>
+				<div class="mb-3 d-flex">  
+					<input  
+						type="text"  
+						placeholder="Buscar por Documento o Nombre"  
+						v-model="searchQuery"  
+						class="form-control"  
+					/>  
+					<input  
+						type="date"  
+						v-model="selectedDate"  
+						class="form-control"  
+						style="margin-left: 10px; margin-right: 10px"  
+					/>  
+					<button class="btn btn-primary ml-2" @click="searchOrders">Buscar</button>  
+				</div>  
 
 				<div class="table-responsive" style="max-height: 400px; overflow-y: auto">
 					<table class="table table-striped">
@@ -54,82 +66,104 @@
 </template>
 
 <script setup lang="ts">
-	import { IonContent, IonPage } from "@ionic/vue";
-	import { onMounted, ref, computed, watch } from "vue";
-	import { orderStore } from "@/stores/orderStore";
-	import { OrdersDay } from "@/interfaces/interfaces";
-	import { useRouter } from "vue-router";
+import { IonContent, IonPage } from "@ionic/vue";
+import { onMounted, ref, computed, watch } from "vue";
+import { orderStore } from "@/stores/orderStore";
+import { useRouter } from "vue-router";
 
-	const orders = ref();
-	const router = useRouter();
-	const searchQuery = ref("");
-	const ordersStore = orderStore();
-	const toast = ref({
-		isOpen: false,
-		message: "",
-		duration: 2000,
-	});
-	const expandedOrder = ref<number | null>(null);
+const orders = ref();  
+const router = useRouter();  
+const searchQuery = ref("");  
+const selectedDate = ref("");
+const ordersStore = orderStore();  
+const toast = ref({  
+	isOpen: false,  
+	message: "",  
+	duration: 2000,  
+});  
+const expandedOrder = ref<number | null>(null);  
 
-	onMounted(async () => {
-		orders.value = await ordersStore.fecthOrdersDay();
-	});
+onMounted(async () => {  
+	orders.value = await ordersStore.fecthOrdersDay(true, '');    
+});  
 
-	router.beforeEach(async (to, from, next) => {
+router.beforeEach(async (to, from, next) => {
 		if (to.name === "OrdersView") {
-			orders.value = await ordersStore.fecthOrdersDay();
+			if (selectedDate.value) {  
+				const dateISO = selectedDate.value;
+				const [year, month, day] = dateISO.split('-');
+				const formattedDate = `${day}-${month}-${year}`; 
+
+				orders.value = await ordersStore.fecthOrdersDay(false, formattedDate);  
+			} else {   
+				orders.value = await ordersStore.fecthOrdersDay(true, '');  
+			}  
 		}
 		next();
+});
+
+const toggleDetails = (order: any) => {
+	expandedOrder.value = expandedOrder.value === order.idUser ? null : order.idUser;
+};
+
+const openTabsView = (profileName: any) => {
+	const profileNamesArray = profileName.orders.flatMap((order: { profiles: any[] }) =>
+		order.profiles.map((profile: { profileName: any }) => profile.profileName)
+	);
+	router.push({
+		name: "Results2",
+		query: { profileNames: JSON.stringify(profileNamesArray) },
 	});
+};
 
-	const filteredOrders = computed(() => {
-		if (!orders.value) return [];
+const filteredOrders = computed(() => {  
+	if (!orders.value) return [];  
 
-		const query = searchQuery.value ? searchQuery.value.toLowerCase() : "";
-		return orders.value.filter((order: { firstName: any; lastName: any; ci: string }) => {
-			if (!order.firstName || !order.lastName || !order.ci) return false;
-			const fullName = `${order.firstName} ${order.lastName}`.toLowerCase();
-			return order.ci.toLowerCase().includes(query) || fullName.includes(query);
-		});
+	const query = searchQuery.value ? searchQuery.value.toLowerCase() : '';  
+	return orders.value.filter((order: { firstName: any; lastName: any; ci: string; }) => {  
+		if (!order.firstName || !order.lastName || !order.ci) return false;  
+		const fullName = `${order.firstName} ${order.lastName}`.toLowerCase();  
+		return (  
+			order.ci.toLowerCase().includes(query) || fullName.includes(query)  
+		);  
+	});  
+});  
+
+const showToast = (message: string) => {  
+	toast.value.message = message;  
+	toast.value.isOpen = true;  
+};  
+
+const deleteOrder = async (id: number | string) => {  
+	await ordersStore.deleteOrder(id);  
+	showToast("Orden borrada correctamente");  
+	orders.value = await ordersStore.fecthOrdersDay(true, '');  
+};  
+
+const editOrder = async (order: any) => {
+	router.push({  
+		name: 'EditarOrden',  
+		params: {  
+			idUser: order.ci,  
+			idExam: order.orders[0].idExam,  
+			cost_bs: order.orders[0].total_cost_bs,  
+			cost_usd: order.orders[0].total_cost_usd  
+		}  
 	});
+}
 
-	const showToast = (message: string) => {
-		toast.value.message = message;
-		toast.value.isOpen = true;
-	};
+const searchOrders = async () => {  
+	if (selectedDate.value) {  
+		const dateISO = selectedDate.value;
+		const [year, month, day] = dateISO.split('-');
+		const formattedDate = `${day}-${month}-${year}`; 
 
-	const deleteOrder = async (id: number | string) => {
-		await ordersStore.deleteOrder(id);
-		showToast("Orden borrada correctamente");
-		orders.value = await ordersStore.fecthOrdersDay();
-	};
+		orders.value = await ordersStore.fecthOrdersDay(false, formattedDate);  
+	} else {   
+		showToast("Por favor, selecciona una fecha.");  
+	}  
+}; 
 
-	const editOrder = async (order: any) => {
-		router.push({
-			name: "EditarOrden",
-			params: {
-				idUser: order.ci,
-				idExam: order.orders[0].idExam,
-				cost_bs: order.orders[0].total_cost_bs,
-				cost_usd: order.orders[0].total_cost_usd,
-			},
-		});
-	};
-
-	const openTabsView = (profileName: any) => {
-		console.log(profileName);
-		const profileNamesArray = profileName.orders.flatMap((order: { profiles: any[] }) =>
-			order.profiles.map((profile: { profileName: any }) => profile.profileName)
-		);
-		router.push({
-			name: "Results2",
-			query: { profileNames: JSON.stringify(profileNamesArray) },
-		});
-	};
-
-	const toggleDetails = (order: any) => {
-		expandedOrder.value = expandedOrder.value === order.idUser ? null : order.idUser;
-	};
 </script>
 
 <style scoped>
