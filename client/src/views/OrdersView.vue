@@ -1,8 +1,8 @@
-<template>  
-	<ion-page>  
-		<ion-content>  
-			<div class="container mt-3">  
-				<h2 class="text-center mb-4">Lista de Órdenes</h2>  
+<template>
+	<ion-page>
+		<ion-content>
+			<div class="container mt-3">
+				<h2 class="text-center mb-4">Lista de Órdenes</h2>
 
 				<div class="mb-3 d-flex">  
 					<input  
@@ -20,70 +20,57 @@
 					<button class="btn btn-primary ml-2" @click="searchOrders">Buscar</button>  
 				</div>  
 
-				<div class="table-responsive" style="max-height: 400px; overflow-y: auto">  
-					<table class="table table-striped">  
-						<thead>  
-							<tr>  
-								<th>Documento Identidad</th>  
-								<th>Nombre Paciente</th>  
-								<th>Género</th>  
-								<th>Edad</th>  
-								<th>Acciones</th>  
-							</tr>  
-						</thead>  
-						<tbody>  
-							<tr v-for="order in filteredOrders" :key="order.idUser">  
-								<td>{{ order.ci }}</td>  
-								<td>{{ order.firstName }} {{ order.lastName }}</td>  
-								<td>{{ order.genre }}</td>  
-								<td>{{ order.age }}</td>  
-								<td>  
-									<i  
-										class="fa-solid fa-plus"  
-										style="cursor: pointer; margin-right: 10px"  
-										@click="openTabsView(order)"  
-									></i>  
-									<i  
-										class="fas fa-edit"  
-										@click="editOrder(order)"  
-										style="cursor: pointer; margin-right: 10px"  
-									></i>  
-									<i  
-										class="fas fa-info-circle"  
-										@click="toggleDetails(order)"  
-										style="cursor: pointer"  
-									></i>  
+				<div class="table-responsive" style="max-height: 400px; overflow-y: auto">
+					<table class="table table-striped">
+						<thead>
+							<tr>
+								<th>Documento Identidad</th>
+								<th>Nombre Paciente</th>
+								<th>Género</th>
+								<th>Edad</th>
+								<th>Acciones</th>
+							</tr>
+						</thead>
+						<tbody>
+							<tr v-for="order in filteredOrders" :key="order.idUser">
+								<td>{{ order.ci }}</td>
+								<td>{{ order.firstName }} {{ order.lastName }}</td>
+								<td>{{ order.genre }}</td>
+								<td>{{ order.age }}</td>
+								<td>
+									<i class="fa-solid fa-plus" style="cursor: pointer; margin-right: 10px" @click="openTabsView(order)"></i>
+									<i class="fas fa-edit" @click="editOrder(order)" style="cursor: pointer; margin-right: 10px"></i>
+									<i class="fas fa-info-circle" @click="toggleDetails(order)" style="cursor: pointer"></i>
 
-									<div v-if="expandedOrder === order.idUser" class="order-details">  
-										<ul>  
-											<div v-for="ord in order.orders" :key="ord.idOrder">  
-												{{ ord.profiles[0].profileName }} - {{ ord.status }} -  
-												{{ ord.total_cost_bs }} Bs / {{ ord.total_cost_usd }} USD  
-												<i  
-													class="fas fa-trash"  
-													@click="deleteOrder(ord.idOrder)"  
-													style="cursor: pointer; margin-left: 10px; color: black;"  
-													title="Eliminar orden"  
-												></i>  
-											</div>  
-										</ul>  
-									</div>   
-								</td>  
-							</tr>  
-						</tbody>  
-					</table>  
-				</div>  
-			</div>  
-		</ion-content>  
-	</ion-page>  
-</template>  
+									<div v-if="expandedOrder === order.idUser" class="order-details">
+										<ul>
+											<div v-for="ord in order.orders" :key="ord.idOrder">
+												{{ ord.profiles[0].profileName }} - {{ ord.status }} - {{ ord.total_cost_bs }} Bs /
+												{{ ord.total_cost_usd }} USD
+												<i
+													class="fas fa-trash"
+													@click="deleteOrder(ord.idOrder)"
+													style="cursor: pointer; margin-left: 10px; color: black"
+													title="Eliminar orden"></i>
+											</div>
+										</ul>
+									</div>
+								</td>
+							</tr>
+						</tbody>
+					</table>
+				</div>
+			</div>
+		</ion-content>
+	</ion-page>
+</template>
 
-<script setup lang="ts">  
-import { IonContent, IonPage } from "@ionic/vue";  
-import { onMounted, ref, computed, watch } from "vue";  
-import { orderStore } from "@/stores/orderStore";  
-import { OrdersDay } from "@/interfaces/interfaces";  
-import { useRouter } from 'vue-router';  
+<script setup lang="ts">
+import { IonContent, IonPage } from "@ionic/vue";
+import { onMounted, ref, computed, watch } from "vue";
+import { orderStore } from "@/stores/orderStore";
+import { OrdersDay } from "@/interfaces/interfaces";
+import { useRouter } from "vue-router";
 
 const orders = ref();  
 const router = useRouter();  
@@ -99,7 +86,22 @@ const expandedOrder = ref<number | null>(null);
 
 onMounted(async () => {  
 	orders.value = await ordersStore.fecthOrdersDay(true, '');    
-});    
+});  
+
+const toggleDetails = (order: any) => {
+	expandedOrder.value = expandedOrder.value === order.idUser ? null : order.idUser;
+};
+
+const openTabsView = (profileName: any) => {
+	console.log(profileName);
+	const profileNamesArray = profileName.orders.flatMap((order: { profiles: any[] }) =>
+		order.profiles.map((profile: { profileName: any }) => profile.profileName)
+	);
+	router.push({
+		name: "Results2",
+		query: { profileNames: JSON.stringify(profileNamesArray) },
+	});
+};
 
 const filteredOrders = computed(() => {  
 	if (!orders.value) return [];  
@@ -135,21 +137,7 @@ const editOrder = async (order: any) => {
 			cost_usd: order.orders[0].total_cost_usd  
 		}  
 	});
-};  
-
-const openTabsView = (profileName: any) => {  
-	const profileNamesArray = profileName.orders.flatMap((order: { profiles: any[]; }) =>   
-        order.profiles.map((profile: { profileName: any; }) => profile.profileName)  
-    );  
-	router.push({  
-		name: 'Results',  
-		query: { profileNames: JSON.stringify(profileNamesArray) }  
-	});  
-};  
-
-const toggleDetails = (order: any) => { 
-	expandedOrder.value = expandedOrder.value === order.idUser ? null : order.idUser;  
-};  
+}
 
 const searchOrders = async () => {  
 	if (selectedDate.value) {  
@@ -162,27 +150,28 @@ const searchOrders = async () => {
 		showToast("Por favor, selecciona una fecha.");  
 	}  
 }; 
-</script>  
 
-<style scoped>  
-.container {  
-	padding: 16px;  
-}  
+</script>
 
-.table-responsive {  
-	max-height: 400px;  
-}  
+<style scoped>
+	.container {
+		padding: 16px;
+	}
 
-.btn-container {  
-	display: flex;  
-	justify-content: flex-end;  
-	margin-bottom: 1rem;  
-}  
+	.table-responsive {
+		max-height: 400px;
+	}
 
-.order-details {  
-	margin-top: 10px;  
-	padding: 10px;  
-	background-color: #f9f9f9;  
-	border-radius: 4px;  
-}  
+	.btn-container {
+		display: flex;
+		justify-content: flex-end;
+		margin-bottom: 1rem;
+	}
+
+	.order-details {
+		margin-top: 10px;
+		padding: 10px;
+		background-color: #f9f9f9;
+		border-radius: 4px;
+	}
 </style>

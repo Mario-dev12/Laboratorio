@@ -10,6 +10,7 @@ import OrdersHistoryView from "@/views/OrdersHistoryView.vue";
 import EditarOrden from "@/views/EditarOrden.vue";
 import TemplatePDF from "@/views/TemplatePDF.vue";
 import AddResults from "@/views/AddResults.vue";
+import AddResults2 from "@/views/AddResults2.vue";
 
 const routes: Array<RouteRecordRaw> = [
 	{
@@ -65,6 +66,11 @@ const routes: Array<RouteRecordRaw> = [
 		path: "/result",
 		name: "Results",
 		component: AddResults,
+	},
+	{
+		path: "/result2",
+		name: "Results2",
+		component: AddResults2,
 	},
 ];
 
