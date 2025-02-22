@@ -35,8 +35,10 @@ orderController.readOrderByExamId = async (req, res) => {
 }
 
 orderController.readOrdersDay = async (req, res) => {
+  const today = req.query.today;
+  const date = req.query.date;
   try {
-    const answer = await orderServices.readOrdersDay()
+    const answer = await orderServices.readOrdersDay(today, date)
 
     res.send(answer)
   } catch (error) {

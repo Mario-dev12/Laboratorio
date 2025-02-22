@@ -4,13 +4,20 @@
 			<div class="container mt-3">  
 				<h2 class="text-center mb-4">Lista de Órdenes</h2>  
 
-				<div class="mb-3">  
+				<div class="mb-3 d-flex">  
 					<input  
 						type="text"  
 						placeholder="Buscar por Documento o Nombre"  
 						v-model="searchQuery"  
 						class="form-control"  
 					/>  
+					<input  
+						type="date"  
+						v-model="selectedDate"  
+						class="form-control"  
+						style="margin-left: 10px; margin-right: 10px"  
+					/>  
+					<button class="btn btn-primary ml-2" @click="searchOrders">Buscar</button>  
 				</div>  
 
 				<div class="table-responsive" style="max-height: 400px; overflow-y: auto">  
@@ -81,6 +88,7 @@ import { useRouter } from 'vue-router';
 const orders = ref();  
 const router = useRouter();  
 const searchQuery = ref("");  
+const selectedDate = ref("");
 const ordersStore = orderStore();  
 const toast = ref({  
 	isOpen: false,  
@@ -90,18 +98,8 @@ const toast = ref({
 const expandedOrder = ref<number | null>(null);  
 
 onMounted(async () => {  
-	orders.value = await ordersStore.fecthOrdersDay();    
-});  
-
-watch(  
-	() => ordersStore.order,  
-	async (newVal, oldVal) => {  
-		if (newVal !== oldVal) {  
-			orders.value = await ordersStore.fecthOrdersDay();  
-		}  
-	},  
-	{ deep: true }  
-);  
+	orders.value = await ordersStore.fecthOrdersDay(true, '');    
+});    
 
 const filteredOrders = computed(() => {  
 	if (!orders.value) return [];  
@@ -124,7 +122,7 @@ const showToast = (message: string) => {
 const deleteOrder = async (id: number | string) => {  
 	await ordersStore.deleteOrder(id);  
 	showToast("Orden borrada correctamente");  
-	orders.value = await ordersStore.fecthOrdersDay();  
+	orders.value = await ordersStore.fecthOrdersDay(true, '');  
 };  
 
 const editOrder = async (order: any) => {
@@ -153,13 +151,17 @@ const toggleDetails = (order: any) => {
 	expandedOrder.value = expandedOrder.value === order.idUser ? null : order.idUser;  
 };  
 
-function formatearFecha(fecha: string | number | Date) {  
-	const fechaObjeto = new Date(fecha);  
-	const dia = String(fechaObjeto.getDate()).padStart(2, "0");  
-	const mes = String(fechaObjeto.getMonth() + 1).padStart(2, "0");  
-	const año = fechaObjeto.getFullYear();  
-	return `${dia}-${mes}-${año}`;  
-}  
+const searchOrders = async () => {  
+	if (selectedDate.value) {  
+		const dateISO = selectedDate.value;
+		const [year, month, day] = dateISO.split('-');
+		const formattedDate = `${day}-${month}-${year}`; 
+
+		orders.value = await ordersStore.fecthOrdersDay(false, formattedDate);  
+	} else {   
+		showToast("Por favor, selecciona una fecha.");  
+	}  
+}; 
 </script>  
 
 <style scoped>  

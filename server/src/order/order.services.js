@@ -14,8 +14,8 @@ orderServices.readOrderByExamId = async id => {
     return await orderRepository.readOrderByExamId(id)
 }
 
-orderServices.readOrdersDay = async () => {
-    return await orderRepository.readOrdersDay()
+orderServices.readOrdersDay = async (today, date) => {
+    return await orderRepository.readOrdersDay(today, date)
 }
 
 orderServices.readHistOrdersDay = async () => {

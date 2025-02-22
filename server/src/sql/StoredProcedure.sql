@@ -1600,7 +1600,7 @@ begin
 end;
 $BODY$;
 
-CREATE OR REPLACE FUNCTION sp_find_all_order_day()  
+CREATE OR REPLACE FUNCTION sp_find_all_order_day(p_today BOOLEAN, p_date TEXT)  
     RETURNS json[]  
     LANGUAGE 'plpgsql'  
     COST 100  
@@ -1637,6 +1637,10 @@ BEGIN
                         )  
                         FROM profile p  
                         WHERE p.idProfile = o.idProfile 
+						AND (  
+							(p_today IS TRUE AND o.createdDate::date = CURRENT_DATE) OR  
+							(p_today IS FALSE AND o.createdDate::date = to_date(p_date, 'DD-MM-YYYY'))  
+						)   
                     )  
                 )  
             )  
@@ -1645,6 +1649,10 @@ BEGIN
         JOIN exam e ON u.idUser = e.idUser  
         JOIN orders o ON o.idExam = e.idExam  
         WHERE o.status IN ('Pendiente por pasar', 'Pendiente de enviar', 'Pendiente de imprimir')  
+        AND (  
+            (p_today IS TRUE AND o.createdDate::date = CURRENT_DATE) OR  
+            (p_today IS FALSE AND o.createdDate::date = to_date(p_date, 'DD-MM-YYYY'))  
+        )  
         GROUP BY u.idUser  
     )::json[] INTO v_json_resp;  
 

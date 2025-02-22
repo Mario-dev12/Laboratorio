@@ -29,8 +29,8 @@ class AxiosRepository {
 		return response.data;
 	}
 
-	async getAllOrders<T>(domain: string): Promise<T[]> {
-		const response = await axios.get<T[]>(`${import.meta.env.VITE_API_URL}/${domain}/orders`);
+	async getAllOrders<T>(domain: string, today: boolean, date: string): Promise<T[]> {
+		const response = await axios.get<T[]>(`${import.meta.env.VITE_API_URL}/${domain}/orders?today=${today}&date=${date}`);
 		return response.data;
 	}
 

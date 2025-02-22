@@ -31,10 +31,10 @@ orderRepository.readOrderByExamId = async (id) => {
   }
 }
 
-orderRepository.readOrdersDay = async () => {
+orderRepository.readOrdersDay = async (today, date) => {
   try {
-    
-    const resp = await pool.query(`SELECT * FROM sp_find_all_order_day()`);
+    console.log('llega', today, date)
+    const resp = await pool.query(`SELECT * FROM sp_find_all_order_day('${today}', '${date}')`);
     return resp.rows[0].sp_find_all_order_day;
   } catch (error) {
     throw error;
