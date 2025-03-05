@@ -21,6 +21,16 @@ examRepository.createExam = async (idUser, total_cost_bs, total_cost_usd) => {
   }
 }
 
+examRepository.createExamResults = async (data) => {  
+  try {   
+    const valoresJSON = JSON.stringify(data);  
+    const resp = await pool.query(`SELECT sp_insertar_resultados_en_perfil(\$1)`, [valoresJSON]);  
+    return resp.rows[0].sp_insertar_resultados_en_perfil;  
+  } catch (error) {  
+    throw error;  
+  }  
+};
+
 examRepository.updateExam = async (id, answer) => {
   try {
     const resp = await pool.query(`SELECT * FROM sp_update_exam(${id}, ${answer.idUser}, '${answer.total_cost_bs}', '${answer.total_cost_usd}')`);

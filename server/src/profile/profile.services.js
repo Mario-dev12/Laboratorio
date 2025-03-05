@@ -46,8 +46,17 @@ profileServices.createInputs = async (idProfile, inputs) => {
     return await profileRepository.createInputs(idProfile, inputs)
 }
 
-profileServices.createProfileInputs = async (name, cost_bs, cost_usd, inputs) => {
-    return await profileRepository.createProfileInputs(name, cost_bs, cost_usd, inputs)
+profileServices.createProfileInputs = async (name, cost_bs, cost_usd, inputs, section) => {
+    return await profileRepository.createProfileInputs(name, cost_bs, cost_usd, inputs, section)
+}
+
+profileServices.createProfileSection = async (idProfile, section) => {
+    const sectionArray = [section];
+    return await profileRepository.createProfileSection(idProfile, sectionArray)
+}
+
+profileServices.createProfileSectionInputs = async (idProfile, nombre, inputs) => {
+    return await profileRepository.createProfileSectionInputs(idProfile, nombre, inputs)
 }
 
 profileServices.updateProfile = async (id, answer) => {
@@ -82,6 +91,20 @@ profileServices.deleteInputsInProfile = async (idProfile, idsArray) => {
 
 profileServices.deleteInputsProfile = async id => {
     return await profileRepository.deleteInputsProfile(id)
+}
+
+profileServices.deleteProfileSection = async (idProfile, nombre) => {
+    return await profileRepository.deleteProfileSection(idProfile, nombre)
+}
+
+profileServices.deleteProfileSectionInputs = async (idProfile, nombre, idsArray) => {
+    let input = [];
+    let numerosComoCadenas = idsArray.split(",");
+
+    for (let i = 0; i < numerosComoCadenas.length; i++) {
+        input.push(Number(numerosComoCadenas[i]));
+    }
+    return await profileRepository.deleteProfileSectionInputs(Number(idProfile), nombre, input)
 }
 
 export default profileServices

@@ -179,7 +179,6 @@ begin
 end;
 $BODY$;
 
-
 CREATE OR REPLACE FUNCTION sp_find_all_unit(
 	)
     RETURNS json[]
@@ -252,6 +251,55 @@ begin
             'modifiedDate', a.modifiedDate
 		)
 		from alliance a
+        ) ::json[] into v_json_resp;
+		return v_json_resp;
+end;
+$BODY$;
+
+CREATE OR REPLACE FUNCTION sp_find_all_perfil_division(
+	)
+    RETURNS json[]
+    LANGUAGE 'plpgsql'
+    COST 100
+    VOLATILE PARALLEL UNSAFE
+AS $BODY$
+declare 
+	v_json_resp json[];
+begin
+	select array(
+        select jsonb_build_object(
+			'idDivision', a.idDivision,
+			'idProfile', a.idProfile,
+			'nombre', a.nombre,
+			'orden', a.orden,
+			'createdDate', a.createdDate,
+            'modifiedDate', a.modifiedDate
+		)
+		from perfil_division a
+        ) ::json[] into v_json_resp;
+		return v_json_resp;
+end;
+$BODY$;
+
+CREATE OR REPLACE FUNCTION sp_find_all_division_campo(
+	)
+    RETURNS json[]
+    LANGUAGE 'plpgsql'
+    COST 100
+    VOLATILE PARALLEL UNSAFE
+AS $BODY$
+declare 
+	v_json_resp json[];
+begin
+	select array(
+        select jsonb_build_object(
+			'idDivisionCampo', a.idDivisionCampo,
+			'idDivision', a.idDivision,
+			'idCampo', a.idCampo,
+			'createdDate', a.createdDate,
+            'modifiedDate', a.modifiedDate
+		)
+		from division_campo a
         ) ::json[] into v_json_resp;
 		return v_json_resp;
 end;
@@ -453,6 +501,34 @@ AS $BODY$
 begin
 	delete from campo_perfil
 	where idCampo_perfil = p_id;
+	return 'Se ha borrado el campo correctamente';
+end;
+$BODY$;
+
+CREATE OR REPLACE FUNCTION sp_perfil_division(
+	p_id integer)
+    RETURNS character varying
+    LANGUAGE 'plpgsql'
+    COST 100
+    VOLATILE PARALLEL UNSAFE
+AS $BODY$
+begin
+	delete from perfil_division
+	where idDivision = p_id;
+	return 'Se ha borrado la división correctamente';
+end;
+$BODY$;
+
+CREATE OR REPLACE FUNCTION sp_division_campo(
+	p_id integer)
+    RETURNS character varying
+    LANGUAGE 'plpgsql'
+    COST 100
+    VOLATILE PARALLEL UNSAFE
+AS $BODY$
+begin
+	delete from division_campo
+	where idDivisionCampo = p_id;
 	return 'Se ha borrado el campo correctamente';
 end;
 $BODY$;
@@ -2000,6 +2076,41 @@ begin
 end;
 $BODY$;
 
+CREATE OR REPLACE FUNCTION sp_find_division_info_by_profile(  
+    p_idProfile INTEGER  
+)  
+RETURNS json[]  
+LANGUAGE 'plpgsql'  
+COST 100  
+VOLATILE PARALLEL UNSAFE  
+AS $BODY$  
+DECLARE   
+    v_division_resp json[];  
+BEGIN  
+    SELECT array(  
+        SELECT jsonb_build_object(  
+            'nombre', pd.nombre,  
+            'expandida', false,  
+            'orden', pd.orden,  
+            'campos', (  
+                SELECT array_agg(jsonb_build_object(  
+                    'idDivisionCampo', dc.idDivisionCampo,  
+                    'idCampo', dc.idCampo,  
+                    'createdDate', dc.createdDate,  
+                    'modifiedDate', dc.modifiedDate  
+                ))  
+                FROM division_campo dc  
+                WHERE dc.idDivision = pd.idDivision  
+            )  
+        )  
+        FROM perfil_division pd  
+        WHERE pd.idProfile = p_idProfile  
+    )::json[] INTO v_division_resp;  
+
+    RETURN v_division_resp;  
+END;  
+$BODY$;  
+
 CREATE OR REPLACE FUNCTION sp_find_input_by_profile_and_input(
 	p_idCampo INTEGER,
 	p_idProfile INTEGER
@@ -2144,6 +2255,29 @@ BEGIN
 END;  
 $$ LANGUAGE plpgsql;  
 
+CREATE OR REPLACE FUNCTION agregar_en_division_campo(p_idProfile integer, p_nombre varchar, p_idCampos integer[])  
+RETURNS void AS $$  
+DECLARE  
+    campo integer;
+	id integer;  
+BEGIN  
+	select idDivision into id 
+	from perfil_division
+	where idProfile = p_idProfile
+	and nombre = p_nombre; 
+
+	raise notice 'llega: %', p_idProfile;
+	raise notice 'llega: %', p_nombre;
+
+    FOREACH campo IN ARRAY p_idCampos  
+    LOOP  
+	raise notice 'llega loop: %', campo;
+        INSERT INTO division_campo (idDivision, idCampo)  
+        VALUES (id, campo);  
+    END LOOP;  
+END;  
+$$ LANGUAGE plpgsql;  
+
 CREATE OR REPLACE FUNCTION eliminar_campo_perfil(p_idProfile integer, p_idCampos integer[])  
 RETURNS void AS $$  
 DECLARE  
@@ -2156,3 +2290,143 @@ BEGIN
     END LOOP;  
 END;  
 $$ LANGUAGE plpgsql;  
+
+CREATE OR REPLACE FUNCTION eliminar_division_campo(p_idProfile integer, p_nombre varchar, p_idCampos integer[])  
+RETURNS void AS $$  
+DECLARE  
+    campo integer;
+	id integer;  
+BEGIN  
+	select idDivision into id 
+	from perfil_division
+	where idProfile = p_idProfile
+	and nombre = p_nombre; 
+
+    FOREACH campo IN ARRAY p_idCampos  
+    LOOP  
+        DELETE FROM division_campo  
+        WHERE idCampo = campo AND idDivision = id;  
+    END LOOP;  
+END;  
+$$ LANGUAGE plpgsql; 
+
+CREATE OR REPLACE FUNCTION eliminar_perfil_division(p_idProfile integer, p_nombre varchar)  
+    RETURNS character varying
+    LANGUAGE 'plpgsql'
+    COST 100
+    VOLATILE PARALLEL UNSAFE
+AS $BODY$
+DECLARE  
+    id integer; 
+begin
+	select idDivision into id 
+	from perfil_division
+	where idProfile = p_idProfile
+	and nombre = p_nombre; 
+
+	delete from perfil_division
+	where idDivision = id;
+	return 'Se ha borrado la division correctamente';
+end;
+$BODY$; 
+
+CREATE OR REPLACE FUNCTION sp_agregar_perfil_division(  
+    p_campos jsonb[]  
+) RETURNS json  
+LANGUAGE 'plpgsql'  
+COST 100  
+VOLATILE PARALLEL UNSAFE  
+AS $BODY$  
+
+DECLARE  
+    v_campos jsonb;  
+    v_idProfile integer;  
+    v_nombre VARCHAR;
+	v_orden integer;  
+    v_inserciones integer := 0;  
+    v_unidad_existente VARCHAR;  
+BEGIN  
+    FOREACH v_campos IN ARRAY p_campos LOOP   
+
+        v_idProfile := v_campos->>'idProfile';  
+        v_nombre := v_campos->>'nombre';
+		v_orden := v_campos->>'orden';  
+ 
+        IF NOT EXISTS (SELECT 1 FROM perfil_division WHERE nombre = v_nombre and idProfile = v_idProfile) THEN   
+ 
+            INSERT INTO perfil_division(idProfile, nombre, orden) VALUES (v_idProfile, v_nombre, v_orden);  
+            v_inserciones := v_inserciones + 1;  
+        END IF;  
+    END LOOP;  
+
+    RETURN json_build_object(  
+        'message', 'Operación completada.',  
+        'nuevos_agregados', v_inserciones  
+    );  
+END;  
+$BODY$; 
+
+CREATE OR REPLACE FUNCTION sp_insertar_resultados_en_perfil(p_data jsonb)  
+RETURNS varchar AS $$  
+DECLARE  
+    v_profile_name text;  
+    v_order_id integer;  
+    v_field jsonb;  
+    v_idCampo integer;  
+    v_resultado text;  
+    v_table_name text;  
+    v_sql text;  
+BEGIN  
+    v_profile_name := p_data->>'profileName';  
+    v_order_id := (p_data->>'orderId')::integer;  
+
+    v_table_name := 'resultados_' || lower(replace(v_profile_name, ' ', '_'));  
+
+    FOR v_field IN SELECT * FROM jsonb_array_elements(p_data->'fields') LOOP  
+        SELECT idCampo INTO v_idCampo  
+        FROM campo  
+        WHERE nombre = v_field->>'fieldName';  
+
+        IF v_idCampo IS NOT NULL THEN  
+            v_resultado := v_field->>'inputValue';  
+
+            v_sql := format('INSERT INTO %I (idOrder, idCampo_perfil, resultado) VALUES (\$1, \$2, \$3)', v_table_name);  
+              
+            EXECUTE v_sql USING v_order_id, v_idCampo, v_resultado;  
+        END IF;  
+    END LOOP;  
+	RETURN 'Inserción exitosa';
+END;  
+$$ LANGUAGE plpgsql;  
+
+
+CREATE OR REPLACE FUNCTION insertar_perfil_division_y_campos(  
+    p_idProfile INTEGER,  
+    p_divisiones JSONB  
+) RETURNS VARCHAR AS $$  
+DECLARE  
+    v_idDivision INTEGER;  
+    v_idCampo INTEGER;  
+    elem RECORD;   
+    campo_json JSONB;  
+BEGIN    
+    FOR elem IN SELECT * FROM jsonb_to_recordset(p_divisiones) AS x(nombre TEXT, orden INTEGER, campos JSONB)  
+    LOOP  
+        INSERT INTO perfil_division (idProfile, nombre, orden)  
+        VALUES (p_idProfile, elem.nombre, elem.orden)  
+        RETURNING idDivision INTO v_idDivision;  
+
+        FOR campo_json IN SELECT * FROM jsonb_array_elements(elem.campos)  
+        LOOP  
+            SELECT c.idCampo INTO v_idCampo  
+            FROM campo c  
+            WHERE c.nombre = campo_json->>'nombre';
+            
+            INSERT INTO division_campo (idDivision, idCampo) 
+            VALUES (v_idDivision, v_idCampo);  
+        END LOOP;  
+    END LOOP;  
+
+    RETURN 'Inserción exitosa';  
+END;  
+$$ LANGUAGE plpgsql;

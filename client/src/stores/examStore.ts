@@ -17,6 +17,12 @@ export const examStore = defineStore("exam", {
 			this.exams = response;
 			return this.exams;
 		},
+		//Este es el insert que necesitas
+		async createExamResults(exam: Exam) {
+			const response = await axiosRepository.createExamResults<Exam>("exam", exam);
+			this.exams = response;
+			return this.exams;
+		},
 		async updateExam(id: string | number, data: Exam) {
 			const response = await axiosRepository.update<Exam>("exam", id, data);
 			this.exams = response;

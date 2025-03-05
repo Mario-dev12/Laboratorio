@@ -10,6 +10,10 @@ examServices.createExam = async (idUser, total_cost_bs, total_cost_usd) => {
     return await examRepository.createExam(idUser, total_cost_bs, total_cost_usd)
 }
 
+examServices.createExamResults = async (data) => {  
+    return await examRepository.createExamResults(data);  
+};
+
 examServices.updateExam = async (id, answer) => {
     return await examRepository.updateExam(id, answer)
 }

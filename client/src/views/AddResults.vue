@@ -170,11 +170,11 @@
 
 	const sendMailNodeMailer = async () => {
 		const data = {
-			pdfPath: "ruta/a/resultado.pdf",
-			destinatario: "destinatario@hotmail.com",
-			provider: "gmail",
-			userEmail: "tu-email@gmail.com",
-			userPassword: "tu-contraseña",
+			to: "mario12dev@gmail.com",  
+			subject: "Asunto del correo",  
+			text: "Este es el cuerpo del mensaje.",  
+			html: "", 
+			attachment: null, 
 		};
 		await mailsStore.sendEmail(data);
 	};

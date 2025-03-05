@@ -60,7 +60,6 @@ export const profileStore = defineStore("profile", {
 			this.profiles = response;
 			return this.profiles;
 		},
-		// Este es el create
 		async createInputsInProfile(exam: any, inputs: any) {
 			const response = await axiosRepository.createInputsInProfile<Profile>("profile", exam, inputs);
 			this.profiles = response;
@@ -71,8 +70,20 @@ export const profileStore = defineStore("profile", {
 			this.profiles = response;
 			return this.profiles;
 		},
-		async createProfileInputs(exam: Partial<Profile>, inputs: any) {
-			const response = await axiosRepository.createProfileInputs<Partial<Profile>>("profile", exam, inputs);
+		async createProfileInputs(exam: Partial<Profile>, inputs: any, section: any) {
+			const response = await axiosRepository.createProfileInputs<Partial<Profile>>("profile", exam, inputs, section);
+			this.profiles = response;
+			return this.profiles;
+		},
+		//Este es 1
+		async createProfileSection(exam: any, section: any) {
+			const response = await axiosRepository.createProfileSection<Profile>("profile", exam, section);
+			this.profiles = response;
+			return this.profiles;
+		},
+		//este es 2
+		async createProfileSectionInputs(exam: any, inputs: any) {
+			const response = await axiosRepository.createProfileSectionInputs<Profile>("profile", exam, inputs);
 			this.profiles = response;
 			return this.profiles;
 		},
@@ -97,12 +108,19 @@ export const profileStore = defineStore("profile", {
 		async deleteInputs(id: string | number) {
 			await axiosRepository.deleteInputs("profile", id);
 		},
-		//Este es el delete
 		async deleteInputsInProfile(exam: any, inputs: number[]) {
 			await axiosRepository.deleteInputsInProfile("profile", exam, inputs);
 		},
 		async deleteInputsProfile(id: string | number) {
 			await axiosRepository.deleteInputsProfile("profile", id);
+		},
+		//Este es el delete 1
+		async deleteProfileSection(idProfile: number, nombre: string) {
+			await axiosRepository.deleteProfileSection("profile", idProfile, nombre);
+		},
+		//Este es el delete 2
+		async deleteProfileSectionInputs(exam: any, nombre: string, inputs: any[]) {
+			await axiosRepository.deleteProfileSectionInputs("profile", exam, nombre, inputs);
 		},
 	},
 });

@@ -11,6 +11,22 @@ async function createProfileResults(name) {
 	}
 }
 
+async function createInsertarPerfilDivisionYCampos(idProfile, section) { 
+    try {  
+        const sectionJson = JSON.stringify(section);  
+ 
+        const resp = await pool.query(  
+            `SELECT insertar_perfil_division_y_campos(\$1::INTEGER, \$2::JSONB) AS mensaje`,  
+            [idProfile, sectionJson]   
+        );  
+
+        return resp.rows[0].mensaje;  
+    } catch (error) {   
+        console.error('Error al insertar los datos:', error);  
+        throw new Error('Error en la inserción: ' + error.message);  
+    }  
+}    
+
 async function agregarCampos(inputs) {
 	try {
 		const camposJson = inputs.map((input) => `('${JSON.stringify(input)}'::jsonb)`).join(",");
@@ -64,7 +80,12 @@ profileRepository.readProfilesInputs = async () => {
 profileRepository.readInputsByProfile = async (id) => {
 	try {
 		const resp = await pool.query(`SELECT * FROM sp_find_all_inputs_by_profile(${id})`);
-		return resp.rows[0].sp_find_all_inputs_by_profile;
+		const resp2 = await pool.query(`SELECT * FROM sp_find_division_info_by_profile(${id})`);
+		const data = {
+			campos: resp.rows[0].sp_find_all_inputs_by_profile,
+			section: resp2.rows[0].sp_find_division_info_by_profile
+		}
+		return data
 	} catch (error) {
 		throw error;
 	}
@@ -127,8 +148,6 @@ profileRepository.createProfile = async (name, cost_bs, cost_usd) => {
 };
 
 profileRepository.createInputsInProfile = async (idProfile, inputs) => {
-	console.log(idProfile);
-	console.log(inputs);
 	try {
 		const formattedInputs = `{${inputs.join(",")}}`;
 		const resp = await pool.query(`SELECT agregar_en_campo_perfil(${idProfile}, '${formattedInputs}'::integer[])`);
@@ -139,8 +158,6 @@ profileRepository.createInputsInProfile = async (idProfile, inputs) => {
 };
 
 profileRepository.createInputs = async (idProfile, inputs) => {
-	console.log(idProfile);
-	console.log(inputs);
 	try {
 		await agregarCampos(inputs);
 		await createProfileInputsTable(idProfile, inputs);
@@ -150,15 +167,36 @@ profileRepository.createInputs = async (idProfile, inputs) => {
 	}
 };
 
-profileRepository.createProfileInputs = async (name, cost_bs, cost_usd, inputs) => {
+profileRepository.createProfileInputs = async (name, cost_bs, cost_usd, inputs, section) => {
 	try {
 		const resp = await pool.query(`SELECT * FROM sp_create_profile('${name}', '${cost_bs}', '${cost_usd}')`);
 		await createProfileResults(name);
 		await agregarCampos(inputs);
 		await createProfileInputsTable(resp.rows[0].sp_create_profile.id, inputs);
+		await createInsertarPerfilDivisionYCampos(resp.rows[0].sp_create_profile.id, section)
 		return resp.rows[0].sp_create_profile;
 	} catch (error) {
 		throw error;
+	}
+};
+
+profileRepository.createProfileSection = async (idProfile, section) => {
+	try {
+		const resp = await createInsertarPerfilDivisionYCampos(idProfile, section)
+		return resp;
+	} catch (error) {
+		throw error;
+	}
+};
+
+profileRepository.createProfileSectionInputs = async (idProfile, nombre, inputs) => {
+	try {
+		const formattedInputs = `{${inputs.join(",")}}`;
+		const resp = await pool.query(`SELECT agregar_en_division_campo(${idProfile}, '${nombre}', '${formattedInputs}'::integer[])`);
+		return resp.rows[0].agregar_en_division_campo;
+	} catch (error) {
+		console.error('Error al insertar los datos:', error);  
+        throw new Error('Error en la inserción: ' + error.message);
 	}
 };
 
@@ -174,7 +212,6 @@ profileRepository.updateProfile = async (id, answer) => {
 };
 
 profileRepository.updateInputs = async (id, answer) => {
-	console.log(answer);
 	try {
 		const resp = await pool.query(`SELECT * FROM sp_update_inputs(${id}, '${answer.nombre}', '${answer.unidad}')`);
 		return resp.rows[0].sp_update_inputs;
@@ -224,6 +261,26 @@ profileRepository.deleteInputsProfile = async (id) => {
 	try {
 		const resp = await pool.query(`SELECT * FROM sp_delete_input_profile(${id})`);
 		return resp.rows[0].sp_delete_input_profile;
+	} catch (error) {
+		throw error;
+	}
+};
+
+profileRepository.deleteProfileSection = async (idProfile, nombre) => {
+	try {
+		const resp = await pool.query(`SELECT * FROM eliminar_perfil_division(${idProfile}, '${nombre}'::varchar)`);
+		return resp.rows[0].eliminar_perfil_division;
+	} catch (error) {
+		console.error('Error al insertar los datos:', error);  
+        throw new Error('Error en la inserción: ' + error.message);
+	}
+};
+
+profileRepository.deleteProfileSectionInputs = async (idProfile, nombre, input) => {
+	try {
+		const formattedInputs = `{${input.join(",")}}`;
+		const resp = await pool.query(`SELECT eliminar_division_campo(${idProfile}, '${nombre}', '${formattedInputs}'::integer[])`);
+		return resp.rows[0].eliminar_division_campo;
 	} catch (error) {
 		throw error;
 	}
