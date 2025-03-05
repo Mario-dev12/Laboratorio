@@ -420,7 +420,7 @@
 								idProfile: selectedPerfil.value.idProfile,  
 								nombre: seccion.nombre  
 							};   
-							const camposNuevos = seccion.campos.filter(campo => campo.idCampo === 0); // Filtrar campos nuevos.  
+							const camposNuevos = seccion.campos.filter(campo => campo.idCampo === 0); 
 
 							const idsCorrespondientes = camposNuevos.map(campoNuevo => {  
 								const campoExistente = camposExistentes.value.find(campo => campo.nombre === campoNuevo.nombre);  

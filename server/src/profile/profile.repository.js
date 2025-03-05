@@ -139,7 +139,6 @@ profileRepository.readInputsResults = async (name) => {
 profileRepository.createProfile = async (name, cost_bs, cost_usd) => {
 	try {
 		const resp = await pool.query(`SELECT * FROM sp_create_profile('${name}', '${cost_bs}', '${cost_usd}')`);
-		//await agregarCampos(inputs);
 		await createProfileResults(name);
 		return resp.rows[0].sp_create_profile;
 	} catch (error) {
