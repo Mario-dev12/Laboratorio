@@ -175,3 +175,9 @@ export interface Campo {
 	createddate?: any;
 	modifieddate?: any;
 }
+
+export interface Result {
+	orderId: number;
+	profileName: string;
+	fields: any[];
+}
