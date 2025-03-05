@@ -27,8 +27,8 @@ examRepository.createExamResults = async (data) => {
 		const resp = await pool.query(`SELECT sp_insertar_resultados_en_perfil(\$1)`, [valoresJSON]);
 		return resp.rows[0].sp_insertar_resultados_en_perfil;
 	} catch (error) {
-		console.log(error);
-		throw error;
+		console.error('Error al insertar los datos:', error);  
+        throw new Error('Error en la inserción: ' + error.message);
 	}
 };
 

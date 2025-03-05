@@ -2389,15 +2389,17 @@ BEGIN
 
         IF v_idCampo IS NOT NULL THEN  
             v_resultado := v_field->>'inputValue';  
+ 
+            v_sql := format('INSERT INTO %I (idOrder, idCampo_perfil, resultado) VALUES (%L, %L, %L)',   
+                           v_table_name, v_order_id, v_idCampo, v_resultado);  
 
-            v_sql := format('INSERT INTO %I (idOrder, idCampo_perfil, resultado) VALUES (\$1, \$2, \$3)', v_table_name);  
-              
-            EXECUTE v_sql USING v_order_id, v_idCampo, v_resultado;  
+            EXECUTE v_sql;  
         END IF;  
     END LOOP;  
-	RETURN 'Inserción exitosa';
+
+    RETURN 'Inserción exitosa';  
 END;  
-$$ LANGUAGE plpgsql;  
+$$ LANGUAGE plpgsql;
 
 
 CREATE OR REPLACE FUNCTION insertar_perfil_division_y_campos(  
