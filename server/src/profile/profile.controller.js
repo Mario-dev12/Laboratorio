@@ -119,8 +119,30 @@ profileController.createProfileInputs = async (req, res) => {
 			req.body.data.name,
 			req.body.data.cost_bs,
 			req.body.data.cost_usd,
-			req.body.inputs
+			req.body.inputs,
+			req.body.section
 		);
+		res.send(answer);
+	} catch (error) {
+		return res.status(400).send(error.stack);
+	}
+};
+
+profileController.createProfileSection = async (req, res) => {
+	try {
+		const answer = await profileServices.createProfileSection(
+			req.body.data,
+			req.body.section
+		);
+		res.send(answer);
+	} catch (error) {
+		return res.status(400).send(error.stack);
+	}
+};
+
+profileController.createProfileSectionInputs = async (req, res) => {
+	try {
+		const answer = await profileServices.createProfileSectionInputs(req.body.data.idProfile, req.body.data.nombre, req.body.inputs);
 		res.send(answer);
 	} catch (error) {
 		return res.status(400).send(error.stack);
@@ -197,6 +219,28 @@ profileController.deleteInputsProfile = async (req, res) => {
 
 	try {
 		const answer = await profileServices.deleteInputsProfile(id);
+		res.send(answer);
+	} catch (error) {
+		return res.status(400).send(error.stack);
+	}
+};
+
+profileController.deleteProfileSection = async (req, res) => {
+	const { idProfile, nombre } = req.params;
+
+	try {
+		const answer = await profileServices.deleteProfileSection(idProfile, nombre);
+		res.send(answer);
+	} catch (error) {
+		return res.status(400).send(error.stack);
+	}
+};
+
+profileController.deleteProfileSectionInputs = async (req, res) => {
+	const { idProfile, nombre, idsArray } = req.params;
+
+	try {
+		const answer = await profileServices.deleteProfileSectionInputs(idProfile, nombre, idsArray);
 		res.send(answer);
 	} catch (error) {
 		return res.status(400).send(error.stack);

@@ -25,4 +25,12 @@ profileRouter.delete("/input/:id", profileController.deleteInputs);
 profileRouter.delete("/inputsinprofile/:idProfile/:idsArray", profileController.deleteInputsInProfile);
 profileRouter.delete("/profileinputs/:id", profileController.deleteInputsProfile);
 
+//Sections
+profileRouter.post("/section", profileController.createProfileSection);
+profileRouter.delete("/section/:idProfile/:nombre", profileController.deleteProfileSection);
+
+//SectionsInputs
+profileRouter.post("/section/input", profileController.createProfileSectionInputs);
+profileRouter.delete("/section/input/:idProfile/:nombre/:idsArray", profileController.deleteProfileSectionInputs);
+
 export default profileRouter;
