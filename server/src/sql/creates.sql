@@ -139,4 +139,21 @@ CREATE TABLE IF NOT EXISTS resultados_perfil_tiroideo (
     resultado character varying(255) NOT NULL,
     createdDate timestamp with time zone NOT NULL DEFAULT now(),  
     modifiedDate timestamp with time zone NOT NULL DEFAULT now()  
-);  
+);
+
+CREATE TABLE IF NOT EXISTS perfil_division (  
+    idDivision SERIAL PRIMARY KEY,  
+    idProfile INTEGER NOT NULL REFERENCES profile(idProfile) ON DELETE CASCADE,  
+    nombre TEXT NOT NULL,
+    orden INTEGER NOT NULL,  
+    createdDate TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),  
+    modifiedDate TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now()  
+); 
+
+CREATE TABLE IF NOT EXISTS division_campo (  
+    idDivisionCampo SERIAL PRIMARY KEY, 
+    idDivision INTEGER NOT NULL REFERENCES perfil_division(idDivision) ON DELETE CASCADE,
+    idCampo INTEGER NOT NULL REFERENCES campo(idCampo) ON DELETE CASCADE,  
+    createdDate TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),  
+    modifiedDate TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now()  
+);

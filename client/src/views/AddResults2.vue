@@ -40,6 +40,9 @@
 				</div>
 			</div>
 		</ion-content>
+		<div class="row w-100 m-auto mb-4 mt-2 mr-1">
+			<button class="btn btn-primary w-auto" @click="sendMailNodeMailer">Enviar por Correo</button>
+		</div>
 	</ion-page>
 </template>
 
@@ -49,6 +52,7 @@
 	import { ref, onMounted } from "vue";
 	import html2pdf from "html2pdf.js";
 	import { useRoute } from "vue-router";
+	import { mailStore } from "@/stores/mailStore";
 
 	const profilesStore = profileStore();
 	const route = useRoute();
@@ -58,6 +62,7 @@
 	const sectionNames = ref();
 	const sectionData = ref();
 	const tableInfo = ref();
+	const mailsStore = mailStore();
 
 	profiles = ["Perfil 20", "Uroanalisis", "Perfil Tiroideo"];
 
@@ -85,6 +90,24 @@
 		};
 
 		html2pdf().from(element).set(options).save();
+	};
+
+	const sendMailNodeMailer = async () => {
+		const data = {  
+			to: "mario12dev@gmail.com",  
+			subject: "Asunto del correo",  
+			text: "Este es el cuerpo del mensaje.",  
+			html: "<p>Este es el cuerpo del mensaje.</p>", // Usar HTML real  
+			attachment: null,  
+		};
+
+		/*const data = {  
+			to: "mario12dev@gmail.com",  
+			from: "mario12dev@gmail.com",
+			subject: "Asunto del correo",  
+    		message: 'This is a test email sent from Next.js using Elastic Email.',  
+		};*/
+		await mailsStore.sendEmail(data);
 	};
 
 	function handleSection(index: number) {

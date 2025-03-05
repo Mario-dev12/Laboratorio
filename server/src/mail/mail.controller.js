@@ -4,9 +4,9 @@ const mailController = {};
 
 mailController.sendMail = async (req, res) => {
     try {
-      const { provider, userEmail, userPassword, pdfPath, destinatario } = req.body; 
+      const { to, subject, text, attachment } = req.body;
       
-      const answer = await mailServices.sendMail(provider, userEmail, userPassword, pdfPath, destinatario);
+      const answer = await mailServices.sendMail(to, subject, text, attachment);
   
       res.send(answer)
     } catch (error) {

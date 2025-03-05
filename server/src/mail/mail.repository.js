@@ -1,44 +1,380 @@
-import nodemailer from 'nodemailer';
+/*import env from '../utils/environment.js';  
 
-const mailRepository = {};
+const mailRepository = {};  
 
-mailRepository.sendMail = async (provider, userEmail, userPassword, pdfPath, destinatario) => {
-  let transporter;  
+import nodemailer from 'nodemailer';  
 
-    switch (provider) {  
-        case 'gmail':  
-            transporter = nodemailer.createTransport({  
-                service: 'gmail',  
-                auth: { user: userEmail, pass: userPassword },  
-            });  
-            break;  
-        case 'hotmail':  
-            transporter = nodemailer.createTransport({  
-                service: 'hotmail',  
-                auth: { user: userEmail, pass: userPassword },  
-            });  
-            break;  
-        case 'yahoo':  
-            transporter = nodemailer.createTransport({  
-                service: 'yahoo',  
-                auth: { user: userEmail, pass: userPassword },  
-            });  
-            break;  
-        default:  
-            throw new Error('Proveedor no soportado');  
-    }  
+mailRepository.sendMail = async (to, subject, body, htmlContent = "", attachment) => {  
+    const apiKey = env.ELASTIC_EMAIL_API_KEY;  
+
+    const transporter = nodemailer.createTransport({  
+        host: 'smtp.elasticemail.com',  
+        port: 2525, // o 587
+        secure: false,  
+        auth: {  
+            user: 'mario12dev@gmail.com', 
+            pass: apiKey,  
+        },  
+    });  
 
     const mailOptions = {  
-        from: userEmail,  
-        to: destinatario,  
-        subject: 'Resultados de tu análisis',  
-        text: 'Adjunto encontrarás los resultados de tu análisis.',  
-        attachments: [{ filename: 'resultado.pdf', path: pdfPath }],  
+        from: 'mario12dev@gmail.com',  
+        to: to,  
+        subject: subject,  
+        text: body,  
+        html: htmlContent || body,
     };  
 
-    await transporter.sendMail(mailOptions);  
+    if (attachment) {  
+        mailOptions.attachments = [  
+            {  
+                filename: attachment.filename,  
+                content: attachment.content,  
+                contentType: attachment.contentType,  
+            },  
+        ];  
+    }  
+
+    try {   
+        const info = await transporter.sendMail(mailOptions);  
+        return { status: 200, message: 'Correo enviado', response: info };  
+    } catch (error) {  
+        console.error('Error enviando el correo:', error);  
+        throw new Error('Error al enviar el correo: ' + (error.message || 'Error desconocido'));  
+    }  
+};  
+
+export default mailRepository;
+*/
+
+
+
+/*
+import axios from 'axios';
+import env from '../utils/environment.js';  
+
+const mailRepository = {};  
+
+mailRepository.sendMail = async (to, subject, body, attachment) => {  
+    const apiKey = env.ELASTIC_EMAIL_API_KEY_HTTP;  
+    const url = 'https://api.elasticemail.com/v4/emails';  
+
+    const params = {  
+        apiKey: apiKey,  
+        to: to,  
+        subject: subject,  
+        body: body,  
+        from: 'mario12dev@gmail.com',  
+    };  
+
+    // Intentar enviar el correo principal  
+    try {   
+        // Manejo de adjuntos  
+        if (attachment) {  
+            // Agregar el adjunto a la solicitud  
+            params.attachments = [  
+                {  
+                    filename: attachment.filename,  
+                    content: attachment.content,  
+                    contentType: attachment.contentType,  
+                },  
+            ];  
+
+            // Enviar el correo con el adjunto  
+            const attachmentResponse = await axios.post(url, null, { params });  
+            return { status: 200, message: 'Correo enviado con adjunto', response: attachmentResponse.data };  
+        }  else {
+            const response = await axios.post(url, null, { params }); 
+            return { status: 200, message: 'Correo enviado', response: response.data };
+        }  
+
+    } catch (error) {  
+        // Lanza un error para manejarlo en el endpoint  
+        console.error('Error enviando el correo:', error.response ? error.response.data : error.message);  
+        throw new Error(error.response ? error.response.data : 'Error al enviar el correo');  
+    }    
+};    
+
+export default mailRepository;
+*/
+
+/*import env from '../utils/environment.js'; 
+
+import ElasticEmail from '@elasticemail/elasticemail-client';
+ 
+let defaultClient = ElasticEmail.ApiClient.instance;
+
+let apikey = defaultClient.authentications['apikey'];
+apikey.apiKey = env.ELASTIC_EMAIL_API_KEY_HTTP
+
+let api = new ElasticEmail.EmailsApi()
+
+const mailRepository = {};  
+
+import nodemailer from 'nodemailer';  
+
+mailRepository.sendMail = async (to, subject, text, attachment) => {  
+    let defaultClient = ElasticEmail.ApiClient.instance;
+
+    let apikey = defaultClient.authentications['apikey'];
+    apikey.apiKey = env.ELASTIC_EMAIL_API_KEY_HTTP
+
+    let api = new ElasticEmail.EmailsApi()
+
+    let email = ElasticEmail.EmailMessageData.constructFromObject({
+        Recipients: [
+          new ElasticEmail.EmailRecipient("mario12dev@gmail.com")
+        ],
+        Content: {
+          Body: [
+            ElasticEmail.BodyPart.constructFromObject({
+              ContentType: "HTML",
+              Content: "My test email content ;)"
+            })
+          ],
+          Subject: "JS EE lib test",
+          From: "mario12dev@gmail.com"
+        }
+      });
+       
+      var callback = function(error, data, response) {
+        if (error) {
+          console.error(error);
+        } else {
+          console.log('API called successfully.');
+        }
+      };
+
+      api.emailsPost(email, callback);
+};  */
+
+/*import env from '../utils/environment.js'; 
+
+import ElasticEmail from '@elasticemail/elasticemail-client';
+
+const mailRepository = {};   
+
+mailRepository.sendMail = async (to, subject, text, attachment) => { 
+    const client = ElasticEmail.ApiClient.instance;
+
+    const apikey = client.authentications['apikey'];
+    apikey.apiKey = env.ELASTIC_EMAIL_API_KEY_HTTP;
+
+    const emailsApi = new ElasticEmail.EmailsApi();
     
-    return 'Correo enviado exitosamente';
+    const emailData = {
+        Recipients: {
+            To: ["mario12dev@gmail.com"]
+        },
+        Content: {
+            Body: [
+                {
+                    ContentType: "HTML",
+                    Charset: "utf-8",
+                    Content: "Mail content."
+                },
+                {
+                    ContentType: "PlainText",
+                    Charset: "utf-8",
+                    Content: "Mail content."
+                }
+            ],
+            From: "mario12dev@gmail.com",
+            Subject: "Example transactional email"
+        }
+    };
+
+    const callback = (error, data, response) => {
+        if (error) {
+            console.error(error);
+        } else {
+            console.log('API called successfully.');
+            console.log('Email sent.');
+        }
+    };
+
+    emailsApi.emailsTransactionalPost(emailData, callback);
+    
 }
 
-export default mailRepository
+
+export default mailRepository;
+*/
+
+    
+/*import EmailClient  from 'elasticemail-webapiclient';
+import env from '../utils/environment.js'; 
+
+const mailRepository = {};   
+
+mailRepository.sendMail = async ({ to, from, subject, message }) => {
+    const elasticEmailClient = new EmailClient(env.ELASTIC_EMAIL_API_KEY_HTTP);
+
+    const emailData = {
+        to: [{ email: to }],
+        from: { email: from },
+        subject: subject,
+        body: message,
+    };
+    
+    try {
+        const response = await elasticEmailClient.Email.Send(emailData);
+    
+        console.log('Email sent successfully:', response);
+        return response;
+    } catch (error) {
+        console.error('Error sending email:', error);
+        throw error;
+    }
+}
+
+export default mailRepository;*/
+
+/*import ElasticEmail from '@elasticemail/elasticemail-client';  
+import env from '../utils/environment.js';   
+
+const mailRepository = {};   
+
+mailRepository.sendMail = async (to, subject, text, attachment) => {   
+    const client = ElasticEmail.ApiClient.instance;  
+    const apikey = client.authentications['apikey'];  
+    apikey.apiKey = env.ELASTIC_EMAIL_API_KEY_HTTP;  
+
+    const emailsApi = new ElasticEmail.EmailsApi();  
+    
+    const emailData = {  
+        Recipients: [  
+            {  
+                Email: to,  
+                Fields: {  
+                    city: "New York",  
+                    age: "34"
+                }  
+            }  
+        ],  
+        Content: {  
+            Body: [  
+                {  
+                    ContentType: "HTML",  
+                    Content: `<p>${text}</p>`, // Mensaje en HTML  
+                    Charset: "utf-8"  
+                },  
+                {  
+                    ContentType: "PlainText",  
+                    Content: text, // Mensaje en texto plano  
+                    Charset: "utf-8"  
+                }  
+            ],  
+            From: "mario12dev@gmail.com",  
+            Subject: subject,  
+            // Eliminar Attachments si no hay archivos adjuntos  
+            Attachments: attachment ? [  
+                {  
+                    BinaryContent: attachment.binaryContent, // Aquí deberías proporcionar el contenido binario del archivo  
+                    Name: attachment.name, // Nombre del archivo  
+                    ContentType: attachment.contentType, // Tipo de contenido del archivo  
+                    Size: attachment.size // Tamaño del archivo  
+                }  
+            ] : []  
+        },  
+        Options: {  
+            TrackOpens: true,  
+            TrackClicks: true,  
+            PoolName: "My Custom Pool",  
+            ChannelName: "Channel01"  
+        }  
+    };  
+
+    const callback = (error, data, response) => {  
+        if (error) {  
+            console.error('Error al enviar el correo:', error);  
+        } else {  
+            console.log('Correo enviado con éxito:', data);  
+        }  
+    };  
+
+    emailsApi.emailsTransactionalPost(emailData, callback);  
+};  
+
+export default mailRepository; 
+*/
+
+/*import env from '../utils/environment.js'; 
+
+import ElasticEmail from '@elasticemail/elasticemail-client';
+
+const mailRepository = {};   
+
+mailRepository.sendMail = async (to, subject, text, attachment) => {  
+    let defaultClient = ElasticEmail.ApiClient.instance;
+
+    let apikey = defaultClient.authentications['apikey'];
+    apikey.apiKey = env.ELASTIC_EMAIL_API_KEY_HTTP
+
+    let api = new ElasticEmail.EmailsApi()
+
+    const emailData = {
+        Recipients: {
+            To: ["mario12dev@gmail.com"]
+        },
+        Content: {
+            Body: [
+                {
+                    ContentType: "HTML",
+                    Charset: "utf-8",
+                    Content: "Hi you name"
+                }
+            ],
+            From: "maavena.17@est.ucab.edu.ve",
+            Subject: "Example email"
+        }
+    };
+    const callback = (error, data, response) => {
+        if (error) {
+            console.error(error);
+           // res.status(200).json({success:error});
+        } else {
+            console.log('API called successfully.');
+            console.log('Email sent.');
+            //res.status(200).json({success:"done"});
+        }
+    };
+
+      api.emailsTransactionalPost(emailData,callback);
+};
+
+export default mailRepository;
+*/
+
+import { MailerSend, EmailParams, Sender, Recipient } from "mailersend";  
+import env from '../utils/environment.js';   
+
+const mailRepository = {};   
+
+mailRepository.sendMail = async (to, subject, text, attachment) => {  
+    const mailerSend = new MailerSend({  
+        apiKey: env.ELASTIC_EMAIL_API_KEY_HTTP,  
+    });  
+      
+    const sentFrom = new Sender("tucorreo@trial-jpzkmgq1x5ml059v.mlsender.net", "Your name");  
+    
+    const recipients = [  
+        new Recipient(to, "Your Client") // Asegúrate de usar el parámetro `to`  
+    ];  
+    
+    const emailParams = new EmailParams()  
+        .setFrom(sentFrom)  
+        .setTo(recipients)  
+        .setReplyTo(sentFrom)  
+        .setSubject(subject) // Usa el parámetro `subject`  
+        .setHtml("<strong>" + text + "</strong>") // Usa el parámetro `text`  
+        .setText(text);  
+
+    try {  
+        const response = await mailerSend.email.send(emailParams);  
+        console.log('Email enviado: ', response);  
+    } catch (error) {  
+        console.error('Error enviando el email: ', error);  
+    }  
+};
+export default mailRepository;

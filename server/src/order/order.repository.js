@@ -33,7 +33,6 @@ orderRepository.readOrderByExamId = async (id) => {
 
 orderRepository.readOrdersDay = async (today, date) => {
   try {
-    console.log('llega', today, date)
     const resp = await pool.query(`SELECT * FROM sp_find_all_order_day('${today}', '${date}')`);
     return resp.rows[0].sp_find_all_order_day;
   } catch (error) {
@@ -72,7 +71,6 @@ orderRepository.updateOrder = async (id, answer) => {
 
 orderRepository.deleteOrder = async id => {
   try {
-    console.log('llega', id)
     const resp = await pool.query(`SELECT * FROM sp_delete_order(${id})`);
     return resp.rows[0].sp_delete_order;
   } catch (error) {

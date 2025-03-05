@@ -1,3 +1,5 @@
+DROP TABLE IF EXISTS division_campo CASCADE; 
+DROP TABLE IF EXISTS perfil_division CASCADE; 
 DROP TABLE IF EXISTS resultados_perfil_tiroideo CASCADE;  
 DROP TABLE IF EXISTS resultados_uroanalisis CASCADE;  
 DROP TABLE IF EXISTS resultados_perfil_20 CASCADE;  

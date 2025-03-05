@@ -122,12 +122,35 @@ class AxiosRepository {
 		return response.data;
 	}
 
+	async createExamResults<T>(domain: string, data: T): Promise<T> {
+		const response = await axios.post<T>(`${import.meta.env.VITE_API_URL}/${domain}/results`, data);
+		return response.data;
+	}
+
 	async createInputsInProfile<T>(domain: string, data: T, inputs: T): Promise<T> {
 		const requestData = {
 			data,
 			inputs,
 		};
 		const response = await axios.post<T>(`${import.meta.env.VITE_API_URL}/${domain}/inputsinprofile`, requestData);
+		return response.data;
+	}
+
+	async createProfileSection<T>(domain: string, data: T, section: T): Promise<T> {
+		const requestData = {
+			data,
+			section,
+		};
+		const response = await axios.post<T>(`${import.meta.env.VITE_API_URL}/${domain}/section`, requestData);
+		return response.data;
+	}
+
+	async createProfileSectionInputs<T>(domain: string, data: T, inputs: T): Promise<T> {
+		const requestData = {
+			data,
+			inputs,
+		};
+		const response = await axios.post<T>(`${import.meta.env.VITE_API_URL}/${domain}/section/input`, requestData);
 		return response.data;
 	}
 
@@ -140,10 +163,11 @@ class AxiosRepository {
 		return response.data;
 	}
 
-	async createProfileInputs<T>(domain: string, data: T, inputs: T): Promise<T> {
+	async createProfileInputs<T>(domain: string, data: T, inputs: T, section: T): Promise<T> {
 		const requestData = {
 			data,
 			inputs,
+			section
 		};
 		const response = await axios.post<T>(`${import.meta.env.VITE_API_URL}/${domain}/inputs`, requestData);
 		return response.data;
@@ -182,6 +206,14 @@ class AxiosRepository {
 
 	async deleteByExamIdAndProfileId(domain: string, idexam: string | number, idprofile: string | number): Promise<void> {
 		await axios.delete(`${import.meta.env.VITE_API_URL}/${domain}/order/${idexam}/${idprofile}`);
+	}
+
+	async deleteProfileSection(domain: string, idProfile: number, nombre: string): Promise<void> {
+		await axios.delete(`${import.meta.env.VITE_API_URL}/${domain}/section/${idProfile}/${nombre}`);
+	}
+
+	async deleteProfileSectionInputs(domain: string, idProfile: number, nombre: string, idsArray: number[]): Promise<void> {
+		await axios.delete(`${import.meta.env.VITE_API_URL}/${domain}/section/input/${idProfile}/${nombre}/${idsArray}`);
 	}
 }
 

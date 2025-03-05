@@ -21,6 +21,15 @@ examController.createExam = async (req, res) => {
   }
 }
 
+examController.createExamResults = async (req, res) => {  
+  try {  
+    const resultados = await examServices.createExamResults(req.body);  
+    res.send(resultados);  
+  } catch (error) {  
+    return res.status(400).send(error.stack);  
+  }  
+}; 
+
 examController.updateExam = async (req, res) => {
   const { id } = req.params
 
