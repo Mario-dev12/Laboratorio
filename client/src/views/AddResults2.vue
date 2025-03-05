@@ -61,6 +61,7 @@
 	import html2pdf from "html2pdf.js";
 	import { useRoute } from "vue-router";
 	import { mailStore } from "@/stores/mailStore";
+	import { examStore } from "@/stores/examStore";
 
 	interface Item {
 		nombre: string;
@@ -71,6 +72,7 @@
 		resultado: Item[];
 	}
 
+	const examsStore = examStore();
 	const profilesStore = profileStore();
 	const route = useRoute();
 	let profileNames: any = "";
@@ -87,8 +89,6 @@
 	let html: string = "";
 	const ordersArray = ref();
 	const mailsStore = mailStore();
-
-	profiles = ["Perfil 20", "Uroanalisis", "Perfil Tiroideo"];
 
 	onMounted(async () => {
 		order.value = route.query.profile;
@@ -158,7 +158,7 @@
 
 		if (profileRef2.value) {
 			// Loop por cada perfil
-			profileRef2.value.forEach((item: any, index: number) => {
+			profileRef2.value.forEach(async (item: any, index: number) => {
 				let results: { orderId: number; profileName: string; fields: any[] };
 				results = {
 					orderId: 0,
@@ -216,6 +216,7 @@
 				};
 				console.log(results);
 				// hacer llamado al store aqui
+				await examsStore.createExamResults(results);
 			});
 			console.log(testsResults);
 		}
@@ -270,18 +271,18 @@
 		await mailsStore.sendEmail(data);
 	};
 
-	function handleSection(index: number) {
-		sectionData.value = profilesData.value[index];
-		sectionNames.value = Object.keys(profilesData.value[index]);
-		tableInfo.value = "";
-	}
+	// function handleSection(index: number) {
+	// 	sectionData.value = profilesData.value[index];
+	// 	sectionNames.value = Object.keys(profilesData.value[index]);
+	// 	tableInfo.value = "";
+	// }
 
-	const changeTable = (section: string) => {
-		console.log(section);
-		console.log(sectionData.value[section]);
-		tableInfo.value = sectionData.value[section]["resultado"];
-		console.log(tableInfo.value);
-	};
+	// const changeTable = (section: string) => {
+	// 	console.log(section);
+	// 	console.log(sectionData.value[section]);
+	// 	tableInfo.value = sectionData.value[section]["resultado"];
+	// 	console.log(tableInfo.value);
+	// };
 </script>
 
 <style scoped></style>
