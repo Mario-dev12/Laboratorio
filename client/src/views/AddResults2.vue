@@ -101,7 +101,6 @@
 	onMounted(async () => {
 		order.value = route.query.profile;
 		order.value = JSON.parse(order.value);
-		console.log(order.value);
 		ordersArray.value = order.value.orders;
 
 		profileNames = route.query.profileNames;
@@ -109,9 +108,7 @@
 		for (const profile of profileNames) {
 			const profileSection = await profilesStore.fetchProfileByInputsName(profile);
 			profilesData.value.push(profileSection);
-			console.log(profileSection);
 		}
-		console.log(profilesData.value);
 		sectionData.value = profilesData.value[0];
 		sectionNames.value = profilesData.value;
 		showProfile.value = new Array(profileNames.length).fill(false);
@@ -131,7 +128,6 @@
 				const profileSection = await profilesStore.fetchProfileByInputsName(profile);
 				profilesData.value.push(profileSection);
 			}
-			console.log(profilesData.value);
 			sectionData.value = profilesData.value[0];
 			sectionNames.value = profilesData.value;
 			showProfile.value = new Array(profileNames.length).fill(false);
@@ -143,14 +139,10 @@
 	const checkInputValue = (event: Event, index: number) => {
 		const personAge = order.value.age;
 		const personGenre = order.value.genre;
-		console.log(valorReferencial.value[index].innerHTML);
-
 		const valorReferencialString = valorReferencial.value[index].innerHTML;
 		const valorReferencialNumber = valorReferencialString.match(/(\d+(?:,\d+)?)/g);
 		const parsedNumbers = valorReferencialNumber?.map((numStr: any) => parseFloat(numStr.replace(",", ".")));
-		console.log(parsedNumbers);
 		const inputValue = (event.target as HTMLInputElement).value;
-		console.log(inputValue);
 
 		if (parsedNumbers) {
 			if (parsedNumbers.length === 2) {
