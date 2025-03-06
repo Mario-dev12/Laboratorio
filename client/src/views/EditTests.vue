@@ -119,6 +119,7 @@
 									<tr>  
 									  <th scope="col">Name</th>  
 									  <th scope="col">Unit</th>  
+									  <th scope="col">Valor Referencial</th> 
 									  <th scope="col">Agregado</th>  
 									</tr>  
 								  </thead>  
@@ -126,6 +127,7 @@
 									<tr v-for="campo in camposExistentes" :key="campo.idCampo">  
 										<td>{{ campo.nombre }}</td>  
 										<td>{{ campo.unidad }}</td>  
+										<td>{{ campo.valor_referencial }}</td> 
 										<td class="align-middle">  
 											<input  
 												type="checkbox"  

@@ -171,6 +171,7 @@ export interface Campo {
 	nombre: string;
 	unidad: string;
 	referencial: string;
+	valor_referencial?: string;
 	checked?: boolean;
 	createddate?: any;
 	modifieddate?: any;
