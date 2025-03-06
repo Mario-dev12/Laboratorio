@@ -2432,3 +2432,46 @@ BEGIN
     RETURN 'Inserción exitosa';  
 END;  
 $$ LANGUAGE plpgsql;
+
+CREATE OR REPLACE FUNCTION sp_sincronizar_resultados(p_data jsonb)  
+RETURNS VARCHAR AS $$  
+DECLARE  
+    v_profile_name TEXT;  
+    v_order_id INTEGER;  
+    v_field JSONB;  
+    v_idCampo INTEGER;  
+    v_resultado TEXT;  
+    v_table_name TEXT;  
+    v_sql TEXT;  
+    v_count INTEGER;  
+BEGIN  
+    v_profile_name := p_data->>'profileName';  
+    v_order_id := (p_data->>'orderId')::INTEGER;  
+    v_table_name := 'resultados_' || lower(replace(v_profile_name, ' ', '_'));  
+  
+    v_sql := format('SELECT count(*) FROM %I WHERE idOrder = %L', v_table_name, v_order_id);  
+    EXECUTE v_sql INTO v_count;  
+
+    IF v_count > 0 THEN  
+        v_sql := format('DELETE FROM %I WHERE idOrder = %L', v_table_name, v_order_id);  
+        EXECUTE v_sql;  
+    END IF;  
+
+    FOR v_field IN SELECT * FROM jsonb_array_elements(p_data->'fields') LOOP  
+        SELECT idCampo INTO v_idCampo  
+        FROM campo  
+        WHERE nombre = v_field->>'fieldName';  
+
+        IF v_idCampo IS NOT NULL THEN  
+            v_resultado := v_field->>'inputValue';  
+
+            v_sql := format('INSERT INTO %I (idOrder, idCampo_perfil, resultado) VALUES (%L, %L, %L)',  
+                           v_table_name, v_order_id, v_idCampo, v_resultado);  
+
+            EXECUTE v_sql;  
+        END IF;  
+    END LOOP;  
+
+    RETURN 'Sincronización exitosa';  
+END;  
+$$ LANGUAGE plpgsql;  
