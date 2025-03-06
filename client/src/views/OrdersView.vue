@@ -97,7 +97,6 @@
 	};
 
 	const openTabsView = (profileName: any) => {
-		console.log(profileName);
 		const profileNamesArray = profileName.orders.flatMap((order: { profiles: any[] }) =>
 			order.profiles.map((profile: { profileName: any }) => profile.profileName)
 		);

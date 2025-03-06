@@ -34,7 +34,9 @@
 										<tbody>
 											<tr v-for="(item, index) in (section as Section).resultado" :key="index">
 												<td ref="campoNames">{{ item.nombre }}</td>
-												<td><input type="text" ref="campoResult" /></td>
+												<td>
+													<input type="text" ref="campoResult" @input="checkInputValue($event)" />
+												</td>
 												<td>{{ item.unidad }}</td>
 											</tr>
 										</tbody>
@@ -62,16 +64,20 @@
 	import { useRoute } from "vue-router";
 	import { mailStore } from "@/stores/mailStore";
 	import { examStore } from "@/stores/examStore";
+	import { useRouter } from "vue-router";
 
 	interface Item {
 		nombre: string;
 		unidad: string;
+		color?: string;
+		borderColor?: string;
 	}
 
 	interface Section {
 		resultado: Item[];
 	}
 
+	const router = useRouter();
 	const examsStore = examStore();
 	const profilesStore = profileStore();
 	const route = useRoute();
@@ -95,10 +101,8 @@
 		order.value = JSON.parse(order.value);
 		ordersArray.value = order.value.orders;
 
-		console.log(ordersArray.value);
 		profileNames = route.query.profileNames;
 		profileNames = JSON.parse(profileNames);
-		console.log(profileNames);
 		for (const profile of profileNames) {
 			const profileSection = await profilesStore.fetchProfileByInputsName(profile);
 			profilesData.value.push(profileSection);
@@ -107,10 +111,37 @@
 		sectionNames.value = profilesData.value;
 		showProfile.value = new Array(profileNames.length).fill(false);
 		showProfile.value[0] = true;
-		console.log(profilesData.value);
-		console.log(showProfile.value);
-		console.log(sectionNames.value);
 	});
+
+	router.beforeEach(async (to, from, next) => {
+		if (from.name === "OrdersView") {
+			order.value = to.query.profile;
+			order.value = JSON.parse(order.value);
+			ordersArray.value = order.value.orders;
+
+			profileNames = to.query.profileNames;
+			profileNames = JSON.parse(profileNames);
+			for (const profile of profileNames) {
+				const profileSection = await profilesStore.fetchProfileByInputsName(profile);
+				profilesData.value.push(profileSection);
+			}
+			sectionData.value = profilesData.value[0];
+			sectionNames.value = profilesData.value;
+			showProfile.value = new Array(profileNames.length).fill(false);
+			showProfile.value[0] = true;
+		}
+		next();
+	});
+
+	const checkInputValue = (event: Event) => {
+		console.log("check input");
+		console.log(event.target);
+		console.log(campoResult.value);
+		const inputValue = (event.target as HTMLInputElement).value;
+		console.log(inputValue);
+		(event.target as HTMLInputElement).style.color = "red";
+		(event.target as HTMLInputElement).style.borderColor = "red";
+	};
 
 	function handleSection(index: number) {
 		sectionData.value = profilesData.value[index];
@@ -127,13 +158,6 @@
 		sectionNames.value = Object.keys(sectionData.value);
 		console.log(sectionNames.value);
 	}
-
-	// const changeTable = (section: string) => {
-	// 	console.log(section);
-	// 	console.log(sectionData.value[section]);
-	// 	tableInfo.value = sectionData.value[section]["resultado"];
-	// 	console.log(tableInfo.value);
-	// };
 
 	const getHtmlWithInputValues = (element: any) => {
 		const inputs = element.querySelectorAll("input, textarea");
