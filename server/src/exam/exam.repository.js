@@ -22,7 +22,6 @@ examRepository.createExam = async (idUser, total_cost_bs, total_cost_usd) => {
 
 examRepository.createExamResults = async (data) => {
 	try {
-		console.log(data);
 		const valoresJSON = JSON.stringify(data);
 		const resp = await pool.query(`SELECT sp_sincronizar_resultados(\$1)`, [valoresJSON]);
 		return resp.rows[0].sp_sincronizar_resultados;
