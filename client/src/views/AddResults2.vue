@@ -36,10 +36,10 @@
 											<tr v-for="(item, index) in (section as Section).resultado" :key="index">
 												<td ref="campoNames">{{ item.nombre }}</td>
 												<td>
-													<input type="text" ref="campoResult" @input="checkInputValue($event)" />
+													<input type="text" ref="campoResult" @change="checkInputValue($event, index)" />
 												</td>
 												<td>{{ item.unidad }}</td>
-												<td>{{ item.valor_referencial }}</td>
+												<td ref="valorReferencial">{{ item.valor_referencial }}</td>
 											</tr>
 										</tbody>
 									</table>
@@ -96,10 +96,12 @@
 	let html: string = "";
 	const ordersArray = ref();
 	const mailsStore = mailStore();
+	const valorReferencial = ref();
 
 	onMounted(async () => {
 		order.value = route.query.profile;
 		order.value = JSON.parse(order.value);
+		console.log(order.value);
 		ordersArray.value = order.value.orders;
 
 		profileNames = route.query.profileNames;
@@ -117,6 +119,7 @@
 	});
 
 	router.beforeEach(async (to, from, next) => {
+		profilesData.value = [];
 		if (from.name === "OrdersView") {
 			order.value = to.query.profile;
 			order.value = JSON.parse(order.value);
@@ -128,6 +131,7 @@
 				const profileSection = await profilesStore.fetchProfileByInputsName(profile);
 				profilesData.value.push(profileSection);
 			}
+			console.log(profilesData.value);
 			sectionData.value = profilesData.value[0];
 			sectionNames.value = profilesData.value;
 			showProfile.value = new Array(profileNames.length).fill(false);
@@ -136,14 +140,89 @@
 		next();
 	});
 
-	const checkInputValue = (event: Event) => {
-		console.log("check input");
-		console.log(event.target);
-		console.log(campoResult.value);
+	const checkInputValue = (event: Event, index: number) => {
+		const personAge = order.value.age;
+		const personGenre = order.value.genre;
+		console.log(valorReferencial.value[index].innerHTML);
+
+		const valorReferencialString = valorReferencial.value[index].innerHTML;
+		const valorReferencialNumber = valorReferencialString.match(/(\d+(?:,\d+)?)/g);
+		const parsedNumbers = valorReferencialNumber?.map((numStr: any) => parseFloat(numStr.replace(",", ".")));
+		console.log(parsedNumbers);
 		const inputValue = (event.target as HTMLInputElement).value;
 		console.log(inputValue);
-		(event.target as HTMLInputElement).style.color = "red";
-		(event.target as HTMLInputElement).style.borderColor = "red";
+
+		if (parsedNumbers) {
+			if (parsedNumbers.length === 2) {
+				if (inputValue < parsedNumbers[0] || inputValue > parsedNumbers[1]) {
+					(event.target as HTMLInputElement).style.color = "red";
+					(event.target as HTMLInputElement).style.borderColor = "red";
+				} else {
+					(event.target as HTMLInputElement).style.color = "green";
+					(event.target as HTMLInputElement).style.borderColor = "lightgreen";
+				}
+			}
+
+			if (parsedNumbers.length === 1) {
+				if (valorReferencialString.includes("menor")) {
+					if (inputValue < parsedNumbers[0]) {
+						(event.target as HTMLInputElement).style.color = "green";
+						(event.target as HTMLInputElement).style.borderColor = "lightgreen";
+					} else {
+						(event.target as HTMLInputElement).style.color = "red";
+						(event.target as HTMLInputElement).style.borderColor = "red";
+					}
+				} else if (valorReferencialString.includes("Hasta")) {
+					if (inputValue > parsedNumbers[0]) {
+						(event.target as HTMLInputElement).style.color = "red";
+						(event.target as HTMLInputElement).style.borderColor = "red";
+					} else {
+						(event.target as HTMLInputElement).style.color = "green";
+						(event.target as HTMLInputElement).style.borderColor = "lightgreen";
+					}
+				}
+			}
+
+			if (parsedNumbers.length === 4) {
+				if (valorReferencialString.includes("Hombre")) {
+					if (personGenre === "M") {
+						if (inputValue < parsedNumbers[0] || inputValue > parsedNumbers[1]) {
+							(event.target as HTMLInputElement).style.color = "red";
+							(event.target as HTMLInputElement).style.borderColor = "red";
+						} else {
+							(event.target as HTMLInputElement).style.color = "green";
+							(event.target as HTMLInputElement).style.borderColor = "lightgreen";
+						}
+					} else if (personGenre === "F") {
+						if (inputValue < parsedNumbers[2] || inputValue > parsedNumbers[3]) {
+							(event.target as HTMLInputElement).style.color = "red";
+							(event.target as HTMLInputElement).style.borderColor = "red";
+						} else {
+							(event.target as HTMLInputElement).style.color = "green";
+							(event.target as HTMLInputElement).style.borderColor = "lightgreen";
+						}
+					}
+				} else if (valorReferencialString.includes("Adulto")) {
+					if (personAge > 17) {
+						if (inputValue < parsedNumbers[0] || inputValue > parsedNumbers[1]) {
+							(event.target as HTMLInputElement).style.color = "red";
+							(event.target as HTMLInputElement).style.borderColor = "red";
+						} else {
+							(event.target as HTMLInputElement).style.color = "green";
+							(event.target as HTMLInputElement).style.borderColor = "lightgreen";
+						}
+					} else {
+						if (inputValue < parsedNumbers[2] || inputValue > parsedNumbers[3]) {
+							(event.target as HTMLInputElement).style.color = "red";
+							(event.target as HTMLInputElement).style.borderColor = "red";
+						} else {
+							(event.target as HTMLInputElement).style.color = "green";
+							(event.target as HTMLInputElement).style.borderColor = "lightgreen";
+						}
+					}
+				}
+			}
+		}
 	};
 
 	function handleSection(index: number) {
@@ -195,18 +274,13 @@
 				};
 				const profileFields: any[] = [];
 				const testSections: { [key: string]: any[] } = {};
-				console.log(item);
-				console.log(item.children[1]);
 				const sections = item.querySelectorAll(".profile-tables");
-				console.log(sections);
 
 				// Loop por cada seccion del perfil
 				console.log(item.children[1].children[1]);
 				sections.forEach((table: any) => {
-					console.log(table);
 					const tableName = table.querySelector("h3");
 					const tableData = table.querySelectorAll("tbody tr");
-					console.log(tableName);
 					testSections[tableName.innerHTML] = [];
 
 					tableData.forEach((tr: any) => {
@@ -228,18 +302,12 @@
 								dataRow.Unit = td.innerHTML;
 							}
 						});
-						console.log(dataRow);
 						testSections[tableName.innerHTML].push(dataRow);
 						profileFields.push(dataRow);
 					});
-
-					console.log(tableName.innerHTML);
-					console.log(tableData);
 				});
-				console.log(profileFields);
+				console.log(Object.values(testsResults));
 				Object.values(testsResults)[index].push(testSections);
-				console.log(Object.values(testsResults)[index]);
-				console.log(testSections);
 
 				results = {
 					orderId: ordersArray.value[index].idOrder,
