@@ -129,8 +129,8 @@ profileRepository.readProfileByType = async (name) => {
 
 profileRepository.readInputsResults = async (name) => {
 	try {
-		const resp = await pool.query(`SELECT * FROM obtener_perfil_json('${name}')`);
-		return resp.rows[0].obtener_perfil_json;
+		const resp = await pool.query(`SELECT * FROM obtener_perfil_json2('${name}')`);
+		return resp.rows[0].obtener_perfil_json2;
 	} catch (error) {
 		throw error;
 	}

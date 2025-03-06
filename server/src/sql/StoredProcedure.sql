@@ -2475,3 +2475,77 @@ BEGIN
     RETURN 'Sincronización exitosa';  
 END;  
 $$ LANGUAGE plpgsql;  
+
+CREATE OR REPLACE FUNCTION obtener_perfil_json2(nomb_perfil character varying)  
+RETURNS JSON AS $$  
+DECLARE  
+    resultado JSON;  
+    division_cursor CURSOR FOR  
+        SELECT idDivision, nombre, orden  
+        FROM perfil_division  
+        WHERE idProfile = (SELECT idProfile FROM profile WHERE name = nomb_perfil)  
+        ORDER BY orden;  
+    id_division INTEGER;  
+    nombre_division TEXT;  
+    orden_division INTEGER;  
+    campos_json JSON[];  
+    campo_cursor CURSOR FOR  
+        SELECT c.nombre, c.unidad, c.valor_referencial  
+        FROM division_campo dc  
+        JOIN campo c ON dc.idCampo = c.idCampo  
+        WHERE dc.idDivision = id_division;  
+    nombre_campo TEXT;  
+    unidad_campo TEXT;  
+    valor_referencial_campo TEXT;  
+    divisiones_array JSON[]; 
+    division_json JSON;  
+    final_json JSONB := '{}'::JSONB;
+    division_element JSON;  
+BEGIN   
+    IF NOT EXISTS (SELECT 1 FROM profile WHERE name = nomb_perfil) THEN  
+        RAISE EXCEPTION 'Perfil no reconocido: %', nomb_perfil;  
+    END IF;  
+  
+    divisiones_array := ARRAY[]::JSON[];  
+  
+    OPEN division_cursor;  
+
+    LOOP    
+        FETCH division_cursor INTO id_division, nombre_division, orden_division;  
+        EXIT WHEN NOT FOUND;  
+  
+        campos_json := ARRAY[]::JSON[];  
+  
+        OPEN campo_cursor;  
+
+        LOOP   
+            FETCH campo_cursor INTO nombre_campo, unidad_campo, valor_referencial_campo;  
+            EXIT WHEN NOT FOUND;  
+ 
+            campos_json := array_append(campos_json, json_build_object('nombre', nombre_campo, 'unidad', unidad_campo, 'valor_referencial', valor_referencial_campo));  
+        END LOOP;  
+ 
+        CLOSE campo_cursor;  
+ 
+        division_json := json_build_object(nombre_division, json_build_object('resultado', json_build_array(VARIADIC campos_json)));  
+
+        divisiones_array := array_append(divisiones_array, division_json);  
+
+    END LOOP;  
+ 
+    CLOSE division_cursor;  
+  
+    FOREACH division_element IN ARRAY divisiones_array  
+    LOOP  
+        final_json := final_json || division_element::JSONB;  
+    END LOOP;  
+
+    resultado := final_json::JSON;  
+
+    RETURN resultado;  
+
+EXCEPTION  
+    WHEN OTHERS THEN  
+        RAISE EXCEPTION 'Error al obtener el perfil: %', SQLERRM;  
+END;  
+$$ LANGUAGE plpgsql;
