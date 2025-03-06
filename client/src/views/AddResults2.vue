@@ -5,52 +5,56 @@
 				<div class="perfiles mt-3">
 					<h4>Perfiles</h4>
 					<div class="row w-100 m-auto gap-2">
-						<div class="col btn btn-light" v-for="(profile, index) in profileNames" :key="index" @click="handleSection(index)">
-							{{ profile }}
-						</div>
-					</div>
-				</div>
-
-				<div class="Secciones mt-3">
-					<h4>Secciones</h4>
-					<div class="row w-100 m-auto gap-2">
-						<div class="col btn btn-light" v-for="(seccion, index) in sectionNames" :key="index" @click="changeTable(seccion)">
-							{{ Object.keys(seccion)[index] }}
+						<div
+							class="col btn btn-light"
+							v-for="(profileName, index) in profileNames"
+							:key="index"
+							@click="handleSection(index)">
+							{{ profileName }}
 						</div>
 					</div>
 				</div>
 				<div ref="profileRef" id="profile">
-					<div class="profile-content mt-5" v-for="(profile, index) in profilesData" :key="index">
-						<div class="profile-sections mt-4" v-show="showProfile[index]" ref="profileRef2">
+					<div class="profile-content mt-5" v-for="(profile, indx) in profilesData" :key="indx">
+						<div class="profile-sections mt-4" v-show="showProfile[indx]" ref="profileRef2">
+							<div class="text-center">
+								<h2>{{ profileNames[indx] }}</h2>
+							</div>
 							<div class="profile-tables mb-5" v-for="([key, section], i) in profile ? Object.entries(profile) : null" :key="i">
 								<h3>{{ key }}</h3>
-								<table class="table">
-									<thead>
-										<tr>
-											<th scope="col">Nombre</th>
-											<th scope="col">Valor</th>
-											<th scope="col">Unidad</th>
-										</tr>
-									</thead>
-									<tbody>
-										<tr v-for="(item, index) in (section as Section).resultado" :key="index">
-											<td ref="campoNames">{{ item.nombre }}</td>
-											<td><input type="text" ref="campoResult" /></td>
-											<td>{{ item.unidad }}</td>
-										</tr>
-									</tbody>
-								</table>
+								<div class="table-responsive">
+									<table class="table table-hover table-striped">
+										<thead>
+											<tr>
+												<th scope="col" class="col-3">Nombre</th>
+												<th scope="col" class="col-3">Valor</th>
+												<th scope="col" class="col-3">Unidad</th>
+												<th scope="col" class="col-3">Valor Referencial</th>
+											</tr>
+										</thead>
+										<tbody>
+											<tr v-for="(item, index) in (section as Section).resultado" :key="index">
+												<td ref="campoNames">{{ item.nombre }}</td>
+												<td>
+													<input type="text" ref="campoResult" @change="checkInputValue($event, index)" />
+												</td>
+												<td>{{ item.unidad }}</td>
+												<td ref="valorReferencial">{{ item.valor_referencial }}</td>
+											</tr>
+										</tbody>
+									</table>
+								</div>
 							</div>
 						</div>
 					</div>
 				</div>
-				<button class="btn btn-primary" @click="guardarCambios">Guardar Cambios</button>
-				<button class="btn btn-primary" @click="generatePDF">Create PDF</button>
+				<div class="row mb-3">
+					<button class="col btn btn-primary me-1" @click="guardarCambios">Guardar Cambios</button>
+					<button class="col btn btn-primary me-1" @click="generatePDF">Crear PDF</button>
+					<button class="col btn btn-primary" @click="sendMailNodeMailer">Enviar por Correo</button>
+				</div>
 			</div>
 		</ion-content>
-		<div class="row w-100 m-auto mb-4 mt-2 mr-1">
-			<button class="btn btn-primary w-auto" @click="sendMailNodeMailer">Enviar por Correo</button>
-		</div>
 	</ion-page>
 </template>
 
@@ -62,16 +66,19 @@
 	import { useRoute } from "vue-router";
 	import { mailStore } from "@/stores/mailStore";
 	import { examStore } from "@/stores/examStore";
+	import { useRouter } from "vue-router";
 
 	interface Item {
 		nombre: string;
 		unidad: string;
+		valor_referencial: string;
 	}
 
 	interface Section {
 		resultado: Item[];
 	}
 
+	const router = useRouter();
 	const examsStore = examStore();
 	const profilesStore = profileStore();
 	const route = useRoute();
@@ -89,16 +96,15 @@
 	let html: string = "";
 	const ordersArray = ref();
 	const mailsStore = mailStore();
+	const valorReferencial = ref();
 
 	onMounted(async () => {
 		order.value = route.query.profile;
 		order.value = JSON.parse(order.value);
 		ordersArray.value = order.value.orders;
 
-		console.log(ordersArray.value);
 		profileNames = route.query.profileNames;
 		profileNames = JSON.parse(profileNames);
-		console.log(profileNames);
 		for (const profile of profileNames) {
 			const profileSection = await profilesStore.fetchProfileByInputsName(profile);
 			profilesData.value.push(profileSection);
@@ -106,10 +112,110 @@
 		sectionData.value = profilesData.value[0];
 		sectionNames.value = profilesData.value;
 		showProfile.value = new Array(profileNames.length).fill(false);
-		console.log(profilesData.value);
-		console.log(showProfile.value);
-		console.log(sectionNames.value);
+		showProfile.value[0] = true;
 	});
+
+	router.beforeEach(async (to, from, next) => {
+		profilesData.value = [];
+		if (from.name === "OrdersView") {
+			order.value = to.query.profile;
+			order.value = JSON.parse(order.value);
+			ordersArray.value = order.value.orders;
+
+			profileNames = to.query.profileNames;
+			profileNames = JSON.parse(profileNames);
+			for (const profile of profileNames) {
+				const profileSection = await profilesStore.fetchProfileByInputsName(profile);
+				profilesData.value.push(profileSection);
+			}
+			sectionData.value = profilesData.value[0];
+			sectionNames.value = profilesData.value;
+			showProfile.value = new Array(profileNames.length).fill(false);
+			showProfile.value[0] = true;
+		}
+		next();
+	});
+
+	const checkInputValue = (event: Event, index: number) => {
+		const personAge = order.value.age;
+		const personGenre = order.value.genre;
+		const valorReferencialString = valorReferencial.value[index].innerHTML;
+		const valorReferencialNumber = valorReferencialString.match(/(\d+(?:,\d+)?)/g);
+		const parsedNumbers = valorReferencialNumber?.map((numStr: any) => parseFloat(numStr.replace(",", ".")));
+		const inputValue = (event.target as HTMLInputElement).value;
+
+		if (parsedNumbers) {
+			if (parsedNumbers.length === 2) {
+				if (inputValue < parsedNumbers[0] || inputValue > parsedNumbers[1]) {
+					(event.target as HTMLInputElement).style.color = "red";
+					(event.target as HTMLInputElement).style.borderColor = "red";
+				} else {
+					(event.target as HTMLInputElement).style.color = "green";
+					(event.target as HTMLInputElement).style.borderColor = "lightgreen";
+				}
+			}
+
+			if (parsedNumbers.length === 1) {
+				if (valorReferencialString.includes("menor")) {
+					if (inputValue < parsedNumbers[0]) {
+						(event.target as HTMLInputElement).style.color = "green";
+						(event.target as HTMLInputElement).style.borderColor = "lightgreen";
+					} else {
+						(event.target as HTMLInputElement).style.color = "red";
+						(event.target as HTMLInputElement).style.borderColor = "red";
+					}
+				} else if (valorReferencialString.includes("Hasta")) {
+					if (inputValue > parsedNumbers[0]) {
+						(event.target as HTMLInputElement).style.color = "red";
+						(event.target as HTMLInputElement).style.borderColor = "red";
+					} else {
+						(event.target as HTMLInputElement).style.color = "green";
+						(event.target as HTMLInputElement).style.borderColor = "lightgreen";
+					}
+				}
+			}
+
+			if (parsedNumbers.length === 4) {
+				if (valorReferencialString.includes("Hombre")) {
+					if (personGenre === "M") {
+						if (inputValue < parsedNumbers[0] || inputValue > parsedNumbers[1]) {
+							(event.target as HTMLInputElement).style.color = "red";
+							(event.target as HTMLInputElement).style.borderColor = "red";
+						} else {
+							(event.target as HTMLInputElement).style.color = "green";
+							(event.target as HTMLInputElement).style.borderColor = "lightgreen";
+						}
+					} else if (personGenre === "F") {
+						if (inputValue < parsedNumbers[2] || inputValue > parsedNumbers[3]) {
+							(event.target as HTMLInputElement).style.color = "red";
+							(event.target as HTMLInputElement).style.borderColor = "red";
+						} else {
+							(event.target as HTMLInputElement).style.color = "green";
+							(event.target as HTMLInputElement).style.borderColor = "lightgreen";
+						}
+					}
+				} else if (valorReferencialString.includes("Adulto")) {
+					if (personAge > 17) {
+						if (inputValue < parsedNumbers[0] || inputValue > parsedNumbers[1]) {
+							(event.target as HTMLInputElement).style.color = "red";
+							(event.target as HTMLInputElement).style.borderColor = "red";
+						} else {
+							(event.target as HTMLInputElement).style.color = "green";
+							(event.target as HTMLInputElement).style.borderColor = "lightgreen";
+						}
+					} else {
+						if (inputValue < parsedNumbers[2] || inputValue > parsedNumbers[3]) {
+							(event.target as HTMLInputElement).style.color = "red";
+							(event.target as HTMLInputElement).style.borderColor = "red";
+						} else {
+							(event.target as HTMLInputElement).style.color = "green";
+							(event.target as HTMLInputElement).style.borderColor = "lightgreen";
+						}
+					}
+				}
+			}
+		}
+	};
 
 	function handleSection(index: number) {
 		sectionData.value = profilesData.value[index];
@@ -126,13 +232,6 @@
 		sectionNames.value = Object.keys(sectionData.value);
 		console.log(sectionNames.value);
 	}
-
-	const changeTable = (section: string) => {
-		console.log(section);
-		console.log(sectionData.value[section]);
-		tableInfo.value = sectionData.value[section]["resultado"];
-		console.log(tableInfo.value);
-	};
 
 	const getHtmlWithInputValues = (element: any) => {
 		const inputs = element.querySelectorAll("input, textarea");
@@ -167,12 +266,11 @@
 				};
 				const profileFields: any[] = [];
 				const testSections: { [key: string]: any[] } = {};
-				console.log(item);
-				console.log(item.children);
+				const sections = item.querySelectorAll(".profile-tables");
 
 				// Loop por cada seccion del perfil
-				item.children.forEach((table: any) => {
-					console.log(table);
+				console.log(item.children[1].children[1]);
+				sections.forEach((table: any) => {
 					const tableName = table.querySelector("h3");
 					const tableData = table.querySelectorAll("tbody tr");
 					testSections[tableName.innerHTML] = [];
@@ -196,18 +294,12 @@
 								dataRow.Unit = td.innerHTML;
 							}
 						});
-						console.log(dataRow);
 						testSections[tableName.innerHTML].push(dataRow);
 						profileFields.push(dataRow);
 					});
-
-					console.log(tableName.innerHTML);
-					console.log(tableData);
 				});
-				console.log(profileFields);
+				console.log(Object.values(testsResults));
 				Object.values(testsResults)[index].push(testSections);
-				console.log(Object.values(testsResults)[index]);
-				console.log(testSections);
 
 				results = {
 					orderId: ordersArray.value[index].idOrder,
@@ -220,14 +312,6 @@
 			});
 			console.log(testsResults);
 		}
-
-		// console.log(testsResults);
-		// campoNames.value.forEach((item: any) => {
-		// 	console.log(item.innerHTML);
-		// });
-		// campoResult.value.forEach((value: any) => {
-		// 	console.log(value.value);
-		// });
 	};
 
 	const generatePDF = () => {
@@ -270,19 +354,6 @@
 		};*/
 		await mailsStore.sendEmail(data);
 	};
-
-	// function handleSection(index: number) {
-	// 	sectionData.value = profilesData.value[index];
-	// 	sectionNames.value = Object.keys(profilesData.value[index]);
-	// 	tableInfo.value = "";
-	// }
-
-	// const changeTable = (section: string) => {
-	// 	console.log(section);
-	// 	console.log(sectionData.value[section]);
-	// 	tableInfo.value = sectionData.value[section]["resultado"];
-	// 	console.log(tableInfo.value);
-	// };
 </script>
 
 <style scoped></style>
