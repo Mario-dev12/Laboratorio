@@ -119,6 +119,7 @@
 									<tr>  
 									  <th scope="col">Name</th>  
 									  <th scope="col">Unit</th>  
+									  <th scope="col">Valor Referencial</th> 
 									  <th scope="col">Agregado</th>  
 									</tr>  
 								  </thead>  
@@ -126,6 +127,7 @@
 									<tr v-for="campo in camposExistentes" :key="campo.idCampo">  
 										<td>{{ campo.nombre }}</td>  
 										<td>{{ campo.unidad }}</td>  
+										<td>{{ campo.valor_referencial }}</td> 
 										<td class="align-middle">  
 											<input  
 												type="checkbox"  
@@ -303,20 +305,6 @@
 		}
 	}
 
-	function ischecked(campo: any) {
-		if (
-			(camposDelPerfil.value.campos &&
-				camposDelPerfil.value.campos.some((item: any) => {
-					return item.idCampo === campo.idCampo;
-				})) ||
-			campo.checked == true
-		) {
-			return true;
-		} else {
-			return false;
-		}
-	}
-
 	const updatePerfil = async () => {   
 		if (!nombrePerfilNuevo.value.value && !costoDolaresPerfilNuevo.value.value && !costoBsPerfilNuevo.value.value) {    
 			if (idCamposAgregados.value.length || idCamposEliminados.value.length) {  
@@ -469,68 +457,6 @@
 			showToast("Perfil borrado", "borrar", closeCircleOutline);
 		}
 	}
-
-	const addCampo = async (event: any, campo: Campo) => {
-		if (create.value) {
-			if (event.target.checked) {
-				idCamposAgregados.value.push(campo.idCampo);
-				campos.value.push(campo);
-			} else {
-				idCamposAgregados.value = idCamposAgregados.value.filter((item) => {
-					return item != campo.idCampo;
-				});
-				campos.value = campos.value.filter((item) => {
-					return item.nombre.trim() != campo.nombre.trim();
-				});
-			}
-		} else if (update.value) {
-			if (event.target.checked) {
-				const camposEnExistencia = await tests.fecthProfilesInputs();
-				console.log(camposEnExistencia);
-				if (
-					!camposEnExistencia.some((item) => {
-						return item.nombre.trim() === campo.nombre.trim();
-					})
-				) {
-					campos.value.push(campo);
-					console.log(campos.value);
-				}
-				if (
-					!camposDelPerfil.value.campos.some((item: any) => {
-						return item.idCampo === campo.idCampo;
-					})
-				) {
-					idCamposAgregados.value.push(campo.idCampo);
-					idCamposEliminados.value = idCamposEliminados.value.filter((item) => {
-						item != campo.idCampo;
-					});
-				} else {
-					idCamposEliminados.value = idCamposEliminados.value.filter((item) => {
-						item != campo.idCampo;
-					});
-				}
-			} else {
-				campos.value = campos.value.filter((item) => {
-					return item.nombre.trim() != campo.nombre.trim();
-				});
-				console.log(campos.value);
-				if (
-					camposDelPerfil.value.campos.some((item: any) => {
-						return item.idCampo === campo.idCampo;
-					})
-				) {
-					idCamposEliminados.value.push(campo.idCampo);
-					idCamposAgregados.value = idCamposAgregados.value.filter((item) => {
-						return item != campo.idCampo;
-					});
-				} else {
-					idCamposAgregados.value = idCamposAgregados.value.filter((item) => {
-						return item != campo.idCampo;
-					});
-				}
-			}
-		}
-	};
 
 	function handleCampo() {
 		if (unidadExistenteRef.value) {
