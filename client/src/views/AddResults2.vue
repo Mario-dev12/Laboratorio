@@ -26,9 +26,10 @@
 									<table class="table table-hover table-striped">
 										<thead>
 											<tr>
-												<th scope="col" class="col-4">Nombre</th>
-												<th scope="col" class="col-4">Valor</th>
-												<th scope="col" class="col-4">Unidad</th>
+												<th scope="col" class="col-3">Nombre</th>
+												<th scope="col" class="col-3">Valor</th>
+												<th scope="col" class="col-3">Unidad</th>
+												<th scope="col" class="col-3">Valor Referencial</th>
 											</tr>
 										</thead>
 										<tbody>
@@ -38,6 +39,7 @@
 													<input type="text" ref="campoResult" @input="checkInputValue($event)" />
 												</td>
 												<td>{{ item.unidad }}</td>
+												<td>{{ item.valor_referencial }}</td>
 											</tr>
 										</tbody>
 									</table>
@@ -69,8 +71,7 @@
 	interface Item {
 		nombre: string;
 		unidad: string;
-		color?: string;
-		borderColor?: string;
+		valor_referencial: string;
 	}
 
 	interface Section {
@@ -106,7 +107,9 @@
 		for (const profile of profileNames) {
 			const profileSection = await profilesStore.fetchProfileByInputsName(profile);
 			profilesData.value.push(profileSection);
+			console.log(profileSection);
 		}
+		console.log(profilesData.value);
 		sectionData.value = profilesData.value[0];
 		sectionNames.value = profilesData.value;
 		showProfile.value = new Array(profileNames.length).fill(false);
