@@ -219,6 +219,11 @@
 					}
 				}
 			}
+
+			if (!inputValue) {
+				(event.target as HTMLInputElement).style.color = "black";
+				(event.target as HTMLInputElement).style.borderColor = "black";
+			}
 		}
 	};
 
