@@ -137,85 +137,89 @@
 		next();
 	});
 
-	const checkInputValue = (event: Event, index: number, section: any) => {
-		const personAge = order.value.age;
-		const personGenre = order.value.genre;
-		const valorReferencialString = section.resultado[index].valor_referencial;
-		const valorReferencialNumber = valorReferencialString.match(/(\d+(?:,\d+)?)/g);
-		const parsedNumbers = valorReferencialNumber?.map((numStr: any) => parseFloat(numStr.replace(",", ".")));
-		const inputValue = (event.target as HTMLInputElement).value;
+	const checkInputValue = (event: Event, index: number, section: any) => {  
+		const personAge = order.value.age;  
+		const personGenre = order.value.genre;  
+		const valorReferencialString = section.resultado[index].valor_referencial;  
+		const valorReferencialNumber = valorReferencialString.match(/(\d+(?:,\d+)?)/g);  
+		const parsedNumbers = valorReferencialNumber?.map((numStr: any) => parseFloat(numStr.replace(",", ".")));  
+		let inputValue = (event.target as HTMLInputElement).value;  
 
-		if (parsedNumbers) {
-			if (parsedNumbers.length === 2) {
-				if (inputValue < parsedNumbers[0] || inputValue > parsedNumbers[1]) {
-					(event.target as HTMLInputElement).style.color = "red";
-					(event.target as HTMLInputElement).style.borderColor = "red";
-				} else {
-					(event.target as HTMLInputElement).style.color = "green";
-					(event.target as HTMLInputElement).style.borderColor = "lightgreen";
-				}
-			}
+		if (!isNaN(Number(inputValue.replace(",", ".")))) {  
+			inputValue = inputValue.replace(",", ".");  
+		}  
 
-			if (parsedNumbers.length === 1) {
-				if (valorReferencialString.includes("menor")) {
-					if (inputValue < parsedNumbers[0]) {
-						(event.target as HTMLInputElement).style.color = "green";
-						(event.target as HTMLInputElement).style.borderColor = "lightgreen";
-					} else {
-						(event.target as HTMLInputElement).style.color = "red";
-						(event.target as HTMLInputElement).style.borderColor = "red";
-					}
-				} else if (valorReferencialString.includes("Hasta")) {
-					if (inputValue > parsedNumbers[0]) {
-						(event.target as HTMLInputElement).style.color = "red";
-						(event.target as HTMLInputElement).style.borderColor = "red";
-					} else {
-						(event.target as HTMLInputElement).style.color = "green";
-						(event.target as HTMLInputElement).style.borderColor = "lightgreen";
-					}
-				}
-			}
+		if (parsedNumbers) {  
+			if (parsedNumbers.length === 2) {  
+				if (Number(inputValue) < parsedNumbers[0] || Number(inputValue) > parsedNumbers[1]) {  
+					(event.target as HTMLInputElement).style.color = "red";  
+					(event.target as HTMLInputElement).style.borderColor = "red";  
+				} else {  
+					(event.target as HTMLInputElement).style.color = "green";  
+					(event.target as HTMLInputElement).style.borderColor = "lightgreen";  
+				}  
+			}  
 
-			if (parsedNumbers.length === 4) {
-				if (valorReferencialString.includes("Hombre")) {
-					if (personGenre === "M") {
-						if (inputValue < parsedNumbers[0] || inputValue > parsedNumbers[1]) {
-							(event.target as HTMLInputElement).style.color = "red";
-							(event.target as HTMLInputElement).style.borderColor = "red";
-						} else {
-							(event.target as HTMLInputElement).style.color = "green";
-							(event.target as HTMLInputElement).style.borderColor = "lightgreen";
-						}
-					} else if (personGenre === "F") {
-						if (inputValue < parsedNumbers[2] || inputValue > parsedNumbers[3]) {
-							(event.target as HTMLInputElement).style.color = "red";
-							(event.target as HTMLInputElement).style.borderColor = "red";
-						} else {
-							(event.target as HTMLInputElement).style.color = "green";
-							(event.target as HTMLInputElement).style.borderColor = "lightgreen";
-						}
-					}
-				} else if (valorReferencialString.includes("Adulto")) {
-					if (personAge > 17) {
-						if (inputValue < parsedNumbers[0] || inputValue > parsedNumbers[1]) {
-							(event.target as HTMLInputElement).style.color = "red";
-							(event.target as HTMLInputElement).style.borderColor = "red";
-						} else {
-							(event.target as HTMLInputElement).style.color = "green";
-							(event.target as HTMLInputElement).style.borderColor = "lightgreen";
-						}
-					} else {
-						if (inputValue < parsedNumbers[2] || inputValue > parsedNumbers[3]) {
-							(event.target as HTMLInputElement).style.color = "red";
-							(event.target as HTMLInputElement).style.borderColor = "red";
-						} else {
-							(event.target as HTMLInputElement).style.color = "green";
-							(event.target as HTMLInputElement).style.borderColor = "lightgreen";
-						}
-					}
-				}
-			}
-		}
+			if (parsedNumbers.length === 1) {  
+				if (valorReferencialString.includes("menor")) {  
+					if (Number(inputValue) < parsedNumbers[0]) {  
+						(event.target as HTMLInputElement).style.color = "green";  
+						(event.target as HTMLInputElement).style.borderColor = "lightgreen";  
+					} else {  
+						(event.target as HTMLInputElement).style.color = "red";  
+						(event.target as HTMLInputElement).style.borderColor = "red";  
+					}  
+				} else if (valorReferencialString.includes("Hasta")) {  
+					if (Number(inputValue) > parsedNumbers[0]) {  
+						(event.target as HTMLInputElement).style.color = "red";  
+						(event.target as HTMLInputElement).style.borderColor = "red";  
+					} else {  
+						(event.target as HTMLInputElement).style.color = "green";  
+						(event.target as HTMLInputElement).style.borderColor = "lightgreen";  
+					}  
+				}  
+			}  
+
+			if (parsedNumbers.length === 4) {  
+				if (valorReferencialString.includes("Hombre")) {  
+					if (personGenre === "M") {  
+						if (Number(inputValue) < parsedNumbers[0] || Number(inputValue) > parsedNumbers[1]) {  
+							(event.target as HTMLInputElement).style.color = "red";  
+							(event.target as HTMLInputElement).style.borderColor = "red";  
+						} else {  
+							(event.target as HTMLInputElement).style.color = "green";  
+							(event.target as HTMLInputElement).style.borderColor = "lightgreen";  
+						}  
+					} else if (personGenre === "F") {  
+						if (Number(inputValue) < parsedNumbers[2] || Number(inputValue) > parsedNumbers[3]) {  
+							(event.target as HTMLInputElement).style.color = "red";  
+							(event.target as HTMLInputElement).style.borderColor = "red";  
+						} else {  
+							(event.target as HTMLInputElement).style.color = "green";  
+							(event.target as HTMLInputElement).style.borderColor = "lightgreen";  
+						}  
+					}  
+				} else if (valorReferencialString.includes("Adulto")) {  
+					if (personAge > 17) {  
+						if (Number(inputValue) < parsedNumbers[0] || Number(inputValue) > parsedNumbers[1]) {  
+							(event.target as HTMLInputElement).style.color = "red";  
+							(event.target as HTMLInputElement).style.borderColor = "red";  
+						} else {  
+							(event.target as HTMLInputElement).style.color = "green";  
+							(event.target as HTMLInputElement).style.borderColor = "lightgreen";  
+						}  
+					} else {  
+						if (Number(inputValue) < parsedNumbers[2] || Number(inputValue) > parsedNumbers[3]) {  
+							(event.target as HTMLInputElement).style.color = "red";  
+							(event.target as HTMLInputElement).style.borderColor = "red";  
+						} else {  
+							(event.target as HTMLInputElement).style.color = "green";  
+							(event.target as HTMLInputElement).style.borderColor = "lightgreen";  
+						}  
+					}  
+				}  
+			}  
+		}  
 	};
 
 	function handleSection(index: number) {
