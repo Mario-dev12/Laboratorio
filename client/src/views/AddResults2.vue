@@ -36,10 +36,10 @@
 											<tr v-for="(item, index) in (section as Section).resultado" :key="index">
 												<td ref="campoNames">{{ item.nombre }}</td>
 												<td>
-													<input type="text" ref="campoResult" @change="checkInputValue($event, index)" />
+													<input type="text" ref="campoResult" @change="checkInputValue($event, index, section)" />
 												</td>
 												<td>{{ item.unidad }}</td>
-												<td ref="valorReferencial">{{ item.valor_referencial }}</td>
+												<td class="valor-referencial" ref="valorReferencial">{{ item.valor_referencial }}</td>
 											</tr>
 										</tbody>
 									</table>
@@ -109,6 +109,7 @@
 			const profileSection = await profilesStore.fetchProfileByInputsName(profile);
 			profilesData.value.push(profileSection);
 		}
+		console.log(profilesData.value);
 		sectionData.value = profilesData.value[0];
 		sectionNames.value = profilesData.value;
 		showProfile.value = new Array(profileNames.length).fill(false);
@@ -136,10 +137,10 @@
 		next();
 	});
 
-	const checkInputValue = (event: Event, index: number) => {
+	const checkInputValue = (event: Event, index: number, section: any) => {
 		const personAge = order.value.age;
 		const personGenre = order.value.genre;
-		const valorReferencialString = valorReferencial.value[index].innerHTML;
+		const valorReferencialString = section.resultado[index].valor_referencial;
 		const valorReferencialNumber = valorReferencialString.match(/(\d+(?:,\d+)?)/g);
 		const parsedNumbers = valorReferencialNumber?.map((numStr: any) => parseFloat(numStr.replace(",", ".")));
 		const inputValue = (event.target as HTMLInputElement).value;
