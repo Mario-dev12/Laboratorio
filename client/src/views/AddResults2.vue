@@ -51,9 +51,9 @@
 				<div class="row mb-3">
 					<button class="col btn btn-primary me-1" @click="guardarCambios">Guardar Cambios</button>
 					<button class="col btn btn-primary me-1" @click="generatePDF">Crear PDF</button>
-					<button class="col btn btn-primary" @click="sendMailNodeMailer">Enviar por Correo</button>
-					<button class="col btn btn-primary" @click="sharePDFViaWhatsApp">Compartir PDF por WhatsApp</button> 
-					<button class="col btn btn-primary" @click="enviarCorreo">Compartir PDF por Mailto</button> 
+					<button class="col btn btn-primary" @click="sendEmail">Enviar por Correo</button>
+					<button class="col btn btn-primary" @click="sharePDFViaWhatsApp">Compartir PDF por WhatsApp</button>
+					<button class="col btn btn-primary" @click="enviarCorreo">Compartir PDF por Mailto</button>
 				</div>
 			</div>
 		</ion-content>
@@ -99,6 +99,7 @@
 	const ordersArray = ref();
 	const mailsStore = mailStore();
 	const valorReferencial = ref();
+	const pdfFileName = ref();
 
 	onMounted(async () => {
 		order.value = route.query.profile;
@@ -139,89 +140,94 @@
 		next();
 	});
 
-	const checkInputValue = (event: Event, index: number, section: any) => {  
-		const personAge = order.value.age;  
-		const personGenre = order.value.genre;  
-		const valorReferencialString = section.resultado[index].valor_referencial;  
-		const valorReferencialNumber = valorReferencialString.match(/(\d+(?:,\d+)?)/g);  
-		const parsedNumbers = valorReferencialNumber?.map((numStr: any) => parseFloat(numStr.replace(",", ".")));  
-		let inputValue = (event.target as HTMLInputElement).value;  
+	const checkInputValue = (event: Event, index: number, section: any) => {
+		const personAge = order.value.age;
+		const personGenre = order.value.genre;
+		const valorReferencialString = section.resultado[index].valor_referencial;
+		const valorReferencialNumber = valorReferencialString.match(/(\d+(?:,\d+)?)/g);
+		const parsedNumbers = valorReferencialNumber?.map((numStr: any) => parseFloat(numStr.replace(",", ".")));
+		let inputValue = (event.target as HTMLInputElement).value;
 
-		if (!isNaN(Number(inputValue.replace(",", ".")))) {  
-			inputValue = inputValue.replace(",", ".");  
-		}  
+		if (!isNaN(Number(inputValue.replace(",", ".")))) {
+			inputValue = inputValue.replace(",", ".");
+		}
 
-		if (parsedNumbers) {  
-			if (parsedNumbers.length === 2) {  
-				if (Number(inputValue) < parsedNumbers[0] || Number(inputValue) > parsedNumbers[1]) {  
-					(event.target as HTMLInputElement).style.color = "red";  
-					(event.target as HTMLInputElement).style.borderColor = "red";  
-				} else {  
-					(event.target as HTMLInputElement).style.color = "green";  
-					(event.target as HTMLInputElement).style.borderColor = "lightgreen";  
-				}  
-			}  
+		if (parsedNumbers) {
+			if (parsedNumbers.length === 2) {
+				if (Number(inputValue) < parsedNumbers[0] || Number(inputValue) > parsedNumbers[1]) {
+					(event.target as HTMLInputElement).style.color = "red";
+					(event.target as HTMLInputElement).style.borderColor = "red";
+				} else {
+					(event.target as HTMLInputElement).style.color = "green";
+					(event.target as HTMLInputElement).style.borderColor = "lightgreen";
+				}
+			}
 
-			if (parsedNumbers.length === 1) {  
-				if (valorReferencialString.includes("menor")) {  
-					if (Number(inputValue) < parsedNumbers[0]) {  
-						(event.target as HTMLInputElement).style.color = "green";  
-						(event.target as HTMLInputElement).style.borderColor = "lightgreen";  
-					} else {  
-						(event.target as HTMLInputElement).style.color = "red";  
-						(event.target as HTMLInputElement).style.borderColor = "red";  
-					}  
-				} else if (valorReferencialString.includes("Hasta")) {  
-					if (Number(inputValue) > parsedNumbers[0]) {  
-						(event.target as HTMLInputElement).style.color = "red";  
-						(event.target as HTMLInputElement).style.borderColor = "red";  
-					} else {  
-						(event.target as HTMLInputElement).style.color = "green";  
-						(event.target as HTMLInputElement).style.borderColor = "lightgreen";  
-					}  
-				}  
-			}  
+			if (parsedNumbers.length === 1) {
+				if (valorReferencialString.includes("menor")) {
+					if (Number(inputValue) < parsedNumbers[0]) {
+						(event.target as HTMLInputElement).style.color = "green";
+						(event.target as HTMLInputElement).style.borderColor = "lightgreen";
+					} else {
+						(event.target as HTMLInputElement).style.color = "red";
+						(event.target as HTMLInputElement).style.borderColor = "red";
+					}
+				} else if (valorReferencialString.includes("Hasta")) {
+					if (Number(inputValue) > parsedNumbers[0]) {
+						(event.target as HTMLInputElement).style.color = "red";
+						(event.target as HTMLInputElement).style.borderColor = "red";
+					} else {
+						(event.target as HTMLInputElement).style.color = "green";
+						(event.target as HTMLInputElement).style.borderColor = "lightgreen";
+					}
+				}
+			}
 
-			if (parsedNumbers.length === 4) {  
-				if (valorReferencialString.includes("Hombre")) {  
-					if (personGenre === "M") {  
-						if (Number(inputValue) < parsedNumbers[0] || Number(inputValue) > parsedNumbers[1]) {  
-							(event.target as HTMLInputElement).style.color = "red";  
-							(event.target as HTMLInputElement).style.borderColor = "red";  
-						} else {  
-							(event.target as HTMLInputElement).style.color = "green";  
-							(event.target as HTMLInputElement).style.borderColor = "lightgreen";  
-						}  
-					} else if (personGenre === "F") {  
-						if (Number(inputValue) < parsedNumbers[2] || Number(inputValue) > parsedNumbers[3]) {  
-							(event.target as HTMLInputElement).style.color = "red";  
-							(event.target as HTMLInputElement).style.borderColor = "red";  
-						} else {  
-							(event.target as HTMLInputElement).style.color = "green";  
-							(event.target as HTMLInputElement).style.borderColor = "lightgreen";  
-						}  
-					}  
-				} else if (valorReferencialString.includes("Adulto")) {  
-					if (personAge > 17) {  
-						if (Number(inputValue) < parsedNumbers[0] || Number(inputValue) > parsedNumbers[1]) {  
-							(event.target as HTMLInputElement).style.color = "red";  
-							(event.target as HTMLInputElement).style.borderColor = "red";  
-						} else {  
-							(event.target as HTMLInputElement).style.color = "green";  
-							(event.target as HTMLInputElement).style.borderColor = "lightgreen";  
-						}  
-					} else {  
-						if (Number(inputValue) < parsedNumbers[2] || Number(inputValue) > parsedNumbers[3]) {  
-							(event.target as HTMLInputElement).style.color = "red";  
-							(event.target as HTMLInputElement).style.borderColor = "red";  
-						} else {  
-							(event.target as HTMLInputElement).style.color = "green";  
-							(event.target as HTMLInputElement).style.borderColor = "lightgreen";  
-						}  
-					}  
-				}  
-			}  
-		}  
+			if (parsedNumbers.length === 4) {
+				if (valorReferencialString.includes("Hombre")) {
+					if (personGenre === "M") {
+						if (Number(inputValue) < parsedNumbers[0] || Number(inputValue) > parsedNumbers[1]) {
+							(event.target as HTMLInputElement).style.color = "red";
+							(event.target as HTMLInputElement).style.borderColor = "red";
+						} else {
+							(event.target as HTMLInputElement).style.color = "green";
+							(event.target as HTMLInputElement).style.borderColor = "lightgreen";
+						}
+					} else if (personGenre === "F") {
+						if (Number(inputValue) < parsedNumbers[2] || Number(inputValue) > parsedNumbers[3]) {
+							(event.target as HTMLInputElement).style.color = "red";
+							(event.target as HTMLInputElement).style.borderColor = "red";
+						} else {
+							(event.target as HTMLInputElement).style.color = "green";
+							(event.target as HTMLInputElement).style.borderColor = "lightgreen";
+						}
+					}
+				} else if (valorReferencialString.includes("Adulto")) {
+					if (personAge > 17) {
+						if (Number(inputValue) < parsedNumbers[0] || Number(inputValue) > parsedNumbers[1]) {
+							(event.target as HTMLInputElement).style.color = "red";
+							(event.target as HTMLInputElement).style.borderColor = "red";
+						} else {
+							(event.target as HTMLInputElement).style.color = "green";
+							(event.target as HTMLInputElement).style.borderColor = "lightgreen";
+						}
+					} else {
+						if (Number(inputValue) < parsedNumbers[2] || Number(inputValue) > parsedNumbers[3]) {
+							(event.target as HTMLInputElement).style.color = "red";
+							(event.target as HTMLInputElement).style.borderColor = "red";
+						} else {
+							(event.target as HTMLInputElement).style.color = "green";
+							(event.target as HTMLInputElement).style.borderColor = "lightgreen";
+						}
+					}
+				}
+			}
+
+			if (!inputValue) {
+				(event.target as HTMLInputElement).style.color = "black";
+				(event.target as HTMLInputElement).style.borderColor = "black";
+			}
+		}
 	};
 
 	function handleSection(index: number) {
@@ -321,73 +327,94 @@
 		}
 	};
 
-	const generatePDF = async () => {  
-		const profileRefCopy = profileRef.value.cloneNode(true);  
-		console.log(profileRefCopy.children);  
+	const generatePDF = async () => {
+		const profileRefCopy = profileRef.value.cloneNode(true);
+		console.log(profileRefCopy.children);
 
-		profileRefCopy.children.forEach((item: any) => {  
-			const childrenCopy = item.children[0].cloneNode(true);  
-			childrenCopy.style.display = "block";  
+		profileRefCopy.children.forEach((item: any) => {
+			const childrenCopy = item.children[0].cloneNode(true);
+			childrenCopy.style.display = "block";
 
-			html += getHtmlWithInputValues(childrenCopy);  
-		});  
-		const element = html;  
+			html += getHtmlWithInputValues(childrenCopy);
+		});
+		const element = html;
 
-		const firstName = order.value.firstName;  
-		const lastName = order.value.lastName;  
+		const firstName = order.value.firstName;
+		const lastName = order.value.lastName;
 
-		const today = new Date();  
-		const year = today.getFullYear();  
-		const month = String(today.getMonth() + 1).padStart(2, '0');
-		const day = String(today.getDate()).padStart(2, '0');  
-		const formattedDate = `${day}-${month}-${year}`;  
+		const today = new Date();
+		const year = today.getFullYear();
+		const month = String(today.getMonth() + 1).padStart(2, "0");
+		const day = String(today.getDate()).padStart(2, "0");
+		const formattedDate = `${day}-${month}-${year}`;
 
-		const filename = `${lastName}_${firstName}_${formattedDate}.pdf`;  
+		const filename = `${lastName}_${firstName}_${formattedDate}.pdf`;
 
-		const options = {  
-			margin: 1,  
-			filename: filename, 
-			image: { type: "jpeg", quality: 0.98 },  
-			html2canvas: { scale: 2 },  
-			jsPDF: { unit: "in", format: "letter", orientation: "portrait" },  
-		};  
-
-		html2pdf().from(element).set(options).save();  
-		html = "";  
-	}; 
-
-	const sharePDFViaWhatsApp = async () => {  
-		await generatePDF()
-		const message = `Echa un vistazo a este PDF`;  
-		const whatsappUrl = `https://web.whatsapp.com/send?phone=${order.value.phone.substring(1)}&text=${encodeURIComponent(message)}`;  
-		window.open(whatsappUrl, '_blank');
-	}; 
-	
-	const enviarCorreo = async () => { 
-		const recipientEmail = 'mario12dev@gmail.com';  
-		const subject = 'Prueba';  
-		const body = 'Este es un correo de prueba.';
-		const mailtoLink = `https://mail.google.com/mail/?view=cm&fs=1&to=${recipientEmail}&su=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;   
- 		window.open(mailtoLink, '_blank'); 
-	} 
-
-	const sendMailNodeMailer = async () => {
-		const data = {
-			to: "mario12dev@gmail.com",
-			subject: "Asunto del correo",
-			text: "Este es el cuerpo del mensaje.",
-			html: "<p>Este es el cuerpo del mensaje.</p>", // Usar HTML real
-			attachment: null,
+		const options = {
+			margin: 1,
+			filename: filename,
+			image: { type: "jpeg", quality: 0.98 },
+			html2canvas: { scale: 2 },
+			jsPDF: { unit: "in", format: "letter", orientation: "portrait" },
 		};
 
-		/*const data = {
-			to: "mario12dev@gmail.com",
-			from: "mario12dev@gmail.com",
-			subject: "Asunto del correo",
-    		message: 'This is a test email sent from Next.js using Elastic Email.',
-		};*/
-		await mailsStore.sendEmail(data);
+		pdfFileName.value = options.filename;
+		console.log(options.filename);
+
+		html2pdf().from(element).set(options).save();
+		html = "";
 	};
+
+	const sharePDFViaWhatsApp = async () => {
+		await generatePDF();
+		const message = `Echa un vistazo a este PDF`;
+		const whatsappUrl = `https://web.whatsapp.com/send?phone=${order.value.phone.substring(1)}&text=${encodeURIComponent(
+			message
+		)}`;
+		window.open(whatsappUrl, "_blank");
+	};
+
+	const enviarCorreo = async () => {
+		const recipientEmail = "mario12dev@gmail.com";
+		const subject = "Prueba";
+		const body = "Este es un correo de prueba.";
+		const mailtoLink = `https://mail.google.com/mail/?view=cm&fs=1&to=${recipientEmail}&su=${encodeURIComponent(
+			subject
+		)}&body=${encodeURIComponent(body)}`;
+		window.open(mailtoLink, "_blank");
+	};
+
+	// Nodemailer
+
+	function sendEmail() {
+		const emailData = {
+			to: "francorm007@gmail.com",
+			subject: "email test",
+			text: "prueba desde la app del laboratorio",
+			attachment: pdfFileName.value,
+		};
+		console.log(typeof emailData.attachment);
+
+		mailsStore.sendEmail(emailData);
+	}
+
+	// const sendMailNodeMailer = async () => {
+	// 	const data = {
+	// 		to: "mario12dev@gmail.com",
+	// 		subject: "Asunto del correo",
+	// 		text: "Este es el cuerpo del mensaje.",
+	// 		html: "<p>Este es el cuerpo del mensaje.</p>", // Usar HTML real
+	// 		attachment: null,
+	// 	};
+
+	// 	const data = {
+	// 		to: "mario12dev@gmail.com",
+	// 		from: "mario12dev@gmail.com",
+	// 		subject: "Asunto del correo",
+	// 		message: 'This is a test email sent from Next.js using Elastic Email.',
+	// 	};
+	// 	await mailsStore.sendEmail(data);
+	// };
 </script>
 
 <style scoped></style>
