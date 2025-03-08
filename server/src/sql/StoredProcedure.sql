@@ -1676,12 +1676,15 @@ begin
 end;
 $BODY$;
 
-CREATE OR REPLACE FUNCTION sp_find_all_order_day(p_today BOOLEAN, p_date TEXT)  
-    RETURNS json[]  
-    LANGUAGE 'plpgsql'  
-    COST 100  
-    VOLATILE PARALLEL UNSAFE  
-AS $BODY$  
+CREATE OR REPLACE FUNCTION public.sp_find_all_order_day(
+	p_today boolean,
+	p_date text)
+    RETURNS json[]
+    LANGUAGE 'plpgsql'
+    COST 100
+    VOLATILE PARALLEL UNSAFE
+AS $BODY$
+  
 
 DECLARE   
     v_json_resp json[];  
@@ -1694,7 +1697,9 @@ BEGIN
             'firstName', u.firstname,  
             'lastName', u.lastname,  
             'genre', u.genre,  
-            'age', u.age,   
+            'age', u.age,  
+			'phone', u.phone,
+			'email', u.email,
             'orders', jsonb_agg(  
                 jsonb_build_object(  
                     'idOrder', o.idOrder,  
@@ -1712,11 +1717,7 @@ BEGIN
                             )  
                         )  
                         FROM profile p  
-                        WHERE p.idProfile = o.idProfile 
-						AND (  
-							(p_today IS TRUE AND o.createdDate::date = CURRENT_DATE) OR  
-							(p_today IS FALSE AND o.createdDate::date = to_date(p_date, 'DD-MM-YYYY'))  
-						)   
+                        WHERE p.idProfile = o.idProfile   
                     )  
                 )  
             )  

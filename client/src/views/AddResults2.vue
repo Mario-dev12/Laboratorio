@@ -52,6 +52,8 @@
 					<button class="col btn btn-primary me-1" @click="guardarCambios">Guardar Cambios</button>
 					<button class="col btn btn-primary me-1" @click="generatePDF">Crear PDF</button>
 					<button class="col btn btn-primary" @click="sendMailNodeMailer">Enviar por Correo</button>
+					<button class="col btn btn-primary" @click="sharePDFViaWhatsApp">Compartir PDF por WhatsApp</button> 
+					<button class="col btn btn-primary" @click="enviarCorreo">Compartir PDF por Mailto</button> 
 				</div>
 			</div>
 		</ion-content>
@@ -319,28 +321,55 @@
 		}
 	};
 
-	const generatePDF = () => {
-		const profileRefCopy = profileRef.value.cloneNode(true);
-		console.log(profileRefCopy.children);
+	const generatePDF = async () => {  
+		const profileRefCopy = profileRef.value.cloneNode(true);  
+		console.log(profileRefCopy.children);  
 
-		profileRefCopy.children.forEach((item: any) => {
-			const childrenCopy = item.children[0].cloneNode(true);
-			childrenCopy.style.display = "block";
+		profileRefCopy.children.forEach((item: any) => {  
+			const childrenCopy = item.children[0].cloneNode(true);  
+			childrenCopy.style.display = "block";  
 
-			html += getHtmlWithInputValues(childrenCopy);
-		});
-		const element = html;
-		const options = {
-			margin: 1,
-			filename: "perfil_laboratorio.pdf",
-			image: { type: "jpeg", quality: 0.98 },
-			html2canvas: { scale: 2 },
-			jsPDF: { unit: "in", format: "letter", orientation: "portrait" },
-		};
+			html += getHtmlWithInputValues(childrenCopy);  
+		});  
+		const element = html;  
 
-		html2pdf().from(element).set(options).save();
-		html = "";
-	};
+		const firstName = order.value.firstName;  
+		const lastName = order.value.lastName;  
+
+		const today = new Date();  
+		const year = today.getFullYear();  
+		const month = String(today.getMonth() + 1).padStart(2, '0');
+		const day = String(today.getDate()).padStart(2, '0');  
+		const formattedDate = `${day}-${month}-${year}`;  
+
+		const filename = `${lastName}_${firstName}_${formattedDate}.pdf`;  
+
+		const options = {  
+			margin: 1,  
+			filename: filename, 
+			image: { type: "jpeg", quality: 0.98 },  
+			html2canvas: { scale: 2 },  
+			jsPDF: { unit: "in", format: "letter", orientation: "portrait" },  
+		};  
+
+		html2pdf().from(element).set(options).save();  
+		html = "";  
+	}; 
+
+	const sharePDFViaWhatsApp = async () => {  
+		await generatePDF()
+		const message = `Echa un vistazo a este PDF`;  
+		const whatsappUrl = `https://web.whatsapp.com/send?phone=${order.value.phone.substring(1)}&text=${encodeURIComponent(message)}`;  
+		window.open(whatsappUrl, '_blank');
+	}; 
+	
+	const enviarCorreo = async () => { 
+		const recipientEmail = 'mario12dev@gmail.com';  
+		const subject = 'Prueba';  
+		const body = 'Este es un correo de prueba.';
+		const mailtoLink = `https://mail.google.com/mail/?view=cm&fs=1&to=${recipientEmail}&su=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;   
+ 		window.open(mailtoLink, '_blank'); 
+	} 
 
 	const sendMailNodeMailer = async () => {
 		const data = {
