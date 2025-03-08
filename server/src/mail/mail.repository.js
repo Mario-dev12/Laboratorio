@@ -32,7 +32,7 @@ mailRepository.sendMail = async (to, subject, body, attachment, htmlContent = ""
 		service: "gmail",
 		auth: {
 			user: "francorm007@gmail.com",
-			pass: "rkkcxwcshublyaps",
+			pass: "",
 		},
 	});
 
