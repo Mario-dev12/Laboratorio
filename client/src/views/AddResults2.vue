@@ -51,7 +51,7 @@
 				<div class="row mb-3">
 					<button class="col btn btn-primary me-1" @click="guardarCambios">Guardar Cambios</button>
 					<button class="col btn btn-primary me-1" @click="generatePDF">Crear PDF</button>
-					<button class="col btn btn-primary" @click="sendMailNodeMailer">Enviar por Correo</button>
+					<button class="col btn btn-primary" @click="sendEmail">Enviar por Correo</button>
 				</div>
 			</div>
 		</ion-content>
@@ -347,23 +347,36 @@
 		html = "";
 	};
 
-	const sendMailNodeMailer = async () => {
-		const data = {
-			to: "mario12dev@gmail.com",
-			subject: "Asunto del correo",
-			text: "Este es el cuerpo del mensaje.",
-			html: "<p>Este es el cuerpo del mensaje.</p>", // Usar HTML real
-			attachment: null,
-		};
+	// Nodemailer
 
-		/*const data = {
-			to: "mario12dev@gmail.com",
-			from: "mario12dev@gmail.com",
-			subject: "Asunto del correo",
-    		message: 'This is a test email sent from Next.js using Elastic Email.',
-		};*/
-		await mailsStore.sendEmail(data);
+	const emailData = {
+		to: "francorm007@gmail.com",
+		subject: "email test",
+		text: "prueba desde la app del laboratorio",
+		attachment: "",
 	};
+
+	function sendEmail() {
+		mailsStore.sendEmail(emailData);
+	}
+
+	// const sendMailNodeMailer = async () => {
+	// 	const data = {
+	// 		to: "mario12dev@gmail.com",
+	// 		subject: "Asunto del correo",
+	// 		text: "Este es el cuerpo del mensaje.",
+	// 		html: "<p>Este es el cuerpo del mensaje.</p>", // Usar HTML real
+	// 		attachment: null,
+	// 	};
+
+	// 	const data = {
+	// 		to: "mario12dev@gmail.com",
+	// 		from: "mario12dev@gmail.com",
+	// 		subject: "Asunto del correo",
+	// 		message: 'This is a test email sent from Next.js using Elastic Email.',
+	// 	};
+	// 	await mailsStore.sendEmail(data);
+	// };
 </script>
 
 <style scoped></style>
