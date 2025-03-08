@@ -3,8 +3,11 @@ import env from "../utils/environment.js";
 const mailRepository = {};
 
 import nodemailer from "nodemailer";
+import fs from "fs";
+import path from "path";
+import os from "os";
 
-mailRepository.sendMail = async (to, subject, body, htmlContent = "", attachment) => {
+mailRepository.sendMail = async (to, subject, body, attachment, htmlContent = "") => {
 	const apiKey = env.ELASTIC_EMAIL_API_KEY;
 
 	// const transporter = nodemailer.createTransport({
@@ -33,22 +36,41 @@ mailRepository.sendMail = async (to, subject, body, htmlContent = "", attachment
 		},
 	});
 
+	console.log("this is the pdf name", attachment);
+
+	const downloadsPath = path.join(os.homedir(), "Downloads"); // Get the user's home directory
+	const pdfFilename = attachment; // Replace with the actual file name
+	const pdfPath = path.join(downloadsPath, pdfFilename);
+
+	if (fs.existsSync(pdfPath)) {
+		console.log(pdfPath);
+	}
+
+	const pdfData = fs.readFileSync(pdfPath);
+
 	const mailOptions = {
 		from: "francorm007@gmail.com",
 		to: to,
 		subject: subject,
 		text: body,
+		attachments: [
+			{
+				filename: pdfFilename,
+				content: pdfData,
+				contentType: "application/pdf",
+			},
+		],
 	};
 
-	if (attachment) {
-		mailOptions.attachments = [
-			{
-				filename: attachment.filename,
-				content: attachment.content,
-				contentType: attachment.contentType,
-			},
-		];
-	}
+	// if (attachment) {
+	// 	mailOptions.attachments = [
+	// 		{
+	// 			filename: attachment.filename,
+	// 			content: attachment.content,
+	// 			contentType: attachment.contentType,
+	// 		},
+	// 	];
+	// }
 
 	transporter.sendMail(mailOptions, function (error, info) {
 		if (error) {

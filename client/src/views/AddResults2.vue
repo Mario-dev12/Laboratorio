@@ -97,6 +97,7 @@
 	const ordersArray = ref();
 	const mailsStore = mailStore();
 	const valorReferencial = ref();
+	const pdfFileName = ref();
 
 	onMounted(async () => {
 		order.value = route.query.profile;
@@ -326,7 +327,6 @@
 
 	const generatePDF = () => {
 		const profileRefCopy = profileRef.value.cloneNode(true);
-		console.log(profileRefCopy.children);
 
 		profileRefCopy.children.forEach((item: any) => {
 			const childrenCopy = item.children[0].cloneNode(true);
@@ -343,20 +343,25 @@
 			jsPDF: { unit: "in", format: "letter", orientation: "portrait" },
 		};
 
+		pdfFileName.value = options.filename;
+		console.log(options.filename);
+		console.log(pdfFileName.value);
+
 		html2pdf().from(element).set(options).save();
 		html = "";
 	};
 
 	// Nodemailer
 
-	const emailData = {
-		to: "francorm007@gmail.com",
-		subject: "email test",
-		text: "prueba desde la app del laboratorio",
-		attachment: "",
-	};
-
 	function sendEmail() {
+		const emailData = {
+			to: "francorm007@gmail.com",
+			subject: "email test",
+			text: "prueba desde la app del laboratorio",
+			attachment: pdfFileName.value,
+		};
+		console.log(typeof emailData.attachment);
+
 		mailsStore.sendEmail(emailData);
 	}
 
