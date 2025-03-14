@@ -9,7 +9,7 @@
     "buld": "node app.js",
     "server": "nodemon app"
   },
-  "author": "Mario Avena  <marioavena120898@gmail.com>",
+  "author": "Mario Avena  <mario12dev@gmail.com>",
   "license": "ISC",
   "dependencies": {
     "@elasticemail/elasticemail-client": "^4.0.26",
