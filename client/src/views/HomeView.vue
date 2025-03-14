@@ -15,7 +15,7 @@
 	import { ref } from "vue";
 	import { IonContent, IonPage } from "@ionic/vue";
 
-	const backgroundImage = ref("/images/logo.jpg");
+	const backgroundImage = ref("./images/logo.jpg");
 </script>
 
 <style scoped>

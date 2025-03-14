@@ -28,7 +28,7 @@
 						<ion-icon slot="start" :icon="copy"></ion-icon>
 						Hist.Órdenes
 					</ion-button>
-					<ion-button @click="() => router.push({ name: 'Caja' })">
+					<ion-button class="border-end border-secondary" @click="() => router.push({ name: 'Caja' })">
 						<ion-icon slot="start" :icon="calculator"></ion-icon>
 						Caja
 					</ion-button>
@@ -49,6 +49,10 @@
 						<ion-icon slot="start" :icon="home"></ion-icon>
 						Home
 					</ion-button>
+					<ion-button class="clear" fill="clear" @click="() => router.push({ name: 'EditarPerfil' })">
+						<ion-icon slot="start" :icon="pencilSharp"></ion-icon>
+						Editar Perfil
+					</ion-button>
 					<ion-button fill="clear" class="" @click="() => router.push({ name: 'Reactivos' })">
 						<ion-icon slot="start" :icon="flask"></ion-icon>
 						Reactivos
@@ -64,6 +68,10 @@
 					<ion-button fill="clear" @click="() => router.push({ name: 'Historico' })">
 						<ion-icon slot="start" :icon="copy"></ion-icon>
 						Hist. Órdenes
+					</ion-button>
+					<ion-button class="clear" @click="() => router.push({ name: 'Caja' })">
+						<ion-icon slot="start" :icon="calculator"></ion-icon>
+						Caja
 					</ion-button>
 					<ion-menu-toggle class="mt-2">
 						<ion-button expand="block" color="danger">
