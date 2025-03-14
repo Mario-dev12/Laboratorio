@@ -44,6 +44,8 @@ const pinia = createPinia();
 
 const app = createApp(App).use(IonicVue).use(router).use(pinia);
 
-router.isReady().then(() => {
-	app.mount("#app");
-});
+router.isReady().then(() => {  
+    // Redirige a /home al iniciar la aplicación  
+    router.push({ name: 'Home' });  
+    app.mount('#app');  
+}); 
