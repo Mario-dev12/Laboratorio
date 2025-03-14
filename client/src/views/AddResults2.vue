@@ -15,6 +15,20 @@
 					</div>
 				</div>
 				<div ref="profileRef" id="profile">
+					<div class="patient-info">
+						<div class="row">
+							<div class="col">
+								<img src="/images/logo.jpg" alt="" />
+							</div>
+						</div>
+						<div class="row mt-3">
+							<div class="col">Paciente: {{ order?.firstName }} {{ order?.lastName }}</div>
+							<div class="col">CI: {{ order?.ci }}</div>
+							<div class="col">Edad: {{ order?.age }}</div>
+							<div class="col">Sexo: {{ order?.genre === "M" ? "Masculino" : "Femenino" }}</div>
+							<div class="col">Fecha: {{ day }}/{{ month }}/{{ year }}</div>
+						</div>
+					</div>
 					<div class="profile-content mt-5" v-for="(profile, indx) in profilesData" :key="indx">
 						<div class="profile-sections mt-4" v-show="showProfile[indx]" ref="profileRef2">
 							<div class="text-center">
@@ -100,11 +114,17 @@
 	const mailsStore = mailStore();
 	const valorReferencial = ref();
 	const pdfFileName = ref();
+	const today = new Date();
+	const day = today.getDate();
+	const month = today.getMonth() + 1;
+	const year = today.getFullYear();
 
 	onMounted(async () => {
 		order.value = route.query.profile;
 		order.value = JSON.parse(order.value);
 		ordersArray.value = order.value.orders;
+
+		console.log(order.value);
 
 		profileNames = route.query.profileNames;
 		profileNames = JSON.parse(profileNames);
@@ -329,9 +349,15 @@
 
 	const generatePDF = async () => {
 		const profileRefCopy = profileRef.value.cloneNode(true);
-		console.log(profileRefCopy.children);
+		const patientInfoDivCopy = profileRefCopy.querySelector(".patient-info");
+		console.log(patientInfoDivCopy);
 
-		profileRefCopy.children.forEach((item: any) => {
+		const profileContentDivs = profileRefCopy.querySelectorAll(".profile-content");
+		console.log(profileContentDivs);
+
+		html = patientInfoDivCopy.innerHTML;
+
+		profileContentDivs.forEach((item: any) => {
 			const childrenCopy = item.children[0].cloneNode(true);
 			childrenCopy.style.display = "block";
 
@@ -351,15 +377,14 @@
 		const filename = `${lastName}_${firstName}_${formattedDate}.pdf`;
 
 		const options = {
-			margin: 1,
+			margin: 3,
 			filename: filename,
 			image: { type: "jpeg", quality: 0.98 },
 			html2canvas: { scale: 2 },
-			jsPDF: { unit: "in", format: "letter", orientation: "portrait" },
+			jsPDF: { unit: "mm", format: "letter", orientation: "portrait" },
 		};
 
 		pdfFileName.value = options.filename;
-		console.log(options.filename);
 
 		html2pdf().from(element).set(options).save();
 		html = "";
