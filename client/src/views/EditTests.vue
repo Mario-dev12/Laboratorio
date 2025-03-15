@@ -355,6 +355,7 @@
 					selectedPerfil.value.cost_usd = costoDolaresPerfilNuevo.value.value;
 
 					const profilesSections: any = await tests.fetchInputsByProfileId(selectedPerfil.value.idProfile);
+					console.log(profilesSections);
 
 					const seccionesActualizadas = secciones.value.map((seccion) => ({
 						nombre: seccion.nombre,
@@ -595,7 +596,6 @@
 	};
 
 	const toggleExpand = (index: number) => {
-		const seccion = secciones.value[index];
 		secciones.value.forEach((s, i) => {
 			s.expandida = i === index ? !s.expandida : false;
 		});
