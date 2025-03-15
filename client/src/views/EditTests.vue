@@ -355,7 +355,6 @@
 					selectedPerfil.value.cost_usd = costoDolaresPerfilNuevo.value.value;
 
 					const profilesSections: any = await tests.fetchInputsByProfileId(selectedPerfil.value.idProfile);
-					console.log(profilesSections);
 
 					const seccionesActualizadas = secciones.value.map((seccion) => ({
 						nombre: seccion.nombre,
@@ -380,9 +379,9 @@
 							unidadesDeCampos.value = await tests.fecthProfilesInputUnits();
 						});
 					}
-
 					if (seccionesAgregadas.value.length) {
 						for (const seccion of seccionesAgregadas.value) {
+							seccion.nombre = seccion.nombre.trim();
 							const existe = profilesSections.section.some(
 								(existingSeccion: { nombre: string }) => existingSeccion.nombre === seccion.nombre
 							);
@@ -391,9 +390,9 @@
 							}
 						}
 					}
-
 					if (seccionesEliminadas.value.length) {
 						for (const seccion of seccionesEliminadas.value) {
+							seccion.nombre.trim();
 							await tests.deleteProfileSection(selectedPerfil.value.idProfile, seccion.nombre);
 						}
 					}
@@ -434,6 +433,7 @@
 	};
 
 	async function createPerfil() {
+		secciones.value = [];
 		camposDelPerfil.value = null;
 		campos.value = [];
 		create.value = true;
