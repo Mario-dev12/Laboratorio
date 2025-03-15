@@ -5,8 +5,6 @@
 				<h2 class="text-center mb-4">Lista de Envios</h2>
 
 				<div class="d-flex justify-content-end mb-3">
-					<ion-button @click="showModal" color="primary">+ Reactivo</ion-button>
-					<ion-button @click="showProvidersModal" color="primary">+ Proveedor</ion-button>
 					<ion-button @click="showAllianceModal" color="primary">+ Envio</ion-button>
 				</div>
 
@@ -41,7 +39,9 @@
 				</div>
 				<div class="container mt-3">
 					<h2 class="text-center mb-4">Lista de Reactivos</h2>
-
+					<div class="d-flex justify-content-end mb-3">
+						<ion-button @click="showModal" color="primary">+ Reactivo</ion-button>
+					</div>
 					<div class="d-flex justify-content-between">
 						<div class="table-responsive" style="max-height: 400px; overflow-y: auto; flex: 1">
 							<table class="table table-striped">
@@ -68,7 +68,9 @@
 				</div>
 				<div class="container mt-3">
 					<h2 class="text-center mb-4">Lista de Proveedores</h2>
-
+					<div class="d-flex justify-content-end mb-3">
+						<ion-button @click="showProvidersModal" color="primary">+ Proveedor</ion-button>
+					</div>
 					<div class="table-responsive" style="max-height: 400px; overflow-y: auto">
 						<table class="table table-striped">
 							<thead>
