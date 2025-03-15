@@ -124,12 +124,10 @@
 
 <style scoped>
 	.custom-input {
-		background-color: #1e1e1e;
 		border: 1px solid #444;
 		border-radius: 8px;
 		padding: 10px;
 		font-size: 16px;
-		color: #fff;
 	}
 
 	.radio-input {

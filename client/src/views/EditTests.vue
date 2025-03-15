@@ -397,8 +397,10 @@
 					}   
  
 					if (seccionesEliminadas.value.length) {  
-						for (const seccion of seccionesEliminadas.value) {  
-							await tests.deleteProfileSection(selectedPerfil.value.idProfile, seccion.nombre);   
+						for (const seccion of seccionesEliminadas.value) {
+							if (seccion.nombre !== ''){ 
+							    await tests.deleteProfileSection(selectedPerfil.value.idProfile, seccion.nombre); 
+							}  
 						}   
 					}  
  
