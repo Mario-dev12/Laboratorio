@@ -381,11 +381,12 @@
 					}
 					if (seccionesAgregadas.value.length) {
 						for (const seccion of seccionesAgregadas.value) {
-							seccion.nombre = seccion.nombre.trim();
 							const existe = profilesSections.section.some(
 								(existingSeccion: { nombre: string }) => existingSeccion.nombre === seccion.nombre
 							);
+							console.log(seccion);
 							if (!existe) {
+								seccion.nombre = seccion.nombre.trim();
 								await tests.createProfileSection(selectedPerfil.value.idProfile, seccion);
 							}
 						}
