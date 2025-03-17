@@ -25,7 +25,7 @@
 					</div>
 				</div>
 			</div>
-			<div class="container mt-2 p-3 bg-dark-subtle rounded">
+			<div class="container mt-4 p-3 bg-dark-subtle rounded">
 				<h3 class="mb-3">Información Del Cliente</h3>
 				<div class="w-100 m-auto row px-2">
 					<label class="col-12 p-0" for="documento">Documento de identidad</label>
@@ -33,7 +33,7 @@
 						<div class="row w-100 m-auto pe-1 justify-content-between">
 							<input class="col-10" type="text" placeholder="Documento de identidad" v-model="user.documento" />
 							<button class="btn btn-primary col-2 w-auto ms-1" @click="searchClient">
-								<i class="fas fa-search" style="color: white;"></i> 
+								<i class="fas fa-search" style="color: white"></i>
 							</button>
 						</div>
 					</div>
@@ -88,43 +88,41 @@
 				</div>
 			</div>
 			<div class="bg-dark-subtle container p-3 rounded mt-3">
-				<div class="row w-100 m-auto">  
-					<div class="col-12 d-flex justify-content-between align-items-center">  
-						<h3 class="mb-3">Exámenes</h3>  
-						<div class="text-end">  
-							<h4>Tasa del Dolar</h4>  
-							<div class="d-flex align-items-center pb-2">  
-								<h4 v-if="!showChangeDolar" class="text-success mb-0 fw-bold">Bs: {{ precioDolar }}</h4> 
-								<input  
-									v-if="showChangeDolar"  
-									v-model.number="precioDolar"  
-									type="number"  
-									placeholder="Nuevo monto"  
-									@keyup.enter="guardarTasa"  
-									class="ms-2"   
-								/>  
-								
-								<i   
-									class="fas fa-edit ms-2 text-dark cursor-pointer"   
-									@click="showChangeDolar = !showChangeDolar"   
-									title="Editar tasa del dólar"></i>  
-								
-								<i  
-									v-if="showChangeDolar"  
-									class="fas fa-check accept-icon"  
-									@click="guardarTasa"  
-									style="cursor: pointer; margin-left: 10px;"  
-								></i>  
-								
-								<i  
-									v-if="showChangeDolar"  
-									class="fas fa-times reject-icon"  
-									@click="cancelarEdicion"  
-									style="cursor: pointer; margin-left: 10px;"  
-								></i>  
-							</div> 
-						</div>  
-					</div>  
+				<div class="row w-100 m-auto">
+					<div class="col-12 d-flex justify-content-between align-items-center">
+						<h3 class="mb-3">Exámenes</h3>
+						<div class="text-end">
+							<h4>Tasa del Dolar</h4>
+							<div class="d-flex align-items-center pb-2">
+								<h4 v-if="!showChangeDolar" class="text-success mb-0 fw-bold">Bs: {{ precioDolar }}</h4>
+								<input
+									v-if="showChangeDolar"
+									v-model.number="precioDolar"
+									type="number"
+									placeholder="Nuevo monto"
+									@keyup.enter="guardarTasa"
+									class="ms-2" />
+
+								<i
+									class="fas fa-edit ms-2 text-dark"
+									@click="showChangeDolar = !showChangeDolar"
+									title="Editar tasa del dólar"
+									style="cursor: pointer"></i>
+
+								<i
+									v-if="showChangeDolar"
+									class="fas fa-check accept-icon"
+									@click="guardarTasa"
+									style="cursor: pointer; margin-left: 10px"></i>
+
+								<i
+									v-if="showChangeDolar"
+									class="fas fa-times reject-icon"
+									@click="cancelarEdicion"
+									style="cursor: pointer; margin-left: 10px"></i>
+							</div>
+						</div>
+					</div>
 				</div>
 				<div class="row w-100 m-auto">
 					<div class="col-12">
@@ -544,17 +542,22 @@
 		precioDolar.value = Number(localStorage.getItem("tasaDolar")) || 50;
 	}
 
-	const guardarTasa = () => {  
-    if (nuevoMontoDolar.value !== null && nuevoMontoDolar.value > 0) {  
-        precioDolar.value = nuevoMontoDolar.value; // Actualiza la tasa  
-    }  
-    cancelarEdicion();  
-};  
+	const guardarTasa = () => {
+		if (precioDolar.value !== null && precioDolar.value > 0) {
+			totales.value.totalBs = 0;
+			totales.value.total$ = 0;
+			for (const examen of examenesSeleccionados.value) {
+				totales.value.totalBs += examen.cost_usd * precioDolar.value;
+				totales.value.total$ += examen.cost_usd;
+			}
+		}
+		cancelarEdicion();
+	};
 
-const cancelarEdicion = () => {  
-    showChangeDolar.value = false; // Cierra el modo de edición  
-    nuevoMontoDolar.value = null; // Resetea el campo de entrada  
-};  
+	const cancelarEdicion = () => {
+		showChangeDolar.value = false; // Cierra el modo de edición
+		nuevoMontoDolar.value = null; // Resetea el campo de entrada
+	};
 </script>
 
 <style scoped>
