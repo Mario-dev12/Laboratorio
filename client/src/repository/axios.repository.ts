@@ -184,6 +184,11 @@ class AxiosRepository {
 		return response.data;
 	}
 
+	async updateStatusOrder<T>(domain: string, id: string | number | undefined, data: T): Promise<T> {
+		const response = await axios.put<T>(`${import.meta.env.VITE_API_URL}/${domain}/status/${id}`, data);
+		return response.data;
+	}
+
 	async updateInputsProfile<T>(domain: string, id: string | number | undefined, data: T): Promise<T> {
 		const response = await axios.put<T>(`${import.meta.env.VITE_API_URL}/${domain}/profileinputs/${id}`, data);
 		return response.data;

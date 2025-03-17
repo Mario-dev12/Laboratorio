@@ -51,9 +51,10 @@
 				<div class="row mb-3">
 					<button class="col btn btn-primary me-1" @click="guardarCambios">Guardar Cambios</button>
 					<button class="col btn btn-primary me-1" @click="generatePDF">Crear PDF</button>
-					<button class="col btn btn-primary" @click="sendEmail">Enviar por Correo</button>
-					<button class="col btn btn-primary" @click="sharePDFViaWhatsApp">Compartir PDF por WhatsApp</button>
-					<button class="col btn btn-primary" @click="enviarCorreo">Compartir PDF por Mailto</button>
+					<button class="col btn btn-primary me-1" @click="sendEmail">Enviar por Correo</button>
+					<button class="col btn btn-primary me-1" @click="sharePDFViaWhatsApp">Compartir PDF por WhatsApp</button>
+					<button class="col btn btn-primary me-1" @click="enviarCorreo">Compartir PDF por Mailto</button>
+					<button class="col btn btn-primary me-1" @click="printPDF">Imprimir PDF</button>
 				</div>
 			</div>
 		</ion-content>
@@ -68,6 +69,7 @@
 	import { useRoute } from "vue-router";
 	import { mailStore } from "@/stores/mailStore";
 	import { examStore } from "@/stores/examStore";
+	import { orderStore } from "@/stores/orderStore";
 	import { useRouter } from "vue-router";
 
 	interface Item {
@@ -82,6 +84,7 @@
 
 	const router = useRouter();
 	const examsStore = examStore();
+	const ordersStore = orderStore();
 	const profilesStore = profileStore();
 	const route = useRoute();
 	let profileNames: any = "";
@@ -100,6 +103,7 @@
 	const mailsStore = mailStore();
 	const valorReferencial = ref();
 	const pdfFileName = ref();
+	const profileName = ref();
 
 	onMounted(async () => {
 		order.value = route.query.profile;
@@ -319,9 +323,14 @@
 					profileName: profileNames[index],
 					fields: profileFields,
 				};
+				const data = {
+					id: ordersArray.value[index].idOrder,
+					status: 'Pendiente de enviar'
+				}
 				console.log(results);
 				// hacer llamado al store aqui
 				await examsStore.createExamResults(results);
+				await ordersStore.updateStatusOrder(ordersArray.value[index].idOrder, data)
 			});
 			console.log(testsResults);
 		}
@@ -349,6 +358,7 @@
 		const formattedDate = `${day}-${month}-${year}`;
 
 		const filename = `${lastName}_${firstName}_${formattedDate}.pdf`;
+		profileName.value = `${lastName}_${firstName}_${formattedDate}.pdf`
 
 		const options = {
 			margin: 1,
@@ -361,11 +371,89 @@
 		pdfFileName.value = options.filename;
 		console.log(options.filename);
 
+		for (const orders of ordersArray.value){
+			const data = {
+				id: orders.idOrder,
+				status: 'Pendiente de enviar'
+			}
+			await ordersStore.updateStatusOrder(orders.idOrder, data)
+		}
+
 		html2pdf().from(element).set(options).save();
 		html = "";
 	};
 
+	const generatePDF2 = async (): Promise<Blob> => {  
+		const profileRefCopy = profileRef.value.cloneNode(true);  
+		console.log(profileRefCopy.children);  
+
+		profileRefCopy.children.forEach((item: any) => {  
+			const childrenCopy = item.children[0].cloneNode(true);  
+			childrenCopy.style.display = "block";  
+
+			html += getHtmlWithInputValues(childrenCopy); // Asegúrate de tener esta función definida  
+		});  
+
+		const element = html;  
+
+		const firstName = order.value.firstName;  
+		const lastName = order.value.lastName;  
+
+		const today = new Date();  
+		const year = today.getFullYear();  
+		const month = String(today.getMonth() + 1).padStart(2, "0");  
+		const day = String(today.getDate()).padStart(2, "0");  
+		const formattedDate = `${day}-${month}-${year}`;  
+
+		const filename = `${lastName}_${firstName}_${formattedDate}.pdf`;  
+		profileName.value = filename;  
+
+		const options = {  
+			margin: 1,  
+			filename: filename,  
+			image: { type: "jpeg", quality: 0.98 },  
+			html2canvas: { scale: 2 },  
+			jsPDF: { unit: "in", format: "letter", orientation: "portrait" },  
+		};  
+
+		pdfFileName.value = options.filename;  
+		console.log(options.filename);  
+ 
+		for (const orders of ordersArray.value) {  
+			const data = {  
+			id: orders.idOrder,  
+			status: 'Completado'  
+			};  
+			await ordersStore.updateStatusOrder(orders.idOrder, data);  
+		}  
+
+		// Usamos una Promise para esperar a que se genere el Blob  
+		return new Promise((resolve, reject) => {  
+			html2pdf()  
+			.from(element)  
+			.set(options)  
+			.toPdf()  
+			.get('pdf')  
+			.then((pdf: { output: (arg0: string) => any; }) => {  
+				// Obtener directamente el Blob  
+				const blob = pdf.output('blob');  
+				resolve(blob);  
+			})  
+			.catch((error: any) => {  
+				console.error('Error generando el PDF:', error);  
+				reject(error);  
+			});  
+		});  
+	};
+
 	const sharePDFViaWhatsApp = async () => {
+		for (const orders of ordersArray.value){
+			const data = {
+				id: orders.idOrder,
+				status: 'Pendiente de imprimir'
+			}
+			await ordersStore.updateStatusOrder(orders.idOrder, data)
+		}
 		await generatePDF();
 		const message = `Echa un vistazo a este PDF`;
 		const whatsappUrl = `https://web.whatsapp.com/send?phone=${order.value.phone.substring(1)}&text=${encodeURIComponent(
@@ -375,6 +463,13 @@
 	};
 
 	const enviarCorreo = async () => {
+		for (const orders of ordersArray.value){
+			const data = {
+				id: orders.idOrder,
+				status: 'Pendiente de imprimir'
+			}
+			await ordersStore.updateStatusOrder(orders.idOrder, data)
+		}
 		const recipientEmail = "mario12dev@gmail.com";
 		const subject = "Prueba";
 		const body = "Este es un correo de prueba.";
@@ -386,7 +481,7 @@
 
 	// Nodemailer
 
-	function sendEmail() {
+	async function sendEmail() {
 		const emailData = {
 			to: "francorm007@gmail.com",
 			subject: "email test",
@@ -395,8 +490,40 @@
 		};
 		console.log(typeof emailData.attachment);
 
+		for (const orders of ordersArray.value){
+			const data = {
+				id: orders.idOrder,
+				status: 'Pendiente de imprimir'
+			}
+			await ordersStore.updateStatusOrder(orders.idOrder, data)
+		}
+
 		mailsStore.sendEmail(emailData);
 	}
+
+	const printPDF = async () => {  
+		// Generar PDF  
+		const pdfBlob = await generatePDF2();  
+
+		// Crear un objeto URL para el Blob  
+		const pdfUrl = URL.createObjectURL(pdfBlob);  
+		
+		// Abrir el PDF en una nueva ventana  
+		const printWindow = window.open(pdfUrl);  
+		
+		if (printWindow) {  
+			// Imprimir el PDF cuando la ventana esté cargada  
+			printWindow.onload = function () {  
+			printWindow.print();  
+			printWindow.onafterprint = function () {  
+				// Cerrar la ventana después de imprimir  
+				printWindow.close();  
+			};  
+			};  
+		} else {  
+			console.error('No se pudo abrir la ventana de impresión.');  
+		}  
+	};  
 
 	// const sendMailNodeMailer = async () => {
 	// 	const data = {

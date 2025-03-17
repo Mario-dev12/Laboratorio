@@ -2550,3 +2550,19 @@ EXCEPTION
         RAISE EXCEPTION 'Error al obtener el perfil: %', SQLERRM;  
 END;  
 $$ LANGUAGE plpgsql;
+
+CREATE OR REPLACE FUNCTION sp_update_order_status(  
+    p_idOrder INT,  
+    p_status VARCHAR  
+) RETURNS VOID AS $$  
+BEGIN  
+    UPDATE orders  
+    SET status = p_status,  
+        modifiedDate = now()  
+    WHERE idOrder = p_idOrder;  
+
+    IF NOT FOUND THEN  
+        RAISE EXCEPTION 'Order with idOrder % does not exist', p_idOrder;  
+    END IF;  
+END;  
+$$ LANGUAGE plpgsql;  

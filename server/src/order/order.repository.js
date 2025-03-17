@@ -69,6 +69,15 @@ orderRepository.updateOrder = async (id, answer) => {
   }
 }
 
+orderRepository.updateStatusOrder = async (id, answer) => {
+  try {
+    const resp = await pool.query(`SELECT * FROM sp_update_order_status(${id}, '${answer.status}')`);
+    return resp.rows[0].sp_update_order_status;
+  } catch (error) {
+    throw error;
+  }
+}
+
 orderRepository.deleteOrder = async id => {
   try {
     const resp = await pool.query(`SELECT * FROM sp_delete_order(${id})`);
