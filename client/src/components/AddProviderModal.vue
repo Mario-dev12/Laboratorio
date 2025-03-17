@@ -69,22 +69,10 @@
 	}
 
 	.custom-input {
-		background-color: #1e1e1e;
 		border: 1px solid #444;
 		border-radius: 8px;
 		padding: 10px;
 		font-size: 16px;
 		transition: border-color 0.3s, box-shadow 0.3s;
-		color: #fff;
-	}
-
-	.custom-input:focus {
-		background-color: #1e1e1e;
-		color: #fff;
-	}
-
-	.custom-input::placeholder {
-		color: #ccc;
-		opacity: 1;
 	}
 </style>

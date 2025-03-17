@@ -156,7 +156,8 @@
 <script setup lang="ts">
 	import { IonContent, IonPage } from "@ionic/vue";
 	import { boxStore } from "@/stores/boxStore";
-	import { onMounted, ref } from "vue";
+	import { onMounted, ref, watch } from "vue";
+	import { useRoute } from "vue-router";
 
 	const incomes = ref();
 	const bills = ref();
@@ -166,7 +167,8 @@
 	const billsTotalDolares = ref(0);
 	const boxsStore = boxStore();
 	const startDate = ref("");
-	const endDate = ref("");
+	const endDate = ref(""); 
+	const route = useRoute();  
 
 	onMounted(async () => {
 		incomes.value = await boxsStore.fecthIncome(true, "", "");
@@ -175,30 +177,54 @@
 		await totalAmountBills();
 	});
 
-	async function totalAmountIncome() {
-		for (let i = 0; i < incomes.value.length; i++) {
-			totalBs.value += parseFloat(incomes.value[i].totalCost_bs);
-			totalDolares.value += parseFloat(incomes.value[i].totalCost_usd);
-		}
-	}
+	const loadData = async () => {  
+		try {  
+			incomes.value = await boxsStore.fecthIncome(true, "", "");  
+			bills.value = await boxsStore.fecthBills(true, "", "");  
+			await totalAmountIncome();  
+			await totalAmountBills();  
+		} catch (error) {  
+			console.error("Error al cargar los datos:", error);  
+		}  
+	};
 
-	async function totalAmountBills() {
-		for (let i = 0; i < bills.value.length; i++) {
-			billsTotalBs.value += parseFloat(bills.value[i].cost_bs.replace(",", "."));
-			billsTotalDolares.value += parseFloat(bills.value[i].cost_usd.replace(",", "."));
-		}
-	}
+	watch(route, (to) => {  
+	if (to.name === "Caja") {  
+		loadData(); 
+	}  
+	}); 
 
-	async function handleSearch() {
-		totalBs.value = 0;
-		totalDolares.value = 0;
-		billsTotalBs.value = 0;
-		billsTotalDolares.value = 0;
-		incomes.value = await boxsStore.fecthIncome(false, startDate.value, endDate.value);
-		bills.value = await boxsStore.fecthBills(false, startDate.value, endDate.value);
-		await totalAmountIncome();
-		await totalAmountBills();
-	}
+	async function totalAmountIncome() {  
+		totalBs.value = incomes.value.reduce((acc: number, income: { totalCost_bs: string; }) => acc + parseFloat(income.totalCost_bs), 0);  
+		totalDolares.value = incomes.value.reduce((acc: number, income: { totalCost_usd: string; }) => acc + parseFloat(income.totalCost_usd), 0);  
+	}  
+
+	async function totalAmountBills() {  
+		billsTotalBs.value = bills.value.reduce((acc: number, bill: { cost_bs: string; }) => acc + parseFloat(bill.cost_bs.replace(",", ".")), 0);  
+		billsTotalDolares.value = bills.value.reduce((acc: number, bill: { cost_usd: string; }) => acc + parseFloat(bill.cost_usd.replace(",", ".")), 0);  
+	}  
+
+	async function handleSearch() {  
+		if (new Date(startDate.value) > new Date(endDate.value)) {  
+			alert("La fecha de inicio no puede ser posterior a la fecha de fin.");  
+			return;  
+		}  
+		try {  
+			totalBs.value = 0;  
+			totalDolares.value = 0;  
+			billsTotalBs.value = 0;  
+			billsTotalDolares.value = 0;  
+
+			incomes.value = await boxsStore.fecthIncome(false, startDate.value, endDate.value);  
+			bills.value = await boxsStore.fecthBills(false, startDate.value, endDate.value);  
+
+			await totalAmountIncome();  
+			await totalAmountBills();  
+		} catch (error) {  
+			console.error("Error al buscar datos:", error);  
+			alert("Ocurrió un error al buscar los datos.");  
+		}  
+	}  
 </script>
 
 <style scoped>

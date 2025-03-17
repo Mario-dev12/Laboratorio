@@ -379,6 +379,41 @@
 							unidadesDeCampos.value = await tests.fecthProfilesInputUnits();
 						});
 					}
+
+					if (seccionesAgregadas.value.length) {
+						for (const seccion of seccionesAgregadas.value) {
+							const existe = profilesSections.section.some((existingSeccion: { nombre: string; }) =>
+								existingSeccion.nombre === seccion.nombre
+							);
+							if (!existe) {
+								await tests.createProfileSection(selectedPerfil.value.idProfile, seccion);
+							}
+						}
+					}
+
+					if (seccionesEliminadas.value.length) {
+						for (const seccion of seccionesEliminadas.value) {
+							if (seccion.nombre !== ''){
+							    await tests.deleteProfileSection(selectedPerfil.value.idProfile, seccion.nombre);
+							}
+						}
+					}
+
+					for (const seccion of seccionesActualizadas) {
+						if (seccion.camposAgregados && seccion.camposAgregados.length > 0) {
+							const data = {
+								idProfile: selectedPerfil.value.idProfile,
+								nombre: seccion.nombre
+							};
+							const camposNuevos = seccion.campos.filter(campo => campo.idCampo === 0);
+
+					if (campos.value.length) {
+						await tests.createInputs(selectedPerfil.value.idProfile, campos.value).then(async () => {
+							perfiles.value = await tests.fecthProfiles();
+							camposExistentes.value = await tests.fecthProfilesInputs();
+							unidadesDeCampos.value = await tests.fecthProfilesInputUnits();
+						});
+					}
 					if (seccionesAgregadas.value.length) {
 						for (const seccion of seccionesAgregadas.value) {
 							const existe = profilesSections.section.some(
