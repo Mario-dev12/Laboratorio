@@ -20,7 +20,7 @@ INSERT INTO profile (name, cost_bs, cost_usd) VALUES
 INSERT INTO exam (idUser, total_cost_bs, total_cost_usd) VALUES 
 (1, '488,7', '10'),
 (2, '488,7', '10'),
-(1, '244,35', '5');
+(3, '244,35', '5');
 
 INSERT INTO orders (idExam, idProfile, status) VALUES 
 (1, 1, 'Pendiente por pasar'),

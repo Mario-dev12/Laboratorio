@@ -30,6 +30,10 @@ orderServices.updateOrder = async (id, answer) => {
     return await orderRepository.updateOrder(id, answer)
 }
 
+orderServices.updateStatusOrder = async (id, answer) => {
+    return await orderRepository.updateStatusOrder(id, answer)
+}
+
 orderServices.deleteOrder = async id => {
     return await orderRepository.deleteOrder(id)
 }

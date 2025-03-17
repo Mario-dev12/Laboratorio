@@ -388,9 +388,10 @@
 					if (seccionesAgregadas.value.length) {  
 						for (const seccion of seccionesAgregadas.value) {  
 							const existe = profilesSections.section.some((existingSeccion: { nombre: string; }) =>   
-								existingSeccion.nombre === seccion.nombre  
+								existingSeccion.nombre.trim() === seccion.nombre.trim()  
 							);  
 							if (!existe) {  
+								seccion.nombre = seccion.nombre.trim();
 								await tests.createProfileSection(selectedPerfil.value.idProfile, seccion);   
 							}  
 						}   
@@ -408,7 +409,7 @@
 						if (seccion.camposAgregados && seccion.camposAgregados.length > 0) {   
 							const data = {  
 								idProfile: selectedPerfil.value.idProfile,  
-								nombre: seccion.nombre  
+								nombre: seccion.nombre.trim()  
 							};   
 							const camposNuevos = seccion.campos.filter(campo => campo.idCampo === 0); 
 
@@ -418,12 +419,13 @@
 							}).filter(id => id !== null) as number[];  
 
 							seccion.camposAgregados.push(...idsCorrespondientes);  
-							seccion.camposAgregados = seccion.camposAgregados.filter(id => id !== 0);   
+							seccion.camposAgregados = seccion.camposAgregados.filter(id => id !== 0); 
 
-							await tests.createProfileSectionInputs(data, seccion.camposAgregados);  
+							await tests.createProfileSectionInputs(data, seccion.camposAgregados);
+							
 						}  
 
-						if (seccion.camposEliminados && seccion.camposEliminados.length > 0) {  
+						if (seccion.camposEliminados && seccion.camposEliminados.length > 0) { 
 							await tests.deleteProfileSectionInputs(selectedPerfil.value.idProfile, seccion.nombre, seccion.camposEliminados);  
 						}  
 					}   
