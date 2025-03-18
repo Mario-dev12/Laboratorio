@@ -69,7 +69,7 @@
 						<ion-icon slot="start" :icon="copy"></ion-icon>
 						Hist. Órdenes
 					</ion-button>
-					<ion-button class="clear" @click="() => router.push({ name: 'Caja' })">
+					<ion-button fill="clear" @click="() => router.push({ name: 'Caja' })">
 						<ion-icon slot="start" :icon="calculator"></ion-icon>
 						Caja
 					</ion-button>

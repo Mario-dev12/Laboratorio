@@ -2,7 +2,7 @@
 	<ion-page>
 		<ion-content>
 			<div class="container">
-				<div class="perfiles mt-3">
+				<div class="perfiles mt-3 mb-3">
 					<h4>Perfiles</h4>
 					<div class="row w-100 m-auto gap-2">
 						<div
@@ -124,15 +124,12 @@
 		order.value = JSON.parse(order.value);
 		ordersArray.value = order.value.orders;
 
-		console.log(order.value);
-
 		profileNames = route.query.profileNames;
 		profileNames = JSON.parse(profileNames);
 		for (const profile of profileNames) {
 			const profileSection = await profilesStore.fetchProfileByInputsName(profile);
 			profilesData.value.push(profileSection);
 		}
-		console.log(profilesData.value);
 		sectionData.value = profilesData.value[0];
 		sectionNames.value = profilesData.value;
 		showProfile.value = new Array(profileNames.length).fill(false);
@@ -141,7 +138,7 @@
 
 	router.beforeEach(async (to, from, next) => {
 		profilesData.value = [];
-		if (from.name === "OrdersView") {
+		if (to.name === "Results2") {
 			order.value = to.query.profile;
 			order.value = JSON.parse(order.value);
 			ordersArray.value = order.value.orders;
@@ -252,8 +249,6 @@
 
 	function handleSection(index: number) {
 		sectionData.value = profilesData.value[index];
-		console.log(profilesData.value);
-		console.log(sectionData.value);
 		tableInfo.value = "";
 		showProfile.value.forEach((element: boolean, i: number) => {
 			if (i === index) {
@@ -263,7 +258,6 @@
 			}
 		});
 		sectionNames.value = Object.keys(sectionData.value);
-		console.log(sectionNames.value);
 	}
 
 	const getHtmlWithInputValues = (element: any) => {
@@ -284,9 +278,6 @@
 		profileNames.forEach((name: string) => {
 			testsResults[name] = [];
 		});
-		console.log(testsResults);
-		console.log(profileRef2.value);
-		console.log(profileRef2.value[0]);
 
 		if (profileRef2.value) {
 			// Loop por cada perfil
@@ -302,7 +293,6 @@
 				const sections = item.querySelectorAll(".profile-tables");
 
 				// Loop por cada seccion del perfil
-				console.log(item.children[1].children[1]);
 				sections.forEach((table: any) => {
 					const tableName = table.querySelector("h3");
 					const tableData = table.querySelectorAll("tbody tr");
@@ -314,7 +304,6 @@
 							inputValue: 0,
 							Unit: "",
 						};
-						console.log(tr.children);
 						tr.children.forEach((td: any, i: number) => {
 							if (i === 0) {
 								dataRow.fieldName = td.innerHTML;
@@ -331,7 +320,6 @@
 						profileFields.push(dataRow);
 					});
 				});
-				console.log(Object.values(testsResults));
 				Object.values(testsResults)[index].push(testSections);
 
 				results = {
@@ -339,21 +327,17 @@
 					profileName: profileNames[index],
 					fields: profileFields,
 				};
-				console.log(results);
 				// hacer llamado al store aqui
 				await examsStore.createExamResults(results);
 			});
-			console.log(testsResults);
 		}
 	};
 
 	const generatePDF = async () => {
 		const profileRefCopy = profileRef.value.cloneNode(true);
 		const patientInfoDivCopy = profileRefCopy.querySelector(".patient-info");
-		console.log(patientInfoDivCopy);
 
 		const profileContentDivs = profileRefCopy.querySelectorAll(".profile-content");
-		console.log(profileContentDivs);
 
 		html = patientInfoDivCopy.innerHTML;
 
@@ -418,7 +402,6 @@
 			text: "prueba desde la app del laboratorio",
 			attachment: pdfFileName.value,
 		};
-		console.log(typeof emailData.attachment);
 
 		mailsStore.sendEmail(emailData);
 	}
