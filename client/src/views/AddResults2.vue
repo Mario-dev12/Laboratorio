@@ -2,7 +2,7 @@
 	<ion-page>
 		<ion-content>
 			<div class="container">
-				<div class="perfiles mt-3">
+				<div class="perfiles mt-3 mb-3">
 					<h4>Perfiles</h4>
 					<div class="row w-100 m-auto gap-2">
 						<div
@@ -15,6 +15,20 @@
 					</div>
 				</div>
 				<div ref="profileRef" id="profile">
+					<div class="patient-info">
+						<div class="row">
+							<div class="col">
+								<img src="/images/logo.jpg" alt="" />
+							</div>
+						</div>
+						<div class="row mt-3">
+							<div class="col">Paciente: {{ order?.firstName }} {{ order?.lastName }}</div>
+							<div class="col">CI: {{ order?.ci }}</div>
+							<div class="col">Edad: {{ order?.age }}</div>
+							<div class="col">Sexo: {{ order?.genre === "M" ? "Masculino" : "Femenino" }}</div>
+							<div class="col">Fecha: {{ day }}/{{ month }}/{{ year }}</div>
+						</div>
+					</div>
 					<div class="profile-content mt-5" v-for="(profile, indx) in profilesData" :key="indx">
 						<div class="profile-sections mt-4" v-show="showProfile[indx]" ref="profileRef2">
 							<div class="text-center">
@@ -103,6 +117,10 @@
 	const mailsStore = mailStore();
 	const valorReferencial = ref();
 	const pdfFileName = ref();
+	const today = new Date();
+	const day = today.getDate();
+	const month = today.getMonth() + 1;
+	const year = today.getFullYear();
 	const profileName = ref();
 
 	onMounted(async () => {
@@ -116,7 +134,6 @@
 			const profileSection = await profilesStore.fetchProfileByInputsName(profile);
 			profilesData.value.push(profileSection);
 		}
-		console.log(profilesData.value);
 		sectionData.value = profilesData.value[0];
 		sectionNames.value = profilesData.value;
 		showProfile.value = new Array(profileNames.length).fill(false);
@@ -125,7 +142,7 @@
 
 	router.beforeEach(async (to, from, next) => {
 		profilesData.value = [];
-		if (from.name === "OrdersView") {
+		if (to.name === "Results2") {
 			order.value = to.query.profile;
 			order.value = JSON.parse(order.value);
 			ordersArray.value = order.value.orders;
@@ -236,8 +253,6 @@
 
 	function handleSection(index: number) {
 		sectionData.value = profilesData.value[index];
-		console.log(profilesData.value);
-		console.log(sectionData.value);
 		tableInfo.value = "";
 		showProfile.value.forEach((element: boolean, i: number) => {
 			if (i === index) {
@@ -247,7 +262,6 @@
 			}
 		});
 		sectionNames.value = Object.keys(sectionData.value);
-		console.log(sectionNames.value);
 	}
 
 	const getHtmlWithInputValues = (element: any) => {
@@ -268,9 +282,6 @@
 		profileNames.forEach((name: string) => {
 			testsResults[name] = [];
 		});
-		console.log(testsResults);
-		console.log(profileRef2.value);
-		console.log(profileRef2.value[0]);
 
 		if (profileRef2.value) {
 			// Loop por cada perfil
@@ -286,7 +297,6 @@
 				const sections = item.querySelectorAll(".profile-tables");
 
 				// Loop por cada seccion del perfil
-				console.log(item.children[1].children[1]);
 				sections.forEach((table: any) => {
 					const tableName = table.querySelector("h3");
 					const tableData = table.querySelectorAll("tbody tr");
@@ -298,7 +308,6 @@
 							inputValue: 0,
 							Unit: "",
 						};
-						console.log(tr.children);
 						tr.children.forEach((td: any, i: number) => {
 							if (i === 0) {
 								dataRow.fieldName = td.innerHTML;
@@ -315,7 +324,6 @@
 						profileFields.push(dataRow);
 					});
 				});
-				console.log(Object.values(testsResults));
 				Object.values(testsResults)[index].push(testSections);
 
 				results = {
@@ -325,22 +333,25 @@
 				};
 				const data = {
 					id: ordersArray.value[index].idOrder,
-					status: 'Pendiente de enviar'
-				}
+					status: "Pendiente de enviar",
+				};
 				console.log(results);
 				// hacer llamado al store aqui
 				await examsStore.createExamResults(results);
-				await ordersStore.updateStatusOrder(ordersArray.value[index].idOrder, data)
+				await ordersStore.updateStatusOrder(ordersArray.value[index].idOrder, data);
 			});
-			console.log(testsResults);
 		}
 	};
 
 	const generatePDF = async () => {
 		const profileRefCopy = profileRef.value.cloneNode(true);
-		console.log(profileRefCopy.children);
+		const patientInfoDivCopy = profileRefCopy.querySelector(".patient-info");
 
-		profileRefCopy.children.forEach((item: any) => {
+		const profileContentDivs = profileRefCopy.querySelectorAll(".profile-content");
+
+		html = patientInfoDivCopy.innerHTML;
+
+		profileContentDivs.forEach((item: any) => {
 			const childrenCopy = item.children[0].cloneNode(true);
 			childrenCopy.style.display = "block";
 
@@ -358,7 +369,54 @@
 		const formattedDate = `${day}-${month}-${year}`;
 
 		const filename = `${lastName}_${firstName}_${formattedDate}.pdf`;
-		profileName.value = `${lastName}_${firstName}_${formattedDate}.pdf`
+		profileName.value = `${lastName}_${firstName}_${formattedDate}.pdf`;
+
+		const options = {
+			margin: 3,
+			filename: filename,
+			image: { type: "jpeg", quality: 0.98 },
+			html2canvas: { scale: 2 },
+			jsPDF: { unit: "mm", format: "letter", orientation: "portrait" },
+		};
+
+		pdfFileName.value = options.filename;
+
+		for (const orders of ordersArray.value) {
+			const data = {
+				id: orders.idOrder,
+				status: "Pendiente de enviar",
+			};
+			await ordersStore.updateStatusOrder(orders.idOrder, data);
+		}
+
+		html2pdf().from(element).set(options).save();
+		html = "";
+	};
+
+	const generatePDF2 = async (): Promise<Blob> => {
+		const profileRefCopy = profileRef.value.cloneNode(true);
+		console.log(profileRefCopy.children);
+
+		profileRefCopy.children.forEach((item: any) => {
+			const childrenCopy = item.children[0].cloneNode(true);
+			childrenCopy.style.display = "block";
+
+			html += getHtmlWithInputValues(childrenCopy); // Asegúrate de tener esta función definida
+		});
+
+		const element = html;
+
+		const firstName = order.value.firstName;
+		const lastName = order.value.lastName;
+
+		const today = new Date();
+		const year = today.getFullYear();
+		const month = String(today.getMonth() + 1).padStart(2, "0");
+		const day = String(today.getDate()).padStart(2, "0");
+		const formattedDate = `${day}-${month}-${year}`;
+
+		const filename = `${lastName}_${firstName}_${formattedDate}.pdf`;
+		profileName.value = filename;
 
 		const options = {
 			margin: 1,
@@ -371,88 +429,40 @@
 		pdfFileName.value = options.filename;
 		console.log(options.filename);
 
-		for (const orders of ordersArray.value){
+		for (const orders of ordersArray.value) {
 			const data = {
 				id: orders.idOrder,
-				status: 'Pendiente de enviar'
-			}
-			await ordersStore.updateStatusOrder(orders.idOrder, data)
+				status: "Completado",
+			};
+			await ordersStore.updateStatusOrder(orders.idOrder, data);
 		}
 
-		html2pdf().from(element).set(options).save();
-		html = "";
-	};
-
-	const generatePDF2 = async (): Promise<Blob> => {  
-		const profileRefCopy = profileRef.value.cloneNode(true);  
-		console.log(profileRefCopy.children);  
-
-		profileRefCopy.children.forEach((item: any) => {  
-			const childrenCopy = item.children[0].cloneNode(true);  
-			childrenCopy.style.display = "block";  
-
-			html += getHtmlWithInputValues(childrenCopy); // Asegúrate de tener esta función definida  
-		});  
-
-		const element = html;  
-
-		const firstName = order.value.firstName;  
-		const lastName = order.value.lastName;  
-
-		const today = new Date();  
-		const year = today.getFullYear();  
-		const month = String(today.getMonth() + 1).padStart(2, "0");  
-		const day = String(today.getDate()).padStart(2, "0");  
-		const formattedDate = `${day}-${month}-${year}`;  
-
-		const filename = `${lastName}_${firstName}_${formattedDate}.pdf`;  
-		profileName.value = filename;  
-
-		const options = {  
-			margin: 1,  
-			filename: filename,  
-			image: { type: "jpeg", quality: 0.98 },  
-			html2canvas: { scale: 2 },  
-			jsPDF: { unit: "in", format: "letter", orientation: "portrait" },  
-		};  
-
-		pdfFileName.value = options.filename;  
-		console.log(options.filename);  
- 
-		for (const orders of ordersArray.value) {  
-			const data = {  
-			id: orders.idOrder,  
-			status: 'Completado'  
-			};  
-			await ordersStore.updateStatusOrder(orders.idOrder, data);  
-		}  
-
-		// Usamos una Promise para esperar a que se genere el Blob  
-		return new Promise((resolve, reject) => {  
-			html2pdf()  
-			.from(element)  
-			.set(options)  
-			.toPdf()  
-			.get('pdf')  
-			.then((pdf: { output: (arg0: string) => any; }) => {  
-				// Obtener directamente el Blob  
-				const blob = pdf.output('blob');  
-				resolve(blob);  
-			})  
-			.catch((error: any) => {  
-				console.error('Error generando el PDF:', error);  
-				reject(error);  
-			});  
-		});  
+		// Usamos una Promise para esperar a que se genere el Blob
+		return new Promise((resolve, reject) => {
+			html2pdf()
+				.from(element)
+				.set(options)
+				.toPdf()
+				.get("pdf")
+				.then((pdf: { output: (arg0: string) => any }) => {
+					// Obtener directamente el Blob
+					const blob = pdf.output("blob");
+					resolve(blob);
+				})
+				.catch((error: any) => {
+					console.error("Error generando el PDF:", error);
+					reject(error);
+				});
+		});
 	};
 
 	const sharePDFViaWhatsApp = async () => {
-		for (const orders of ordersArray.value){
+		for (const orders of ordersArray.value) {
 			const data = {
 				id: orders.idOrder,
-				status: 'Pendiente de imprimir'
-			}
-			await ordersStore.updateStatusOrder(orders.idOrder, data)
+				status: "Pendiente de imprimir",
+			};
+			await ordersStore.updateStatusOrder(orders.idOrder, data);
 		}
 		await generatePDF();
 		const message = `Echa un vistazo a este PDF`;
@@ -463,12 +473,12 @@
 	};
 
 	const enviarCorreo = async () => {
-		for (const orders of ordersArray.value){
+		for (const orders of ordersArray.value) {
 			const data = {
 				id: orders.idOrder,
-				status: 'Pendiente de imprimir'
-			}
-			await ordersStore.updateStatusOrder(orders.idOrder, data)
+				status: "Pendiente de imprimir",
+			};
+			await ordersStore.updateStatusOrder(orders.idOrder, data);
 		}
 		const recipientEmail = "mario12dev@gmail.com";
 		const subject = "Prueba";
@@ -488,42 +498,41 @@
 			text: "prueba desde la app del laboratorio",
 			attachment: pdfFileName.value,
 		};
-		console.log(typeof emailData.attachment);
 
-		for (const orders of ordersArray.value){
+		for (const orders of ordersArray.value) {
 			const data = {
 				id: orders.idOrder,
-				status: 'Pendiente de imprimir'
-			}
-			await ordersStore.updateStatusOrder(orders.idOrder, data)
+				status: "Pendiente de imprimir",
+			};
+			await ordersStore.updateStatusOrder(orders.idOrder, data);
 		}
 
 		mailsStore.sendEmail(emailData);
 	}
 
-	const printPDF = async () => {  
-		// Generar PDF  
-		const pdfBlob = await generatePDF2();  
+	const printPDF = async () => {
+		// Generar PDF
+		const pdfBlob = await generatePDF2();
 
-		// Crear un objeto URL para el Blob  
-		const pdfUrl = URL.createObjectURL(pdfBlob);  
-		
-		// Abrir el PDF en una nueva ventana  
-		const printWindow = window.open(pdfUrl);  
-		
-		if (printWindow) {  
-			// Imprimir el PDF cuando la ventana esté cargada  
-			printWindow.onload = function () {  
-			printWindow.print();  
-			printWindow.onafterprint = function () {  
-				// Cerrar la ventana después de imprimir  
-				printWindow.close();  
-			};  
-			};  
-		} else {  
-			console.error('No se pudo abrir la ventana de impresión.');  
-		}  
-	};  
+		// Crear un objeto URL para el Blob
+		const pdfUrl = URL.createObjectURL(pdfBlob);
+
+		// Abrir el PDF en una nueva ventana
+		const printWindow = window.open(pdfUrl);
+
+		if (printWindow) {
+			// Imprimir el PDF cuando la ventana esté cargada
+			printWindow.onload = function () {
+				printWindow.print();
+				printWindow.onafterprint = function () {
+					// Cerrar la ventana después de imprimir
+					printWindow.close();
+				};
+			};
+		} else {
+			console.error("No se pudo abrir la ventana de impresión.");
+		}
+	};
 
 	// const sendMailNodeMailer = async () => {
 	// 	const data = {

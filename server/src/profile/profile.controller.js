@@ -130,10 +130,7 @@ profileController.createProfileInputs = async (req, res) => {
 
 profileController.createProfileSection = async (req, res) => {
 	try {
-		const answer = await profileServices.createProfileSection(
-			req.body.data,
-			req.body.section
-		);
+		const answer = await profileServices.createProfileSection(req.body.data, req.body.section);
 		res.send(answer);
 	} catch (error) {
 		return res.status(400).send(error.stack);
@@ -142,7 +139,11 @@ profileController.createProfileSection = async (req, res) => {
 
 profileController.createProfileSectionInputs = async (req, res) => {
 	try {
-		const answer = await profileServices.createProfileSectionInputs(req.body.data.idProfile, req.body.data.nombre, req.body.inputs);
+		const answer = await profileServices.createProfileSectionInputs(
+			req.body.data.idProfile,
+			req.body.data.nombre,
+			req.body.inputs
+		);
 		res.send(answer);
 	} catch (error) {
 		return res.status(400).send(error.stack);
@@ -227,6 +228,7 @@ profileController.deleteInputsProfile = async (req, res) => {
 
 profileController.deleteProfileSection = async (req, res) => {
 	const { idProfile, nombre } = req.params;
+	console.log(idProfile, nombre);
 
 	try {
 		const answer = await profileServices.deleteProfileSection(idProfile, nombre);

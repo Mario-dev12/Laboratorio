@@ -3,7 +3,7 @@
 		<ion-header>
 			<ion-toolbar>
 				<ion-title slot="end"> Lab Madre Emilia </ion-title>
-				<ion-buttons>
+				<ion-buttons slot="start">
 					<ion-button class="border-end border-secondary" @click="() => router.push({ name: 'Home' })">
 						<ion-icon slot="start" :icon="home"></ion-icon>
 						Home
@@ -69,7 +69,7 @@
 						<ion-icon slot="start" :icon="copy"></ion-icon>
 						Hist. Órdenes
 					</ion-button>
-					<ion-button class="clear" @click="() => router.push({ name: 'Caja' })">
+					<ion-button fill="clear" @click="() => router.push({ name: 'Caja' })">
 						<ion-icon slot="start" :icon="calculator"></ion-icon>
 						Caja
 					</ion-button>

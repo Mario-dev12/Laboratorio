@@ -170,7 +170,6 @@ export interface Campo {
 	idCampo: number;
 	nombre: string;
 	unidad: string;
-	referencial: string;
 	valor_referencial?: string;
 	checked?: boolean;
 	createddate?: any;
