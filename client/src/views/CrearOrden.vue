@@ -1,30 +1,6 @@
 <template>
 	<ion-page>
 		<ion-content>
-			<div class="container p-0">
-				<div class="d-flex mt-4">
-					<div class="p-3 bg-dark-subtle rounded text-center">
-						<h3>Tasa del Dolar</h3>
-						<h4>Bs: {{ precioDolar }}</h4>
-						<button
-							class="btn btn-primary mb-2"
-							v-if="!showChangeDolar"
-							@click="
-								() => {
-									showChangeDolar = !showChangeDolar;
-								}
-							">
-							Editar
-						</button>
-						<div v-if="showChangeDolar">
-							<input class="d-block mb-2" type="text" v-model="cambioDolar" />
-							<button class="d-block btn btn-primary w-auto mx-auto" @click="cambiarPrecioDolar(cambioDolar)">
-								Cambiar tasa del dolar
-							</button>
-						</div>
-					</div>
-				</div>
-			</div>
 			<div class="container mt-4 p-3 bg-dark-subtle rounded">
 				<h3 class="mb-3">Información Del Cliente</h3>
 				<div class="w-100 m-auto row px-2">
@@ -100,7 +76,7 @@
 									v-model.number="precioDolar"
 									type="number"
 									placeholder="Nuevo monto"
-									@keyup.enter="guardarTasa"
+									@keyup.enter="cambiarPrecioDolar(precioDolar)"
 									class="ms-2" />
 
 								<i
@@ -112,7 +88,7 @@
 								<i
 									v-if="showChangeDolar"
 									class="fas fa-check accept-icon"
-									@click="guardarTasa"
+									@click="cambiarPrecioDolar(precioDolar)"
 									style="cursor: pointer; margin-left: 10px"></i>
 
 								<i
@@ -232,6 +208,7 @@
 	import { paymentStore } from "@/stores/paymentStore";
 	import { useRouter } from "vue-router";
 	import { checkboxOutline, alertCircleOutline } from "ionicons/icons";
+	import eventBus from '../eventBus';
 
 	const tipoDeExamen = ref();
 	const examenesSeleccionados = ref<Examen[]>([]);
@@ -293,6 +270,10 @@
 		setOpen(true);
 	};
 
+	function handlePrecioActualizado(nuevoPrecio: number) {  
+		precioDolar.value = nuevoPrecio;
+	}  
+
 	onMounted(async () => {
 		profiles.value = await profilesStore.fecthProfiles();
 		profiles.value = profiles.value.map((exam: { cost_bs: string; cost_usd: string }) => ({
@@ -300,8 +281,14 @@
 			cost_bs: parseFloat(exam.cost_bs.replace(",", ".")),
 			cost_usd: parseFloat(exam.cost_usd),
 		}));
+		precioDolar.value = Number(localStorage.getItem("tasaDolar")) || 50;
+		eventBus.on("precioActualizado", handlePrecioActualizado); 
 		crearOrden();
 	});
+
+	watch(precioDolar, (newVal) => {  
+		localStorage.setItem("tasaDolar", newVal.toString());  
+	});  
 
 	const crearOrden = async () => {
 		order.value = await ordersStore.fecthOrders();
@@ -358,6 +345,7 @@
 				totales.value.total$ += item.cost_usd;
 			}
 			showChangeDolar.value = false;
+			eventBus.emit("precioActualizado", precioDolar.value)
 		}
 	};
 
@@ -542,21 +530,10 @@
 		precioDolar.value = Number(localStorage.getItem("tasaDolar")) || 50;
 	}
 
-	const guardarTasa = () => {
-		if (precioDolar.value !== null && precioDolar.value > 0) {
-			totales.value.totalBs = 0;
-			totales.value.total$ = 0;
-			for (const examen of examenesSeleccionados.value) {
-				totales.value.totalBs += examen.cost_usd * precioDolar.value;
-				totales.value.total$ += examen.cost_usd;
-			}
-		}
-		cancelarEdicion();
-	};
-
 	const cancelarEdicion = () => {
-		showChangeDolar.value = false; // Cierra el modo de edición
-		nuevoMontoDolar.value = null; // Resetea el campo de entrada
+		showChangeDolar.value = false;
+		precioDolar.value = Number(localStorage.getItem("tasaDolar"))
+		nuevoMontoDolar.value = null;
 	};
 </script>
 
