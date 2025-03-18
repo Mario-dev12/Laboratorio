@@ -76,6 +76,17 @@ orderController.updateOrder = async (req, res) => {
   }
 }
 
+orderController.updateStatusOrder = async (req, res) => {
+  const { id } = req.params
+
+  try {
+    const answer = await orderServices.updateStatusOrder(id, req.body)
+    res.send(answer)
+  } catch (error) {
+    return res.status(400).send(error.message)
+  }
+}
+
 orderController.deleteOrder = async (req, res) => {
   const { id } = req.params
 

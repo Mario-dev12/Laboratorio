@@ -42,6 +42,11 @@ export const orderStore = defineStore("order", {
 			this.order = response;
 			return this.order;
 		},
+		async updateStatusOrder(id: string | number, data: any) {
+			const response = await axiosRepository.updateStatusOrder<Order>("order", id, data);
+			this.order = response;
+			return this.order;
+		},
 		async deleteOrder(id: string | number) {
 			await axiosRepository.delete("order", id);
 		},

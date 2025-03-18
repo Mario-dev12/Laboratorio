@@ -10,6 +10,7 @@ orderRouter.get('/orders', orderController.readOrdersDay)
 orderRouter.get('/history', orderController.readHistOrdersDay)
 orderRouter.post('/', orderController.createOrder)
 orderRouter.put('/:id', orderController.updateOrder)
+orderRouter.put('/status/:id', orderController.updateStatusOrder)
 orderRouter.delete('/:id', orderController.deleteOrder)
 orderRouter.delete('/order/:idexam/:idprofile', orderController.deleteOrderByExamIdAndProfileId)
 
