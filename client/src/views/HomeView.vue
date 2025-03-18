@@ -3,8 +3,7 @@
 		<ion-content>
 			<div class="home-page">
 				<div :style="{ backgroundImage: `url(${backgroundImage})` }" class="background-image">
-					<h1>Bienvenido al Laboratorio Clínico Madre Emilia</h1>
-					<!-- Puedes agregar más contenido aquí -->
+					<h1>Laboratorio Clínico Madre Emilia</h1>
 				</div>
 			</div>
 		</ion-content>
@@ -15,25 +14,25 @@
 	import { ref } from "vue";
 	import { IonContent, IonPage } from "@ionic/vue";
 
-	const backgroundImage = ref("./images/logo.jpg");
+	const backgroundImage = ref("./images/laboratorio.png");
 </script>
 
 <style scoped>
 	.home-page {
 		position: relative;
-		height: 100vh;
+		height: 93vh;
 		overflow: hidden;
 	}
 
 	.background-image {
 		background-size: cover;
-		background-position: center;
 		height: 100%;
 		display: flex;
 		align-items: center;
 		justify-content: center;
 		color: white;
 		text-align: center;
+		width: auto;
 	}
 
 	h1 {

@@ -18,7 +18,10 @@
 					<div class="patient-info">
 						<div class="row">
 							<div class="col">
-								<img src="/images/logo.jpg" alt="" />
+								<img src="/images/laboratorio.png" alt="" />
+							</div>
+							<div class="col">
+								<img src="/images/direccion.png" alt="" />
 							</div>
 						</div>
 						<div class="row mt-3">
