@@ -23,13 +23,30 @@
 							<div class="col">
 								<img src="/images/direccion.png" alt="" />
 							</div>
+							<div class="col"></div>
 						</div>
+						<div class="border-bottom border-black mt-2"></div>
 						<div class="row mt-3">
-							<div class="col">Paciente: {{ order?.firstName }} {{ order?.lastName }}</div>
-							<div class="col">CI: {{ order?.ci }}</div>
-							<div class="col">Edad: {{ order?.age }}</div>
-							<div class="col">Sexo: {{ order?.genre === "M" ? "Masculino" : "Femenino" }}</div>
-							<div class="col">Fecha: {{ day }}/{{ month }}/{{ year }}</div>
+							<div class="col">
+								<div class="d-inline fw-bold">Paciente:</div>
+								{{ order?.firstName }} {{ order?.lastName }}
+							</div>
+							<div class="col">
+								<div class="d-inline fw-bold">CI:</div>
+								{{ order?.ci }}
+							</div>
+							<div class="col">
+								<div class="d-inline fw-bold">Edad:</div>
+								{{ order?.age }}
+							</div>
+							<div class="col">
+								<div class="d-inline fw-bold">Sexo:</div>
+								{{ order?.genre === "M" ? "Masculino" : "Femenino" }}
+							</div>
+							<div class="col">
+								<div class="d-inline fw-bold">Fecha:</div>
+								{{ day }}/{{ month }}/{{ year }}
+							</div>
 						</div>
 					</div>
 					<div class="profile-content mt-5" v-for="(profile, indx) in profilesData" :key="indx">
@@ -44,7 +61,7 @@
 										<thead>
 											<tr>
 												<th scope="col" class="col-3">Nombre</th>
-												<th scope="col" class="col-3">Valor</th>
+												<th scope="col" class="col-3">Resultados</th>
 												<th scope="col" class="col-3">Unidad</th>
 												<th scope="col" class="col-3">Valor Referencial</th>
 											</tr>
