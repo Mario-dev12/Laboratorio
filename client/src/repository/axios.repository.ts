@@ -123,7 +123,6 @@ class AxiosRepository {
 	}
 
 	async createExamResults<T>(domain: string, data: T): Promise<T> {
-		console.log(data);
 		const response = await axios.post<T>(`${import.meta.env.VITE_API_URL}/${domain}/results`, data);
 		return response.data;
 	}

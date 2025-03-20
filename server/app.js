@@ -73,7 +73,6 @@ app.listen(port, (err) => {
 	ObjLog.log(`Server running on port ${port}`);
 	logger.info(`Sockets connected on port ${port}`);
 	ObjLog.log(`Sockets connected on port ${port}`);
-	console.log("listening on", process.env.PORT);
 });
 
 export default app;

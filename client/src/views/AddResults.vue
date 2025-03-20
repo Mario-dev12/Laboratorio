@@ -132,7 +132,6 @@
 
 	const fetchProfile = async (nombre: string) => {
 		profileData.value = await profilesStore.fetchProfileByInputsName(nombre);
-		console.log(profileData.value);
 		tabNames.value = Object.keys(profileData.value);
 	};
 

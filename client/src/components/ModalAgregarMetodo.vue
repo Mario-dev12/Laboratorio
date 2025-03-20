@@ -413,7 +413,7 @@ async function calcularMontosRestantes() {
 <style scoped>  
 .modal-ancho {  
     --width: 900px; 
-    --height: 700px;
+    --height: 600px;
 }  
 
 .form-inline {  

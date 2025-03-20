@@ -354,7 +354,6 @@
 					id: ordersArray.value[index].idOrder,
 					status: "Pendiente de enviar",
 				};
-				console.log(results);
 				// hacer llamado al store aqui
 				await examsStore.createExamResults(results);
 				await ordersStore.updateStatusOrder(ordersArray.value[index].idOrder, data);
@@ -414,7 +413,6 @@
 
 	const generatePDF2 = async (): Promise<Blob> => {
 		const profileRefCopy = profileRef.value.cloneNode(true);
-		console.log(profileRefCopy.children);
 
 		profileRefCopy.children.forEach((item: any) => {
 			const childrenCopy = item.children[0].cloneNode(true);
@@ -446,7 +444,6 @@
 		};
 
 		pdfFileName.value = options.filename;
-		console.log(options.filename);
 
 		for (const orders of ordersArray.value) {
 			const data = {

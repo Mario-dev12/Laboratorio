@@ -19,7 +19,6 @@ export const examStore = defineStore("exam", {
 			return this.exams;
 		},
 		async createExamResults(result: Result) {
-			console.log(result);
 			const response = await axiosRepository.createExamResults<Result>("exam", result);
 			this.result = response;
 			return this.result;

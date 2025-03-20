@@ -304,12 +304,10 @@
 		if (!nombrePerfilNuevo.value.value && !costoDolaresPerfilNuevo.value.value && !costoBsPerfilNuevo.value.value) {
 			if (idCamposAgregados.value.length || idCamposEliminados.value.length) {
 				if (idCamposAgregados.value.length) {
-					console.log("campos agregados");
 					await tests.createInputsInProfile(selectedPerfil.value.idProfile, idCamposAgregados.value);
 				}
 
 				if (idCamposEliminados.value.length) {
-					console.log("campos eliminados");
 					await tests.deleteInputsInProfile(selectedPerfil.value.idProfile, idCamposEliminados.value);
 				}
 				showToast("Perfil actualizado exitosamente!", "creado", checkboxOutline);
