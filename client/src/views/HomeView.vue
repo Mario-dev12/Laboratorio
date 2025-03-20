@@ -3,7 +3,6 @@
 		<ion-content>
 			<div class="home-page">
 				<div :style="{ backgroundImage: `url(${backgroundImage})` }" class="background-image">
-					<h1>Laboratorio Clínico Madre Emilia</h1>
 				</div>
 			</div>
 		</ion-content>
@@ -20,7 +19,7 @@
 <style scoped>
 	.home-page {
 		position: relative;
-		height: 93vh;
+		height: 90vh;
 		overflow: hidden;
 	}
 

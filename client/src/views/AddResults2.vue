@@ -23,7 +23,6 @@
 							<div class="col">
 								<img src="/images/direccion.png" alt="" />
 							</div>
-							<div class="col"></div>
 						</div>
 						<div class="border-bottom border-black mt-2"></div>
 						<div class="row mt-3">
@@ -392,7 +391,7 @@
 		profileName.value = `${lastName}_${firstName}_${formattedDate}.pdf`;
 
 		const options = {
-			margin: 3,
+			margin: 6,
 			filename: filename,
 			image: { type: "jpeg", quality: 0.98 },
 			html2canvas: { scale: 2 },
