@@ -178,6 +178,28 @@
 						<label for="valorReferencial">Valores Referenciales</label>
 						<input type="text" placeholder="Valor Referencial" name="valorReferencial" ref="valorReferencial" />
 					</div>
+					<div class="w-100 m-auto row px-2 mb-3">  
+						<div class="col d-flex align-content-center">  
+							<p class="d-inline m-0 me-2">Campo Calculado</p>  
+							<input type="checkbox" v-model="isCampoCalculado" />  
+						</div>  
+					</div>  
+				 
+					<div class="w-100 m-auto row px-2 mb-3" v-if="isCampoCalculado">  
+						<label for="campoSelect">Seleccionar Campo</label>  
+						<div class="d-flex mb-3">  
+							<select v-model="campoSeleccionado">  
+								<option value="">Seleccionar Campo</option>  
+								<option v-for="campo in camposExistentes" :key="campo.idCampo" :value="campo.nombre">{{ campo.nombre }}</option>  
+							</select>  
+							<button class="btn btn-primary ms-2" @click="agregarCampoAFormula">Agregar</button>  
+						</div>  
+						<div class="w-100 m-auto row px-2 mb-3">  
+							<label for="formula">Fórmula</label>  
+							<input type="text" v-model="formula" placeholder="Construir fórmula..." />  
+							<small class="form-text text-muted">Ejemplo: Campo1 + 10</small>  
+						</div>  
+					</div>  
 					<div class="d-flex justify-content-center">
 						<button class="btn btn-primary" @click="createCampo">Crear Campo</button>
 					</div>
@@ -230,6 +252,9 @@
 	const isOpen = ref(false);
 	const idCamposAgregados = ref<number[]>([]);
 	const idCamposEliminados = ref<number[]>([]);
+	const isCampoCalculado = ref(false); 
+	const campoSeleccionado = ref('');
+	const formula = ref('');
 	const toast = ref({
 		isOpen: false,
 		message: "",
@@ -248,12 +273,13 @@
 		nombre: string;
 		unidad: string;
 		valor_referencial: string;
+		calculado: string;
 		checked?: boolean;
 	}
 
 	interface Seccion {
 		nombre: string;
-		campos: Array<{ idCampo: number; nombre: string; unidad: string; valor_referencial?: any }>;
+		campos: Array<{ idCampo: number; nombre: string; unidad: string; valor_referencial?: any; calculado: string }>;
 		expandida: boolean;
 		orden: number;
 		camposAgregados: number[];
@@ -304,12 +330,10 @@
 		if (!nombrePerfilNuevo.value.value && !costoDolaresPerfilNuevo.value.value && !costoBsPerfilNuevo.value.value) {
 			if (idCamposAgregados.value.length || idCamposEliminados.value.length) {
 				if (idCamposAgregados.value.length) {
-					console.log("campos agregados");
 					await tests.createInputsInProfile(selectedPerfil.value.idProfile, idCamposAgregados.value);
 				}
 
 				if (idCamposEliminados.value.length) {
-					console.log("campos eliminados");
 					await tests.deleteInputsInProfile(selectedPerfil.value.idProfile, idCamposEliminados.value);
 				}
 				showToast("Perfil actualizado exitosamente!", "creado", checkboxOutline);
@@ -475,6 +499,7 @@
 			nombre: "",
 			unidad: "",
 			valor_referencial: "",
+			calculado: "",
 			checked: true,
 			seleccionado: false,
 		};
@@ -499,6 +524,9 @@
 					dataCampoNuevo.nombre = nombreCampo.value.value;
 					if (valorReferencial.value.value) {
 						dataCampoNuevo.valor_referencial = valorReferencial.value.value;
+					}
+					if (formula.value) {
+						dataCampoNuevo.calculado = formula.value;
 					}
 					if (unidadNuevoRef.value && nombreUnidadNueva.value.value) {
 						dataCampoNuevo.unidad = nombreUnidadNueva.value.value;
@@ -566,10 +594,11 @@
 						return;
 					}
 					const camposNuevos = secciones.value.flatMap((seccion) =>
-						seccion.campos.map(({ nombre, unidad, valor_referencial }) => ({
+						seccion.campos.map(({ nombre, unidad, valor_referencial, calculado }) => ({
 							nombre,
 							unidad,
 							referencial: valor_referencial,
+							calculado: calculado
 						}))
 					);
 					const datosFiltrados = secciones.value.filter(
@@ -695,7 +724,19 @@
 			secciones.value.splice(index, 1);
 		}
 	};
-</script>
+
+	const agregarCampoAFormula = () => {  
+		if (campoSeleccionado.value) {   
+			// Surgiría aquí la posibilidad de agregar operadores o números  
+			if (formula.value) {  
+				formula.value += '' + campoSeleccionado.value; // Agregar el campo a la fórmula  
+			} else {  
+				formula.value = campoSeleccionado.value; // Primer campo que se agrega  
+			}  
+			campoSeleccionado.value = ''; // Limpiar la selección  
+		}  
+	};  
+	</script>
 
 <style scoped>
 	.perfiles:not(:last-child) {

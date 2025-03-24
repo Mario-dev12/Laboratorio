@@ -1201,7 +1201,9 @@ $BODY$;
 CREATE OR REPLACE FUNCTION sp_update_inputs(
 	p_id integer,
 	p_nombre character varying,
-	p_unidad character varying)
+	p_unidad character varying,
+	p_valor_referencial character varying,
+	p_calculado character varying)
     RETURNS json
     LANGUAGE 'plpgsql'
     COST 100
@@ -1210,21 +1212,27 @@ AS $BODY$
 declare
 	v_nombre                              character varying;
 	v_unidad                                    character varying;
+	v_valor_referencial                                    character varying;
+	v_calculado                                    character varying;
 	v_createdDate                       TIMESTAMP;
 	v_modifiedDate                      TIMESTAMP;
 	v_id                                    integer;
 begin
 	update campo
-	set nombre = p_nombre, unidad = p_unidad, modifiedDate = now()
+	set nombre = p_nombre, unidad = p_unidad, valor_referencial = p_valor_referencial, calculado = p_calculado, modifiedDate = now()
 	where idCampo = p_id;
 	select u.nombre into v_nombre from campo u where idCampo = p_id;
 	select u.unidad into v_unidad from campo u where idCampo = p_id;
+	select u.valor_referencial into v_valor_referencial from campo u where idCampo = p_id;
+	select u.calculado into v_calculado from campo u where idCampo = p_id;
 	select u.createdDate into v_createdDate from campo u where idCampo = p_id;
 	select u.modifiedDate into v_modifiedDate from campo u where idCampo = p_id;
 	return json_build_object(
 		'idCampo', p_id,
 		'name', v_nombre,
 		'unit', v_unidad,
+		'valor_referencial', v_valor_referencial,
+		'calculado', v_calculado, 
 		'createdDate', v_createdDate,
 		'modifiedDate', v_modifiedDate
 	);
@@ -1962,6 +1970,7 @@ DECLARE
     v_nombre TEXT;  
     v_unidad VARCHAR;
 	v_valor_referencial VARCHAR;  
+	v_calculado VARCHAR; 
     v_inserciones integer := 0;  
     v_unidad_existente VARCHAR;  
 BEGIN  
@@ -1969,7 +1978,8 @@ BEGIN
 
         v_nombre := v_campos->>'nombre';  
         v_unidad := v_campos->>'unidad';
-		v_valor_referencial := v_campos->>'referencial';  
+		v_valor_referencial := v_campos->>'valor_referencial';  
+		v_calculado := v_campos->>'calculado';  
  
         IF NOT EXISTS (SELECT 1 FROM campo WHERE nombre = v_nombre) THEN  
         
@@ -1982,7 +1992,7 @@ BEGIN
                 v_unidad_existente := v_unidad; 
             END IF;  
  
-            INSERT INTO campo(nombre, unidad, valor_referencial) VALUES (v_nombre, v_unidad_existente, v_valor_referencial);  
+            INSERT INTO campo(nombre, unidad, valor_referencial, calculado) VALUES (v_nombre, v_unidad_existente, v_valor_referencial, v_calculado);  
             v_inserciones := v_inserciones + 1;  
         END IF;  
     END LOOP;  
@@ -2010,6 +2020,7 @@ begin
 			'nombre', a.nombre,
             'unidad', a.unidad,
 			'valor_referencial', a.valor_referencial,
+			'calculado', a.calculado,
 			'createdDate', a.createdDate,
             'modifiedDate', a.modifiedDate
 		)
@@ -2033,12 +2044,13 @@ BEGIN
             'idCampo', a.idCampo,  
             'unidad', a.unidad, 
 			'valor_referencial', a.valor_referencial, 
+			'calculado', a.calculado, 
             'createdDate', a.createdDate,  
             'modifiedDate', a.modifiedDate  
         )  
         FROM (  
             SELECT DISTINCT ON (unidad)   
-                idCampo, unidad, valor_referencial, createdDate, modifiedDate   
+                idCampo, unidad, valor_referencial, calculado, createdDate, modifiedDate   
             FROM campo    
         ) AS a  
     )::json[] INTO v_json_resp;  
@@ -2065,6 +2077,7 @@ begin
 			'nombre', c.nombre,
             'unidad', c.unidad,
 			'valor_referencial', c.valor_referencial, 
+			'calculado', c.calculado,
 			'createdDate', cp.createdDate,
             'modifiedDate', cp.modifiedDate
 		)
@@ -2267,12 +2280,8 @@ BEGIN
 	where idProfile = p_idProfile
 	and nombre = p_nombre; 
 
-	raise notice 'llega: %', p_idProfile;
-	raise notice 'llega: %', p_nombre;
-
     FOREACH campo IN ARRAY p_idCampos  
     LOOP  
-	raise notice 'llega loop: %', campo;
         INSERT INTO division_campo (idDivision, idCampo)  
         VALUES (id, campo);  
     END LOOP;  
@@ -2491,13 +2500,14 @@ DECLARE
     orden_division INTEGER;  
     campos_json JSON[];  
     campo_cursor CURSOR FOR  
-        SELECT c.nombre, c.unidad, c.valor_referencial  
+        SELECT c.nombre, c.unidad, c.valor_referencial, c.calculado  
         FROM division_campo dc  
         JOIN campo c ON dc.idCampo = c.idCampo  
         WHERE dc.idDivision = id_division;  
     nombre_campo TEXT;  
     unidad_campo TEXT;  
-    valor_referencial_campo TEXT;  
+    valor_referencial_campo TEXT; 
+	calculado_campo TEXT; 
     divisiones_array JSON[]; 
     division_json JSON;  
     final_json JSONB := '{}'::JSONB;
@@ -2520,10 +2530,10 @@ BEGIN
         OPEN campo_cursor;  
 
         LOOP   
-            FETCH campo_cursor INTO nombre_campo, unidad_campo, valor_referencial_campo;  
+            FETCH campo_cursor INTO nombre_campo, unidad_campo, valor_referencial_campo, calculado_campo;  
             EXIT WHEN NOT FOUND;  
  
-            campos_json := array_append(campos_json, json_build_object('nombre', nombre_campo, 'unidad', unidad_campo, 'valor_referencial', valor_referencial_campo));  
+            campos_json := array_append(campos_json, json_build_object('nombre', nombre_campo, 'unidad', unidad_campo, 'valor_referencial', valor_referencial_campo, 'calculado', calculado_campo));  
         END LOOP;  
  
         CLOSE campo_cursor;  

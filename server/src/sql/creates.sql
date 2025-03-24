@@ -102,6 +102,7 @@ CREATE TABLE IF NOT EXISTS campo (
     nombre character varying(255) NOT NULL,  
     unidad character varying(255),
     valor_referencial character varying(255),
+    calculado character varying(255) default null,
     createdDate timestamp with time zone NOT NULL default now(),
     modifiedDate timestamp with time zone NOT NULL default now()
 ); 

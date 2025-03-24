@@ -5,9 +5,7 @@ import { fileURLToPath } from "url";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const distFolder = path.join(__dirname, "dist/index.html");
-console.log(distFolder);
 const assetPathJs = path.join(__dirname, "dist/assets/index-B34d1c8P.js");
-console.log(assetPathJs);
 
 function createWindow() {
 	try {
@@ -22,7 +20,6 @@ function createWindow() {
 			},
 		});
 		win.loadFile(distFolder).catch((error) => {
-			console.log(distFolder);
 			console.error("Error loading file:", error);
 		});
 	} catch (error) {

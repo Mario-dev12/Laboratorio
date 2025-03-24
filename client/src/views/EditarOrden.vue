@@ -1,29 +1,7 @@
 <template>
 	<ion-page>
 		<ion-content>
-			<div class="d-flex mt-4 p-0 container">
-				<div class="p-3 bg-dark-subtle rounded text-center">
-					<h3>Tasa del Dolar</h3>
-					<h4>Bs: {{ precioDolar }}</h4>
-					<button
-						class="btn btn-primary mb-2"
-						v-if="!showChangeDolar"
-						@click="
-							() => {
-								showChangeDolar = !showChangeDolar;
-							}
-						">
-						Editar
-					</button>
-					<div v-if="showChangeDolar">
-						<input class="d-block mb-2" type="text" v-model="cambioDolar" />
-						<button class="d-block btn btn-primary w-auto mx-auto" @click="cambiarPrecioDolar(cambioDolar)">
-							Cambiar tasa del dolar
-						</button>
-					</div>
-				</div>
-			</div>
-			<div class="container mt-2 p-3 bg-dark-subtle rounded">
+			<div class="container mt-4 p-3 bg-dark-subtle rounded">
 				<h3 class="mb-3">Información Del Cliente</h3>
 				<div class="w-100 m-auto row px-2">
 					<label class="col-12 p-0" for="documento">Documento de identidad</label>
@@ -71,7 +49,44 @@
 				</div>
 			</div>
 			<div class="bg-dark-subtle container p-3 rounded mt-3">
-				<h3 class="mb-3">Exámenes</h3>
+				<div class="row w-100 m-auto">
+					<div class="row w-100 m-auto">
+						<div class="col-12 d-flex justify-content-between align-items-center">
+							<h3 class="mb-3">Exámenes</h3>
+							<div class="text-end">
+								<h4>Tasa del Dolar</h4>
+								<div class="d-flex align-items-center pb-2">
+									<h4 v-if="!showChangeDolar" class="text-success mb-0 fw-bold">Bs: {{ precioDolar }}</h4>
+									<input
+										v-if="showChangeDolar"
+										v-model.number="precioDolar"
+										type="number"
+										placeholder="Nuevo monto"
+										@keyup.enter="cambiarPrecioDolar(precioDolar)"
+										class="ms-2" />
+	
+									<i
+										class="fas fa-edit ms-2 text-dark"
+										@click="showChangeDolar = !showChangeDolar"
+										title="Editar tasa del dólar"
+										style="cursor: pointer"></i>
+	
+									<i
+										v-if="showChangeDolar"
+										class="fas fa-check accept-icon"
+										@click="cambiarPrecioDolar(precioDolar)"
+										style="cursor: pointer; margin-left: 10px"></i>
+	
+									<i
+										v-if="showChangeDolar"
+										class="fas fa-times reject-icon"
+										@click="cancelarEdicion"
+										style="cursor: pointer; margin-left: 10px"></i>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
 				<div class="row w-100 m-auto">
 					<div class="col-12">
 						<div class="row w-100 m-auto">
@@ -178,6 +193,7 @@
 	import { paymentStore } from "@/stores/paymentStore";
 	import { useRoute, useRouter } from "vue-router";
 	import { checkboxOutline } from "ionicons/icons";
+	import eventBus from '../eventBus';
 
 	const tipoDeExamen = ref();
 	const pagoEnDivisas = ref();
@@ -204,6 +220,7 @@
 	const orderData = ref();
 	const paymentData = ref();
 	const isOpen = ref(false);
+	const nuevoMontoDolar = ref<number | null>(null);
 
 	const user = ref({
 		id: 0,
@@ -248,6 +265,10 @@
 	const originalOrdersData = ref();
 	const originalPaymentData = ref();
 
+	function handlePrecioActualizado(nuevoPrecio: number) {  
+		precioDolar.value = nuevoPrecio;
+	}  
+
 	onMounted(async () => {
 		userData.value = await usersStore.fecthUserById(Number(idUser.value));
 		orderData.value = await ordersStore.fecthOrderByExamId(Number(idExam.value));
@@ -283,6 +304,7 @@
 		originalUserData.value = { ...user.value };
 		originalOrdersData.value = examenesSeleccionados.value;
 		originalPaymentData.value = paymentData.value;
+		eventBus.on("precioActualizado", handlePrecioActualizado);
 	});
 
 	interface Examen {
@@ -308,6 +330,7 @@
 				totales.value.total$ += item.cost_usd;
 			}
 			showChangeDolar.value = false;
+			eventBus.emit("precioActualizado", precioDolar.value)
 		}
 	};
 
@@ -550,6 +573,12 @@
 		};
 		precioDolar.value = Number(localStorage.getItem("tasaDolar")) || 50;
 	}
+
+	const cancelarEdicion = () => {
+		showChangeDolar.value = false;
+		precioDolar.value = Number(localStorage.getItem("tasaDolar"))
+		nuevoMontoDolar.value = null;
+	};
 </script>
 
 <style scoped>

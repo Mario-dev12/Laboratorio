@@ -228,7 +228,6 @@ profileController.deleteInputsProfile = async (req, res) => {
 
 profileController.deleteProfileSection = async (req, res) => {
 	const { idProfile, nombre } = req.params;
-	console.log(idProfile, nombre);
 
 	try {
 		const answer = await profileServices.deleteProfileSection(idProfile, nombre);
