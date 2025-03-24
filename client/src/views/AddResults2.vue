@@ -537,7 +537,9 @@
 			return match; // De lo contrario, devuelve el mismo match (como la constante 6)  
 		});  
 		try {  
-			return evaluate(evaluableFormula);  
+			if (!evaluableFormula.includes('undefined')){
+				return evaluate(evaluableFormula); 
+			}
 		} catch (error) {  
 			console.error('Error al evaluar la fórmula:', error);  
 			return null; // Si hay un error, sigue manejándolo de manera adecuada  
