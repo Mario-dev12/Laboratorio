@@ -1,98 +1,81 @@
-<template>
-	<ion-page>
-		<ion-content>
-			<div class="container">
-				<div class="perfiles mt-3 mb-3">
-					<h4>Perfiles</h4>
-					<div class="row w-100 m-auto gap-2">
-						<div
-							class="col btn btn-light"
-							v-for="(profileName, index) in profileNames"
-							:key="index"
-							@click="handleSection(index)">
-							{{ profileName }}
-						</div>
-					</div>
-				</div>
-				<div ref="profileRef" id="profile">
-					<div class="patient-info">
-						<div class="row">
-							<div class="col">
-								<img src="/images/laboratorio.png" alt="" />
-							</div>
-							<div class="col">
-								<img src="/images/direccion.png" alt="" />
-							</div>
-						</div>
-						<div class="border-bottom border-black mt-2"></div>
-						<div class="row mt-3">
-							<div class="col">
-								<div class="d-inline fw-bold">Paciente:</div>
-								{{ order?.firstName }} {{ order?.lastName }}
-							</div>
-							<div class="col">
-								<div class="d-inline fw-bold">CI:</div>
-								{{ order?.ci }}
-							</div>
-							<div class="col">
-								<div class="d-inline fw-bold">Edad:</div>
-								{{ order?.age }}
-							</div>
-							<div class="col">
-								<div class="d-inline fw-bold">Sexo:</div>
-								{{ order?.genre === "M" ? "Masculino" : "Femenino" }}
-							</div>
-							<div class="col">
-								<div class="d-inline fw-bold">Fecha:</div>
-								{{ day }}/{{ month }}/{{ year }}
-							</div>
-						</div>
-					</div>
-					<div class="profile-content mt-5" v-for="(profile, indx) in profilesData" :key="indx">
-						<div class="profile-sections mt-4" v-show="showProfile[indx]" ref="profileRef2">
-							<div class="text-center">
-								<h2>{{ profileNames[indx] }}</h2>
-							</div>
-							<div class="profile-tables mb-5" v-for="([key, section], i) in profile ? Object.entries(profile) : null" :key="i">
-								<h3>{{ key }}</h3>
-								<div class="table-responsive">
-									<table class="table table-hover table-striped">
-										<thead>
-											<tr>
-												<th scope="col" class="col-3">Nombre</th>
-												<th scope="col" class="col-3">Resultados</th>
-												<th scope="col" class="col-3">Unidad</th>
-												<th scope="col" class="col-3">Valor Referencial</th>
-											</tr>
-										</thead>
-										<tbody>
-											<tr v-for="(item, index) in (section as Section).resultado" :key="index">
-												<td ref="campoNames">{{ item.nombre }}</td>
-												<td>
-													<input type="text" ref="campoResult" @change="checkInputValue($event, index, section)" />
-												</td>
-												<td>{{ item.unidad }}</td>
-												<td class="valor-referencial" ref="valorReferencial">{{ item.valor_referencial }}</td>
-											</tr>
-										</tbody>
-									</table>
-								</div>
-							</div>
-						</div>
-					</div>
-				</div>
-				<div class="row mb-3">
-					<button class="col btn btn-primary me-1" @click="guardarCambios">Guardar Cambios</button>
-					<button class="col btn btn-primary me-1" @click="generatePDF">Crear PDF</button>
-					<button class="col btn btn-primary me-1" @click="sendEmail">Enviar por Correo</button>
-					<button class="col btn btn-primary me-1" @click="sharePDFViaWhatsApp">Compartir PDF por WhatsApp</button>
-					<button class="col btn btn-primary me-1" @click="enviarCorreo">Compartir PDF por Mailto</button>
-					<button class="col btn btn-primary me-1" @click="printPDF">Imprimir PDF</button>
-				</div>
-			</div>
-		</ion-content>
-	</ion-page>
-</template>
+<template>  
+    <ion-page>  
+        <ion-content>  
+            <div class="container">  
+                <div class="perfiles mt-3 mb-3">  
+                    <h4>Perfiles</h4>  
+                    <div class="row w-100 m-auto gap-2">  
+                        <div class="col btn btn-light" v-for="(profileName, index) in profileNames" :key="index" @click="handleSection(index)">  
+                            {{ profileName }}  
+                        </div>  
+                    </div>  
+                </div>  
+                <div ref="profileRef" id="profile">  
+                    <div class="patient-info">  
+                        <div class="row">  
+                            <div class="col">  
+                                <img src="/images/laboratorio.png" alt="" />  
+                            </div>  
+                            <div class="col">  
+                                <img src="/images/direccion.png" alt="" />  
+                            </div>  
+                        </div>  
+                        <div class="border-bottom border-black mt-2"></div>  
+                        <div class="row mt-3">  
+                            <div class="col"><div class="d-inline fw-bold">Paciente:</div> {{ order?.firstName }} {{ order?.lastName }}</div>  
+                            <div class="col"><div class="d-inline fw-bold">CI:</div> {{ order?.ci }}</div>  
+                            <div class="col"><div class="d-inline fw-bold">Edad:</div> {{ order?.age }}</div>  
+                            <div class="col"><div class="d-inline fw-bold">Sexo:</div> {{ order?.genre === "M" ? "Masculino" : "Femenino" }}</div>  
+                            <div class="col"><div class="d-inline fw-bold">Fecha:</div> {{ day }}/{{ month }}/{{ year }}</div>  
+                        </div>  
+                    </div>  
+
+                    <div class="profile-content mt-5" v-for="(profile, indx) in profilesData" :key="indx">  
+                        <div class="profile-sections mt-4" v-show="showProfile[indx]" ref="profileRef2">  
+                            <div class="text-center">  
+                                <h2>{{ profileNames[indx] }}</h2>  
+                            </div>  
+                            <div class="profile-tables mb-5" v-for="([key, section], i) in profile ? Object.entries(profile) : null" :key="i">  
+                                <h3>{{ key }}</h3>  
+                                <div class="table-responsive">  
+                                    <table class="table table-hover table-striped">  
+                                        <thead>  
+                                            <tr>  
+                                                <th scope="col" class="col-3">Nombre</th>  
+                                                <th scope="col" class="col-3">Resultados</th>  
+                                                <th scope="col" class="col-3">Unidad</th>  
+                                                <th scope="col" class="col-3">Valor Referencial</th>  
+                                            </tr>  
+                                        </thead>  
+                                        <tbody>  
+                                            <tr v-for="(item, index) in (section as Section).resultado" :key="index">  
+                                                <td ref="campoNames">{{ item.nombre }}</td>  
+                                                <td>  
+                                                    <input type="text" ref="campoResult" v-model="item.valor" @change="checkInputValue($event, index, section)" />  
+                                                </td>  
+                                                <td>{{ item.unidad }}</td>  
+                                                <td class="valor-referencial" ref="valorReferencial">{{ item.valor_referencial }}</td>  
+                                            </tr>  
+                                        </tbody>  
+                                    </table>  
+                                </div>  
+                            </div>  
+                        </div>  
+                    </div>  
+                </div>  
+
+                <div class="row mb-3">  
+                    <button class="col btn btn-primary me-1" @click="guardarCambios">Guardar Cambios</button>  
+                    <button class="col btn btn-primary me-1" @click="generatePDF">Crear PDF</button>  
+                    <button class="col btn btn-primary me-1" @click="sendEmail">Enviar por Correo</button>  
+                    <button class="col btn btn-primary me-1" @click="sharePDFViaWhatsApp">Compartir PDF por WhatsApp</button>  
+                    <button class="col btn btn-primary me-1" @click="enviarCorreo">Compartir PDF por Mailto</button>  
+                    <button class="col btn btn-primary me-1" @click="printPDF">Imprimir PDF</button>  
+                </div>  
+            </div>  
+        </ion-content>  
+    </ion-page>  
+</template>  
 
 <script setup lang="ts">
 	import { IonPage, IonContent } from "@ionic/vue";
@@ -104,11 +87,14 @@
 	import { examStore } from "@/stores/examStore";
 	import { orderStore } from "@/stores/orderStore";
 	import { useRouter } from "vue-router";
+	import { evaluate } from 'mathjs';
 
 	interface Item {
 		nombre: string;
 		unidad: string;
 		valor_referencial: string;
+		calculado: string;
+		valor: any;
 	}
 
 	interface Section {
@@ -180,94 +166,86 @@
 		next();
 	});
 
-	const checkInputValue = (event: Event, index: number, section: any) => {
-		const personAge = order.value.age;
-		const personGenre = order.value.genre;
-		const valorReferencialString = section.resultado[index].valor_referencial;
-		const valorReferencialNumber = valorReferencialString.match(/(\d+(?:,\d+)?)/g);
-		const parsedNumbers = valorReferencialNumber?.map((numStr: any) => parseFloat(numStr.replace(",", ".")));
-		let inputValue = (event.target as HTMLInputElement).value;
+	const checkInputValue = async (event: Event, index: number, section: any) => {  
+		const inputElement = event.target as HTMLInputElement;  
+		const personAge = order.value.age;  
+		const personGenre = order.value.genre;  
+		const valorReferencialString = section.resultado[index].valor_referencial;  
+		const valorReferencialNumber = valorReferencialString.match(/(\d+(?:,\d+)?)/g);  
+		const parsedNumbers = valorReferencialNumber?.map((numStr: any) => parseFloat(numStr.replace(",", ".")));  
+		let inputValue = inputElement.value;  
 
-		if (!isNaN(Number(inputValue.replace(",", ".")))) {
-			inputValue = inputValue.replace(",", ".");
-		}
+		// Reemplazo y parseo del input.  
+		if (!isNaN(Number(inputValue.replace(",", ".")))) {  
+			inputValue = inputValue.replace(",", ".");  
+		}  
 
-		if (parsedNumbers) {
-			if (parsedNumbers.length === 2) {
-				if (Number(inputValue) < parsedNumbers[0] || Number(inputValue) > parsedNumbers[1]) {
-					(event.target as HTMLInputElement).style.color = "red";
-					(event.target as HTMLInputElement).style.borderColor = "red";
-				} else {
-					(event.target as HTMLInputElement).style.color = "green";
-					(event.target as HTMLInputElement).style.borderColor = "lightgreen";
-				}
-			}
+		if (parsedNumbers) {   
+			// Validaciones según los rangos referenciales  
+			if (parsedNumbers.length === 2) {  
+				if (Number(inputValue) < parsedNumbers[0] || Number(inputValue) > parsedNumbers[1]) {  
+					inputElement.style.color = "red";  
+					inputElement.style.borderColor = "red";  
+				} else {  
+					inputElement.style.color = "green";  
+					inputElement.style.borderColor = "lightgreen";  
+				}  
+			}  
 
-			if (parsedNumbers.length === 1) {
-				if (valorReferencialString.includes("menor")) {
-					if (Number(inputValue) < parsedNumbers[0]) {
-						(event.target as HTMLInputElement).style.color = "green";
-						(event.target as HTMLInputElement).style.borderColor = "lightgreen";
-					} else {
-						(event.target as HTMLInputElement).style.color = "red";
-						(event.target as HTMLInputElement).style.borderColor = "red";
-					}
-				} else if (valorReferencialString.includes("Hasta")) {
-					if (Number(inputValue) > parsedNumbers[0]) {
-						(event.target as HTMLInputElement).style.color = "red";
-						(event.target as HTMLInputElement).style.borderColor = "red";
-					} else {
-						(event.target as HTMLInputElement).style.color = "green";
-						(event.target as HTMLInputElement).style.borderColor = "lightgreen";
-					}
-				}
-			}
+			if (parsedNumbers.length === 1) {  
+				if (valorReferencialString.includes("menor")) {  
+					if (Number(inputValue) < parsedNumbers[0]) {  
+						inputElement.style.color = "green";  
+						inputElement.style.borderColor = "lightgreen";  
+					} else {  
+						inputElement.style.color = "red";  
+						inputElement.style.borderColor = "red";  
+					}  
+				} else if (valorReferencialString.includes("Hasta")) {  
+					if (Number(inputValue) > parsedNumbers[0]) {  
+						inputElement.style.color = "red";  
+						inputElement.style.borderColor = "red";  
+					} else {  
+						inputElement.style.color = "green";  
+						inputElement.style.borderColor = "lightgreen";  
+					}  
+				}  
+			}  
 
-			if (parsedNumbers.length === 4) {
-				if (valorReferencialString.includes("Hombre")) {
-					if (personGenre === "M") {
-						if (Number(inputValue) < parsedNumbers[0] || Number(inputValue) > parsedNumbers[1]) {
-							(event.target as HTMLInputElement).style.color = "red";
-							(event.target as HTMLInputElement).style.borderColor = "red";
-						} else {
-							(event.target as HTMLInputElement).style.color = "green";
-							(event.target as HTMLInputElement).style.borderColor = "lightgreen";
-						}
-					} else if (personGenre === "F") {
-						if (Number(inputValue) < parsedNumbers[2] || Number(inputValue) > parsedNumbers[3]) {
-							(event.target as HTMLInputElement).style.color = "red";
-							(event.target as HTMLInputElement).style.borderColor = "red";
-						} else {
-							(event.target as HTMLInputElement).style.color = "green";
-							(event.target as HTMLInputElement).style.borderColor = "lightgreen";
-						}
-					}
-				} else if (valorReferencialString.includes("Adulto")) {
-					if (personAge > 17) {
-						if (Number(inputValue) < parsedNumbers[0] || Number(inputValue) > parsedNumbers[1]) {
-							(event.target as HTMLInputElement).style.color = "red";
-							(event.target as HTMLInputElement).style.borderColor = "red";
-						} else {
-							(event.target as HTMLInputElement).style.color = "green";
-							(event.target as HTMLInputElement).style.borderColor = "lightgreen";
-						}
-					} else {
-						if (Number(inputValue) < parsedNumbers[2] || Number(inputValue) > parsedNumbers[3]) {
-							(event.target as HTMLInputElement).style.color = "red";
-							(event.target as HTMLInputElement).style.borderColor = "red";
-						} else {
-							(event.target as HTMLInputElement).style.color = "green";
-							(event.target as HTMLInputElement).style.borderColor = "lightgreen";
-						}
-					}
-				}
-			}
+			if (parsedNumbers.length === 4) {  
+				// Validaciones por género  
+				if (valorReferencialString.includes("Hombre")) {  
+					const validRange = personGenre === "M" ? [parsedNumbers[0], parsedNumbers[1]] : [parsedNumbers[2], parsedNumbers[3]];  
+					if (Number(inputValue) < validRange[0] || Number(inputValue) > validRange[1]) {  
+						inputElement.style.color = "red";  
+						inputElement.style.borderColor = "red";  
+					} else {  
+						inputElement.style.color = "green";  
+						inputElement.style.borderColor = "lightgreen";  
+					}  
+				} else if (valorReferencialString.includes("Adulto")) {  
+					const validRange = personAge > 17 ? [parsedNumbers[0], parsedNumbers[1]] : [parsedNumbers[2], parsedNumbers[3]];  
+					if (Number(inputValue) < validRange[0] || Number(inputValue) > validRange[1]) {  
+						inputElement.style.color = "red";  
+						inputElement.style.borderColor = "red";  
+					} else {  
+						inputElement.style.color = "green";  
+						inputElement.style.borderColor = "lightgreen";  
+					}  
+				}  
+			}  
 
-			if (!inputValue) {
-				(event.target as HTMLInputElement).style.color = "black";
-				(event.target as HTMLInputElement).style.borderColor = "black";
-			}
-		}
+			if (!inputValue) {  
+				inputElement.style.color = "black";  
+				inputElement.style.borderColor = "black";  
+			}  
+
+			// Actualizar el valor en la sección  
+			section.resultado[index].valor = Number(inputValue); 
+			
+			// Calcular resultados si hay una fórmula  
+			await calcularResultados(section); 
+		}  
 	};
 
 	function handleSection(index: number) {
@@ -550,23 +528,39 @@
 		}
 	};
 
-	// const sendMailNodeMailer = async () => {
-	// 	const data = {
-	// 		to: "mario12dev@gmail.com",
-	// 		subject: "Asunto del correo",
-	// 		text: "Este es el cuerpo del mensaje.",
-	// 		html: "<p>Este es el cuerpo del mensaje.</p>", // Usar HTML real
-	// 		attachment: null,
-	// 	};
+	const aplicarFormula = (formula: string, valores: { [x: string]: any; }) => {  
+		const evaluableFormula = formula.replace(/(\w+)/g, (match) => {  
+			// Solo reemplaza si el match es una clave en valores  
+			if (valores.hasOwnProperty(match)) {  
+				return valores[match]; // Retorna su valor  
+			}  
+			return match; // De lo contrario, devuelve el mismo match (como la constante 6)  
+		});  
+		try {  
+			return evaluate(evaluableFormula);  
+		} catch (error) {  
+			console.error('Error al evaluar la fórmula:', error);  
+			return null; // Si hay un error, sigue manejándolo de manera adecuada  
+		}  
+	};  
 
-	// 	const data = {
-	// 		to: "mario12dev@gmail.com",
-	// 		from: "mario12dev@gmail.com",
-	// 		subject: "Asunto del correo",
-	// 		message: 'This is a test email sent from Next.js using Elastic Email.',
-	// 	};
-	// 	await mailsStore.sendEmail(data);
-	// };
+	const calcularResultados = async (seccion: { resultado: any[]; }) => {  
+		const valores: Record<string, any> = {}; // Cambia aquí para permitir cualquier tipo de clave y valor  
+
+		seccion.resultado.forEach((item: { valor: any; nombre: string | number; }) => {  
+			if (item.valor !== null) {  
+				valores[item.nombre] = item.valor; // Agrupar los valores ingresados  
+			}  
+		});  
+		
+		// Calcular los valores  
+		seccion.resultado.forEach((item: { calculado: string; valor: any; }) => {  
+			if (item.calculado) {  
+				item.valor = aplicarFormula(item.calculado, valores);  
+			}  
+		});  
+	};  
+	
 </script>
 
 <style scoped></style>

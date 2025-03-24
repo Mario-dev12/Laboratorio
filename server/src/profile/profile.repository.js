@@ -212,7 +212,7 @@ profileRepository.updateProfile = async (id, answer) => {
 
 profileRepository.updateInputs = async (id, answer) => {
 	try {
-		const resp = await pool.query(`SELECT * FROM sp_update_inputs(${id}, '${answer.nombre}', '${answer.unidad}')`);
+		const resp = await pool.query(`SELECT * FROM sp_update_inputs(${id}, '${answer.nombre}', '${answer.unidad}', '${answer.valor_referencial}', '${answer.calculado}')`);
 		return resp.rows[0].sp_update_inputs;
 	} catch (error) {
 		throw error;
