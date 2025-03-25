@@ -136,6 +136,15 @@ profileRepository.readInputsResults = async (name) => {
 	}
 };
 
+profileRepository.readInputsResults2 = async (name, id) => {
+	try {
+		const resp = await pool.query(`SELECT * FROM obtener_perfil_con_resultados('${name}', ${id})`);
+		return resp.rows[0].obtener_perfil_con_resultados;
+	} catch (error) {
+		throw error;
+	}
+};
+
 profileRepository.createProfile = async (name, cost_bs, cost_usd) => {
 	try {
 		const resp = await pool.query(`SELECT * FROM sp_create_profile('${name}', '${cost_bs}', '${cost_usd}')`);

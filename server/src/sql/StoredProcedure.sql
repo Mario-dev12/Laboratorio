@@ -1692,8 +1692,6 @@ CREATE OR REPLACE FUNCTION public.sp_find_all_order_day(
     COST 100
     VOLATILE PARALLEL UNSAFE
 AS $BODY$
-  
-
 DECLARE   
     v_json_resp json[];  
 BEGIN  
@@ -1745,39 +1743,58 @@ BEGIN
 END;  
 $BODY$;
 
-CREATE OR REPLACE FUNCTION sp_find_all_hist_order_day(
-	)
-    RETURNS json[]
-    LANGUAGE 'plpgsql'
-    COST 100
-    VOLATILE PARALLEL UNSAFE
-AS $BODY$
-declare 
-	v_json_resp json[];
-begin
-	select array(
-        select jsonb_build_object(
-			'idOrder', o.idOrder,
-			'idExam', o.idexam,
-			'status', o.status,
-			'ci', u.ci,
-			'firstName', u.firstname,
-			'lastName', u.lastname,
-			'genre', u.genre,
-			'age', u.age,
-			'phone', u.phone,
-			'email', u.email,
-			'profileName', p.name,
-			'createdDate', o.createddate,
-            'modifiedDate', o.modifieddate
-		)
-		from orders o, profile p, exam e, users u
-		where o.idprofile = p.idprofile
-		and o.idexam = e.idexam
-		and e.iduser = u.iduser
-        ) ::json[] into v_json_resp;
-		return v_json_resp;
-end;
+CREATE OR REPLACE FUNCTION sp_find_all_hist_order_day()  
+RETURNS json[]  
+LANGUAGE 'plpgsql'  
+COST 100  
+VOLATILE PARALLEL UNSAFE  
+AS $BODY$  
+DECLARE   
+    v_json_resp json[];  
+BEGIN  
+    SELECT array(  
+        SELECT jsonb_build_object(  
+            'idUser', u.idUser,  
+            'address', u.address,  
+            'ci', u.ci,  
+            'firstName', u.firstname,  
+            'lastName', u.lastname,  
+            'genre', u.genre,  
+            'age', u.age,  
+            'phone', u.phone,  
+            'email', u.email,  
+            'createdDate', MIN(o.createdDate), 
+            'modifiedDate', MAX(o.modifiedDate), 
+            'orders', jsonb_agg(  
+                jsonb_build_object(  
+                    'idOrder', o.idOrder,  
+                    'idExam', o.idexam,   
+                    'status', o.status,  
+                    'total_cost_bs', e.total_cost_bs,  
+                    'total_cost_usd', e.total_cost_usd,  
+                    'createdDate', o.createdDate,  
+                    'modifiedDate', o.modifiedDate,  
+                    'profiles', (  
+                        SELECT jsonb_agg(  
+                            jsonb_build_object(  
+                                'idProfile', p.idProfile,  
+                                'profileName', p.name  
+                            )  
+                        )  
+                        FROM profile p  
+                        WHERE p.idProfile = o.idProfile   
+                    )  
+                )  
+            )  
+        )  
+        FROM users u  
+        JOIN exam e ON u.idUser = e.idUser  
+        JOIN orders o ON o.idExam = e.idExam  
+        GROUP BY u.idUser  
+    )::json[] INTO v_json_resp;  
+    
+    RETURN v_json_resp;  
+END;  
 $BODY$;
 
 CREATE OR REPLACE FUNCTION sp_find_order_by_examId(
@@ -2576,3 +2593,105 @@ BEGIN
     END IF;  
 END;  
 $$ LANGUAGE plpgsql;  
+
+CREATE OR REPLACE FUNCTION obtener_perfil_con_resultados(
+	nomb_perfil character varying,
+	idorder integer)
+    RETURNS json
+    LANGUAGE 'plpgsql'
+    COST 100
+    VOLATILE PARALLEL UNSAFE
+AS $BODY$
+DECLARE  
+    resultado JSON;  
+    division_cursor CURSOR FOR  
+        SELECT idDivision, nombre, orden  
+        FROM perfil_division  
+        WHERE idProfile = (SELECT idProfile FROM profile WHERE name = nomb_perfil)  
+        ORDER BY orden;  
+    id_division INTEGER;  
+    nombre_division TEXT;  
+    orden_division INTEGER;  
+    campos_json JSON[];  
+    nombre_campo TEXT;  
+    unidad_campo TEXT;  
+    valor_referencial_campo TEXT;   
+    calculado_campo TEXT;   
+    resultado_campo TEXT;
+    divisiones_array JSON[];   
+    division_json JSON;  
+    final_json JSONB := '{}'::JSONB;  
+    division_element JSON;  
+    record RECORD;  
+    nombre_tabla TEXT;  
+BEGIN   
+    -- Comprobamos si existe el perfil  
+    IF NOT EXISTS (SELECT 1 FROM profile WHERE name = nomb_perfil) THEN  
+        RAISE EXCEPTION 'Perfil no reconocido: %', nomb_perfil;  
+    END IF;  
+
+    divisiones_array := ARRAY[]::JSON[];  
+
+    OPEN division_cursor;  
+
+    LOOP    
+        FETCH division_cursor INTO id_division, nombre_division, orden_division;  
+        EXIT WHEN NOT FOUND;  
+
+        campos_json := ARRAY[]::JSON[];  
+
+        FOR record IN  
+            SELECT c.idCampo, c.nombre, c.unidad, c.valor_referencial, c.calculado  
+            FROM division_campo dc  
+            JOIN campo c ON dc.idCampo = c.idCampo  
+            WHERE dc.idDivision = id_division  
+        LOOP  
+            nombre_campo := record.nombre;  
+            unidad_campo := record.unidad;  
+            valor_referencial_campo := record.valor_referencial;   
+            calculado_campo := record.calculado;  
+
+            nombre_tabla := 'resultados_' || lower(replace(nomb_perfil, ' ', '_'));   
+
+            EXECUTE format('SELECT r.resultado   
+                            FROM %I r   
+                            JOIN campo_perfil c ON r.idcampo_perfil = c.idcampo_perfil   
+                            JOIN campo ca ON ca.idcampo = c.idcampo   
+                            WHERE r.idOrder = $1 AND ca.nombre = $2', nombre_tabla)   
+            INTO resultado_campo USING idOrder, nombre_campo;   
+            
+            -- Manejar el caso en que resultado_campo es nulo  
+            IF resultado_campo IS NULL THEN  
+                resultado_campo := NULL;  -- Mensaje en caso de no encontrar resultados  
+            END IF;  
+
+            campos_json := array_append(campos_json, json_build_object(  
+                'nombre', nombre_campo,   
+                'unidad', unidad_campo,   
+                'valor_referencial', valor_referencial_campo,   
+                'calculado', calculado_campo,  
+                'valor', resultado_campo   
+            ));  
+			  
+        END LOOP;  
+
+        division_json := json_build_object(nombre_division, json_build_object('resultado', json_build_array(VARIADIC campos_json)));  
+        divisiones_array := array_append(divisiones_array, division_json);  
+    END LOOP;  
+
+    CLOSE division_cursor;  
+
+    FOREACH division_element IN ARRAY divisiones_array  
+    LOOP  
+        final_json := final_json || division_element::JSONB;  
+    END LOOP;  
+
+    resultado := final_json::JSON;  
+
+    RETURN resultado;  
+   
+EXCEPTION  
+    WHEN OTHERS THEN  
+        RAISE EXCEPTION 'Error al obtener el perfil: %', SQLERRM;  
+END;  
+$BODY$;

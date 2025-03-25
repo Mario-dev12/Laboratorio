@@ -158,9 +158,13 @@
 
 		profileNames = route.query.profileNames;
 		profileNames = JSON.parse(profileNames);
-		for (const profile of profileNames) {
+		/*for (const profile of profileNames) {
 			const profileSection = await profilesStore.fetchProfileByInputsName(profile);
 			profilesData.value.push(profileSection);
+		}*/
+		for (const profile of ordersArray.value) {
+			const profileSection2 = await profilesStore.fetchProfileByInputsName2(profile.profiles[0].profileName, profile.idOrder);
+			profilesData.value.push(profileSection2);
 		}
 		sectionData.value = profilesData.value[0];
 		sectionNames.value = profilesData.value;

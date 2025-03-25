@@ -86,6 +86,17 @@ profileController.readInputsResults = async (req, res) => {
 	}
 };
 
+profileController.readInputsResults2 = async (req, res) => {
+	try {
+		const { name, id } = req.params;
+		const answer = await profileServices.readInputsResults2(name, id);
+
+		res.send(answer);
+	} catch (error) {
+		return res.status(400).send(error.stack);
+	}
+};
+
 profileController.createProfile = async (req, res) => {
 	try {
 		const answer = await profileServices.createProfile(req.body.name, req.body.cost_bs, req.body.cost_usd);
