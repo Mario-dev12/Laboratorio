@@ -158,9 +158,13 @@
 
 		profileNames = route.query.profileNames;
 		profileNames = JSON.parse(profileNames);
-		for (const profile of profileNames) {
+		/*for (const profile of profileNames) {
 			const profileSection = await profilesStore.fetchProfileByInputsName(profile);
 			profilesData.value.push(profileSection);
+		}*/
+		for (const profile of ordersArray.value) {
+			const profileSection2 = await profilesStore.fetchProfileByInputsName2(profile.profiles[0].profileName, profile.idOrder);
+			profilesData.value.push(profileSection2);
 		}
 		sectionData.value = profilesData.value[0];
 		sectionNames.value = profilesData.value;
@@ -551,21 +555,22 @@
 		}
 	};
 
-	const aplicarFormula = (formula: string, valores: { [x: string]: any }) => {
-		const evaluableFormula = formula.replace(/(\w+)/g, (match) => {
-			// Solo reemplaza si el match es una clave en valores
-			if (valores.hasOwnProperty(match)) {
-				return valores[match]; // Retorna su valor
+	const aplicarFormula = (formula: string, valores: { [x: string]: any; }) => {  
+		const evaluableFormula = formula.replace(/(\w+)/g, (match) => {  
+			// Solo reemplaza si el match es una clave en valores  
+			if (valores.hasOwnProperty(match)) {  
+				return valores[match]; // Retorna su valor  
+			}  
+			return match; // De lo contrario, devuelve el mismo match (como la constante 6)  
+		});  
+		try {  
+			if (!evaluableFormula.includes('undefined')){
+				return evaluate(evaluableFormula); 
 			}
-			return match; // De lo contrario, devuelve el mismo match (como la constante 6)
-		});
-
-		try {
-			return evaluate(evaluableFormula);
-		} catch (error) {
-			console.error("Error al evaluar la fórmula:", error);
-			return null; // Si hay un error, sigue manejándolo de manera adecuada
-		}
+		} catch (error) {  
+			console.error('Error al evaluar la fórmula:', error);  
+			return null; // Si hay un error, sigue manejándolo de manera adecuada  
+		}  
 	};
 
 	const calcularResultados = async (seccion: { resultado: any[] }) => {
