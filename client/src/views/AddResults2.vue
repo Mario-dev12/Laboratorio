@@ -96,12 +96,21 @@
 					<button class="col btn btn-primary me-1" @click="printPDF">Imprimir PDF</button>
 				</div>
 			</div>
+			<ion-toast
+				:class="toast.class"
+				:icon="toast.icon"
+				:is-open="isOpen"
+				:message="toast.message"
+				duration="2000"
+				@didDismiss="setOpen(false)"
+				position="top">
+			</ion-toast>
 		</ion-content>
 	</ion-page>
 </template>
 
 <script setup lang="ts">
-	import { IonPage, IonContent } from "@ionic/vue";
+	import { IonPage, IonContent, IonToast } from "@ionic/vue";
 	import { profileStore } from "@/stores/profileStore";
 	import { ref, onMounted } from "vue";
 	import html2pdf from "html2pdf.js";
@@ -111,6 +120,7 @@
 	import { orderStore } from "@/stores/orderStore";
 	import { useRouter } from "vue-router";
 	import { evaluate } from "mathjs";
+	import { checkboxOutline, alertCircleOutline } from "ionicons/icons";
 
 	interface Item {
 		nombre: string;
@@ -150,6 +160,26 @@
 	const month = today.getMonth() + 1;
 	const year = today.getFullYear();
 	const profileName = ref();
+	const isOpen = ref(false);
+
+	const toast = ref({
+		isOpen: false,
+		message: "",
+		class: "",
+		icon: null,
+	});
+
+	const setOpen = (state: boolean) => {
+		isOpen.value = state;
+	};
+
+	const showToast = (message: string, style: string, icon: any) => {
+		toast.value.message = message;
+		toast.value.isOpen = true;
+		toast.value.class = style;
+		toast.value.icon = icon;
+		setOpen(true);
+	};
 
 	onMounted(async () => {
 		order.value = route.query.profile;
@@ -359,6 +389,7 @@
 				await examsStore.createExamResults(results);
 				await ordersStore.updateStatusOrder(ordersArray.value[index].idOrder, data);
 			});
+			showToast("Cambios guradados exitosamnte!", "creado", checkboxOutline);
 		}
 	};
 
@@ -661,4 +692,19 @@
 	};
 </script>
 
-<style scoped></style>
+<style scoped>
+	ion-toast.creado {
+		--background: rgb(0, 204, 0);
+		--color: #323232;
+	}
+
+	ion-toast.borrar {
+		--background: rgb(229, 0, 0);
+		--color: #323232;
+	}
+
+	ion-toast.warning {
+		--background: rgb(219, 248, 0);
+		--color: #323232;
+	}
+</style>
