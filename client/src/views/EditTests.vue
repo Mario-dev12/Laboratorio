@@ -539,6 +539,8 @@
 					camposExistentes.value.unshift(dataCampoNuevo);
 					nombreCampo.value.value = "";
 					valorReferencial.value.value = "";
+					formula.value = ""
+					isCampoCalculado.value = false
 				}
 			}
 		}

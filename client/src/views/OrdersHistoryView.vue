@@ -14,36 +14,44 @@
 				</div>  
 
 				<div v-if="isLoading" class="text-center">Cargando...</div>  
-				<div v-else class="table-responsive" style="max-height: 400px; overflow-y: auto">  
-					<table class="table table-striped">  
-						<thead>  
-							<tr>  
-								<th>Nombre Paciente</th>  
-								<th>Documento Identidad</th>  
-								<th>Género</th>  
-								<th>Edad</th>  
-								<th>N° Orden</th>  
-								<th>Perfil</th>  
-								<th>Estatus</th>  
+				<div v-else class="table-responsive" style="max-height: 400px; overflow-y: auto">
+					<table class="table table-striped">
+						<thead>
+							<tr>
+								<th>Documento Identidad</th>
+								<th>Nombre Paciente</th>
+								<th>Género</th>
+								<th>Edad</th>
 								<th>Creación</th>  
-								<th>Modificado</th>  
-							</tr>  
-						</thead>  
-						<tbody>  
-							<tr v-for="order in filteredOrders" :key="order.idOrden">  
-								<td>{{ order.firstName }} {{ order.lastName }}</td>  
-								<td>{{ order.ci }}</td>  
-								<td>{{ order.genre }}</td>  
-								<td>{{ order.age }}</td>  
-								<td>{{ order.idExam }}</td>  
-								<td>{{ order.profileName }}</td>  
-								<td>{{ order.status }}</td>  
-								<td>{{ formatearFecha(order.createdDate) }}</td>  
-								<td>{{ formatearFecha(order.modifiedDate) }}</td>  
-							</tr>  
-						</tbody>  
-					</table>  
-				</div>  
+        						<th>Modificación</th> 
+								<th>Acciones</th>
+							</tr>
+						</thead>
+						<tbody>
+							<tr v-for="order in filteredOrders" :key="order.idUser">
+								<td>{{ order.ci }}</td>
+								<td>{{ order.firstName }} {{ order.lastName }}</td>
+								<td>{{ order.genre }}</td>
+								<td>{{ order.age }}</td>
+								<td>{{ formatearFecha(order.createdDate) }}</td>
+								<td>{{ formatearFecha(order.modifiedDate) }}</td>
+								<td>
+									<i class="fas fa-edit" @click="openTabsView(order)" style="cursor: pointer; margin-right: 10px"></i>
+									<i class="fas fa-info-circle" @click="toggleDetails(order)" style="cursor: pointer"></i>
+
+									<div v-if="expandedOrder === order.idUser" class="order-details">
+										<ul>
+											<div v-for="ord in order.orders" :key="ord.idOrder">
+												{{ ord.profiles[0].profileName }} - {{ ord.status }} - {{ ord.total_cost_bs }} Bs /
+												{{ ord.total_cost_usd }} USD
+											</div>
+										</ul>
+									</div>
+								</td>
+							</tr>
+						</tbody>
+					</table>
+				</div>
 			</div>  
 		</ion-content>  
 	</ion-page>  
@@ -52,12 +60,15 @@
 <script setup lang="ts">  
 	import { IonContent, IonPage } from "@ionic/vue";  
 	import { onMounted, ref, computed } from "vue";  
-	import { orderStore } from "@/stores/orderStore";  
+	import { orderStore } from "@/stores/orderStore"; 
+	import { useRouter } from "vue-router"; 
 	  
 	const orders = ref();  
 	const isLoading = ref(true);  
 	const searchQuery = ref("");  
-	const ordersStore = orderStore();  
+	const ordersStore = orderStore(); 
+	const expandedOrder = ref<number | null>(null); 
+	const router = useRouter();
 
 	onMounted(async () => {  
 		try {  
@@ -68,6 +79,13 @@
 			isLoading.value = false;  
 		}  
 	});  
+
+	router.beforeEach(async (to, from, next) => {
+		if (to.name === "OrdersView") {
+			orders.value = await ordersStore.fecthOrdersDay(true, "");
+		}
+		next();
+	});
 
 	const filteredOrders = computed(() => {  
 		const query = searchQuery.value.toLowerCase();  
@@ -92,6 +110,20 @@
 		const año = fechaObjeto.getFullYear();  
 		return `${dia}-${mes}-${año}`;  
 	}  
+
+	const toggleDetails = (order: any) => {
+		expandedOrder.value = expandedOrder.value === order.idUser ? null : order.idUser;
+	};
+
+	const openTabsView = (profileName: any) => {
+		const profileNamesArray = profileName.orders.flatMap((order: { profiles: any[] }) =>
+			order.profiles.map((profile: { profileName: any }) => profile.profileName)
+		);
+		router.push({
+			name: "Results2",
+			query: { profile: JSON.stringify(profileName), profileNames: JSON.stringify(profileNamesArray) },
+		});
+	};
 </script>  
 
 <style scoped>  
