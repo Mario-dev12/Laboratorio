@@ -206,10 +206,10 @@
 					</div>
 				</div>
 				<div class="agregar-restriccion bg-dark-subtle rounded p-3 mb-3" v-if="crearRestriccion" ref="edicionRestriccion">  
-					<div class="w-100 m-auto row px-2 mb-3">  
-						<label for="restriccionList">Lista de Restricciones</label>  
-						<ul ref="restriccionList">  
-							<li v-for="restriccion in restriction" :key="restriccion.idRestriction">  
+					<div class="w-100 m-auto row mb-3">  
+						<label for="restriccionList">Lista de Restricciones</label> 
+						<div v-if="restriction.length === 0">No hay restricciones</div>  
+							<span v-for="restriccion in restriction" :key="restriccion.idRestriction">  
 								<span v-if="!restriccion.editando">{{ restriccion.restriction }}</span>  
 								<input  
 									v-if="restriccion.editando"  
@@ -243,19 +243,18 @@
 									style="cursor: pointer; margin-left: 8px;"  
 									@click="deleteRestriccion(restriccion.idRestriction)"  
 								></i>    
-							</li>
-						</ul>  
+							</span>
 					</div>  
-					<label for="campoSelect">Seleccionar Campo</label>  
-					<div class="d-flex mb-3">  
+					<label class="d-flex px-2" for="campoSelect">Seleccionar Campo</label>  
+					<div class="d-flex px-2 mb-3">  
 						<select v-model="campoSeleccionado">  
 							<option value="">Seleccionar Campo</option>  
 							<option v-for="campo in camposExistentes" :key="campo.idCampo" :value="campo.nombre">{{ campo.nombre }}</option>  
 						</select>  
 						<button class="btn btn-primary ms-2" @click="agregarCampoARestriccion">Agregar</button>  
-					</div>  
-					<div class="w-100 m-auto row px-2 mb-3">  
-						<label for="formula">Restricción</label>  
+					</div> 
+					<label class="w-100 m-auto px-2" for="formula">Restricción</label> 
+					<div class="w-100 m-auto row px-2 mb-3">    
 						<input type="text" v-model="formulaRestriccion" placeholder="Construir restricción..." />  
 						<small class="form-text text-muted">Ejemplo: Campo1 - 5 = 100</small>  
 					</div>  
@@ -622,42 +621,46 @@
 		crearCampo.value = !crearCampo.value;
 	};
 
-	const createRestriccion = () => {
-		const dataCampoNuevo = {
-			idCampo: 0,
-			nombre: "",
-			restriction: "",
-			unidad: "",
-			valor_referencial: "",
-			calculado: "",
-			checked: true,
-			seleccionado: false,
-		};
+	const createRestriccion = () => {  
+		const dataCampoNuevo = {  
+			idCampo: 0,  
+			nombre: "",  
+			restriction: "",  
+			unidad: "",  
+			valor_referencial: "",  
+			calculado: "",  
+			checked: true,  
+			seleccionado: false,  
+		};  
 
-		if (!formulaRestriccion.value) {
-			alert("Por Favor Completar Datos De La Restricción");
-		} else {
-			if (restriction.value){
-				if (
-					restriction.value.some((campo: any) => {
-						return campo.restriction.trim() === formulaRestriccion.value.trim();
-					})
-				) {
-					alert("Ya Existe Una Restrición Con Esa Fórmula");
-				} else {
-					dataCampoNuevo.restriction = formulaRestriccion.value;
-					restricciones.value.push(dataCampoNuevo);
-					restriction.value.unshift(dataCampoNuevo);
-					formulaRestriccion.value = "";
-				}
-			} else {
-				dataCampoNuevo.restriction = formulaRestriccion.value;
-				restricciones.value.push(dataCampoNuevo);
-				formulaRestriccion.value = "";
-			}
-		}
-		crearRestriccion.value = !crearRestriccion.value;
-	};
+		if (!formulaRestriccion.value) {  
+			alert("Por Favor Completar Datos De La Restricción");  
+		} else {   
+			const regexValidacion = /=\s*\d+/;
+			if (!regexValidacion.test(formulaRestriccion.value)) {  
+				alert("No se puede guardar una restricción sin un '=' y un número.");  
+			} else {  
+				if (restriction.value) {  
+					if (restriction.value.some((campo: { restriction: string; }) => {  
+						return campo.restriction.trim() === formulaRestriccion.value.trim();  
+					})) {  
+						alert("Ya Existe Una Restricción Con Esa Fórmula");  
+					} else {  
+						dataCampoNuevo.restriction = formulaRestriccion.value;  
+						restricciones.value.push(dataCampoNuevo);  
+						restriction.value.unshift(dataCampoNuevo);  
+						formulaRestriccion.value = "";  
+					}  
+				} else {  
+					dataCampoNuevo.restriction = formulaRestriccion.value;  
+					restricciones.value.push(dataCampoNuevo);  
+					formulaRestriccion.value = "";  
+				}  
+			}  
+		}  
+
+		crearRestriccion.value = !crearRestriccion.value;  
+	};  
 
 	async function crearPerfil() {
 		if (!nombrePerfilNuevo.value.value || !costoBsPerfilNuevo.value.value || !costoDolaresPerfilNuevo.value.value) {
@@ -855,26 +858,24 @@
 	};
 
 	const agregarCampoAFormula = () => {  
-		if (campoSeleccionado.value) {   
-			// Surgiría aquí la posibilidad de agregar operadores o números  
+		if (campoSeleccionado.value) {    
 			if (formula.value) {  
-				formula.value += '' + campoSeleccionado.value; // Agregar el campo a la fórmula  
+				formula.value += '' + campoSeleccionado.value;  
 			} else {  
-				formula.value = campoSeleccionado.value; // Primer campo que se agrega  
+				formula.value = campoSeleccionado.value; 
 			}  
-			campoSeleccionado.value = ''; // Limpiar la selección  
+			campoSeleccionado.value = ''; 
 		}  
 	};  
 
 	const agregarCampoARestriccion = () => {  
 		if (campoSeleccionado.value) {   
-			// Surgiría aquí la posibilidad de agregar operadores o números  
 			if (formulaRestriccion.value) {  
-				formulaRestriccion.value += '' + campoSeleccionado.value; // Agregar el campo a la fórmula  
+				formulaRestriccion.value += '' + campoSeleccionado.value;  
 			} else {  
-				formulaRestriccion.value = campoSeleccionado.value; // Primer campo que se agrega  
+				formulaRestriccion.value = campoSeleccionado.value;  
 			}  
-			campoSeleccionado.value = ''; // Limpiar la selección  
+			campoSeleccionado.value = ''; 
 		}  
 	};
 

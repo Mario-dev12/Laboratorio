@@ -52,13 +52,13 @@
 					<div class="col-12 mb-2">
 						<div class="row w-100 m-auto">
 							<label class="col align-content-center p-0" for="Email">Correo Electrónico</label>
-							<input class="col w-auto" type="text" placeholder="Email" />
+							<input class="col w-auto" type="text" placeholder="Email" v-model="user.email" />
 						</div>
 					</div>
 					<div class="col-12 mb-2">
 						<div class="row w-100 m-auto">
 							<label class="col align-content-center p-0" for="teléfono">Numero Telefónico</label>
-							<input class="col w-auto" type="text" placeholder="Ingrese Numero Telefónico" />
+							<input class="col w-auto" type="text" placeholder="Ingrese Numero Telefónico" v-model="user.phone" />
 						</div>
 					</div>
 				</div>
@@ -251,6 +251,8 @@
 		edad: 0,
 		procedencia: "",
 		diagnostico: "",
+		email: "",
+		phone: ""
 	});
 
 	const totales = ref({
@@ -322,6 +324,8 @@
 				user.value.genero = currentClient[0].genre === "M" ? "masculino" : "femenino";
 				user.value.edad = currentClient[0].age;
 				user.value.procedencia = currentClient[0].address;
+				user.value.email = currentClient[0].email;
+				user.value.phone = currentClient[0].phone;
 			} else {
 				showToast("No Se Encontro Cliente Con Ese Documento De Identidad", "warning", alertCircleOutline);
 			}
@@ -412,6 +416,8 @@
 							genre: user.value.genero === "masculino" ? "M" : user.value.genero === "femenino" ? "F" : "",
 							age: user.value.edad,
 							address: user.value.procedencia,
+							email: user.value.email,
+							phone: user.value.phone,
 						};
 						const resp = await users.createUser(body);
 						respUser = resp[0].id;
@@ -520,6 +526,8 @@
 			edad: 0,
 			procedencia: "",
 			diagnostico: "",
+			email: "",
+			phone: ""
 		};
 		examenesSeleccionados.value = [];
 		metodoPagos.value = [];

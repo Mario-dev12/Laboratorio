@@ -204,13 +204,11 @@
 		const parsedNumbers = valorReferencialNumber?.map((numStr: any) => parseFloat(numStr.replace(",", ".")));
 		let inputValue = inputElement.value;
 
-		// Reemplazo y parseo del input.
 		if (!isNaN(Number(inputValue.replace(",", ".")))) {
 			inputValue = inputValue.replace(",", ".");
 		}
 
 		if (parsedNumbers) {
-			// Validaciones según los rangos referenciales
 			if (parsedNumbers.length === 2) {
 				if (Number(inputValue) < parsedNumbers[0] || Number(inputValue) > parsedNumbers[1]) {
 					inputElement.style.color = "red";
@@ -242,7 +240,6 @@
 			}
 
 			if (parsedNumbers.length === 4) {
-				// Validaciones por género
 				if (valorReferencialString.includes("Hombre")) {
 					const validRange = personGenre === "M" ? [parsedNumbers[0], parsedNumbers[1]] : [parsedNumbers[2], parsedNumbers[3]];
 					if (Number(inputValue) < validRange[0] || Number(inputValue) > validRange[1]) {
@@ -269,10 +266,8 @@
 				inputElement.style.borderColor = "black";
 			}
 
-			// Actualizar el valor en la sección
 			section.resultado[index].valor = Number(inputValue);
 
-			// Calcular resultados si hay una fórmula
 			await calcularResultados(section);
 		}
 	};
@@ -293,13 +288,11 @@
 	const getHtmlWithInputValues = (element: any) => {
 		const inputs = element.querySelectorAll("input, textarea");
 
-		// Iterate over inputs to replace with their values
 		inputs.forEach((input: any) => {
-			const value = input.value; // Get current value of the input
-			input.outerHTML = `<span>${value}</span>`; // Replace input with its value
+			const value = input.value;
+			input.outerHTML = `<span>${value}</span>`;
 		});
 
-		// Return the updated HTML content
 		return element.innerHTML;
 	};
 
@@ -310,7 +303,6 @@
 		});
 
 		if (profileRef2.value) {
-			// Loop por cada perfil
 			profileRef2.value.forEach(async (item: any, index: number) => {
 				let results: { orderId: number; profileName: string; fields: any[] };
 				results = {
@@ -322,7 +314,6 @@
 				const testSections: { [key: string]: any[] } = {};
 				const sections = item.querySelectorAll(".profile-tables");
 
-				// Loop por cada seccion del perfil
 				sections.forEach((table: any) => {
 					const tableName = table.querySelector("h3");
 					const tableData = table.querySelectorAll("tbody tr");
@@ -361,7 +352,6 @@
 					id: ordersArray.value[index].idOrder,
 					status: "Pendiente de enviar",
 				};
-				// hacer llamado al store aqui
 				await examsStore.createExamResults(results);
 				await ordersStore.updateStatusOrder(ordersArray.value[index].idOrder, data);
 			});
@@ -425,7 +415,7 @@
 			const childrenCopy = item.children[0].cloneNode(true);
 			childrenCopy.style.display = "block";
 
-			html += getHtmlWithInputValues(childrenCopy); // Asegúrate de tener esta función definida
+			html += getHtmlWithInputValues(childrenCopy);
 		});
 
 		const element = html;
@@ -460,7 +450,6 @@
 			await ordersStore.updateStatusOrder(orders.idOrder, data);
 		}
 
-		// Usamos una Promise para esperar a que se genere el Blob
 		return new Promise((resolve, reject) => {
 			html2pdf()
 				.from(element)
@@ -468,7 +457,6 @@
 				.toPdf()
 				.get("pdf")
 				.then((pdf: { output: (arg0: string) => any }) => {
-					// Obtener directamente el Blob
 					const blob = pdf.output("blob");
 					resolve(blob);
 				})
@@ -512,8 +500,6 @@
 		window.open(mailtoLink, "_blank");
 	};
 
-	// Nodemailer
-
 	async function sendEmail() {
 		const emailData = {
 			to: "francorm007@gmail.com",
@@ -534,21 +520,16 @@
 	}
 
 	const printPDF = async () => {
-		// Generar PDF
 		const pdfBlob = await generatePDF2();
 
-		// Crear un objeto URL para el Blob
 		const pdfUrl = URL.createObjectURL(pdfBlob);
 
-		// Abrir el PDF en una nueva ventana
 		const printWindow = window.open(pdfUrl);
 
 		if (printWindow) {
-			// Imprimir el PDF cuando la ventana esté cargada
 			printWindow.onload = function () {
 				printWindow.print();
 				printWindow.onafterprint = function () {
-					// Cerrar la ventana después de imprimir
 					printWindow.close();
 				};
 			};
@@ -559,11 +540,10 @@
 
 	const aplicarFormula = (formula: string, valores: { [x: string]: any; }) => {  
 		const evaluableFormula = formula.replace(/(\w+)/g, (match) => {  
-			// Solo reemplaza si el match es una clave en valores  
 			if (valores.hasOwnProperty(match)) {  
-				return valores[match]; // Retorna su valor  
+				return valores[match]; 
 			}  
-			return match; // De lo contrario, devuelve el mismo match (como la constante 6)  
+			return match;  
 		});  
 		try {  
 			if (!evaluableFormula.includes('undefined')){
@@ -571,59 +551,50 @@
 			}
 		} catch (error) {  
 			console.error('Error al evaluar la fórmula:', error);  
-			return null; // Si hay un error, sigue manejándolo de manera adecuada  
+			return null; 
 		}  
 	};
 
-	const aplicarRestriccion = (formula: string, valores: { [x: string]: any }) => {  
-		// Reemplaza las variables en la fórmula con sus respectivos valores  
+	const aplicarRestriccion = (formula: string, valores: { [x: string]: any }) => {   
 		const evaluableFormula = formula.replace(/(\w+)/g, (match) => {  
 			if (valores.hasOwnProperty(match)) {  
-				return valores[match]; // Retorna su valor  
+				return valores[match]; 
 			}  
-			return match; // Devuelve el mismo match si no es una clave en valores  
+			return match; 
 		});  
 
 		try {  
-			// Comprobar si la fórmula contiene un '='  
 			const equalSignIndex = evaluableFormula.indexOf('=');  
 			if (equalSignIndex !== -1) {  
-				// Separar la parte izquierda y derecha de la fórmula  
 				const izquierda = evaluableFormula.slice(0, equalSignIndex);  
 				const derecha = evaluableFormula.slice(equalSignIndex + 1).trim();  
-
-				// Evaluar la parte izquierda  
+ 
 				const resultadoIzquierda = evaluate(izquierda);  
 
-				// Convertir la parte derecha a número  
 				const resultadoDerecha = parseFloat(derecha);  
-
-				// Comparar los resultados  
+ 
 				if (resultadoIzquierda !== resultadoDerecha) {  
 					alert(`Error: la suma debe ser igual a ${resultadoDerecha}. Revise las entradas de los campos.`);  
-                	return null; // Retorna null si hay un error    
+                	return null; 
 				}  
 
-				return resultadoIzquierda; // Retornar el resultado si es correcto  
-			} else {  
-				// Si no hay '=', simplemente evalúa la fórmula  
-				return evaluate(evaluableFormula);  
-			}  
+				return resultadoIzquierda;  
+			}
 		} catch (error) {  
 			console.error('Error al evaluar la fórmula:', error);  
-			return null; // Manejar adecuadamente los errores  
+			return null; 
 		}  
 	};  
 
 	const calcularResultados = async (seccion: { resultado: any[] }) => {
-		const valores: Record<string, any> = {}; // Cambia aquí para permitir cualquier tipo de clave y valor
+		const valores: Record<string, any> = {};
 
 		seccion.resultado.forEach((item: { valor: any; nombre: string | number }) => {
 			if (item.valor) {
-				valores[item.nombre] = item.valor; // Agrupar los valores ingresados
+				valores[item.nombre] = item.valor;
 			}
 		});
-		// Calcular los valores
+
 		seccion.resultado.forEach((item: { calculado: string; valor: any, restricciones: any }, index: number) => {
 			if (item.calculado) {
 				for (const restriccion of item.restricciones){
@@ -631,7 +602,6 @@
 				}
 				item.valor = aplicarFormula(item.calculado, valores);
 
-				// chequear si valor esta dentro del valor referencial o no
 				if (item.valor) {
 					const inputElement = campoResult.value[index];
 					const inputValue = item.valor;
@@ -642,7 +612,6 @@
 					const parsedNumbers = valorReferencialNumber?.map((numStr: any) => parseFloat(numStr.replace(",", ".")));
 
 					if (parsedNumbers) {
-						// Validaciones según los rangos referenciales
 						if (parsedNumbers.length === 2) {
 							if (Number(inputValue) < parsedNumbers[0] || Number(inputValue) > parsedNumbers[1]) {
 								inputElement.style.color = "red";
@@ -674,7 +643,6 @@
 						}
 
 						if (parsedNumbers.length === 4) {
-							// Validaciones por género
 							if (valorReferencialString.includes("Hombre")) {
 								const validRange =
 									personGenre === "M" ? [parsedNumbers[0], parsedNumbers[1]] : [parsedNumbers[2], parsedNumbers[3]];
@@ -701,9 +669,6 @@
 							inputElement.style.color = "black";
 							inputElement.style.borderColor = "black";
 						}
-
-						// Actualizar el valor en la sección
-						// seccion.resultado[index].valor = Number(inputValue);
 					}
 				}
 			}

@@ -8,6 +8,8 @@ export interface User {
 	genre: string;
 	age: number;
 	address: string;
+	email: string;
+	phone: string;
 	createdDate?: any;
 	modifiedDate?: any;
 }
