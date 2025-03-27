@@ -110,7 +110,7 @@
 	import { examStore } from "@/stores/examStore";
 	import { orderStore } from "@/stores/orderStore";
 	import { useRouter } from "vue-router";
-	import { evaluate } from "mathjs";
+	import { Parser } from 'expr-eval'; 
 
 	interface Item {
 		nombre: string;
@@ -538,29 +538,32 @@
 		}
 	};
 
-	const aplicarFormula = (formula: string, valores: { [x: string]: any; }) => {  
+	const aplicarFormula = (formula: string, valores: { [x: string]: any }) => {  
+		const parser = new Parser();  
 		const evaluableFormula = formula.replace(/(\w+)/g, (match) => {  
 			if (valores.hasOwnProperty(match)) {  
-				return valores[match]; 
+				return valores[match];  
 			}  
 			return match;  
 		});  
+
 		try {  
-			if (!evaluableFormula.includes('undefined')){
-				return evaluate(evaluableFormula); 
-			}
+			if (!evaluableFormula.includes('undefined')) {  
+				return parser.evaluate(evaluableFormula);  
+			}  
 		} catch (error) {  
 			console.error('Error al evaluar la fórmula:', error);  
-			return null; 
+			return null;  
 		}  
-	};
+	};  
 
-	const aplicarRestriccion = (formula: string, valores: { [x: string]: any }) => {   
+	const aplicarRestriccion = (formula: string, valores: { [x: string]: any }) => {  
+		const parser = new Parser();  
 		const evaluableFormula = formula.replace(/(\w+)/g, (match) => {  
 			if (valores.hasOwnProperty(match)) {  
-				return valores[match]; 
+				return valores[match];  
 			}  
-			return match; 
+			return match;  
 		});  
 
 		try {  
@@ -568,21 +571,20 @@
 			if (equalSignIndex !== -1) {  
 				const izquierda = evaluableFormula.slice(0, equalSignIndex);  
 				const derecha = evaluableFormula.slice(equalSignIndex + 1).trim();  
- 
-				const resultadoIzquierda = evaluate(izquierda);  
 
+				const resultadoIzquierda = parser.evaluate(izquierda);  
 				const resultadoDerecha = parseFloat(derecha);  
- 
+
 				if (resultadoIzquierda !== resultadoDerecha) {  
 					alert(`Error: la suma debe ser igual a ${resultadoDerecha}. Revise las entradas de los campos.`);  
-                	return null; 
+					return null;  
 				}  
 
 				return resultadoIzquierda;  
-			}
+			}  
 		} catch (error) {  
 			console.error('Error al evaluar la fórmula:', error);  
-			return null; 
+			return null;  
 		}  
 	};  
 
