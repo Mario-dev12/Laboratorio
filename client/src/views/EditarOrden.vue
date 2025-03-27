@@ -46,6 +46,18 @@
 							<input class="col w-auto" type="text" placeholder="Ingrese la procedencia" v-model="user.procedencia" />
 						</div>
 					</div>
+					<div class="col-12 mb-2">
+						<div class="row w-100 m-auto">
+							<label class="col align-content-center p-0" for="Email">Correo Electrónico</label>
+							<input class="col w-auto" type="text" placeholder="Email" v-model="user.email" />
+						</div>
+					</div>
+					<div class="col-12 mb-2">
+						<div class="row w-100 m-auto">
+							<label class="col align-content-center p-0" for="teléfono">Numero Telefónico</label>
+							<input class="col w-auto" type="text" placeholder="Ingrese Numero Telefónico" v-model="user.phone" />
+						</div>
+					</div>
 				</div>
 			</div>
 			<div class="bg-dark-subtle container p-3 rounded mt-3">
@@ -230,6 +242,8 @@
 		genero: "",
 		edad: 0,
 		procedencia: "",
+		email: "",
+		phone: ""
 	});
 
 	const toast = ref({
@@ -295,6 +309,8 @@
 		user.value.nombre = userData.value[0].firstName;
 		user.value.procedencia = userData.value[0].address;
 		user.value.id = userData.value[0].idUser;
+		user.value.email = userData.value[0].email;
+		user.value.phone = userData.value[0].phone;
 		profiles.value = await profilesStore.fecthProfiles();
 		profiles.value = profiles.value.map((exam: { cost_bs: string; cost_usd: string }) => ({
 			...exam,
@@ -414,6 +430,8 @@
 				genre: user.value.genero === "masculino" ? "M" : user.value.genero === "femenino" ? "F" : "",
 				lastName: user.value.apellido,
 				passport: 0,
+				email: user.value.email,
+				phone: user.value.phone
 			};
 			await usersStore.updateUser(user.value.id, userBody);
 		}
@@ -562,6 +580,8 @@
 			genero: "",
 			edad: 0,
 			procedencia: "",
+			email: "",
+			phone: ""
 		};
 		examenesSeleccionados.value = [];
 		metodoPagos.value = [];

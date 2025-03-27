@@ -17,6 +17,9 @@ INSERT INTO profile (name, cost_bs, cost_usd) VALUES
 ('Uroanalisis', '244,35', '5'),
 ('Perfil Tiroideo', '244,35', '5');
 
+INSERT INTO restriction (idProfile, restriction) VALUES 
+(1, 'colesterol_hdl + colesterol_ldl = 150');
+
 INSERT INTO exam (idUser, total_cost_bs, total_cost_usd) VALUES 
 (1, '488,7', '10'),
 (2, '488,7', '10'),

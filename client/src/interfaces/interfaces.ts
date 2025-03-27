@@ -8,6 +8,8 @@ export interface User {
 	genre: string;
 	age: number;
 	address: string;
+	email: string;
+	phone: string;
 	createdDate?: any;
 	modifiedDate?: any;
 }
@@ -94,6 +96,14 @@ export interface Unit {
 export interface Provider {
 	idprovider: number;
 	name: string;
+	createddate: any;
+	modifieddate: any;
+}
+
+export interface Restriction {
+	idrestriction: number;
+	idProfile: number;
+	restriction: string;
 	createddate: any;
 	modifieddate: any;
 }
