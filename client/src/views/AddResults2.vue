@@ -86,22 +86,39 @@
 						</div>
 					</div>
 				</div>
+				<div class="firma-sello" ref="firmaSello">
+					<div class="row justify-content-end">
+						<div class="sello-img col-4"><img class="h-100 w-100" src="/images/selloLab3.png" alt="" /></div>
+					</div>
+					<div class="row justify-content-end">
+						<div class="firma-img col-4"><img class="h-100 w-100" src="/images/firmaLab3.jpg" alt="" /></div>
+					</div>
+				</div>
 
 				<div class="row mb-3">
 					<button class="col btn btn-primary me-1" @click="guardarCambios">Guardar Cambios</button>
-					<button class="col btn btn-primary me-1" @click="generatePDF">Crear PDF</button>
+					<button class="col btn btn-primary me-1" @click="pdfWithoutSignature">Crear PDF</button>
 					<button class="col btn btn-primary me-1" @click="sendEmail">Enviar por Correo</button>
 					<button class="col btn btn-primary me-1" @click="sharePDFViaWhatsApp">Compartir PDF por WhatsApp</button>
 					<button class="col btn btn-primary me-1" @click="enviarCorreo">Compartir PDF por Mailto</button>
 					<button class="col btn btn-primary me-1" @click="printPDF">Imprimir PDF</button>
 				</div>
 			</div>
+			<ion-toast
+				:class="toast.class"
+				:icon="toast.icon"
+				:is-open="isOpen"
+				:message="toast.message"
+				duration="2000"
+				@didDismiss="setOpen(false)"
+				position="top">
+			</ion-toast>
 		</ion-content>
 	</ion-page>
 </template>
 
 <script setup lang="ts">
-	import { IonPage, IonContent } from "@ionic/vue";
+	import { IonPage, IonContent, IonToast } from "@ionic/vue";
 	import { profileStore } from "@/stores/profileStore";
 	import { ref, onMounted } from "vue";
 	import html2pdf from "html2pdf.js";
@@ -111,6 +128,7 @@
 	import { orderStore } from "@/stores/orderStore";
 	import { useRouter } from "vue-router";
 	import { evaluate } from "mathjs";
+	import { checkboxOutline, alertCircleOutline } from "ionicons/icons";
 
 	interface Item {
 		nombre: string;
@@ -150,6 +168,27 @@
 	const month = today.getMonth() + 1;
 	const year = today.getFullYear();
 	const profileName = ref();
+	const isOpen = ref(false);
+	const firmaSello = ref();
+
+	const toast = ref({
+		isOpen: false,
+		message: "",
+		class: "",
+		icon: null,
+	});
+
+	const setOpen = (state: boolean) => {
+		isOpen.value = state;
+	};
+
+	const showToast = (message: string, style: string, icon: any) => {
+		toast.value.message = message;
+		toast.value.isOpen = true;
+		toast.value.class = style;
+		toast.value.icon = icon;
+		setOpen(true);
+	};
 
 	onMounted(async () => {
 		order.value = route.query.profile;
@@ -181,15 +220,16 @@
 
 			profileNames = to.query.profileNames;
 			profileNames = JSON.parse(profileNames);
-			for (const profile of profileNames) {
-				const profileSection = await profilesStore.fetchProfileByInputsName(profile);
-				profilesData.value.push(profileSection);
+			for (const profile of ordersArray.value) {
+				const profileSection2 = await profilesStore.fetchProfileByInputsName2(profile.profiles[0].profileName, profile.idOrder);
+				profilesData.value.push(profileSection2);
 			}
 			sectionData.value = profilesData.value[0];
 			sectionNames.value = profilesData.value;
 			showProfile.value = new Array(profileNames.length).fill(false);
 			showProfile.value[0] = true;
 		}
+		console.log(profilesData.value);
 		next();
 	});
 
@@ -363,12 +403,14 @@
 				await examsStore.createExamResults(results);
 				await ordersStore.updateStatusOrder(ordersArray.value[index].idOrder, data);
 			});
+			showToast("Cambios guradados exitosamnte!", "creado", checkboxOutline);
 		}
 	};
 
 	const generatePDF = async () => {
 		const profileRefCopy = profileRef.value.cloneNode(true);
 		const patientInfoDivCopy = profileRefCopy.querySelector(".patient-info");
+		const divFirmaSelloCopy = firmaSello.value.cloneNode(true);
 
 		const profileContentDivs = profileRefCopy.querySelectorAll(".profile-content");
 
@@ -376,7 +418,57 @@
 
 		profileContentDivs.forEach((item: any) => {
 			const childrenCopy = item.children[0].cloneNode(true);
-			childrenCopy.style.display = "block";
+			// childrenCopy.style.display = "block";
+
+			html += getHtmlWithInputValues(childrenCopy);
+		});
+		html += divFirmaSelloCopy.innerHTML;
+		const element = html;
+
+		const firstName = order.value.firstName;
+		const lastName = order.value.lastName;
+
+		const today = new Date();
+		const year = today.getFullYear();
+		const month = String(today.getMonth() + 1).padStart(2, "0");
+		const day = String(today.getDate()).padStart(2, "0");
+		const formattedDate = `${day}-${month}-${year}`;
+
+		const filename = `${lastName}_${firstName}_${formattedDate}.pdf`;
+		profileName.value = `${lastName}_${firstName}_${formattedDate}.pdf`;
+
+		const options = {
+			margin: 14,
+			filename: filename,
+			image: { type: "jpeg", quality: 0.98 },
+			html2canvas: { scale: 2 },
+			jsPDF: { unit: "mm", format: "letter", orientation: "portrait" },
+		};
+
+		pdfFileName.value = options.filename;
+
+		for (const orders of ordersArray.value) {
+			const data = {
+				id: orders.idOrder,
+				status: "Pendiente de enviar",
+			};
+			await ordersStore.updateStatusOrder(orders.idOrder, data);
+		}
+
+		html2pdf().from(element).set(options).save();
+		html = "";
+	};
+
+	// generar pdf sin firma y sello
+	const pdfWithoutSignature = async () => {
+		const profileRefCopy = profileRef.value.cloneNode(true);
+		const patientInfoDivCopy = profileRefCopy.querySelector(".patient-info");
+		const profileContentDivs = profileRefCopy.querySelectorAll(".profile-content");
+
+		html = patientInfoDivCopy.innerHTML;
+
+		profileContentDivs.forEach((item: any) => {
+			const childrenCopy = item.children[0].cloneNode(true);
 
 			html += getHtmlWithInputValues(childrenCopy);
 		});
@@ -555,22 +647,22 @@
 		}
 	};
 
-	const aplicarFormula = (formula: string, valores: { [x: string]: any; }) => {  
-		const evaluableFormula = formula.replace(/(\w+)/g, (match) => {  
-			// Solo reemplaza si el match es una clave en valores  
-			if (valores.hasOwnProperty(match)) {  
-				return valores[match]; // Retorna su valor  
-			}  
-			return match; // De lo contrario, devuelve el mismo match (como la constante 6)  
-		});  
-		try {  
-			if (!evaluableFormula.includes('undefined')){
-				return evaluate(evaluableFormula); 
+	const aplicarFormula = (formula: string, valores: { [x: string]: any }) => {
+		const evaluableFormula = formula.replace(/(\w+)/g, (match) => {
+			// Solo reemplaza si el match es una clave en valores
+			if (valores.hasOwnProperty(match)) {
+				return valores[match]; // Retorna su valor
 			}
-		} catch (error) {  
-			console.error('Error al evaluar la fórmula:', error);  
-			return null; // Si hay un error, sigue manejándolo de manera adecuada  
-		}  
+			return match; // De lo contrario, devuelve el mismo match (como la constante 6)
+		});
+		try {
+			if (!evaluableFormula.includes("undefined")) {
+				return evaluate(evaluableFormula);
+			}
+		} catch (error) {
+			console.error("Error al evaluar la fórmula:", error);
+			return null; // Si hay un error, sigue manejándolo de manera adecuada
+		}
 	};
 
 	const calcularResultados = async (seccion: { resultado: any[] }) => {
@@ -666,4 +758,29 @@
 	};
 </script>
 
-<style scoped></style>
+<style scoped>
+	ion-toast.creado {
+		--background: rgb(0, 204, 0);
+		--color: #323232;
+	}
+
+	ion-toast.borrar {
+		--background: rgb(229, 0, 0);
+		--color: #323232;
+	}
+
+	ion-toast.warning {
+		--background: rgb(219, 248, 0);
+		--color: #323232;
+	}
+
+	.firma-img {
+		height: 100px;
+		width: 300px;
+	}
+
+	.sello-img {
+		height: 150px;
+		width: 300px;
+	}
+</style>
