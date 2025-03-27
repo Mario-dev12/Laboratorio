@@ -128,7 +128,7 @@
 	import { orderStore } from "@/stores/orderStore";
 	import { useRouter } from "vue-router";
 	import { Parser } from 'expr-eval'; 
-	import { checkboxOutline, alertCircleOutline } from "ionicons/icons";
+	import { checkboxOutline } from "ionicons/icons";
 
 	interface Item {
 		nombre: string;
@@ -205,7 +205,6 @@
 		for (const profile of ordersArray.value) {
 			const profileSection2 = await profilesStore.fetchProfileByInputsName2(profile.profiles[0].profileName, profile.idOrder);
 			profilesData.value.push(profileSection2);
-			console.log('tttttt', profilesData.value)
 		}
 		sectionData.value = profilesData.value[0];
 		sectionNames.value = profilesData.value;
