@@ -118,6 +118,7 @@
 		valor_referencial: string;
 		calculado: string;
 		valor: any;
+		restricciones: any;
 	}
 
 	interface Section {
@@ -165,6 +166,7 @@
 		for (const profile of ordersArray.value) {
 			const profileSection2 = await profilesStore.fetchProfileByInputsName2(profile.profiles[0].profileName, profile.idOrder);
 			profilesData.value.push(profileSection2);
+			console.log('tttttt', profilesData.value)
 		}
 		sectionData.value = profilesData.value[0];
 		sectionNames.value = profilesData.value;
@@ -573,6 +575,46 @@
 		}  
 	};
 
+	const aplicarRestriccion = (formula: string, valores: { [x: string]: any }) => {  
+		// Reemplaza las variables en la fórmula con sus respectivos valores  
+		const evaluableFormula = formula.replace(/(\w+)/g, (match) => {  
+			if (valores.hasOwnProperty(match)) {  
+				return valores[match]; // Retorna su valor  
+			}  
+			return match; // Devuelve el mismo match si no es una clave en valores  
+		});  
+
+		try {  
+			// Comprobar si la fórmula contiene un '='  
+			const equalSignIndex = evaluableFormula.indexOf('=');  
+			if (equalSignIndex !== -1) {  
+				// Separar la parte izquierda y derecha de la fórmula  
+				const izquierda = evaluableFormula.slice(0, equalSignIndex);  
+				const derecha = evaluableFormula.slice(equalSignIndex + 1).trim();  
+
+				// Evaluar la parte izquierda  
+				const resultadoIzquierda = evaluate(izquierda);  
+
+				// Convertir la parte derecha a número  
+				const resultadoDerecha = parseFloat(derecha);  
+
+				// Comparar los resultados  
+				if (resultadoIzquierda !== resultadoDerecha) {  
+					alert(`Error: la suma debe ser igual a ${resultadoDerecha}. Revise las entradas de los campos.`);  
+                	return null; // Retorna null si hay un error    
+				}  
+
+				return resultadoIzquierda; // Retornar el resultado si es correcto  
+			} else {  
+				// Si no hay '=', simplemente evalúa la fórmula  
+				return evaluate(evaluableFormula);  
+			}  
+		} catch (error) {  
+			console.error('Error al evaluar la fórmula:', error);  
+			return null; // Manejar adecuadamente los errores  
+		}  
+	};  
+
 	const calcularResultados = async (seccion: { resultado: any[] }) => {
 		const valores: Record<string, any> = {}; // Cambia aquí para permitir cualquier tipo de clave y valor
 
@@ -582,8 +624,11 @@
 			}
 		});
 		// Calcular los valores
-		seccion.resultado.forEach((item: { calculado: string; valor: any }, index: number) => {
+		seccion.resultado.forEach((item: { calculado: string; valor: any, restricciones: any }, index: number) => {
 			if (item.calculado) {
+				for (const restriccion of item.restricciones){
+					aplicarRestriccion(restriccion, valores)
+				}
 				item.valor = aplicarFormula(item.calculado, valores);
 
 				// chequear si valor esta dentro del valor referencial o no

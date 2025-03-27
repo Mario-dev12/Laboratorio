@@ -98,6 +98,14 @@ export interface Provider {
 	modifieddate: any;
 }
 
+export interface Restriction {
+	idrestriction: number;
+	idProfile: number;
+	restriction: string;
+	createddate: any;
+	modifieddate: any;
+}
+
 export interface Alliance {
 	idalliance: number;
 	idAlliance: number;

@@ -77,6 +77,30 @@ begin
 end;
 $BODY$;
 
+CREATE OR REPLACE FUNCTION sp_find_all_restriction(
+	)
+    RETURNS json[]
+    LANGUAGE 'plpgsql'
+    COST 100
+    VOLATILE PARALLEL UNSAFE
+AS $BODY$
+declare 
+	v_json_resp json[];
+begin
+	select array(
+        select jsonb_build_object(
+			'idRestriction', a.idRestriction,
+			'idProfile', a.idProfile,
+            'restriction', a.restriction,
+			'createdDate', a.createdDate,
+            'modifiedDate', a.modifiedDate
+		)
+		from restriction a
+        ) ::json[] into v_json_resp;
+		return v_json_resp;
+end;
+$BODY$;
+
 CREATE OR REPLACE FUNCTION sp_find_all_exam(
 	)
     RETURNS json[]
@@ -337,6 +361,31 @@ begin
 end;
 $BODY$;
 
+CREATE OR REPLACE FUNCTION sp_find_restriction_by_profile(
+	p_id integer)
+    RETURNS json[]
+    LANGUAGE 'plpgsql'
+    COST 100
+    VOLATILE PARALLEL UNSAFE
+AS $BODY$
+declare 
+	v_json_resp json[];
+begin
+	select array(
+        select jsonb_build_object(
+			'idRestriction', a.idRestriction,
+			'idProfile', a.idProfile,
+			'restriction', a.restriction,
+			'createdDate', a.createdDate,
+            'modifiedDate', a.modifiedDate
+		)
+		from restriction a 
+		WHERE a.idProfile = p_id
+        ) ::json[] into v_json_resp;
+		return v_json_resp;
+end;
+$BODY$;
+
 CREATE OR REPLACE FUNCTION sp_delete_alliance(
 	p_id integer)
     RETURNS character varying
@@ -362,6 +411,20 @@ begin
 	delete from profile
 	where idProfile = p_id;
 	return 'Se ha borrado el perfil correctamente';
+end;
+$BODY$;
+
+CREATE OR REPLACE FUNCTION sp_delete_restriction(
+	p_id integer)
+    RETURNS character varying
+    LANGUAGE 'plpgsql'
+    COST 100
+    VOLATILE PARALLEL UNSAFE
+AS $BODY$
+begin
+	delete from restriction
+	where idRestriction = p_id;
+	return 'Se ha borrado la restricción correctamente';
 end;
 $BODY$;
 
@@ -1198,6 +1261,39 @@ begin
 end;
 $BODY$;
 
+CREATE OR REPLACE FUNCTION sp_update_restriction(
+	p_id integer,
+    p_idProfile integer,
+	p_restriction character varying)
+    RETURNS json
+    LANGUAGE 'plpgsql'
+    COST 100
+    VOLATILE PARALLEL UNSAFE
+AS $BODY$
+declare
+	v_restriction                              character varying;
+	v_createdDate                       TIMESTAMP;
+	v_modifiedDate                      TIMESTAMP;
+    v_idProfile                                    integer;
+	v_id                                    integer;
+begin
+	update restriction
+	set restriction = p_restriction, idProfile = p_idProfile, modifiedDate = now()
+	where idRestriction = p_id;
+	select u.restriction into v_restriction from restriction u where idRestriction = p_id;
+    select u.idProfile into v_idProfile from restriction u where idRestriction = p_id;
+	select u.createdDate into v_createdDate from restriction u where idRestriction = p_id;
+	select u.modifiedDate into v_modifiedDate from restriction u where idRestriction = p_id;
+	return json_build_object(
+		'idRestriction', p_id,
+        'idProfile', v_idProfile,
+		'restriction', v_restriction,
+		'createdDate', v_createdDate,
+		'modifiedDate', v_modifiedDate
+	);
+end;
+$BODY$;
+
 CREATE OR REPLACE FUNCTION sp_update_inputs(
 	p_id integer,
 	p_nombre character varying,
@@ -1974,6 +2070,29 @@ BEGIN
 END;  
 $BODY$;
 
+CREATE OR REPLACE FUNCTION sp_create_restriction(  
+    idProfile INTEGER,  
+    restricciones VARCHAR[]  
+)   
+RETURNS INTEGER[] AS $$  
+DECLARE  
+    ids INTEGER[] := '{}';  
+    r VARCHAR;   
+    newIdRestriction INTEGER;  
+BEGIN  
+    FOREACH r IN ARRAY restricciones  
+    LOOP  
+        INSERT INTO restriction (idProfile, restriction)  
+        VALUES (idProfile, r)  
+        RETURNING idRestriction INTO newIdRestriction;  
+      
+        ids := array_append(ids, newIdRestriction);  
+    END LOOP;  
+    
+    RETURN ids;  
+END;  
+$$ LANGUAGE plpgsql;  
+
 CREATE OR REPLACE FUNCTION sp_agregar_campos_if_not_exists(  
     p_campos jsonb[]  
 ) RETURNS json  
@@ -2624,6 +2743,7 @@ DECLARE
     division_element JSON;  
     record RECORD;  
     nombre_tabla TEXT;  
+	restricciones_json JSON;
 BEGIN   
     -- Comprobamos si existe el perfil  
     IF NOT EXISTS (SELECT 1 FROM profile WHERE name = nomb_perfil) THEN  
@@ -2664,13 +2784,18 @@ BEGIN
             IF resultado_campo IS NULL THEN  
                 resultado_campo := NULL;  -- Mensaje en caso de no encontrar resultados  
             END IF;  
+			
+			SELECT json_agg(r.restriction) INTO restricciones_json  
+			FROM restriction r  
+			WHERE r.idProfile = (SELECT idProfile FROM profile WHERE name = nomb_perfil);
 
             campos_json := array_append(campos_json, json_build_object(  
                 'nombre', nombre_campo,   
                 'unidad', unidad_campo,   
                 'valor_referencial', valor_referencial_campo,   
                 'calculado', calculado_campo,  
-                'valor', resultado_campo   
+                'valor', resultado_campo,
+				'restricciones', COALESCE(restricciones_json, '[]')
             ));  
 			  
         END LOOP;  

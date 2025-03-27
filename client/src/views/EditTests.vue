@@ -145,6 +145,7 @@
 						<button class="btn btn-primary mb-4" @click="crearPerfil" v-if="!update">Crear Perfil</button>
 						<button class="btn btn-primary mb-4" v-if="update" @click="updatePerfil">Guardar Cambios</button>
 						<button class="btn btn-primary mb-4 ms-5" @click="adicionarCampo">+ Campo</button>
+						<button class="btn btn-primary mb-4 ms-5" @click="adicionarRestriccion">+ Restricción</button>
 					</div>
 				</div>
 				<div class="agregar-campo bg-dark-subtle rounded p-3 mb-3" v-if="crearCampo" ref="edicionCampo">
@@ -204,6 +205,64 @@
 						<button class="btn btn-primary" @click="createCampo">Crear Campo</button>
 					</div>
 				</div>
+				<div class="agregar-restriccion bg-dark-subtle rounded p-3 mb-3" v-if="crearRestriccion" ref="edicionRestriccion">  
+					<div class="w-100 m-auto row px-2 mb-3">  
+						<label for="restriccionList">Lista de Restricciones</label>  
+						<ul ref="restriccionList">  
+							<li v-for="restriccion in restriction" :key="restriccion.idRestriction">  
+								<span v-if="!restriccion.editando">{{ restriccion.restriction }}</span>  
+								<input  
+									v-if="restriccion.editando"  
+									v-model="restriccion.nuevaRestriccion"  
+									type="text"  
+									placeholder="Editar restricción..."  
+									@keyup.enter="actualizarRestriccion(restriccion)"  
+									class="ms-2"  
+								/>  
+								<i  
+									v-if="!restriccion.editando"  
+									class="fas fa-edit ms-2 text-dark"  
+									@click="editarRestriccion(restriccion)"  
+									title="Editar restricción"  
+									style="cursor: pointer"  
+								></i>  
+								<i  
+									v-if="restriccion.editando"  
+									class="fas fa-check accept-icon"  
+									@click="actualizarRestriccion(restriccion)"  
+									style="cursor: pointer; margin-left: 10px"  
+								></i>  
+								<i  
+									v-if="restriccion.editando"  
+									class="fas fa-times reject-icon"  
+									@click="cancelarEdicion(restriccion)"  
+									style="cursor: pointer; margin-left: 10px"  
+								></i>  
+								<i  
+									class="fas fa-trash"  
+									style="cursor: pointer; margin-left: 8px;"  
+									@click="deleteRestriccion(restriccion.idRestriction)"  
+								></i>    
+							</li>
+						</ul>  
+					</div>  
+					<label for="campoSelect">Seleccionar Campo</label>  
+					<div class="d-flex mb-3">  
+						<select v-model="campoSeleccionado">  
+							<option value="">Seleccionar Campo</option>  
+							<option v-for="campo in camposExistentes" :key="campo.idCampo" :value="campo.nombre">{{ campo.nombre }}</option>  
+						</select>  
+						<button class="btn btn-primary ms-2" @click="agregarCampoARestriccion">Agregar</button>  
+					</div>  
+					<div class="w-100 m-auto row px-2 mb-3">  
+						<label for="formula">Restricción</label>  
+						<input type="text" v-model="formulaRestriccion" placeholder="Construir restricción..." />  
+						<small class="form-text text-muted">Ejemplo: Campo1 - 5 = 100</small>  
+					</div>  
+					<div class="d-flex justify-content-center">
+						<button class="btn btn-primary" @click="createRestriccion">Crear Restricción</button>
+					</div>
+				</div> 
 			</div>
 			<ion-toast
 				:class="toast.class"
@@ -221,12 +280,15 @@
 	import { IonContent, IonPage, IonButton, IonToast } from "@ionic/vue";
 	import { onMounted, ref, nextTick } from "vue";
 	import { profileStore } from "@/stores/profileStore";
+	import { restrictionStore } from "@/stores/restrictionStore";
 	import { Profile, Campo, Unit } from "@/interfaces/interfaces";
 	import { checkboxOutline, closeCircleOutline, alertCircleOutline } from "ionicons/icons";
 
 	const perfilName = ref();
 	const selectedPerfil = ref();
 	const tests = profileStore();
+	const restrictions = restrictionStore();
+	const restriction = ref();
 	const secciones = ref<Seccion[]>([]);
 	const seccionesAgregadas = ref<Seccion[]>([]);
 	const seccionesEliminadas = ref<Seccion[]>([]);
@@ -235,6 +297,7 @@
 	const create = ref(false);
 	const update = ref(false);
 	const campos = ref<CampoNuevo[]>([]);
+	const restricciones = ref<CampoNuevo[]>([]);
 	const unidadExistenteRef = ref(true);
 	const unidadNuevoRef = ref(false);
 	const unidadesDeCampos = ref<Unit[]>([]);
@@ -246,8 +309,10 @@
 	const costoBsPerfilNuevo = ref();
 	const costoDolaresPerfilNuevo = ref();
 	const crearCampo = ref(false);
+	const crearRestriccion = ref(false);
 	const edicionPerfil = ref();
 	const edicionCampo = ref();
+	const edicionRestriccion = ref();
 	const camposDelPerfil = ref();
 	const isOpen = ref(false);
 	const idCamposAgregados = ref<number[]>([]);
@@ -255,6 +320,7 @@
 	const isCampoCalculado = ref(false); 
 	const campoSeleccionado = ref('');
 	const formula = ref('');
+	const formulaRestriccion = ref('');
 	const toast = ref({
 		isOpen: false,
 		message: "",
@@ -306,6 +372,7 @@
 
 	async function editPerfil(perfil: any) {
 		camposDelPerfil.value = await tests.fetchInputsByProfileId(perfil.idProfile);
+		restriction.value = await restrictions.fetchRestrictionById(perfil.idProfile);
 		secciones.value = camposDelPerfil.value.section;
 		secciones.value = secciones.value.filter((seccion) => {
 			return seccion.nombre.trim() !== "" || (seccion.campos && seccion.campos.length > 0);
@@ -402,6 +469,14 @@
 							camposExistentes.value = await tests.fecthProfilesInputs();
 							unidadesDeCampos.value = await tests.fecthProfilesInputUnits();
 						});
+					}
+
+					if (restricciones.value.length) {
+						const data = {
+							idProfile: selectedPerfil.value.idProfile,
+							restriction: restricciones.value
+						}
+						await restrictions.createRestriction(data);
 					}
 
 					if (seccionesAgregadas.value.length) {
@@ -547,6 +622,43 @@
 		crearCampo.value = !crearCampo.value;
 	};
 
+	const createRestriccion = () => {
+		const dataCampoNuevo = {
+			idCampo: 0,
+			nombre: "",
+			restriction: "",
+			unidad: "",
+			valor_referencial: "",
+			calculado: "",
+			checked: true,
+			seleccionado: false,
+		};
+
+		if (!formulaRestriccion.value) {
+			alert("Por Favor Completar Datos De La Restricción");
+		} else {
+			if (restriction.value){
+				if (
+					restriction.value.some((campo: any) => {
+						return campo.restriction.trim() === formulaRestriccion.value.trim();
+					})
+				) {
+					alert("Ya Existe Una Restrición Con Esa Fórmula");
+				} else {
+					dataCampoNuevo.restriction = formulaRestriccion.value;
+					restricciones.value.push(dataCampoNuevo);
+					restriction.value.unshift(dataCampoNuevo);
+					formulaRestriccion.value = "";
+				}
+			} else {
+				dataCampoNuevo.restriction = formulaRestriccion.value;
+				restricciones.value.push(dataCampoNuevo);
+				formulaRestriccion.value = "";
+			}
+		}
+		crearRestriccion.value = !crearRestriccion.value;
+	};
+
 	async function crearPerfil() {
 		if (!nombrePerfilNuevo.value.value || !costoBsPerfilNuevo.value.value || !costoDolaresPerfilNuevo.value.value) {
 			alert("Por favor completa los datos del perfil.");
@@ -607,11 +719,18 @@
 						(item) => item.nombre.trim() !== "" || (item.campos && item.campos.length > 0)
 					);
 
-					await tests.createProfileInputs(dataPerfilNuevo, camposNuevos, datosFiltrados).then(async () => {
-						perfiles.value = await tests.fecthProfiles();
-						camposExistentes.value = await tests.fecthProfilesInputs();
-						unidadesDeCampos.value = await tests.fecthProfilesInputUnits();
-					});
+					const resp: any = await tests.createProfileInputs(dataPerfilNuevo, camposNuevos, datosFiltrados);
+
+					if (restricciones.value.length) {
+						const data = {
+							idProfile: resp.id,
+							restriction: restricciones.value
+						}
+						await restrictions.createRestriction(data);
+					}
+					perfiles.value = await tests.fecthProfiles();
+					camposExistentes.value = await tests.fecthProfilesInputs();
+					unidadesDeCampos.value = await tests.fecthProfilesInputUnits();
 					showToast("Perfil creado exitosamente!", "creado", checkboxOutline);
 					create.value = false;
 					crearCampo.value = false;
@@ -626,6 +745,14 @@
 		await nextTick();
 		if (edicionCampo.value) {
 			edicionCampo.value.scrollIntoView({ behavior: "smooth" });
+		}
+	};
+
+	const adicionarRestriccion = async () => {
+		crearRestriccion.value = !crearRestriccion.value;
+		await nextTick();
+		if (edicionRestriccion.value) {
+			edicionRestriccion.value.scrollIntoView({ behavior: "smooth" });
 		}
 	};
 
@@ -738,6 +865,45 @@
 			campoSeleccionado.value = ''; // Limpiar la selección  
 		}  
 	};  
+
+	const agregarCampoARestriccion = () => {  
+		if (campoSeleccionado.value) {   
+			// Surgiría aquí la posibilidad de agregar operadores o números  
+			if (formulaRestriccion.value) {  
+				formulaRestriccion.value += '' + campoSeleccionado.value; // Agregar el campo a la fórmula  
+			} else {  
+				formulaRestriccion.value = campoSeleccionado.value; // Primer campo que se agrega  
+			}  
+			campoSeleccionado.value = ''; // Limpiar la selección  
+		}  
+	};
+
+	const deleteRestriccion = async (id: number | string) => {
+		await restrictions.deleteRestriction(id)
+		restriction.value = await restrictions.fetchRestrictionById(selectedPerfil.value.idProfile);
+		showToast("Restricción borrada", "creado", checkboxOutline);
+	};
+
+	async function cancelarEdicion(restriccion: { editando: boolean; }) {  
+		restriccion.editando = false; 
+	}  
+
+	async function actualizarRestriccion(restriccion: { restriction: any; nuevaRestriccion: any; editando: boolean; }) {  
+		restriccion.restriction = restriccion.nuevaRestriccion;
+		restriccion.editando = false; 
+		const data = {
+			idProfile: selectedPerfil.value.idProfile,
+			restriction: restriccion.restriction
+		}
+		await restrictions.updateRestriction(selectedPerfil.value.idProfile, data);
+		restriction.value = await restrictions.fetchRestrictionById(selectedPerfil.value.idProfile);
+		showToast("Restricción actualizada", "creado", checkboxOutline);
+	} 
+
+	async function editarRestriccion(restriccion: { editando: boolean; nuevaRestriccion: any; restriction: any; }) {  
+		restriccion.editando = true;  
+		restriccion.nuevaRestriccion = restriccion.restriction; 
+	}  
 	</script>
 
 <style scoped>

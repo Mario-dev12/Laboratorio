@@ -12,6 +12,7 @@ import paymentRouter from "../payment/payment.routes.js";
 import profileRouter from "../profile/profile.routes.js";
 import orderRouter from "../order/order.routes.js"
 import mailRouter from "../mail/mail.routes.js"
+import restrictionRouter from "../restriction/restriction.routes.js";
 
 const routerModule = Router();
 
@@ -27,5 +28,6 @@ routerModule.use("/unit", unitRouter);
 routerModule.use("/users", usersRouter);
 routerModule.use("/box", boxRouter);
 routerModule.use("/mail", mailRouter);
+routerModule.use("/restriction", restrictionRouter);
 
 export default routerModule

@@ -32,6 +32,15 @@ CREATE TABLE IF NOT EXISTS profile
     modifiedDate timestamp with time zone NOT NULL default now()
 );
 
+CREATE TABLE IF NOT EXISTS restriction
+(
+    idRestriction serial primary key,
+    idProfile integer NOT NULL references profile(idProfile) ON DELETE CASCADE,
+    restriction character varying(255) NOT NULL,
+    createdDate timestamp with time zone NOT NULL default now(),
+    modifiedDate timestamp with time zone NOT NULL default now()
+);
+
 CREATE TABLE IF NOT EXISTS exam
 (
     idExam serial primary key,
