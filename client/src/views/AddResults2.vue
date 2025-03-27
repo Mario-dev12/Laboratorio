@@ -86,10 +86,18 @@
 						</div>
 					</div>
 				</div>
+				<div class="firma-sello" ref="firmaSello">
+					<div class="row justify-content-end">
+						<div class="sello-img col-4"><img class="h-100 w-100" src="/images/selloLab3.png" alt="" /></div>
+					</div>
+					<div class="row justify-content-end">
+						<div class="firma-img col-4"><img class="h-100 w-100" src="/images/firmaLab3.jpg" alt="" /></div>
+					</div>
+				</div>
 
 				<div class="row mb-3">
 					<button class="col btn btn-primary me-1" @click="guardarCambios">Guardar Cambios</button>
-					<button class="col btn btn-primary me-1" @click="generatePDF">Crear PDF</button>
+					<button class="col btn btn-primary me-1" @click="pdfWithoutSignature">Crear PDF</button>
 					<button class="col btn btn-primary me-1" @click="sendEmail">Enviar por Correo</button>
 					<button class="col btn btn-primary me-1" @click="sharePDFViaWhatsApp">Compartir PDF por WhatsApp</button>
 					<button class="col btn btn-primary me-1" @click="enviarCorreo">Compartir PDF por Mailto</button>
@@ -161,6 +169,7 @@
 	const year = today.getFullYear();
 	const profileName = ref();
 	const isOpen = ref(false);
+	const firmaSello = ref();
 
 	const toast = ref({
 		isOpen: false,
@@ -401,6 +410,7 @@
 	const generatePDF = async () => {
 		const profileRefCopy = profileRef.value.cloneNode(true);
 		const patientInfoDivCopy = profileRefCopy.querySelector(".patient-info");
+		const divFirmaSelloCopy = firmaSello.value.cloneNode(true);
 
 		const profileContentDivs = profileRefCopy.querySelectorAll(".profile-content");
 
@@ -408,7 +418,57 @@
 
 		profileContentDivs.forEach((item: any) => {
 			const childrenCopy = item.children[0].cloneNode(true);
-			childrenCopy.style.display = "block";
+			// childrenCopy.style.display = "block";
+
+			html += getHtmlWithInputValues(childrenCopy);
+		});
+		html += divFirmaSelloCopy.innerHTML;
+		const element = html;
+
+		const firstName = order.value.firstName;
+		const lastName = order.value.lastName;
+
+		const today = new Date();
+		const year = today.getFullYear();
+		const month = String(today.getMonth() + 1).padStart(2, "0");
+		const day = String(today.getDate()).padStart(2, "0");
+		const formattedDate = `${day}-${month}-${year}`;
+
+		const filename = `${lastName}_${firstName}_${formattedDate}.pdf`;
+		profileName.value = `${lastName}_${firstName}_${formattedDate}.pdf`;
+
+		const options = {
+			margin: 14,
+			filename: filename,
+			image: { type: "jpeg", quality: 0.98 },
+			html2canvas: { scale: 2 },
+			jsPDF: { unit: "mm", format: "letter", orientation: "portrait" },
+		};
+
+		pdfFileName.value = options.filename;
+
+		for (const orders of ordersArray.value) {
+			const data = {
+				id: orders.idOrder,
+				status: "Pendiente de enviar",
+			};
+			await ordersStore.updateStatusOrder(orders.idOrder, data);
+		}
+
+		html2pdf().from(element).set(options).save();
+		html = "";
+	};
+
+	// generar pdf sin firma y sello
+	const pdfWithoutSignature = async () => {
+		const profileRefCopy = profileRef.value.cloneNode(true);
+		const patientInfoDivCopy = profileRefCopy.querySelector(".patient-info");
+		const profileContentDivs = profileRefCopy.querySelectorAll(".profile-content");
+
+		html = patientInfoDivCopy.innerHTML;
+
+		profileContentDivs.forEach((item: any) => {
+			const childrenCopy = item.children[0].cloneNode(true);
 
 			html += getHtmlWithInputValues(childrenCopy);
 		});
@@ -712,5 +772,15 @@
 	ion-toast.warning {
 		--background: rgb(219, 248, 0);
 		--color: #323232;
+	}
+
+	.firma-img {
+		height: 100px;
+		width: 300px;
+	}
+
+	.sello-img {
+		height: 150px;
+		width: 300px;
 	}
 </style>
