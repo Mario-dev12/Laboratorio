@@ -91,7 +91,7 @@
 						<div class="sello-img col-4"><img class="h-100 w-100" src="/images/selloLab3.png" alt="" /></div>
 					</div>
 					<div class="row justify-content-end">
-						<div class="firma-img col-4"><img class="h-100 w-100" src="/images/firmaLab3.jpg" alt="" /></div>
+						<div class="firma-img col-4"><img class="h-100 w-100" style="margin-left: 25px;" src="/images/firmaLab3-sinfondo.png" alt="" /></div>
 					</div>
 				</div>
 
@@ -786,12 +786,12 @@
 	}
 
 	.firma-img {
-		height: 100px;
-		width: 300px;
+		height: 65px;
+		width: 180px;
 	}
 
 	.sello-img {
-		height: 150px;
-		width: 300px;
+		height: 50px;
+		width: 150px;
 	}
 </style>
