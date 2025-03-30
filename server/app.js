@@ -17,7 +17,7 @@ const app = express();
 // Middleware
 app.use(
 	cors({
-		origin: ["http://localhost:4200", "http://localhost:5173", "https://localhost:4200"],
+		origin: ["http://localhost:4200", "http://localhost:5173", "https://localhost:4200", "https://laboratorio-git-dev-mario-dev12s-projects.vercel.app", "https://laboratorio-2s3nj418p-mario-dev12s-projects.vercel.app"],
 		methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
 		optionsSuccessStatus: 204,
 		credentials: true,
