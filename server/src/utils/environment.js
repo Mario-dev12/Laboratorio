@@ -13,6 +13,7 @@ const env = {
 	PG_DB_PORT: process.env.PG_DB_PORT,
 	PG_DB_USER: process.env.PG_DB_USER,
 	PG_DB_PASSWORD: process.env.PG_DB_PASSWORD,
+	SSL: process.env.SSL,
 	ELASTIC_EMAIL_API_KEY: process.env.ELASTIC_EMAIL_API_KEY,
 	ELASTIC_EMAIL_API_KEY_HTTP: process.env.ELASTIC_EMAIL_API_KEY_HTTP,
 
