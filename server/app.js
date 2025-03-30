@@ -17,7 +17,7 @@ const app = express();
 // Middleware
 app.use(
 	cors({
-		origin: ["http://localhost:4200", "http://localhost:5173", "https://localhost:4200", "https://laboratorio-git-dev-mario-dev12s-projects.vercel.app", "https://laboratorio-2s3nj418p-mario-dev12s-projects.vercel.app", "https://laboratorio-5bk0y4nru-mario-dev12s-projects.vercel.app/", "https://laboratorio-phi.vercel.app", "https://laboratorio-rray.onrender.com/api", "https://laboratorio-rray.onrender.com"],
+		origin: ["http://localhost:4200", "http://localhost:5173", "https://localhost:4200", "https://laboratorio-git-dev-mario-dev12s-projects.vercel.app", "https://laboratorio-2s3nj418p-mario-dev12s-projects.vercel.app", "https://laboratorio-5bk0y4nru-mario-dev12s-projects.vercel.app/", "https://laboratorio-phi.vercel.app", "https://laboratorio-rray.onrender.com/api", "https://laboratorio-rray.onrender.com", "*"],
 		methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
 		optionsSuccessStatus: 204,
 		credentials: true,
