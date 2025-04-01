@@ -100,7 +100,14 @@
 						<div v-else>
 							<div v-for="(seccion, index) in secciones" :key="index" class="seccion mt-3">
 								<div class="d-flex align-items-center">
-									<input type="text" v-model="seccion.nombre" placeholder="Nombre de la sección" class="form-control mb-2" />
+									<input
+										v-if="seccion.nombre"
+										type="text"
+										v-model="seccion.nombre"
+										placeholder="Nombre de la sección"
+										class="form-control mb-2"
+										ref="nombreSeccion" />
+									<input v-else type="text" placeholder="Nombre de la sección" class="form-control mb-2" ref="nombreSeccion" />
 									<button @click="toggleExpand(index)" class="btn btn-link ms-2">
 										{{ seccion.expandida ? "Menos" : "Más" }}
 									</button>
@@ -110,6 +117,17 @@
 								</div>
 
 								<div v-if="seccion.expandida">
+									<div v-if="seccion.nueva" class="row">
+										<div class="col-12">
+											<label for="hematologia-completa">Hematologia Completa</label>
+											<input
+												class="my-auto"
+												name="hematologia-completa"
+												ref="completarHematologia"
+												type="checkbox"
+												@change="completarSeccion(seccion, index)" />
+										</div>
+									</div>
 									<div class="campos">
 										<table class="table table-striped text-center">
 											<thead>
@@ -319,6 +337,8 @@
 	const formula = ref("");
 	const formulaRestriccion = ref("");
 	const tasa = ref<number>(parseFloat(localStorage.getItem("tasaDolar") || "1"));
+	const completarHematologia = ref();
+	const nombreSeccion = ref();
 	const toast = ref({
 		isOpen: false,
 		message: "",
@@ -348,6 +368,7 @@
 		orden: number;
 		camposAgregados: number[];
 		camposEliminados: number[];
+		nueva?: boolean;
 	}
 
 	onMounted(async () => {
@@ -363,8 +384,29 @@
 		unidadesDeCampos.value = await tests.fecthProfilesInputUnits();
 	});
 
+	const completarSeccion = (seccion: any, index: number) => {
+		console.log(nombreSeccion.value);
+		if (completarHematologia.value[0].checked) {
+			console.log(seccion);
+			for (const section of secciones.value) {
+				console.log(section.nombre);
+				if (section.nombre === "Hematología completa") {
+					nombreSeccion.value[index].value = "Hematología completa";
+					console.log(nombreSeccion.value[index].value);
+					for (const campo of section.campos) {
+						seccion.campos.push(campo);
+					}
+				}
+			}
+			console.log(seccion);
+		} else {
+			seccion.campos = [];
+			nombreSeccion.value[index].value = "";
+		}
+	};
+
 	const updateCostBs = () => {
-		if (create) {
+		if (create.value) {
 			const costInDollars = parseFloat(costoDolaresPerfilNuevo.value.value) || 0;
 			const calculated = (costInDollars * tasa.value).toFixed(2);
 			costoBsPerfilNuevo.value.value = calculated.toString().replace(",", ".");
@@ -807,6 +849,7 @@
 	};
 
 	const agregarSeccion = () => {
+		console.log(secciones.value);
 		const todosCamposLlenos = secciones.value.every((seccion) => seccion.nombre.trim() !== "" && seccion.campos.length > 0);
 
 		if (!todosCamposLlenos) {
@@ -823,6 +866,7 @@
 			orden: secciones.value.length === 0 ? 1 : secciones.value.length + 1,
 			camposAgregados: [],
 			camposEliminados: [],
+			nueva: true,
 		};
 
 		secciones.value.push(nuevaSeccion);
