@@ -100,14 +100,7 @@
 						<div v-else>
 							<div v-for="(seccion, index) in secciones" :key="index" class="seccion mt-3">
 								<div class="d-flex align-items-center">
-									<input
-										v-if="seccion.nombre"
-										type="text"
-										v-model="seccion.nombre"
-										placeholder="Nombre de la sección"
-										class="form-control mb-2"
-										ref="nombreSeccion" />
-									<input v-else type="text" placeholder="Nombre de la sección" class="form-control mb-2" ref="nombreSeccion" />
+									<input type="text" v-model="seccion.nombre" placeholder="Nombre de la sección" class="form-control mb-2" />
 									<button @click="toggleExpand(index)" class="btn btn-link ms-2">
 										{{ seccion.expandida ? "Menos" : "Más" }}
 									</button>
@@ -125,7 +118,7 @@
 												name="hematologia-completa"
 												ref="completarHematologia"
 												type="checkbox"
-												@change="completarSeccion(seccion, index)" />
+												@change="completarSeccion(seccion)" />
 										</div>
 									</div>
 									<div class="campos">
@@ -338,7 +331,6 @@
 	const formulaRestriccion = ref("");
 	const tasa = ref<number>(parseFloat(localStorage.getItem("tasaDolar") || "1"));
 	const completarHematologia = ref();
-	const nombreSeccion = ref();
 	const toast = ref({
 		isOpen: false,
 		message: "",
@@ -384,15 +376,12 @@
 		unidadesDeCampos.value = await tests.fecthProfilesInputUnits();
 	});
 
-	const completarSeccion = (seccion: any, index: number) => {
-		console.log(nombreSeccion.value);
+	const completarSeccion = (seccion: any) => {
 		if (completarHematologia.value[0].checked) {
 			console.log(seccion);
 			for (const section of secciones.value) {
 				console.log(section.nombre);
 				if (section.nombre === "Hematología completa") {
-					nombreSeccion.value[index].value = "Hematología completa";
-					console.log(nombreSeccion.value[index].value);
 					for (const campo of section.campos) {
 						seccion.campos.push(campo);
 					}
@@ -401,7 +390,6 @@
 			console.log(seccion);
 		} else {
 			seccion.campos = [];
-			nombreSeccion.value[index].value = "";
 		}
 	};
 
