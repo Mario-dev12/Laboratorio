@@ -91,7 +91,9 @@
 						<div class="sello-img col-4"><img class="h-100 w-100" src="/images/selloLab3.png" alt="" /></div>
 					</div>
 					<div class="row justify-content-end">
-						<div class="firma-img col-4"><img class="h-100 w-100" style="margin-left: 25px;" src="/images/firmaLab3-sinfondo.png" alt="" /></div>
+						<div class="firma-img col-4">
+							<img class="h-100 w-100" style="margin-left: 25px" src="/images/firmaLab3-sinfondo.png" alt="" />
+						</div>
 					</div>
 				</div>
 
@@ -127,7 +129,7 @@
 	import { examStore } from "@/stores/examStore";
 	import { orderStore } from "@/stores/orderStore";
 	import { useRouter } from "vue-router";
-	import { Parser } from 'expr-eval'; 
+	import { Parser } from "expr-eval";
 	import { checkboxOutline } from "ionicons/icons";
 
 	interface Item {
@@ -629,55 +631,55 @@
 		}
 	};
 
-	const aplicarFormula = (formula: string, valores: { [x: string]: any }) => {  
-		const parser = new Parser();  
-		const evaluableFormula = formula.replace(/(\w+)/g, (match) => {  
-			if (valores.hasOwnProperty(match)) {  
-				return valores[match];  
-			}  
-			return match;  
-		});  
+	const aplicarFormula = (formula: string, valores: { [x: string]: any }) => {
+		const parser = new Parser();
+		const evaluableFormula = formula.replace(/(\w+)/g, (match) => {
+			if (valores.hasOwnProperty(match)) {
+				return valores[match];
+			}
+			return match;
+		});
 
-		try {  
-			if (!evaluableFormula.includes('undefined')) {  
-				return parser.evaluate(evaluableFormula);  
-			}  
-		} catch (error) {  
-			console.error('Error al evaluar la fórmula:', error);  
-			return null;  
-		}  
-	};  
+		try {
+			if (!evaluableFormula.includes("undefined")) {
+				return parser.evaluate(evaluableFormula);
+			}
+		} catch (error) {
+			console.error("Error al evaluar la fórmula:", error);
+			return null;
+		}
+	};
 
-	const aplicarRestriccion = (formula: string, valores: { [x: string]: any }) => {  
-		const parser = new Parser();  
-		const evaluableFormula = formula.replace(/(\w+)/g, (match) => {  
-			if (valores.hasOwnProperty(match)) {  
-				return valores[match];  
-			}  
-			return match;  
-		});  
+	const aplicarRestriccion = (formula: string, valores: { [x: string]: any }) => {
+		const parser = new Parser();
+		const evaluableFormula = formula.replace(/(\w+)/g, (match) => {
+			if (valores.hasOwnProperty(match)) {
+				return valores[match];
+			}
+			return match;
+		});
 
-		try {  
-			const equalSignIndex = evaluableFormula.indexOf('=');  
-			if (equalSignIndex !== -1) {  
-				const izquierda = evaluableFormula.slice(0, equalSignIndex);  
-				const derecha = evaluableFormula.slice(equalSignIndex + 1).trim();  
+		try {
+			const equalSignIndex = evaluableFormula.indexOf("=");
+			if (equalSignIndex !== -1) {
+				const izquierda = evaluableFormula.slice(0, equalSignIndex);
+				const derecha = evaluableFormula.slice(equalSignIndex + 1).trim();
 
-				const resultadoIzquierda = parser.evaluate(izquierda);  
-				const resultadoDerecha = parseFloat(derecha);  
+				const resultadoIzquierda = parser.evaluate(izquierda);
+				const resultadoDerecha = parseFloat(derecha);
 
-				if (resultadoIzquierda !== resultadoDerecha) {  
-					alert(`Error: la suma debe ser igual a ${resultadoDerecha}. Revise las entradas de los campos.`);  
-					return null;  
-				}  
+				if (resultadoIzquierda !== resultadoDerecha) {
+					alert(`Error: la suma debe ser igual a ${resultadoDerecha}. Revise las entradas de los campos.`);
+					return null;
+				}
 
-				return resultadoIzquierda;  
-			}  
-		} catch (error) {  
-			console.error('Error al evaluar la fórmula:', error);  
-			return null;  
-		}  
-	};  
+				return resultadoIzquierda;
+			}
+		} catch (error) {
+			console.error("Error al evaluar la fórmula:", error);
+			return null;
+		}
+	};
 
 	const calcularResultados = async (seccion: { resultado: any[] }) => {
 		const valores: Record<string, any> = {};
@@ -688,10 +690,10 @@
 			}
 		});
 
-		seccion.resultado.forEach((item: { calculado: string; valor: any, restricciones: any }, index: number) => {
+		seccion.resultado.forEach((item: { calculado: string; valor: any; restricciones: any }, index: number) => {
 			if (item.calculado) {
-				for (const restriccion of item.restricciones){
-					aplicarRestriccion(restriccion, valores)
+				for (const restriccion of item.restricciones) {
+					aplicarRestriccion(restriccion, valores);
 				}
 				item.valor = aplicarFormula(item.calculado, valores);
 

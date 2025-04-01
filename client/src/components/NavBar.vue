@@ -31,37 +31,34 @@
 					<ion-button class="border-end border-secondary" @click="() => router.push({ name: 'Caja' })">
 						<ion-icon slot="start" :icon="calculator"></ion-icon>
 						Caja
-					</ion-button> 
-					<div class="d-flex align-items-center">  
-						<h5 v-if="!showChangeDolar" class="text-success mb-0 fw-bold">Tasa Dolar: Bs: {{ precioDolar }}</h5> 
-						<input  
-							v-if="showChangeDolar"  
-							v-model.number="precioDolar"  
-							type="number"  
-							placeholder="Nuevo monto"  
-							@keyup.enter="cambiarPrecioDolar(precioDolar)"  
-							class="ms-2"   
-						/>  
-						
-						<i   
-							class="fas fa-edit ms-2 text-dark cursor-pointer"   
-							@click="showChangeDolar = !showChangeDolar"   
-							title="Editar tasa del dólar"></i>  
-						
-						<i  
-							v-if="showChangeDolar"  
-							class="fas fa-check accept-icon"  
-							@click="cambiarPrecioDolar(precioDolar)"  
-							style="cursor: pointer; margin-left: 10px;"  
-						></i>  
-						
-						<i  
-							v-if="showChangeDolar"  
-							class="fas fa-times reject-icon"  
-							@click="cancelarEdicion"  
-							style="cursor: pointer; margin-left: 10px;"  
-						></i>  
-					</div> 
+					</ion-button>
+					<div class="d-flex align-items-center ms-2">
+						<h5 v-if="!showChangeDolar" class="text-success mb-0 fw-bold">Tasa Dolar: Bs: {{ precioDolar }}</h5>
+						<input
+							v-if="showChangeDolar"
+							v-model.number="precioDolar"
+							type="number"
+							placeholder="Nuevo monto"
+							@keyup.enter="cambiarPrecioDolar(precioDolar)"
+							class="ms-2" />
+
+						<i
+							class="fas fa-edit ms-2 text-dark cursor-pointer"
+							@click="showChangeDolar = !showChangeDolar"
+							title="Editar tasa del dólar"></i>
+
+						<i
+							v-if="showChangeDolar"
+							class="fas fa-check accept-icon"
+							@click="cambiarPrecioDolar(precioDolar)"
+							style="cursor: pointer; margin-left: 10px"></i>
+
+						<i
+							v-if="showChangeDolar"
+							class="fas fa-times reject-icon"
+							@click="cancelarEdicion"
+							style="cursor: pointer; margin-left: 10px"></i>
+					</div>
 				</ion-buttons>
 			</ion-toolbar>
 		</ion-header>
@@ -103,36 +100,33 @@
 						<ion-icon slot="start" :icon="calculator"></ion-icon>
 						Caja
 					</ion-button>
-					<div class="d-flex align-items-center">  
-						<h5 v-if="!showChangeDolar" class="text-success mb-0 fw-bold">Tasa Dolar: Bs: {{ precioDolar }}</h5> 
-						<input  
-							v-if="showChangeDolar"  
-							v-model.number="precioDolar"  
-							type="number"  
-							placeholder="Nuevo monto"  
-							@keyup.enter="cambiarPrecioDolar(precioDolar)"  
-							class="ms-2"   
-						/>  
-						
-						<i   
-							class="fas fa-edit ms-2 text-dark cursor-pointer"   
-							@click="showChangeDolar = !showChangeDolar"   
-							title="Editar tasa del dólar"></i>  
-						
-						<i  
-							v-if="showChangeDolar"  
-							class="fas fa-check accept-icon"  
-							@click="cambiarPrecioDolar(precioDolar)"  
-							style="cursor: pointer; margin-left: 10px;"  
-						></i>  
-						
-						<i  
-							v-if="showChangeDolar"  
-							class="fas fa-times reject-icon"  
-							@click="cancelarEdicion"  
-							style="cursor: pointer; margin-left: 10px;"  
-						></i>  
-					</div> 
+					<div class="d-flex align-items-center justify-content-center">
+						<h5 v-if="!showChangeDolar" class="text-success mb-0 fw-bold">Tasa Dolar: Bs: {{ precioDolar }}</h5>
+						<input
+							v-if="showChangeDolar"
+							v-model.number="precioDolar"
+							type="number"
+							placeholder="Nuevo monto"
+							@keyup.enter="cambiarPrecioDolar(precioDolar)"
+							class="ms-2" />
+
+						<i
+							class="fas fa-edit ms-2 text-dark cursor-pointer"
+							@click="showChangeDolar = !showChangeDolar"
+							title="Editar tasa del dólar"></i>
+
+						<i
+							v-if="showChangeDolar"
+							class="fas fa-check accept-icon"
+							@click="cambiarPrecioDolar(precioDolar)"
+							style="cursor: pointer; margin-left: 10px"></i>
+
+						<i
+							v-if="showChangeDolar"
+							class="fas fa-times reject-icon"
+							@click="cancelarEdicion"
+							style="cursor: pointer; margin-left: 10px"></i>
+					</div>
 					<ion-menu-toggle class="mt-2">
 						<ion-button expand="block" color="danger">
 							<ion-icon slot="start" :icon="closeOutline"></ion-icon>
@@ -172,7 +166,7 @@
 	import { flask, home, document, closeOutline, calculator, create, copy, pencilSharp } from "ionicons/icons";
 	import { useRouter } from "vue-router";
 	import { onMounted, ref, watch } from "vue";
-	import eventBus from '../eventBus';
+	import eventBus from "../eventBus";
 
 	const router = useRouter();
 	const showChangeDolar = ref(false);
@@ -180,18 +174,18 @@
 	const cambioDolar = ref(precioDolar.value);
 	const nuevoMontoDolar = ref<number | null>(null);
 
-	onMounted(() => {   
-		eventBus.on("precioActualizado", handlePrecioActualizado);  
+	onMounted(() => {
+		eventBus.on("precioActualizado", handlePrecioActualizado);
 		precioDolar.value = Number(localStorage.getItem("tasaDolar")) || 50;
-	});  
+	});
 
-	function handlePrecioActualizado(nuevoPrecio: number) {  
-		precioDolar.value = nuevoPrecio;  
-	}  
+	function handlePrecioActualizado(nuevoPrecio: number) {
+		precioDolar.value = nuevoPrecio;
+	}
 
-	watch(precioDolar, (newVal) => {  
-		localStorage.setItem("tasaDolar", newVal.toString());  
-	});  
+	watch(precioDolar, (newVal) => {
+		localStorage.setItem("tasaDolar", newVal.toString());
+	});
 
 	const cambiarPrecioDolar = (nuevoPrecio: any) => {
 		const newPrice = Number(nuevoPrecio);
@@ -206,11 +200,11 @@
 		}
 	};
 
-	const cancelarEdicion = () => {  
-		showChangeDolar.value = false; 
-		precioDolar.value = Number(localStorage.getItem("tasaDolar")) 
-		nuevoMontoDolar.value = null;  
-	};  
+	const cancelarEdicion = () => {
+		showChangeDolar.value = false;
+		precioDolar.value = Number(localStorage.getItem("tasaDolar"));
+		nuevoMontoDolar.value = null;
+	};
 </script>
 
 <style scoped>

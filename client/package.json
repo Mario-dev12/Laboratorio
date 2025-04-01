@@ -26,9 +26,9 @@
 		"axios": "^1.7.9",
 		"bootstrap": "^5.3.3",
 		"electron": "^35.0.1",
+		"expr-eval": "^2.0.2",
 		"html2pdf.js": "^0.10.2",
 		"ionicons": "^7.4.0",
-		"expr-eval":"^2.0.2",
 		"pinia": "^2.2.8",
 		"vue": "^3.3.0",
 		"vue-router": "^4.2.0"

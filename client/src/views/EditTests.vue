@@ -67,7 +67,7 @@
 								type="text"
 								:placeholder="update ? selectedPerfil.cost_usd : 'Costo $'"
 								ref="costoDolaresPerfilNuevo"
-								@input="updateCostBs"  />
+								@input="updateCostBs" />
 							<input
 								v-else
 								class="col-12"
@@ -75,7 +75,7 @@
 								v-model="selectedPerfil.cost_usd"
 								:placeholder="create ? 'Costo $' : ''"
 								ref="costoDolaresPerfilNuevo"
-								@input="updateCostBs"  />
+								@input="updateCostBs" />
 						</div>
 						<div class="w-100 m-auto row px-2">
 							<label class="col-12 p-0" for="documento">Costo En Bolivares</label>
@@ -181,89 +181,84 @@
 						<label for="valorReferencial">Valores Referenciales</label>
 						<input type="text" placeholder="Valor Referencial" name="valorReferencial" ref="valorReferencial" />
 					</div>
-					<div class="w-100 m-auto row px-2 mb-3">  
-						<div class="col d-flex align-content-center">  
-							<p class="d-inline m-0 me-2">Campo Calculado</p>  
-							<input type="checkbox" v-model="isCampoCalculado" />  
-						</div>  
-					</div>  
-				 
-					<div class="w-100 m-auto row px-2 mb-3" v-if="isCampoCalculado">  
-						<label for="campoSelect">Seleccionar Campo</label>  
-						<div class="d-flex mb-3">  
-							<select v-model="campoSeleccionado">  
-								<option value="">Seleccionar Campo</option>  
-								<option v-for="campo in camposExistentes" :key="campo.idCampo" :value="campo.nombre">{{ campo.nombre }}</option>  
-							</select>  
-							<button class="btn btn-primary ms-2" @click="agregarCampoAFormula">Agregar</button>  
-						</div>  
-						<div class="w-100 m-auto row px-2 mb-3">  
-							<label for="formula">Fórmula</label>  
-							<input type="text" v-model="formula" placeholder="Construir fórmula..." />  
-							<small class="form-text text-muted">Ejemplo: Campo1 + 10</small>  
-						</div>  
-					</div>  
+					<div class="w-100 m-auto row px-2 mb-3">
+						<div class="col d-flex align-content-center">
+							<p class="d-inline m-0 me-2">Campo Calculado</p>
+							<input type="checkbox" v-model="isCampoCalculado" />
+						</div>
+					</div>
+
+					<div class="w-100 m-auto row px-2 mb-3" v-if="isCampoCalculado">
+						<label for="campoSelect">Seleccionar Campo</label>
+						<div class="d-flex mb-3">
+							<select v-model="campoSeleccionado">
+								<option value="">Seleccionar Campo</option>
+								<option v-for="campo in camposExistentes" :key="campo.idCampo" :value="campo.nombre">{{ campo.nombre }}</option>
+							</select>
+							<button class="btn btn-primary ms-2" @click="agregarCampoAFormula">Agregar</button>
+						</div>
+						<div class="w-100 m-auto row px-2 mb-3">
+							<label for="formula">Fórmula</label>
+							<input type="text" v-model="formula" placeholder="Construir fórmula..." />
+							<small class="form-text text-muted">Ejemplo: Campo1 + 10</small>
+						</div>
+					</div>
 					<div class="d-flex justify-content-center">
 						<button class="btn btn-primary" @click="createCampo">Crear Campo</button>
 					</div>
 				</div>
-				<div class="agregar-restriccion bg-dark-subtle rounded p-3 mb-3" v-if="crearRestriccion" ref="edicionRestriccion">  
-					<div class="w-100 m-auto row mb-3">  
-						<label for="restriccionList">Lista de Restricciones</label> 
-						<div v-if="restriction.length === 0">No hay restricciones</div>  
-							<span v-for="restriccion in restriction" :key="restriccion.idRestriction">  
-								<span v-if="!restriccion.editando">{{ restriccion.restriction }}</span>  
-								<input  
-									v-if="restriccion.editando"  
-									v-model="restriccion.nuevaRestriccion"  
-									type="text"  
-									placeholder="Editar restricción..."  
-									@keyup.enter="actualizarRestriccion(restriccion)"  
-									class="ms-2"  
-								/>  
-								<i  
-									v-if="!restriccion.editando"  
-									class="fas fa-edit ms-2 text-dark"  
-									@click="editarRestriccion(restriccion)"  
-									title="Editar restricción"  
-									style="cursor: pointer"  
-								></i>  
-								<i  
-									v-if="restriccion.editando"  
-									class="fas fa-check accept-icon"  
-									@click="actualizarRestriccion(restriccion)"  
-									style="cursor: pointer; margin-left: 10px"  
-								></i>  
-								<i  
-									v-if="restriccion.editando"  
-									class="fas fa-times reject-icon"  
-									@click="cancelarEdicion(restriccion)"  
-									style="cursor: pointer; margin-left: 10px"  
-								></i>  
-								<i  
-									class="fas fa-trash"  
-									style="cursor: pointer; margin-left: 8px;"  
-									@click="deleteRestriccion(restriccion.idRestriction)"  
-								></i>    
-							</span>
-					</div>  
-					<label class="d-flex px-2" for="campoSelect">Seleccionar Campo</label>  
-					<div class="d-flex px-2 mb-3">  
-						<select v-model="campoSeleccionado">  
-							<option value="">Seleccionar Campo</option>  
-							<option v-for="campo in camposExistentes" :key="campo.idCampo" :value="campo.nombre">{{ campo.nombre }}</option>  
-						</select>  
-						<button class="btn btn-primary ms-2" @click="agregarCampoARestriccion">Agregar</button>  
-					</div> 
-					<label class="w-100 m-auto px-2" for="formula">Restricción</label> 
-					<div class="w-100 m-auto row px-2 mb-3">    
-						<input type="text" v-model="formulaRestriccion" placeholder="Construir restricción..." />  
-						<small class="form-text text-muted">Ejemplo: Campo1 - 5 = 100</small>  
-					</div>  
+				<div class="agregar-restriccion bg-dark-subtle rounded p-3 mb-3" v-if="crearRestriccion" ref="edicionRestriccion">
+					<div class="w-100 m-auto row mb-3">
+						<label for="restriccionList">Lista de Restricciones</label>
+						<div v-if="restriction.length === 0">No hay restricciones</div>
+						<span v-for="restriccion in restriction" :key="restriccion.idRestriction">
+							<span v-if="!restriccion.editando">{{ restriccion.restriction }}</span>
+							<input
+								v-if="restriccion.editando"
+								v-model="restriccion.nuevaRestriccion"
+								type="text"
+								placeholder="Editar restricción..."
+								@keyup.enter="actualizarRestriccion(restriccion)"
+								class="ms-2" />
+							<i
+								v-if="!restriccion.editando"
+								class="fas fa-edit ms-2 text-dark"
+								@click="editarRestriccion(restriccion)"
+								title="Editar restricción"
+								style="cursor: pointer"></i>
+							<i
+								v-if="restriccion.editando"
+								class="fas fa-check accept-icon"
+								@click="actualizarRestriccion(restriccion)"
+								style="cursor: pointer; margin-left: 10px"></i>
+							<i
+								v-if="restriccion.editando"
+								class="fas fa-times reject-icon"
+								@click="cancelarEdicion(restriccion)"
+								style="cursor: pointer; margin-left: 10px"></i>
+							<i
+								class="fas fa-trash"
+								style="cursor: pointer; margin-left: 8px"
+								@click="deleteRestriccion(restriccion.idRestriction)"></i>
+						</span>
+					</div>
+					<label class="d-flex px-2" for="campoSelect">Seleccionar Campo</label>
+					<div class="d-flex px-2 mb-3">
+						<select v-model="campoSeleccionado">
+							<option value="">Seleccionar Campo</option>
+							<option v-for="campo in camposExistentes" :key="campo.idCampo" :value="campo.nombre">{{ campo.nombre }}</option>
+						</select>
+						<button class="btn btn-primary ms-2" @click="agregarCampoARestriccion">Agregar</button>
+					</div>
+					<label class="w-100 m-auto px-2" for="formula">Restricción</label>
+					<div class="w-100 m-auto row px-2 mb-3">
+						<input type="text" v-model="formulaRestriccion" placeholder="Construir restricción..." />
+						<small class="form-text text-muted">Ejemplo: Campo1 - 5 = 100</small>
+					</div>
 					<div class="d-flex justify-content-center">
 						<button class="btn btn-primary" @click="createRestriccion">Crear Restricción</button>
 					</div>
-				</div> 
+				</div>
 			</div>
 			<ion-toast
 				:class="toast.class"
@@ -284,7 +279,7 @@
 	import { restrictionStore } from "@/stores/restrictionStore";
 	import { Profile, Campo, Unit } from "@/interfaces/interfaces";
 	import { checkboxOutline, closeCircleOutline, alertCircleOutline } from "ionicons/icons";
-	import eventBus from '../eventBus';
+	import eventBus from "../eventBus";
 
 	const perfilName = ref();
 	const selectedPerfil = ref();
@@ -319,11 +314,11 @@
 	const isOpen = ref(false);
 	const idCamposAgregados = ref<number[]>([]);
 	const idCamposEliminados = ref<number[]>([]);
-	const isCampoCalculado = ref(false); 
-	const campoSeleccionado = ref('');
-	const formula = ref('');
-	const formulaRestriccion = ref('');
-	const tasa = ref<number>(parseFloat(localStorage.getItem('tasaDolar') || '1'));   
+	const isCampoCalculado = ref(false);
+	const campoSeleccionado = ref("");
+	const formula = ref("");
+	const formulaRestriccion = ref("");
+	const tasa = ref<number>(parseFloat(localStorage.getItem("tasaDolar") || "1"));
 	const toast = ref({
 		isOpen: false,
 		message: "",
@@ -359,38 +354,38 @@
 		eventBus.on("precioActualizado", handlePrecioActualizado);
 		tasa.value = Number(localStorage.getItem("tasaDolar")) || 50;
 		perfiles.value = await tests.fecthProfiles();
-		perfiles.value.forEach(perfil => {  
+		perfiles.value.forEach((perfil) => {
 			const costUsd = parseFloat(perfil.cost_usd);
-			const costBs = (costUsd * tasa.value).toFixed(2); 
-			perfil.cost_bs = costBs.toString().replace(',', '.');
-		}); 
+			const costBs = (costUsd * tasa.value).toFixed(2);
+			perfil.cost_bs = costBs.toString().replace(",", ".");
+		});
 		camposExistentes.value = await tests.fecthProfilesInputs();
-		unidadesDeCampos.value = await tests.fecthProfilesInputUnits();  
+		unidadesDeCampos.value = await tests.fecthProfilesInputUnits();
 	});
 
 	const updateCostBs = () => {
-		if (create){
-			const costInDollars = parseFloat(costoDolaresPerfilNuevo.value.value) || 0; 
+		if (create) {
+			const costInDollars = parseFloat(costoDolaresPerfilNuevo.value.value) || 0;
 			const calculated = (costInDollars * tasa.value).toFixed(2);
-			costoBsPerfilNuevo.value.value = calculated.toString().replace(',', '.');
-		}  else {
-			const costInDollars = parseFloat(selectedPerfil.value.cost_usd) || 0; 
+			costoBsPerfilNuevo.value.value = calculated.toString().replace(",", ".");
+		} else {
+			const costInDollars = parseFloat(selectedPerfil.value.cost_usd) || 0;
 			const calculated = (costInDollars * tasa.value).toFixed(2);
-			selectedPerfil.value.cost_bs = calculated.toString().replace(',', '.');
+			selectedPerfil.value.cost_bs = calculated.toString().replace(",", ".");
 		}
-	}; 
+	};
 
-	watch(tasa, () => {  
-		perfiles.value.forEach(perfil => {  
+	watch(tasa, () => {
+		perfiles.value.forEach((perfil) => {
 			const costUsd = parseFloat(perfil.cost_usd);
-			const costBs = (costUsd * tasa.value).toFixed(2); 
-			perfil.cost_bs = costBs.toString().replace(',', '.');
-		});  
+			const costBs = (costUsd * tasa.value).toFixed(2);
+			perfil.cost_bs = costBs.toString().replace(",", ".");
+		});
 	});
 
-	function handlePrecioActualizado(nuevoPrecio: number) {  
-		tasa.value = nuevoPrecio;  
-	}  
+	function handlePrecioActualizado(nuevoPrecio: number) {
+		tasa.value = nuevoPrecio;
+	}
 
 	const setOpen = (state: boolean) => {
 		isOpen.value = state;
@@ -508,8 +503,8 @@
 					if (restricciones.value.length) {
 						const data = {
 							idProfile: selectedPerfil.value.idProfile,
-							restriction: restricciones.value
-						}
+							restriction: restricciones.value,
+						};
 						await restrictions.createRestriction(data);
 					}
 
@@ -564,13 +559,13 @@
 					update.value = false;
 					crearCampo.value = false;
 					perfiles.value = await tests.fecthProfiles();
-					perfiles.value.forEach(perfil => {  
+					perfiles.value.forEach((perfil) => {
 						const costUsd = parseFloat(perfil.cost_usd);
-						const costBs = (costUsd * tasa.value).toFixed(2); 
-						perfil.cost_bs = costBs.toString().replace(',', '.');
-					}); 
+						const costBs = (costUsd * tasa.value).toFixed(2);
+						perfil.cost_bs = costBs.toString().replace(",", ".");
+					});
 					camposExistentes.value = await tests.fecthProfilesInputs();
-					unidadesDeCampos.value = await tests.fecthProfilesInputUnits(); 
+					unidadesDeCampos.value = await tests.fecthProfilesInputUnits();
 				}
 			}
 		}
@@ -657,54 +652,56 @@
 					camposExistentes.value.unshift(dataCampoNuevo);
 					nombreCampo.value.value = "";
 					valorReferencial.value.value = "";
-					formula.value = ""
-					isCampoCalculado.value = false
+					formula.value = "";
+					isCampoCalculado.value = false;
 				}
 			}
 		}
 		crearCampo.value = !crearCampo.value;
 	};
 
-	const createRestriccion = () => {  
-		const dataCampoNuevo = {  
-			idCampo: 0,  
-			nombre: "",  
-			restriction: "",  
-			unidad: "",  
-			valor_referencial: "",  
-			calculado: "",  
-			checked: true,  
-			seleccionado: false,  
-		};  
+	const createRestriccion = () => {
+		const dataCampoNuevo = {
+			idCampo: 0,
+			nombre: "",
+			restriction: "",
+			unidad: "",
+			valor_referencial: "",
+			calculado: "",
+			checked: true,
+			seleccionado: false,
+		};
 
-		if (!formulaRestriccion.value) {  
-			alert("Por Favor Completar Datos De La Restricción");  
-		} else {   
+		if (!formulaRestriccion.value) {
+			alert("Por Favor Completar Datos De La Restricción");
+		} else {
 			const regexValidacion = /=\s*\d+/;
-			if (!regexValidacion.test(formulaRestriccion.value)) {  
-				alert("No se puede guardar una restricción sin un '=' y un número.");  
-			} else {  
-				if (restriction.value) {  
-					if (restriction.value.some((campo: { restriction: string; }) => {  
-						return campo.restriction.trim() === formulaRestriccion.value.trim();  
-					})) {  
-						alert("Ya Existe Una Restricción Con Esa Fórmula");  
-					} else {  
-						dataCampoNuevo.restriction = formulaRestriccion.value;  
-						restricciones.value.push(dataCampoNuevo);  
-						restriction.value.unshift(dataCampoNuevo);  
-						formulaRestriccion.value = "";  
-					}  
-				} else {  
-					dataCampoNuevo.restriction = formulaRestriccion.value;  
-					restricciones.value.push(dataCampoNuevo);  
-					formulaRestriccion.value = "";  
-				}  
-			}  
-		}  
+			if (!regexValidacion.test(formulaRestriccion.value)) {
+				alert("No se puede guardar una restricción sin un '=' y un número.");
+			} else {
+				if (restriction.value) {
+					if (
+						restriction.value.some((campo: { restriction: string }) => {
+							return campo.restriction.trim() === formulaRestriccion.value.trim();
+						})
+					) {
+						alert("Ya Existe Una Restricción Con Esa Fórmula");
+					} else {
+						dataCampoNuevo.restriction = formulaRestriccion.value;
+						restricciones.value.push(dataCampoNuevo);
+						restriction.value.unshift(dataCampoNuevo);
+						formulaRestriccion.value = "";
+					}
+				} else {
+					dataCampoNuevo.restriction = formulaRestriccion.value;
+					restricciones.value.push(dataCampoNuevo);
+					formulaRestriccion.value = "";
+				}
+			}
+		}
 
-		crearRestriccion.value = !crearRestriccion.value;  
-	};  
+		crearRestriccion.value = !crearRestriccion.value;
+	};
 
 	async function crearPerfil() {
 		if (!nombrePerfilNuevo.value.value || !costoBsPerfilNuevo.value.value || !costoDolaresPerfilNuevo.value.value) {
@@ -759,7 +756,7 @@
 							nombre,
 							unidad,
 							valor_referencial: valor_referencial,
-							calculado: calculado
+							calculado: calculado,
 						}))
 					);
 					const datosFiltrados = secciones.value.filter(
@@ -771,8 +768,8 @@
 					if (restricciones.value.length) {
 						const data = {
 							idProfile: resp.id,
-							restriction: restricciones.value
-						}
+							restriction: restricciones.value,
+						};
 						await restrictions.createRestriction(data);
 					}
 					perfiles.value = await tests.fecthProfiles();
@@ -901,55 +898,55 @@
 		}
 	};
 
-	const agregarCampoAFormula = () => {  
-		if (campoSeleccionado.value) {    
-			if (formula.value) {  
-				formula.value += '' + campoSeleccionado.value;  
-			} else {  
-				formula.value = campoSeleccionado.value; 
-			}  
-			campoSeleccionado.value = ''; 
-		}  
-	};  
+	const agregarCampoAFormula = () => {
+		if (campoSeleccionado.value) {
+			if (formula.value) {
+				formula.value += "" + campoSeleccionado.value;
+			} else {
+				formula.value = campoSeleccionado.value;
+			}
+			campoSeleccionado.value = "";
+		}
+	};
 
-	const agregarCampoARestriccion = () => {  
-		if (campoSeleccionado.value) {   
-			if (formulaRestriccion.value) {  
-				formulaRestriccion.value += '' + campoSeleccionado.value;  
-			} else {  
-				formulaRestriccion.value = campoSeleccionado.value;  
-			}  
-			campoSeleccionado.value = ''; 
-		}  
+	const agregarCampoARestriccion = () => {
+		if (campoSeleccionado.value) {
+			if (formulaRestriccion.value) {
+				formulaRestriccion.value += "" + campoSeleccionado.value;
+			} else {
+				formulaRestriccion.value = campoSeleccionado.value;
+			}
+			campoSeleccionado.value = "";
+		}
 	};
 
 	const deleteRestriccion = async (id: number | string) => {
-		await restrictions.deleteRestriction(id)
+		await restrictions.deleteRestriction(id);
 		restriction.value = await restrictions.fetchRestrictionById(selectedPerfil.value.idProfile);
 		showToast("Restricción borrada", "creado", checkboxOutline);
 	};
 
-	async function cancelarEdicion(restriccion: { editando: boolean; }) {  
-		restriccion.editando = false; 
-	}  
+	async function cancelarEdicion(restriccion: { editando: boolean }) {
+		restriccion.editando = false;
+	}
 
-	async function actualizarRestriccion(restriccion: { restriction: any; nuevaRestriccion: any; editando: boolean; }) {  
+	async function actualizarRestriccion(restriccion: { restriction: any; nuevaRestriccion: any; editando: boolean }) {
 		restriccion.restriction = restriccion.nuevaRestriccion;
-		restriccion.editando = false; 
+		restriccion.editando = false;
 		const data = {
 			idProfile: selectedPerfil.value.idProfile,
-			restriction: restriccion.restriction
-		}
+			restriction: restriccion.restriction,
+		};
 		await restrictions.updateRestriction(selectedPerfil.value.idProfile, data);
 		restriction.value = await restrictions.fetchRestrictionById(selectedPerfil.value.idProfile);
 		showToast("Restricción actualizada", "creado", checkboxOutline);
-	} 
+	}
 
-	async function editarRestriccion(restriccion: { editando: boolean; nuevaRestriccion: any; restriction: any; }) {  
-		restriccion.editando = true;  
-		restriccion.nuevaRestriccion = restriccion.restriction; 
-	}  
-	</script>
+	async function editarRestriccion(restriccion: { editando: boolean; nuevaRestriccion: any; restriction: any }) {
+		restriccion.editando = true;
+		restriccion.nuevaRestriccion = restriccion.restriction;
+	}
+</script>
 
 <style scoped>
 	.perfiles:not(:last-child) {
