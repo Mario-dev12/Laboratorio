@@ -110,6 +110,17 @@
 								</div>
 
 								<div v-if="seccion.expandida">
+									<div v-if="seccion.nueva" class="row">
+										<div class="col-12">
+											<label for="hematologia-completa">Hematologia Completa</label>
+											<input
+												class="my-auto"
+												name="hematologia-completa"
+												ref="completarHematologia"
+												type="checkbox"
+												@change="completarSeccion(seccion)" />
+										</div>
+									</div>
 									<div class="campos">
 										<table class="table table-striped text-center">
 											<thead>
@@ -319,6 +330,7 @@
 	const formula = ref("");
 	const formulaRestriccion = ref("");
 	const tasa = ref<number>(parseFloat(localStorage.getItem("tasaDolar") || "1"));
+	const completarHematologia = ref();
 	const toast = ref({
 		isOpen: false,
 		message: "",
@@ -348,6 +360,7 @@
 		orden: number;
 		camposAgregados: number[];
 		camposEliminados: number[];
+		nueva?: boolean;
 	}
 
 	onMounted(async () => {
@@ -363,8 +376,25 @@
 		unidadesDeCampos.value = await tests.fecthProfilesInputUnits();
 	});
 
+	const completarSeccion = (seccion: any) => {
+		if (completarHematologia.value[0].checked) {
+			console.log(seccion);
+			for (const section of secciones.value) {
+				console.log(section.nombre);
+				if (section.nombre === "Hematología completa") {
+					for (const campo of section.campos) {
+						seccion.campos.push(campo);
+					}
+				}
+			}
+			console.log(seccion);
+		} else {
+			seccion.campos = [];
+		}
+	};
+
 	const updateCostBs = () => {
-		if (create) {
+		if (create.value) {
 			const costInDollars = parseFloat(costoDolaresPerfilNuevo.value.value) || 0;
 			const calculated = (costInDollars * tasa.value).toFixed(2);
 			costoBsPerfilNuevo.value.value = calculated.toString().replace(",", ".");
@@ -807,6 +837,7 @@
 	};
 
 	const agregarSeccion = () => {
+		console.log(secciones.value);
 		const todosCamposLlenos = secciones.value.every((seccion) => seccion.nombre.trim() !== "" && seccion.campos.length > 0);
 
 		if (!todosCamposLlenos) {
@@ -823,6 +854,7 @@
 			orden: secciones.value.length === 0 ? 1 : secciones.value.length + 1,
 			camposAgregados: [],
 			camposEliminados: [],
+			nueva: true,
 		};
 
 		secciones.value.push(nuevaSeccion);
