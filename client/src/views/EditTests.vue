@@ -66,14 +66,16 @@
 								class="col-12"
 								type="text"
 								:placeholder="update ? selectedPerfil.cost_usd : 'Costo $'"
-								ref="costoDolaresPerfilNuevo" />
+								ref="costoDolaresPerfilNuevo"
+								@input="updateCostBs" />
 							<input
 								v-else
 								class="col-12"
 								type="text"
 								v-model="selectedPerfil.cost_usd"
 								:placeholder="create ? 'Costo $' : ''"
-								ref="costoDolaresPerfilNuevo" />
+								ref="costoDolaresPerfilNuevo"
+								@input="updateCostBs" />
 						</div>
 						<div class="w-100 m-auto row px-2">
 							<label class="col-12 p-0" for="documento">Costo En Bolivares</label>
@@ -272,11 +274,12 @@
 
 <script setup lang="ts">
 	import { IonContent, IonPage, IonButton, IonToast } from "@ionic/vue";
-	import { onMounted, ref, nextTick } from "vue";
+	import { onMounted, ref, nextTick, watch } from "vue";
 	import { profileStore } from "@/stores/profileStore";
 	import { restrictionStore } from "@/stores/restrictionStore";
 	import { Profile, Campo, Unit } from "@/interfaces/interfaces";
 	import { checkboxOutline, closeCircleOutline, alertCircleOutline } from "ionicons/icons";
+	import eventBus from "../eventBus";
 
 	const perfilName = ref();
 	const selectedPerfil = ref();
@@ -315,6 +318,7 @@
 	const campoSeleccionado = ref("");
 	const formula = ref("");
 	const formulaRestriccion = ref("");
+	const tasa = ref<number>(parseFloat(localStorage.getItem("tasaDolar") || "1"));
 	const toast = ref({
 		isOpen: false,
 		message: "",
@@ -347,10 +351,41 @@
 	}
 
 	onMounted(async () => {
+		eventBus.on("precioActualizado", handlePrecioActualizado);
+		tasa.value = Number(localStorage.getItem("tasaDolar")) || 50;
 		perfiles.value = await tests.fecthProfiles();
+		perfiles.value.forEach((perfil) => {
+			const costUsd = parseFloat(perfil.cost_usd);
+			const costBs = (costUsd * tasa.value).toFixed(2);
+			perfil.cost_bs = costBs.toString().replace(",", ".");
+		});
 		camposExistentes.value = await tests.fecthProfilesInputs();
 		unidadesDeCampos.value = await tests.fecthProfilesInputUnits();
 	});
+
+	const updateCostBs = () => {
+		if (create) {
+			const costInDollars = parseFloat(costoDolaresPerfilNuevo.value.value) || 0;
+			const calculated = (costInDollars * tasa.value).toFixed(2);
+			costoBsPerfilNuevo.value.value = calculated.toString().replace(",", ".");
+		} else {
+			const costInDollars = parseFloat(selectedPerfil.value.cost_usd) || 0;
+			const calculated = (costInDollars * tasa.value).toFixed(2);
+			selectedPerfil.value.cost_bs = calculated.toString().replace(",", ".");
+		}
+	};
+
+	watch(tasa, () => {
+		perfiles.value.forEach((perfil) => {
+			const costUsd = parseFloat(perfil.cost_usd);
+			const costBs = (costUsd * tasa.value).toFixed(2);
+			perfil.cost_bs = costBs.toString().replace(",", ".");
+		});
+	});
+
+	function handlePrecioActualizado(nuevoPrecio: number) {
+		tasa.value = nuevoPrecio;
+	}
 
 	const setOpen = (state: boolean) => {
 		isOpen.value = state;
@@ -523,6 +558,14 @@
 					showToast("Perfil actualizado exitosamente!", "creado", checkboxOutline);
 					update.value = false;
 					crearCampo.value = false;
+					perfiles.value = await tests.fecthProfiles();
+					perfiles.value.forEach((perfil) => {
+						const costUsd = parseFloat(perfil.cost_usd);
+						const costBs = (costUsd * tasa.value).toFixed(2);
+						perfil.cost_bs = costBs.toString().replace(",", ".");
+					});
+					camposExistentes.value = await tests.fecthProfilesInputs();
+					unidadesDeCampos.value = await tests.fecthProfilesInputUnits();
 				}
 			}
 		}
@@ -535,6 +578,7 @@
 		create.value = true;
 		update.value = false;
 		crearCampo.value = false;
+		restriction.value = [];
 		await nextTick();
 		nombrePerfilNuevo.value.value = "";
 		costoBsPerfilNuevo.value.value = "";
@@ -711,7 +755,7 @@
 						seccion.campos.map(({ nombre, unidad, valor_referencial, calculado }) => ({
 							nombre,
 							unidad,
-							referencial: valor_referencial,
+							valor_referencial: valor_referencial,
 							calculado: calculado,
 						}))
 					);
