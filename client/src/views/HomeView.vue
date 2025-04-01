@@ -1,19 +1,15 @@
 <template>
 	<ion-page>
 		<ion-content>
-			<div class="home-page">
-				<div :style="{ backgroundImage: `url(${backgroundImage})` }" class="background-image">
-				</div>
+			<div class="home-page text-center">
+				<img class="background-image" src="/images/icono.png" alt="" />
 			</div>
 		</ion-content>
 	</ion-page>
 </template>
 
 <script setup lang="ts">
-	import { ref } from "vue";
 	import { IonContent, IonPage } from "@ionic/vue";
-
-	const backgroundImage = ref("./images/laboratorio.png");
 </script>
 
 <style scoped>
@@ -21,17 +17,11 @@
 		position: relative;
 		height: 90vh;
 		overflow: hidden;
+		padding-top: 10px;
 	}
 
 	.background-image {
-		background-size: cover;
 		height: 100%;
-		display: flex;
-		align-items: center;
-		justify-content: center;
-		color: white;
-		text-align: center;
-		width: auto;
 	}
 
 	h1 {
