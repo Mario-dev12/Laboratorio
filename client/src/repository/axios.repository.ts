@@ -92,6 +92,11 @@ class AxiosRepository {
 		return response.data;
 	}
 
+	async getBySectionName<T>(domain: string, name: string): Promise<T> {
+		const response = await axios.get<T>(`${import.meta.env.VITE_API_URL}/${domain}/inputbysection/${name}`);
+		return response.data;
+	}
+
 	async getInputsByProfileName<T>(domain: string, name: string): Promise<T> {
 		const response = await axios.get<T>(`${import.meta.env.VITE_API_URL}/${domain}/inputresults/${name}`);
 		return response.data;

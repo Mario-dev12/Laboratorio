@@ -136,6 +136,15 @@ profileRepository.readInputsResults = async (name) => {
 	}
 };
 
+profileRepository.readInputsbySectionName = async (name) => {
+	try {
+		const resp = await pool.query(`SELECT * FROM sp_find_all_section_inputs_by_name('${name}')`);
+		return resp.rows[0].sp_find_all_section_inputs_by_name;
+	} catch (error) {
+		throw error;
+	}
+};
+
 profileRepository.readInputsResults2 = async (name, id) => {
 	try {
 		const resp = await pool.query(`SELECT * FROM obtener_perfil_con_resultados('${name}', ${id})`);
