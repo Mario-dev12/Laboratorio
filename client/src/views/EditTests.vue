@@ -118,7 +118,13 @@
 												name="hematologia-completa"
 												ref="completarHematologia"
 												type="checkbox"
-												@change="completarSeccion(seccion)" />
+												value="Hematología completa"
+												@change="
+													(e) => {
+														completarSeccion(e, seccion);
+														completarNombreSeccion(e, seccion);
+													}
+												" />
 										</div>
 									</div>
 									<div class="campos">
@@ -376,22 +382,22 @@
 		unidadesDeCampos.value = await tests.fecthProfilesInputUnits();
 	});
 
-	const completarSeccion = (seccion: any) => {
-		if (completarHematologia.value[0].checked) {
-			console.log(seccion);
-			for (const section of secciones.value) {
-				console.log(section.nombre);
-				if (section.nombre === "Hematología completa") {
-					for (const campo of section.campos) {
-						seccion.campos.push(campo);
-					}
-				}
-			}
-			console.log(seccion);
+	const completarSeccion = async (event: any, seccion: any) => {
+		if (event.target.checked) {
+			const sectionFields = await tests.fetchSectionByName(event.target.value);
+			seccion.campos = sectionFields;
 		} else {
 			seccion.campos = [];
 		}
 	};
+
+	function completarNombreSeccion(event: any, seccion: any) {
+		if (event.target.checked) {
+			seccion.nombre = event.target.value;
+		} else {
+			seccion.nombre = "";
+		}
+	}
 
 	const updateCostBs = () => {
 		if (create.value) {
@@ -837,7 +843,6 @@
 	};
 
 	const agregarSeccion = () => {
-		console.log(secciones.value);
 		const todosCamposLlenos = secciones.value.every((seccion) => seccion.nombre.trim() !== "" && seccion.campos.length > 0);
 
 		if (!todosCamposLlenos) {
