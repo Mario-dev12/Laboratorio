@@ -50,6 +50,12 @@ export const profileStore = defineStore("profile", {
 			this.profiles = response;
 			return this.profiles;
 		},
+		//Es esta lo de hematología
+		async fetchSectionByName(name: string) {
+			const response = await axiosRepository.getBySectionName<Profile>("profile", name);
+			this.profiles = response;
+			return this.profiles;
+		},
 		async fetchProfileByInputsName(name: string) {
 			const response = await axiosRepository.getInputsByProfileName<Profile>("profile", name);
 			this.profiles = response;

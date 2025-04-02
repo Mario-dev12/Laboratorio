@@ -2820,3 +2820,33 @@ EXCEPTION
         RAISE EXCEPTION 'Error al obtener el perfil: %', SQLERRM;  
 END;  
 $BODY$;
+
+CREATE OR REPLACE FUNCTION sp_find_all_section_inputs_by_name(
+	p_name character varying
+	)
+    RETURNS json[]
+    LANGUAGE 'plpgsql'
+    COST 100
+    VOLATILE PARALLEL UNSAFE
+AS $BODY$
+declare 
+	v_json_resp json[];
+begin
+	select array(
+        select jsonb_build_object(
+			'idCampo', a.idCampo,
+			'nombre', a.nombre,
+            'unidad', a.unidad,
+			'valor_referencial', a.valor_referencial,
+			'calculado', a.calculado,
+			'createdDate', a.createdDate,
+            'modifiedDate', a.modifiedDate
+		)
+		from division_campo dc, perfil_division pd, campo a
+		where dc.iddivision = pd.iddivision
+		and a.idcampo = dc.idcampo
+		and pd.nombre = p_name
+        ) ::json[] into v_json_resp;
+		return v_json_resp;
+end;
+$BODY$;
