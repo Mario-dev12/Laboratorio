@@ -382,17 +382,10 @@
 		unidadesDeCampos.value = await tests.fecthProfilesInputUnits();
 	});
 
-	const completarSeccion = (event: any, seccion: any) => {
+	const completarSeccion = async (event: any, seccion: any) => {
 		if (event.target.checked) {
-			for (const section of secciones.value) {
-				console.log(section.nombre);
-				if (section.nombre === "Hematología completa") {
-					for (const campo of section.campos) {
-						seccion.campos.push(campo);
-					}
-				}
-			}
-			console.log(seccion);
+			const sectionFields = await tests.fetchSectionByName(event.target.value);
+			seccion.campos = sectionFields;
 		} else {
 			seccion.campos = [];
 		}
@@ -850,7 +843,6 @@
 	};
 
 	const agregarSeccion = () => {
-		console.log(secciones.value);
 		const todosCamposLlenos = secciones.value.every((seccion) => seccion.nombre.trim() !== "" && seccion.campos.length > 0);
 
 		if (!todosCamposLlenos) {
