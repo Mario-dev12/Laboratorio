@@ -118,7 +118,13 @@
 												name="hematologia-completa"
 												ref="completarHematologia"
 												type="checkbox"
-												@change="completarSeccion(seccion)" />
+												value="Hematología completa"
+												@change="
+													(e) => {
+														completarSeccion(e, seccion);
+														completarNombreSeccion(e, seccion);
+													}
+												" />
 										</div>
 									</div>
 									<div class="campos">
@@ -376,9 +382,8 @@
 		unidadesDeCampos.value = await tests.fecthProfilesInputUnits();
 	});
 
-	const completarSeccion = (seccion: any) => {
-		if (completarHematologia.value[0].checked) {
-			console.log(seccion);
+	const completarSeccion = (event: any, seccion: any) => {
+		if (event.target.checked) {
 			for (const section of secciones.value) {
 				console.log(section.nombre);
 				if (section.nombre === "Hematología completa") {
@@ -392,6 +397,14 @@
 			seccion.campos = [];
 		}
 	};
+
+	function completarNombreSeccion(event: any, seccion: any) {
+		if (event.target.checked) {
+			seccion.nombre = event.target.value;
+		} else {
+			seccion.nombre = "";
+		}
+	}
 
 	const updateCostBs = () => {
 		if (create.value) {
