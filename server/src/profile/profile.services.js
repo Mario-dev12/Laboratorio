@@ -34,6 +34,10 @@ profileServices.readInputsResults = async name => {
     return await profileRepository.readInputsResults(name)
 }
 
+profileServices.readInputsbySectionName = async name => {
+    return await profileRepository.readInputsbySectionName(name)
+}
+
 profileServices.readInputsResults2 = async (name, id) => {
     return await profileRepository.readInputsResults2(name, id)
 }

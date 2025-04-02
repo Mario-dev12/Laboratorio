@@ -14,6 +14,7 @@ profileRouter.delete("/:id", profileController.deleteProfile);
 profileRouter.get("/input", profileController.readProfilesInputs);
 profileRouter.get("/unit", profileController.readProfilesUnits);
 profileRouter.get("/inputresults/:name", profileController.readInputsResults);
+profileRouter.get("/inputbysection/:name", profileController.readInputsbySectionName);
 profileRouter.get("/inputresults2/:name/:id", profileController.readInputsResults2);
 profileRouter.get("/inputs/:id", profileController.readInputsByProfile);
 profileRouter.get("/inputsprofile/:idCampo/:idProfile", profileController.readInputsProfileByProfile);
