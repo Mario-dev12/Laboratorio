@@ -385,7 +385,7 @@
 		sectionNames.value = Object.keys(sectionData.value);
 	}
 
-	const getHtmlWithInputValues = (element: any) => {
+	/*const getHtmlWithInputValues = (element: any) => {
 		const inputs = element.querySelectorAll("input, textarea");
 
 		inputs.forEach((input: any) => {
@@ -394,7 +394,82 @@
 		});
 
 		return element.innerHTML;
-	};
+	};*/
+
+	const getHtmlWithInputValues = (element: HTMLElement): string => {  
+		const perfilHeading = element.querySelector('h2');  
+		const perfilName = perfilHeading ? perfilHeading.textContent?.trim() : 'Perfil sin nombre';  
+
+		const sections = element.querySelectorAll('h3'); 
+		const rows: { section: string, data: string[] }[] = [];  
+
+		sections.forEach((section) => {  
+			const sectionName = section.textContent?.trim();
+			const table = section.nextElementSibling;  
+
+			if (table && table instanceof HTMLElement) {  
+				const inputs = table.querySelectorAll<HTMLInputElement>('input');  
+				const sectionRows: string[] = []; 
+
+				inputs.forEach((input) => {  
+					const value = input.value.trim();   
+					if (value) { 
+						const parentRow = input.closest('tr'); 
+						if (parentRow) {  
+							const nombreCell = parentRow.querySelector('td.align-middle');  
+							const unidadCell = parentRow.querySelector('td.text-center.align-middle');  
+							const valorReferencialCell = parentRow.querySelector('.valor-referencial');  
+
+							const nombre = nombreCell ? nombreCell.textContent?.trim() : 'N/A';  
+							const unidad = unidadCell ? unidadCell.textContent?.trim() : 'N/A';  
+							const valorReferencial = valorReferencialCell ? valorReferencialCell.innerHTML.trim() : 'N/A';  
+
+							sectionRows.push(`  
+								<tr>  
+									<td class="align-middle">${nombre}</td>  
+									<td class="align-middle">${value}</td>  
+									<td class="text-center align-middle">${unidad}</td>  
+									<td class="valor-referencial align-middle">${valorReferencial}</td>  
+								</tr>  
+							`);  
+						}  
+					}  
+				});  
+
+				if (sectionRows.length > 0) {  
+					rows.push({ section: sectionName || 'Sección sin nombre', data: sectionRows });  
+				}  
+			}  
+		});  
+
+		if (rows.length === 0) {  
+			return `<p>No hay datos ingresados.</p>`;  
+		}  
+ 
+		const htmlOutput = `  
+			<div>  
+				<h2 class="text-center">${perfilName}</h2>  
+				${rows.map(({ section, data }) => `  
+					<h4 class="text-center">${section}</h4> 
+					<table class="table table-hover table-striped">  
+						<thead>  
+							<tr>  
+								<th scope="col" class="col-3">Nombre</th>  
+								<th scope="col" class="col-3">Resultados</th>  
+								<th scope="col" class="col-3">Unidad</th>  
+								<th scope="col" class="col-3">Valor Referencial</th>  
+							</tr>  
+						</thead>  
+						<tbody>  
+							${data.join('')}  
+						</tbody>  
+					</table>  
+				`).join('')}  
+			</div>  
+		`;  
+
+		return htmlOutput;  
+	}; 
 
 	const guardarCambios = () => {
 		const testsResults: { [key: string]: any[] } = {};
@@ -562,14 +637,16 @@
 
 	const generatePDF2 = async (): Promise<Blob> => {
 		const profileRefCopy = profileRef.value.cloneNode(true);
+		const patientInfoDivCopy = profileRefCopy.querySelector(".patient-info");
+		const profileContentDivs = profileRefCopy.querySelectorAll(".profile-content");
 
-		profileRefCopy.children.forEach((item: any) => {
+		html = patientInfoDivCopy.innerHTML;
+
+		profileContentDivs.forEach((item: any) => {
 			const childrenCopy = item.children[0].cloneNode(true);
-			childrenCopy.style.display = "block";
 
 			html += getHtmlWithInputValues(childrenCopy);
 		});
-
 		const element = html;
 
 		const firstName = order.value.firstName;
@@ -582,14 +659,14 @@
 		const formattedDate = `${day}-${month}-${year}`;
 
 		const filename = `${lastName}_${firstName}_${formattedDate}.pdf`;
-		profileName.value = filename;
+		profileName.value = `${lastName}_${firstName}_${formattedDate}.pdf`;
 
 		const options = {
-			margin: 1,
+			margin: 6,
 			filename: filename,
 			image: { type: "jpeg", quality: 0.98 },
 			html2canvas: { scale: 2 },
-			jsPDF: { unit: "in", format: "letter", orientation: "portrait" },
+			jsPDF: { unit: "mm", format: "letter", orientation: "portrait" },
 		};
 
 		pdfFileName.value = options.filename;
@@ -597,7 +674,7 @@
 		for (const orders of ordersArray.value) {
 			const data = {
 				id: orders.idOrder,
-				status: "Completado",
+				status: "Pendiente de enviar",
 			};
 			await ordersStore.updateStatusOrder(orders.idOrder, data);
 		}
