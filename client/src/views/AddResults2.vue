@@ -369,6 +369,10 @@
 			section.resultado[index].valor = Number(inputValue);
 
 			await calcularResultados(section);
+
+			if (section.resultado.length - 1){
+				await calcularResultados(section);
+			}
 		}
 	};
 
