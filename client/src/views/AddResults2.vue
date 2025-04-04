@@ -78,7 +78,7 @@
 												</td>
 												<td class="text-center align-middle">{{ item.unidad }}</td>
 												<td class="valor-referencial align-middle" ref="valorReferencial">
-													<span v-html="formatValorReferencial(item.valor_referencial)"></span> 
+													<span v-html="formatValorReferencial(item.valor_referencial)"></span>
 												</td>
 											</tr>
 										</tbody>
@@ -187,9 +187,9 @@
 		isOpen.value = state;
 	};
 
-	function formatValorReferencial(valor: string): string {  
-		return valor.replace(/;/g, ';<br/>'); 
-	} 
+	function formatValorReferencial(valor: string): string {
+		return valor.replace(/;/g, ";<br/>");
+	}
 
 	const showToast = (message: string, style: string, icon: any) => {
 		toast.value.message = message;
@@ -209,11 +209,23 @@
 		/*for (const profile of profileNames) {
 			const profileSection = await profilesStore.fetchProfileByInputsName(profile);
 			profilesData.value.push(profileSection);
-		}*/
+			}*/
+		const filteredSections: any[] = [];
+		const seenKeys = new Set();
 		for (const profile of ordersArray.value) {
 			const profileSection2 = await profilesStore.fetchProfileByInputsName2(profile.profiles[0].profileName, profile.idOrder);
-			profilesData.value.push(profileSection2);
+			const filteredSection: any = {};
+			for (const [key, value] of Object.entries(profileSection2)) {
+				if (!seenKeys.has(key)) {
+					filteredSection[key] = value;
+					seenKeys.add(key);
+				}
+			}
+
+			filteredSections.push(filteredSection);
 		}
+		profilesData.value = filteredSections;
+
 		sectionData.value = profilesData.value[0];
 		sectionNames.value = profilesData.value;
 		showProfile.value = new Array(profileNames.length).fill(false);
@@ -229,10 +241,23 @@
 
 			profileNames = to.query.profileNames;
 			profileNames = JSON.parse(profileNames);
+
+			const filteredSections: any[] = [];
+			const seenKeys = new Set();
 			for (const profile of ordersArray.value) {
 				const profileSection2 = await profilesStore.fetchProfileByInputsName2(profile.profiles[0].profileName, profile.idOrder);
-				profilesData.value.push(profileSection2);
+				const filteredSection: any = {};
+				for (const [key, value] of Object.entries(profileSection2)) {
+					if (!seenKeys.has(key)) {
+						filteredSection[key] = value;
+						seenKeys.add(key);
+					}
+				}
+
+				filteredSections.push(filteredSection);
 			}
+			profilesData.value = filteredSections;
+
 			sectionData.value = profilesData.value[0];
 			sectionNames.value = profilesData.value;
 			showProfile.value = new Array(profileNames.length).fill(false);
@@ -307,59 +332,59 @@
 				}
 			}
 
-			if (parsedNumbers.length === 6) {  
-				let minRange = Infinity;  
-				let maxRange = -Infinity;  
+			if (parsedNumbers.length === 6) {
+				let minRange = Infinity;
+				let maxRange = -Infinity;
 
-				try {  
-					const matches = valorReferencialString.match(/(-?\d+(\.\d+)?)\s*x10\^([-+]?\d+)|(-?\d+(\.\d+)?)/g);  
+				try {
+					const matches = valorReferencialString.match(/(-?\d+(\.\d+)?)\s*x10\^([-+]?\d+)|(-?\d+(\.\d+)?)/g);
 
-					const exponentMatches = valorReferencialString.match(/x10\^([-+]?\d+)/g);  
+					const exponentMatches = valorReferencialString.match(/x10\^([-+]?\d+)/g);
 
-					let exponentFactor = 1; 
+					let exponentFactor = 1;
 
-					if (exponentMatches) {  
-						for (const exp of exponentMatches) {  
-							const exponent = parseInt(exp.replace('x10^', ''), 10);  
-							exponentFactor *= Math.pow(10, exponent); 
-						}  
-					}  
+					if (exponentMatches) {
+						for (const exp of exponentMatches) {
+							const exponent = parseInt(exp.replace("x10^", ""), 10);
+							exponentFactor *= Math.pow(10, exponent);
+						}
+					}
 
-					if (matches) {  
-						for (const match of matches) {    
-							const matchScience = /(-?\d+(\.\d+)?)\s*x10\^([-+]?\d+)/.exec(match);  
-							if (matchScience) {  
-								const base = parseFloat(matchScience[1]); 
-								const exponent = parseInt(matchScience[3], 10); 
-								const value = base * Math.pow(10, exponent);  
-								minRange = Math.min(minRange, value);  
-								maxRange = Math.max(maxRange, value); 
-							} else {   
+					if (matches) {
+						for (const match of matches) {
+							const matchScience = /(-?\d+(\.\d+)?)\s*x10\^([-+]?\d+)/.exec(match);
+							if (matchScience) {
+								const base = parseFloat(matchScience[1]);
+								const exponent = parseInt(matchScience[3], 10);
+								const value = base * Math.pow(10, exponent);
+								minRange = Math.min(minRange, value);
+								maxRange = Math.max(maxRange, value);
+							} else {
 								const value = parseFloat(match) * exponentFactor;
-								minRange = Math.min(minRange, value);  
-								maxRange = Math.max(maxRange, value);  
-							}  
-						}  
-					}  
+								minRange = Math.min(minRange, value);
+								maxRange = Math.max(maxRange, value);
+							}
+						}
+					}
 
-					if (!isNaN(Number(inputValue))) {  
-						if (Number(inputValue) < minRange || Number(inputValue) > maxRange) {  
-							inputElement.style.color = "red";  
-							inputElement.style.borderColor = "red";  
-						} else {  
-							inputElement.style.color = "green";  
-							inputElement.style.borderColor = "lightgreen";  
-						}  
-					} else {  
-						inputElement.style.color = "red";  
-						inputElement.style.borderColor = "red";  
-					}  
-				} catch (error) {  
-					console.error('Error al evaluar la fórmula:', error);  
-					inputElement.style.color = "red"; 
-					inputElement.style.borderColor = "red";  
-				}  
-			}   
+					if (!isNaN(Number(inputValue))) {
+						if (Number(inputValue) < minRange || Number(inputValue) > maxRange) {
+							inputElement.style.color = "red";
+							inputElement.style.borderColor = "red";
+						} else {
+							inputElement.style.color = "green";
+							inputElement.style.borderColor = "lightgreen";
+						}
+					} else {
+						inputElement.style.color = "red";
+						inputElement.style.borderColor = "red";
+					}
+				} catch (error) {
+					console.error("Error al evaluar la fórmula:", error);
+					inputElement.style.color = "red";
+					inputElement.style.borderColor = "red";
+				}
+			}
 
 			if (!inputValue) {
 				inputElement.style.color = "black";
