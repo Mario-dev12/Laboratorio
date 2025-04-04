@@ -423,7 +423,7 @@
 		if (userHasChanged) {
 			const userBody: User = {
 				idUser: user.value.id,
-				ci: user.value.documento,
+				ci: user.value.documento.trim(),
 				firstName: user.value.nombre,
 				address: user.value.procedencia,
 				age: user.value.edad,
