@@ -374,7 +374,7 @@ const esMontoEquivalente = computed(() => {
         }  
     });  
 
-    return totalBolivares === props.totales.totalBs && totalDolares === props.totales.total$;  
+    return parseFloat(totalBolivares.toFixed(2)) === props.totales.totalBs && parseFloat((totalDolares).toFixed(2)) === props.totales.total$;  
 });  
 
 async function calcularMontosRestantes() {  

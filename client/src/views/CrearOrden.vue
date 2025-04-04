@@ -126,7 +126,7 @@
 								<tbody>
 									<tr v-for="(value, index) in examenesSeleccionados" :key="index">
 										<td>{{ value.name }}</td>
-										<td>Bs: {{ value.cost_usd * precioDolar }}</td>
+										<td>Bs: {{ (value.cost_usd * precioDolar).toFixed(2) }}</td>
 										<td>$: {{ value.cost_usd }}</td>
 										<td>
 											<button class="btn btn-danger" @click="eliminarExamen(value.name)">Borrar</button>
@@ -160,7 +160,7 @@
 				</div>
 				<div class="row w-100 m-auto mb-1">
 					<div class="col">Total En Bs</div>
-					<div class="col">Bs: {{ totales.totalBs }}</div>
+					<div class="col">Bs: {{ (totales.totalBs).toFixed(2) }}</div>
 				</div>
 				<div class="row w-100 m-auto mb-1">
 					<div class="col">Total En $</div>
@@ -345,7 +345,7 @@
 			totales.value.total$ = 0;
 			totales.value.totalBs = 0;
 			for (const item of examenesSeleccionados.value) {
-				totales.value.totalBs += item.cost_usd * precioDolar.value;
+				totales.value.totalBs += parseFloat((item.cost_usd * precioDolar.value).toFixed(2));
 				totales.value.total$ += item.cost_usd;
 			}
 			showChangeDolar.value = false;
@@ -359,7 +359,7 @@
 			if (item.name === tipoDeExamen.value && !itemInArray) {
 				examenesSeleccionados.value.push(item);
 				examenesSeleccionados.value = [...examenesSeleccionados.value];
-				totales.value.totalBs += item.cost_usd * precioDolar.value;
+				totales.value.totalBs += parseFloat((item.cost_usd * precioDolar.value).toFixed(2));;
 				totales.value.total$ += item.cost_usd;
 			}
 		}
@@ -376,7 +376,7 @@
 	function eliminarExamen(examen: string) {
 		examenesSeleccionados.value = examenesSeleccionados.value.filter((item) => {
 			if (item.name === examen) {
-				totales.value.totalBs -= item.cost_usd * precioDolar.value;
+				totales.value.totalBs -= parseFloat((item.cost_usd * precioDolar.value).toFixed(2));
 				totales.value.total$ -= item.cost_usd;
 			}
 			return item.name !== examen;
@@ -410,7 +410,7 @@
 						const body: User = {
 							idUser: user.value.id,
 							passport: null,
-							ci: user.value.documento,
+							ci: user.value.documento.trim(),
 							firstName: user.value.nombre,
 							lastName: user.value.apellido,
 							genre: user.value.genero === "masculino" ? "M" : user.value.genero === "femenino" ? "F" : "",
@@ -424,7 +424,7 @@
 						if (respUser) {
 							const examsBody: Exam = {
 								idUser: respUser,
-								total_cost_bs: totales.value.totalBs.toString(),
+								total_cost_bs: totales.value.totalBs.toFixed(2),
 								total_cost_usd: totales.value.total$.toString(),
 							};
 							const examResp = await examsStore.createExam(examsBody);
@@ -460,7 +460,7 @@
 						let respExam: number | undefined = 0;
 						const examsBody: Exam = {
 							idUser: user.value.id,
-							total_cost_bs: totales.value.totalBs.toString(),
+							total_cost_bs: totales.value.totalBs.toFixed(2),
 							total_cost_usd: totales.value.total$.toString(),
 						};
 						const examResp = await examsStore.createExam(examsBody);
