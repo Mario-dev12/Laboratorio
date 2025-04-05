@@ -206,10 +206,13 @@
 
 		profileNames = route.query.profileNames;
 		profileNames = JSON.parse(profileNames);
+		console.log(profileNames);
 		/*for (const profile of profileNames) {
 			const profileSection = await profilesStore.fetchProfileByInputsName(profile);
 			profilesData.value.push(profileSection);
 			}*/
+
+		// filtrar secciones para que no se repitan
 		const filteredSections: any[] = [];
 		const seenKeys = new Set();
 		for (const profile of ordersArray.value) {
@@ -224,33 +227,43 @@
 
 			filteredSections.push(filteredSection);
 		}
-		console.log(filteredSections);
+		//
 
-		const seccionesOrdenadas: any[] = [];
-
-		const seccionesPrincipales: any = {};
-
+		// ordenar secciones hematologia, vsg, quimica sanguinea
+		const seccionesOrdenadas: Array<Record<string, any>> = [];
+		type SeccionesPrincipales = {
+			"Hematología completa"?: any;
+			vsg?: any;
+			"Química Sanguinea"?: any;
+		};
+		const seccionesPrincipales: SeccionesPrincipales = {
+			"Hematología completa": "",
+			vsg: "",
+			"Química Sanguinea": "",
+		};
+		const primarySections: Array<keyof SeccionesPrincipales> = ["Hematología completa", "vsg", "Química Sanguinea"];
 		for (const section of filteredSections) {
 			for (const [key, value] of Object.entries(section)) {
-				if (key === "Hematología completa") {
-					seccionesPrincipales[key] = value;
+				if (primarySections.includes(key as keyof SeccionesPrincipales)) {
+					seccionesPrincipales[key as keyof SeccionesPrincipales] = value;
 					delete section[key];
-				} else if (key === "Química Sanguinea") {
-					seccionesPrincipales[key] = value;
-					delete section[key];
-				} else if (key === "vsg") {
-					seccionesPrincipales[key] = value;
-					delete section[key];
-				} else if (!seccionesOrdenadas.includes(section)) {
-					seccionesOrdenadas.push(section);
 				}
 			}
+			if (Object.keys(section).length != 0 && !seccionesOrdenadas.includes(section)) {
+				seccionesOrdenadas.push(section);
+			}
 		}
+
+		for (const [key, value] of Object.entries(seccionesPrincipales)) {
+			if (!value) {
+				delete seccionesPrincipales[key as keyof SeccionesPrincipales];
+			}
+		}
+
 		seccionesOrdenadas.unshift(seccionesPrincipales);
-		console.log(seccionesOrdenadas);
+		//
 
 		profilesData.value = seccionesOrdenadas;
-		console.log(profilesData.value);
 
 		sectionData.value = profilesData.value[0];
 		sectionNames.value = profilesData.value;
@@ -268,6 +281,7 @@
 			profileNames = to.query.profileNames;
 			profileNames = JSON.parse(profileNames);
 
+			// filtrar secciones para que no se repitan
 			const filteredSections: any[] = [];
 			const seenKeys = new Set();
 			for (const profile of ordersArray.value) {
@@ -282,7 +296,42 @@
 
 				filteredSections.push(filteredSection);
 			}
-			profilesData.value = filteredSections;
+			//
+
+			// ordenar secciones hematologia, vsg, quimica sanguinea
+			const seccionesOrdenadas: Array<Record<string, any>> = [];
+			type SeccionesPrincipales = {
+				"Hematología completa"?: any;
+				vsg?: any;
+				"Química Sanguinea"?: any;
+			};
+			const seccionesPrincipales: SeccionesPrincipales = {
+				"Hematología completa": "",
+				vsg: "",
+				"Química Sanguinea": "",
+			};
+			const primarySections: Array<keyof SeccionesPrincipales> = ["Hematología completa", "vsg", "Química Sanguinea"];
+			for (const section of filteredSections) {
+				for (const [key, value] of Object.entries(section)) {
+					if (primarySections.includes(key as keyof SeccionesPrincipales)) {
+						seccionesPrincipales[key as keyof SeccionesPrincipales] = value;
+						delete section[key];
+					}
+				}
+				if (Object.keys(section).length != 0 && !seccionesOrdenadas.includes(section)) {
+					seccionesOrdenadas.push(section);
+				}
+			}
+
+			for (const [key, value] of Object.entries(seccionesPrincipales)) {
+				if (!value) {
+					delete seccionesPrincipales[key as keyof SeccionesPrincipales];
+				}
+			}
+
+			seccionesOrdenadas.unshift(seccionesPrincipales);
+			//
+			profilesData.value = seccionesOrdenadas;
 
 			sectionData.value = profilesData.value[0];
 			sectionNames.value = profilesData.value;
@@ -421,7 +470,7 @@
 
 			await calcularResultados(section);
 
-			if (section.resultado.length - 1){
+			if (section.resultado.length - 1) {
 				await calcularResultados(section);
 			}
 		}
@@ -451,80 +500,84 @@
 		return element.innerHTML;
 	};*/
 
-	const getHtmlWithInputValues = (element: HTMLElement): string => {  
-		const perfilHeading = element.querySelector('h2');  
-		const perfilName = perfilHeading ? perfilHeading.textContent?.trim() : 'Perfil sin nombre';  
+	const getHtmlWithInputValues = (element: HTMLElement): string => {
+		const perfilHeading = element.querySelector("h2");
+		const perfilName = perfilHeading ? perfilHeading.textContent?.trim() : "Perfil sin nombre";
 
-		const sections = element.querySelectorAll('h3'); 
-		const rows: { section: string, data: string[] }[] = [];  
+		const sections = element.querySelectorAll("h3");
+		const rows: { section: string; data: string[] }[] = [];
 
-		sections.forEach((section) => {  
+		sections.forEach((section) => {
 			const sectionName = section.textContent?.trim();
-			const table = section.nextElementSibling;  
+			const table = section.nextElementSibling;
 
-			if (table && table instanceof HTMLElement) {  
-				const inputs = table.querySelectorAll<HTMLInputElement>('input');  
-				const sectionRows: string[] = []; 
+			if (table && table instanceof HTMLElement) {
+				const inputs = table.querySelectorAll<HTMLInputElement>("input");
+				const sectionRows: string[] = [];
 
-				inputs.forEach((input) => {  
-					const value = input.value.trim();   
-					if (value) { 
-						const parentRow = input.closest('tr'); 
-						if (parentRow) {  
-							const nombreCell = parentRow.querySelector('td.align-middle');  
-							const unidadCell = parentRow.querySelector('td.text-center.align-middle');  
-							const valorReferencialCell = parentRow.querySelector('.valor-referencial');  
+				inputs.forEach((input) => {
+					const value = input.value.trim();
+					if (value) {
+						const parentRow = input.closest("tr");
+						if (parentRow) {
+							const nombreCell = parentRow.querySelector("td.align-middle");
+							const unidadCell = parentRow.querySelector("td.text-center.align-middle");
+							const valorReferencialCell = parentRow.querySelector(".valor-referencial");
 
-							const nombre = nombreCell ? nombreCell.textContent?.trim() : 'N/A';  
-							const unidad = unidadCell ? unidadCell.textContent?.trim() : 'N/A';  
-							const valorReferencial = valorReferencialCell ? valorReferencialCell.innerHTML.trim() : 'N/A';  
+							const nombre = nombreCell ? nombreCell.textContent?.trim() : "N/A";
+							const unidad = unidadCell ? unidadCell.textContent?.trim() : "N/A";
+							const valorReferencial = valorReferencialCell ? valorReferencialCell.innerHTML.trim() : "N/A";
 
-							sectionRows.push(`  
-								<tr>  
-									<td class="align-middle">${nombre}</td>  
-									<td class="align-middle">${value}</td>  
-									<td class="text-center align-middle">${unidad}</td>  
-									<td class="valor-referencial align-middle">${valorReferencial}</td>  
-								</tr>  
-							`);  
-						}  
-					}  
-				});  
+							sectionRows.push(`
+								<tr>
+									<td class="align-middle">${nombre}</td>
+									<td class="align-middle">${value}</td>
+									<td class="text-center align-middle">${unidad}</td>
+									<td class="valor-referencial align-middle">${valorReferencial}</td>
+								</tr>
+							`);
+						}
+					}
+				});
 
-				if (sectionRows.length > 0) {  
-					rows.push({ section: sectionName || 'Sección sin nombre', data: sectionRows });  
-				}  
-			}  
-		});  
+				if (sectionRows.length > 0) {
+					rows.push({ section: sectionName || "Sección sin nombre", data: sectionRows });
+				}
+			}
+		});
 
-		if (rows.length === 0) {  
-			return `<p>No hay datos ingresados.</p>`;  
-		}  
- 
-		const htmlOutput = `  
-			<div>  
-				<h2 class="text-center">${perfilName}</h2>  
-				${rows.map(({ section, data }) => `  
-					<h4 class="text-center">${section}</h4> 
-					<table class="table table-hover table-striped">  
-						<thead>  
-							<tr>  
-								<th scope="col" class="col-3">Nombre</th>  
-								<th scope="col" class="col-3">Resultados</th>  
-								<th scope="col" class="col-3">Unidad</th>  
-								<th scope="col" class="col-3">Valor Referencial</th>  
-							</tr>  
-						</thead>  
-						<tbody>  
-							${data.join('')}  
-						</tbody>  
-					</table>  
-				`).join('')}  
-			</div>  
-		`;  
+		if (rows.length === 0) {
+			return `<p>No hay datos ingresados.</p>`;
+		}
 
-		return htmlOutput;  
-	}; 
+		const htmlOutput = `
+			<div>
+				<h2 class="text-center">${perfilName}</h2>
+				${rows
+					.map(
+						({ section, data }) => `
+					<h4 class="text-center">${section}</h4>
+					<table class="table table-hover table-striped">
+						<thead>
+							<tr>
+								<th scope="col" class="col-3">Nombre</th>
+								<th scope="col" class="col-3">Resultados</th>
+								<th scope="col" class="col-3">Unidad</th>
+								<th scope="col" class="col-3">Valor Referencial</th>
+							</tr>
+						</thead>
+						<tbody>
+							${data.join("")}
+						</tbody>
+					</table>
+				`
+					)
+					.join("")}
+			</div>
+		`;
+
+		return htmlOutput;
+	};
 
 	const guardarCambios = () => {
 		const testsResults: { [key: string]: any[] } = {};
