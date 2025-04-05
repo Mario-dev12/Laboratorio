@@ -224,7 +224,33 @@
 
 			filteredSections.push(filteredSection);
 		}
-		profilesData.value = filteredSections;
+		console.log(filteredSections);
+
+		const seccionesOrdenadas: any[] = [];
+
+		const seccionesPrincipales: any = {};
+
+		for (const section of filteredSections) {
+			for (const [key, value] of Object.entries(section)) {
+				if (key === "Hematología completa") {
+					seccionesPrincipales[key] = value;
+					delete section[key];
+				} else if (key === "Química Sanguinea") {
+					seccionesPrincipales[key] = value;
+					delete section[key];
+				} else if (key === "vsg") {
+					seccionesPrincipales[key] = value;
+					delete section[key];
+				} else if (!seccionesOrdenadas.includes(section)) {
+					seccionesOrdenadas.push(section);
+				}
+			}
+		}
+		seccionesOrdenadas.unshift(seccionesPrincipales);
+		console.log(seccionesOrdenadas);
+
+		profilesData.value = seccionesOrdenadas;
+		console.log(profilesData.value);
 
 		sectionData.value = profilesData.value[0];
 		sectionNames.value = profilesData.value;
