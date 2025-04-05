@@ -125,7 +125,7 @@
 								<tbody>
 									<tr v-for="(value, index) in examenesSeleccionados" :key="index">
 										<td>{{ value.name }}</td>
-										<td>Bs: {{ value.cost_usd * precioDolar }}</td>
+										<td>Bs: {{ (value.cost_usd * precioDolar).toFixed(2) }}</td>
 										<td>$: {{ value.cost_usd }}</td>
 										<td>
 											<button class="btn btn-danger" @click="eliminarExamen(value.name)">Borrar</button>
@@ -299,7 +299,7 @@
 				cost_usd: Number(item.cost_usd),
 				name: item.name,
 			});
-			totales.value.totalBs += Number(item.cost_usd) * precioDolar.value;
+			totales.value.totalBs += parseFloat((Number(item.cost_usd) * precioDolar.value).toFixed(2));
 			totales.value.total$ += Number(item.cost_usd);
 		}
 		user.value.apellido = userData.value[0].lastName;
@@ -361,7 +361,7 @@
 					(originalItem: { name: string }) => originalItem.name !== item.name
 				);
 
-				totales.value.totalBs += item.cost_usd * precioDolar.value;
+				totales.value.totalBs += parseFloat((item.cost_usd * precioDolar.value).toFixed(2));
 				totales.value.total$ += item.cost_usd;
 
 				pagoEnBs.value = "";
@@ -391,7 +391,7 @@
 		const resp: { name: string; cost_usd: number; cost_bs: number; idExam: number; idProfile: number }[] = [];
 		examenesSeleccionados.value = examenesSeleccionados.value.filter((item) => {
 			if (item.name === examen) {
-				totales.value.totalBs -= Number(item.cost_usd) * precioDolar.value;
+				totales.value.totalBs -= parseFloat((Number(item.cost_usd) * precioDolar.value).toFixed(2));
 				totales.value.total$ -= Number(item.cost_usd);
 				resp.push(item);
 			}
@@ -423,7 +423,7 @@
 		if (userHasChanged) {
 			const userBody: User = {
 				idUser: user.value.id,
-				ci: user.value.documento,
+				ci: user.value.documento.trim(),
 				firstName: user.value.nombre,
 				address: user.value.procedencia,
 				age: user.value.edad,
@@ -440,7 +440,7 @@
 			const examsBody: Exam = {
 				idUser: user.value.id,
 				idExam: examenesSeleccionados.value[0].idExam,
-				total_cost_bs: totales.value.totalBs.toString(),
+				total_cost_bs: (totales.value.totalBs).toFixed(2),
 				total_cost_usd: totales.value.total$.toString(),
 			};
 			await examsStore.updateExam(examenesSeleccionados.value[0].idExam, examsBody);
