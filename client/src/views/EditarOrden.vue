@@ -76,19 +76,19 @@
 										placeholder="Nuevo monto"
 										@keyup.enter="cambiarPrecioDolar(precioDolar)"
 										class="ms-2" />
-	
+
 									<i
 										class="fas fa-edit ms-2 text-dark"
 										@click="showChangeDolar = !showChangeDolar"
 										title="Editar tasa del dólar"
 										style="cursor: pointer"></i>
-	
+
 									<i
 										v-if="showChangeDolar"
 										class="fas fa-check accept-icon"
 										@click="cambiarPrecioDolar(precioDolar)"
 										style="cursor: pointer; margin-left: 10px"></i>
-	
+
 									<i
 										v-if="showChangeDolar"
 										class="fas fa-times reject-icon"
@@ -205,7 +205,7 @@
 	import { paymentStore } from "@/stores/paymentStore";
 	import { useRoute, useRouter } from "vue-router";
 	import { checkboxOutline } from "ionicons/icons";
-	import eventBus from '../eventBus';
+	import eventBus from "../eventBus";
 
 	const tipoDeExamen = ref();
 	const pagoEnDivisas = ref();
@@ -243,7 +243,7 @@
 		edad: 0,
 		procedencia: "",
 		email: "",
-		phone: ""
+		phone: "",
 	});
 
 	const toast = ref({
@@ -279,9 +279,9 @@
 	const originalOrdersData = ref();
 	const originalPaymentData = ref();
 
-	function handlePrecioActualizado(nuevoPrecio: number) {  
+	function handlePrecioActualizado(nuevoPrecio: number) {
 		precioDolar.value = nuevoPrecio;
-	}  
+	}
 
 	onMounted(async () => {
 		userData.value = await usersStore.fecthUserById(Number(idUser.value));
@@ -346,7 +346,7 @@
 				totales.value.total$ += item.cost_usd;
 			}
 			showChangeDolar.value = false;
-			eventBus.emit("precioActualizado", precioDolar.value)
+			eventBus.emit("precioActualizado", precioDolar.value);
 		}
 	};
 
@@ -431,7 +431,7 @@
 				lastName: user.value.apellido,
 				passport: 0,
 				email: user.value.email,
-				phone: user.value.phone
+				phone: user.value.phone,
 			};
 			await usersStore.updateUser(user.value.id, userBody);
 		}
@@ -581,7 +581,7 @@
 			edad: 0,
 			procedencia: "",
 			email: "",
-			phone: ""
+			phone: "",
 		};
 		examenesSeleccionados.value = [];
 		metodoPagos.value = [];
@@ -596,7 +596,7 @@
 
 	const cancelarEdicion = () => {
 		showChangeDolar.value = false;
-		precioDolar.value = Number(localStorage.getItem("tasaDolar"))
+		precioDolar.value = Number(localStorage.getItem("tasaDolar"));
 		nuevoMontoDolar.value = null;
 	};
 </script>
