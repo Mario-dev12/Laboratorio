@@ -211,7 +211,6 @@
 
 		profileNames = route.query.profileNames;
 		profileNames = JSON.parse(profileNames);
-		console.log(profileNames);
 		/*for (const profile of profileNames) {
 			const profileSection = await profilesStore.fetchProfileByInputsName(profile);
 			profilesData.value.push(profileSection);
@@ -236,32 +235,40 @@
 
 		// ordenar secciones hematologia, vsg, quimica sanguinea
 		const seccionesOrdenadas: Array<Record<string, any>> = [];
-		type SeccionesPrincipales = {
-			"Hematología completa"?: any;
-			vsg?: any;
-			"Química Sanguinea"?: any;
-		};
-		const seccionesPrincipales: SeccionesPrincipales = {
+		interface AnyKeyObject {
+			[key: string]: any;
+		}
+		const seccionesPrincipales: AnyKeyObject = {
 			"Hematología completa": "",
 			vsg: "",
 			"Química Sanguinea": "",
 		};
-		const primarySections: Array<keyof SeccionesPrincipales> = ["Hematología completa", "vsg", "Química Sanguinea"];
-		for (const section of filteredSections) {
+		const primarySections: Array<keyof AnyKeyObject> = ["Hematología completa", "vsg", "Química Sanguinea"];
+		filteredSections.forEach((section, index) => {
 			for (const [key, value] of Object.entries(section)) {
-				if (primarySections.includes(key as keyof SeccionesPrincipales)) {
-					seccionesPrincipales[key as keyof SeccionesPrincipales] = value;
-					delete section[key];
+				if (index === 0) {
+					if (primarySections.includes(key as keyof AnyKeyObject)) {
+						seccionesPrincipales[key as keyof AnyKeyObject] = value;
+						delete section[key];
+					} else {
+						seccionesPrincipales[key as keyof AnyKeyObject] = value;
+						delete section[key];
+					}
+				} else {
+					if (primarySections.includes(key as keyof AnyKeyObject)) {
+						seccionesPrincipales[key as keyof AnyKeyObject] = value;
+						delete section[key];
+					}
 				}
 			}
 			if (Object.keys(section).length != 0 && !seccionesOrdenadas.includes(section)) {
 				seccionesOrdenadas.push(section);
 			}
-		}
+		});
 
 		for (const [key, value] of Object.entries(seccionesPrincipales)) {
 			if (!value) {
-				delete seccionesPrincipales[key as keyof SeccionesPrincipales];
+				delete seccionesPrincipales[key as keyof AnyKeyObject];
 			}
 		}
 
@@ -291,6 +298,7 @@
 			const seenKeys = new Set();
 			for (const profile of ordersArray.value) {
 				const profileSection2 = await profilesStore.fetchProfileByInputsName2(profile.profiles[0].profileName, profile.idOrder);
+				console.log(profileSection2);
 				const filteredSection: any = {};
 				for (const [key, value] of Object.entries(profileSection2)) {
 					if (!seenKeys.has(key)) {
@@ -305,32 +313,40 @@
 
 			// ordenar secciones hematologia, vsg, quimica sanguinea
 			const seccionesOrdenadas: Array<Record<string, any>> = [];
-			type SeccionesPrincipales = {
-				"Hematología completa"?: any;
-				vsg?: any;
-				"Química Sanguinea"?: any;
-			};
-			const seccionesPrincipales: SeccionesPrincipales = {
+			interface AnyKeyObject {
+				[key: string]: any;
+			}
+			const seccionesPrincipales: AnyKeyObject = {
 				"Hematología completa": "",
 				vsg: "",
 				"Química Sanguinea": "",
 			};
-			const primarySections: Array<keyof SeccionesPrincipales> = ["Hematología completa", "vsg", "Química Sanguinea"];
-			for (const section of filteredSections) {
+			const primarySections: Array<keyof AnyKeyObject> = ["Hematología completa", "vsg", "Química Sanguinea"];
+			filteredSections.forEach((section, index) => {
 				for (const [key, value] of Object.entries(section)) {
-					if (primarySections.includes(key as keyof SeccionesPrincipales)) {
-						seccionesPrincipales[key as keyof SeccionesPrincipales] = value;
-						delete section[key];
+					if (index === 0) {
+						if (primarySections.includes(key as keyof AnyKeyObject)) {
+							seccionesPrincipales[key as keyof AnyKeyObject] = value;
+							delete section[key];
+						} else {
+							seccionesPrincipales[key as keyof AnyKeyObject] = value;
+							delete section[key];
+						}
+					} else {
+						if (primarySections.includes(key as keyof AnyKeyObject)) {
+							seccionesPrincipales[key as keyof AnyKeyObject] = value;
+							delete section[key];
+						}
 					}
 				}
 				if (Object.keys(section).length != 0 && !seccionesOrdenadas.includes(section)) {
 					seccionesOrdenadas.push(section);
 				}
-			}
+			});
 
 			for (const [key, value] of Object.entries(seccionesPrincipales)) {
 				if (!value) {
-					delete seccionesPrincipales[key as keyof SeccionesPrincipales];
+					delete seccionesPrincipales[key as keyof AnyKeyObject];
 				}
 			}
 
@@ -347,7 +363,6 @@
 	});
 
 	const checkInputValue = async (event: Event, index: number, section: any, sectionIndex: number) => {
-		console.log(sectionIndex);
 		const inputElement = event.target as HTMLInputElement;
 		const personAge = order.value.age;
 		const personGenre = order.value.genre;
@@ -940,24 +955,17 @@
 			}
 		});
 
-		console.log(seccion.resultado);
-		console.log(sectionRef.value);
-		console.log(sectionIndex);
-
 		const currentSection = sectionRef.value[sectionIndex];
 		const inputElements = currentSection.querySelectorAll("input");
-		console.log(inputElements);
 
 		seccion.resultado.forEach((item: { calculado: string; valor: any; restricciones: any }, index: number) => {
 			if (item.calculado) {
-				console.log("item calculado");
 				for (const restriccion of item.restricciones) {
 					aplicarRestriccion(restriccion, valores);
 				}
 				item.valor = aplicarFormula(item.calculado, valores);
 
 				if (item.valor) {
-					console.log("valor calculado");
 					const inputElement = inputElements[index];
 					const inputValue = item.valor;
 					const personAge = order.value.age;
