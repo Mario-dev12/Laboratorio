@@ -54,7 +54,11 @@
 							<div class="text-center">
 								<h2>{{ profileNames[indx] }}</h2>
 							</div>
-							<div class="profile-tables mb-5" v-for="([key, section], i) in profile ? Object.entries(profile) : null" :key="i">
+							<div
+								class="profile-tables mb-5"
+								v-for="([key, section], i) in profile ? Object.entries(profile) : null"
+								:key="i"
+								ref="sectionRef">
 								<h3>{{ key }}</h3>
 								<div class="table-responsive">
 									<table class="table table-hover table-striped">
@@ -69,12 +73,12 @@
 										<tbody>
 											<tr v-for="(item, index) in (section as Section).resultado" :key="index">
 												<td ref="campoNames" class="align-middle">{{ item.nombre }}</td>
-												<td class="align-middle">
+												<td class="align-middle inputElement">
 													<input
 														type="text"
 														ref="campoResult"
 														v-model="item.valor"
-														@change="checkInputValue($event, index, section)" />
+														@change="checkInputValue($event, index, section, i)" />
 												</td>
 												<td class="text-center align-middle">{{ item.unidad }}</td>
 												<td class="valor-referencial align-middle" ref="valorReferencial">
@@ -175,6 +179,7 @@
 	const profileName = ref();
 	const isOpen = ref(false);
 	const firmaSello = ref();
+	const sectionRef = ref();
 
 	const toast = ref({
 		isOpen: false,
@@ -341,7 +346,8 @@
 		next();
 	});
 
-	const checkInputValue = async (event: Event, index: number, section: any) => {
+	const checkInputValue = async (event: Event, index: number, section: any, sectionIndex: number) => {
+		console.log(sectionIndex);
 		const inputElement = event.target as HTMLInputElement;
 		const personAge = order.value.age;
 		const personGenre = order.value.genre;
@@ -468,10 +474,10 @@
 
 			section.resultado[index].valor = Number(inputValue);
 
-			await calcularResultados(section);
+			await calcularResultados(section, sectionIndex);
 
 			if (section.resultado.length - 1) {
-				await calcularResultados(section);
+				await calcularResultados(section, sectionIndex);
 			}
 		}
 	};
@@ -925,7 +931,7 @@
 		}
 	};
 
-	const calcularResultados = async (seccion: { resultado: any[] }) => {
+	const calcularResultados = async (seccion: { resultado: any[] }, sectionIndex: number) => {
 		const valores: Record<string, any> = {};
 
 		seccion.resultado.forEach((item: { valor: any; nombre: string | number }) => {
@@ -934,15 +940,25 @@
 			}
 		});
 
+		console.log(seccion.resultado);
+		console.log(sectionRef.value);
+		console.log(sectionIndex);
+
+		const currentSection = sectionRef.value[sectionIndex];
+		const inputElements = currentSection.querySelectorAll("input");
+		console.log(inputElements);
+
 		seccion.resultado.forEach((item: { calculado: string; valor: any; restricciones: any }, index: number) => {
 			if (item.calculado) {
+				console.log("item calculado");
 				for (const restriccion of item.restricciones) {
 					aplicarRestriccion(restriccion, valores);
 				}
 				item.valor = aplicarFormula(item.calculado, valores);
 
 				if (item.valor) {
-					const inputElement = campoResult.value[index];
+					console.log("valor calculado");
+					const inputElement = inputElements[index];
 					const inputValue = item.valor;
 					const personAge = order.value.age;
 					const personGenre = order.value.genre;
