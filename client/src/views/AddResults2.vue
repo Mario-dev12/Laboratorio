@@ -216,7 +216,7 @@
 
 		profileNames = route.query.profileNames;
 		profileNames = JSON.parse(profileNames);
-		const primarySectionsStrings: string[] = ["Hematología completa", "vsg", "Velocidad de Sedimentación Globular (V.S.G)", "Química Sanguinea", "Química Sanguínea"];
+		const primarySectionsStrings: string[] = ["Hematología completa", "Hematología Completa", "vsg", "Velocidad de Sedimentación Globular (V.S.G)", "Química Sanguinea", "Química Sanguínea"];
 
 		// filtrar y ordenar secciones
 		const filteredSections: any[] = [];
@@ -224,6 +224,7 @@
 		let firstTest = "";
 		const firstSection: AnyKeyObject = {
 			"Hematología completa": "",
+			"Hematología Completa": "",
 			vsg: "",
 			"Velocidad de Sedimentación Globular (V.S.G)": "",
 			"Química Sanguinea": "",
@@ -298,7 +299,7 @@
 
 			profileNames = to.query.profileNames;
 			profileNames = JSON.parse(profileNames);
-			const primarySectionsStrings: string[] = ["Hematología completa", "vsg", "Velocidad de Sedimentación Globular (V.S.G)", "Química Sanguinea", "Química Sanguínea"];
+			const primarySectionsStrings: string[] = ["Hematología completa", "Hematología Completa", "vsg", "Velocidad de Sedimentación Globular (V.S.G)", "Química Sanguinea", "Química Sanguínea"];
 
 			// filtrar y ordenar secciones
 			const filteredSections: any[] = [];
@@ -306,6 +307,7 @@
 			let firstTest = "";
 			const firstSection: AnyKeyObject = {
 				"Hematología completa": "",
+				"Hematología Completa": "",
 				vsg: "",
 				"Velocidad de Sedimentación Globular (V.S.G)": "",
 				"Química Sanguinea": "",
