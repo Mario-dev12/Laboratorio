@@ -2408,18 +2408,27 @@ $$ LANGUAGE plpgsql;
 CREATE OR REPLACE FUNCTION agregar_en_division_campo(p_idProfile integer, p_nombre varchar, p_idCampos integer[])  
 RETURNS void AS $$  
 DECLARE  
-    campo integer;
+    campo integer;  
 	id integer;  
 BEGIN  
-	select idDivision into id 
-	from perfil_division
-	where idProfile = p_idProfile
-	and nombre = p_nombre; 
+	select idDivision into id   
+	from perfil_division  
+	where idProfile = p_idProfile  
+	and nombre = p_nombre;   
 
     FOREACH campo IN ARRAY p_idCampos  
     LOOP  
-        INSERT INTO division_campo (idDivision, idCampo)  
-        VALUES (id, campo);  
+        RAISE NOTICE 'Intentando insertar campo: %', campo;  
+
+        IF NOT EXISTS (SELECT 1   
+                       FROM division_campo   
+                       WHERE idDivision = id AND idCampo = campo) THEN  
+            INSERT INTO division_campo (idDivision, idCampo)  
+            VALUES (id, campo);  
+            RAISE NOTICE 'Campo insertado: %', campo;  
+        ELSE  
+            RAISE NOTICE 'El campo % ya existe y no se insertará.', campo;  
+        END IF;  
     END LOOP;  
 END;  
 $$ LANGUAGE plpgsql;  
