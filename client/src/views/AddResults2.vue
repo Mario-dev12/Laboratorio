@@ -7,7 +7,7 @@
 					<div class="row w-100 m-auto gap-2">
 						<div
 							class="col btn btn-light"
-							v-for="(profileName, index) in profileNames"
+							v-for="(profileName, index) in profileNamesOrdered"
 							:key="index"
 							@click="handleSection(index)">
 							{{ profileName }}
@@ -52,7 +52,7 @@
 					<div class="profile-content mt-5" v-for="(profile, indx) in profilesData" :key="indx">
 						<div class="profile-sections mt-4" v-show="showProfile[indx]" ref="profileRef2">
 							<div class="text-center">
-								<h2>{{ profileNames[indx] }}</h2>
+								<h2>{{ profileNamesOrdered[indx] }}</h2>
 							</div>
 							<div
 								class="profile-tables mb-5"
@@ -151,6 +151,10 @@
 		resultado: Item[];
 	}
 
+	interface AnyKeyObject {
+		[key: string]: any;
+	}
+
 	const router = useRouter();
 	const examsStore = examStore();
 	const ordersStore = orderStore();
@@ -158,7 +162,6 @@
 	const route = useRoute();
 	let profileNames: any = "";
 	const profilesData = ref<any[]>([]);
-	const sectionNames = ref<any[]>([]);
 	const sectionData = ref();
 	const tableInfo = ref();
 	const showProfile = ref<boolean[]>([]);
@@ -180,6 +183,7 @@
 	const isOpen = ref(false);
 	const firmaSello = ref();
 	const sectionRef = ref();
+	let profileNamesOrdered: string[] = [];
 
 	const toast = ref({
 		isOpen: false,
@@ -211,80 +215,79 @@
 
 		profileNames = route.query.profileNames;
 		profileNames = JSON.parse(profileNames);
-		/*for (const profile of profileNames) {
-			const profileSection = await profilesStore.fetchProfileByInputsName(profile);
-			profilesData.value.push(profileSection);
-			}*/
+		const primarySectionsStrings: string[] = ["Hematología completa", "vsg", "Química Sanguinea"];
 
-		// filtrar secciones para que no se repitan
+		// filtrar y ordenar secciones
 		const filteredSections: any[] = [];
 		const seenKeys = new Set();
-		for (const profile of ordersArray.value) {
-			const profileSection2 = await profilesStore.fetchProfileByInputsName2(profile.profiles[0].profileName, profile.idOrder);
-			const filteredSection: any = {};
-			for (const [key, value] of Object.entries(profileSection2)) {
-				if (!seenKeys.has(key)) {
-					filteredSection[key] = value;
-					seenKeys.add(key);
-				}
-			}
-
-			filteredSections.push(filteredSection);
-		}
-		//
-
-		// ordenar secciones hematologia, vsg, quimica sanguinea
-		const seccionesOrdenadas: Array<Record<string, any>> = [];
-		interface AnyKeyObject {
-			[key: string]: any;
-		}
-		const seccionesPrincipales: AnyKeyObject = {
+		let firstTest = "";
+		const firstSection: AnyKeyObject = {
 			"Hematología completa": "",
 			vsg: "",
 			"Química Sanguinea": "",
 		};
-		const primarySections: Array<keyof AnyKeyObject> = ["Hematología completa", "vsg", "Química Sanguinea"];
-		filteredSections.forEach((section, index) => {
-			for (const [key, value] of Object.entries(section)) {
-				if (index === 0) {
-					if (primarySections.includes(key as keyof AnyKeyObject)) {
-						seccionesPrincipales[key as keyof AnyKeyObject] = value;
-						delete section[key];
-					} else {
-						seccionesPrincipales[key as keyof AnyKeyObject] = value;
-						delete section[key];
+		let primarySectionFilled = false;
+
+		for (const profile of ordersArray.value) {
+			const profileSection2 = await profilesStore.fetchProfileByInputsName2(profile.profiles[0].profileName, profile.idOrder);
+			const sectionKeys = Object.keys(profileSection2);
+			const hasPrimarySection = primarySectionsStrings.some((item) => sectionKeys.includes(item));
+
+			const filteredSection: any = {};
+
+			if (hasPrimarySection && !primarySectionFilled) {
+				primarySectionFilled = true;
+				for (const [key, value] of Object.entries(profileSection2)) {
+					if (!seenKeys.has(key)) {
+						firstSection[key] = value;
+						seenKeys.add(key);
 					}
-				} else {
-					if (primarySections.includes(key as keyof AnyKeyObject)) {
-						seccionesPrincipales[key as keyof AnyKeyObject] = value;
-						delete section[key];
+				}
+			} else {
+				for (const [key, value] of Object.entries(profileSection2)) {
+					if (!seenKeys.has(key)) {
+						if (primarySectionsStrings.includes(key)) {
+							firstSection[key] = value;
+							seenKeys.add(key);
+						} else {
+							filteredSection[key] = value;
+							seenKeys.add(key);
+						}
 					}
 				}
 			}
-			if (Object.keys(section).length != 0 && !seccionesOrdenadas.includes(section)) {
-				seccionesOrdenadas.push(section);
-			}
-		});
 
-		for (const [key, value] of Object.entries(seccionesPrincipales)) {
-			if (!value) {
-				delete seccionesPrincipales[key as keyof AnyKeyObject];
+			if (hasPrimarySection && !firstTest) {
+				firstTest = profile.profiles[0].profileName;
+			} else {
+				if (Object.keys(filteredSection).length != 0) {
+					filteredSections.push(filteredSection);
+					profileNamesOrdered.push(profile.profiles[0].profileName);
+				}
 			}
 		}
 
-		seccionesOrdenadas.unshift(seccionesPrincipales);
+		for (const [key, value] of Object.entries(firstSection)) {
+			if (!value) {
+				delete firstSection[key];
+			}
+		}
+
+		profileNamesOrdered.unshift(firstTest);
+		filteredSections.unshift(firstSection);
 		//
 
-		profilesData.value = seccionesOrdenadas;
+		console.log(filteredSections);
+		profilesData.value = filteredSections;
 
 		sectionData.value = profilesData.value[0];
-		sectionNames.value = profilesData.value;
 		showProfile.value = new Array(profileNames.length).fill(false);
 		showProfile.value[0] = true;
 	});
 
 	router.beforeEach(async (to, from, next) => {
 		profilesData.value = [];
+		profileNamesOrdered = [];
 		if (to.name === "Results2") {
 			order.value = to.query.profile;
 			order.value = JSON.parse(order.value);
@@ -292,70 +295,73 @@
 
 			profileNames = to.query.profileNames;
 			profileNames = JSON.parse(profileNames);
+			const primarySectionsStrings: string[] = ["Hematología completa", "vsg", "Química Sanguinea"];
 
-			// filtrar secciones para que no se repitan
+			// filtrar y ordenar secciones
 			const filteredSections: any[] = [];
 			const seenKeys = new Set();
-			for (const profile of ordersArray.value) {
-				const profileSection2 = await profilesStore.fetchProfileByInputsName2(profile.profiles[0].profileName, profile.idOrder);
-				console.log(profileSection2);
-				const filteredSection: any = {};
-				for (const [key, value] of Object.entries(profileSection2)) {
-					if (!seenKeys.has(key)) {
-						filteredSection[key] = value;
-						seenKeys.add(key);
-					}
-				}
-
-				filteredSections.push(filteredSection);
-			}
-			//
-
-			// ordenar secciones hematologia, vsg, quimica sanguinea
-			const seccionesOrdenadas: Array<Record<string, any>> = [];
-			interface AnyKeyObject {
-				[key: string]: any;
-			}
-			const seccionesPrincipales: AnyKeyObject = {
+			let firstTest = "";
+			const firstSection: AnyKeyObject = {
 				"Hematología completa": "",
 				vsg: "",
 				"Química Sanguinea": "",
 			};
-			const primarySections: Array<keyof AnyKeyObject> = ["Hematología completa", "vsg", "Química Sanguinea"];
-			filteredSections.forEach((section, index) => {
-				for (const [key, value] of Object.entries(section)) {
-					if (index === 0) {
-						if (primarySections.includes(key as keyof AnyKeyObject)) {
-							seccionesPrincipales[key as keyof AnyKeyObject] = value;
-							delete section[key];
-						} else {
-							seccionesPrincipales[key as keyof AnyKeyObject] = value;
-							delete section[key];
+			let primarySectionFilled = false;
+
+			for (const profile of ordersArray.value) {
+				const profileSection2 = await profilesStore.fetchProfileByInputsName2(profile.profiles[0].profileName, profile.idOrder);
+				const sectionKeys = Object.keys(profileSection2);
+				const hasPrimarySection = primarySectionsStrings.some((item) => sectionKeys.includes(item));
+
+				const filteredSection: any = {};
+
+				if (hasPrimarySection && !primarySectionFilled) {
+					primarySectionFilled = true;
+					for (const [key, value] of Object.entries(profileSection2)) {
+						if (!seenKeys.has(key)) {
+							firstSection[key] = value;
+							seenKeys.add(key);
 						}
-					} else {
-						if (primarySections.includes(key as keyof AnyKeyObject)) {
-							seccionesPrincipales[key as keyof AnyKeyObject] = value;
-							delete section[key];
+					}
+				} else {
+					for (const [key, value] of Object.entries(profileSection2)) {
+						if (!seenKeys.has(key)) {
+							if (primarySectionsStrings.includes(key)) {
+								firstSection[key] = value;
+								seenKeys.add(key);
+							} else {
+								filteredSection[key] = value;
+								seenKeys.add(key);
+							}
 						}
 					}
 				}
-				if (Object.keys(section).length != 0 && !seccionesOrdenadas.includes(section)) {
-					seccionesOrdenadas.push(section);
-				}
-			});
 
-			for (const [key, value] of Object.entries(seccionesPrincipales)) {
-				if (!value) {
-					delete seccionesPrincipales[key as keyof AnyKeyObject];
+				console.log(filteredSection);
+
+				if (hasPrimarySection && !firstTest) {
+					firstTest = profile.profiles[0].profileName;
+				} else {
+					profileNamesOrdered.push(profile.profiles[0].profileName);
+					if (Object.keys(filteredSection).length != 0) {
+						filteredSections.push(filteredSection);
+					}
 				}
 			}
 
-			seccionesOrdenadas.unshift(seccionesPrincipales);
+			for (const [key, value] of Object.entries(firstSection)) {
+				if (!value) {
+					delete firstSection[key];
+				}
+			}
+
+			profileNamesOrdered.unshift(firstTest);
+			filteredSections.unshift(firstSection);
 			//
-			profilesData.value = seccionesOrdenadas;
+			console.log(filteredSections);
+			profilesData.value = filteredSections;
 
 			sectionData.value = profilesData.value[0];
-			sectionNames.value = profilesData.value;
 			showProfile.value = new Array(profileNames.length).fill(false);
 			showProfile.value[0] = true;
 		}
@@ -507,7 +513,6 @@
 				showProfile.value[i] = false;
 			}
 		});
-		sectionNames.value = Object.keys(sectionData.value);
 	}
 
 	/*const getHtmlWithInputValues = (element: any) => {
