@@ -7,7 +7,7 @@
 				<div class="mb-3">  
 					<input  
 						type="text"  
-						placeholder="Buscar por Documento o Nombre"  
+						placeholder="Buscar por Documento, Nombre o Fecha"  
 						v-model="searchQuery"  
 						class="form-control"  
 					/>  
@@ -87,13 +87,27 @@
 		next();
 	});
 
+	function formatDate(dateString: string): string {  
+		const date = new Date(dateString);  
+		const day = String(date.getDate()).padStart(2, '0');  
+		const month = String(date.getMonth() + 1).padStart(2, '0');  
+		const year = date.getFullYear();  
+		return `${day}-${month}-${year}`;  
+	} 
+
 	const filteredOrders = computed(() => {  
 		const query = searchQuery.value.toLowerCase();  
-		return orders.value.filter((order: { firstName: any; lastName: any; ci: string; }) => {  
+		return orders.value.filter((order: { firstName: string; lastName: string; ci: string; createdDate: string; modifiedDate: string; }) => {  
 			const fullName = `${order.firstName} ${order.lastName}`.toLowerCase();  
-			return order.ci.toLowerCase().includes(query) || fullName.includes(query);  
+			const formattedCreatedDate = formatDate(order.createdDate);  
+			const formattedModifiedDate = formatDate(order.modifiedDate);  
+			
+			return order.ci.toLowerCase().includes(query) ||  
+				fullName.includes(query) ||  
+				formattedCreatedDate.includes(query) ||  
+				formattedModifiedDate.includes(query);  
 		});  
-	});  
+	});   
 
 	const showToast = (message: string) => {  
 		const toast = document.createElement('ion-toast');  
