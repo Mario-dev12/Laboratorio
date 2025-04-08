@@ -397,6 +397,15 @@
 					inputElement.style.color = "green";
 					inputElement.style.borderColor = "lightgreen";
 				}
+				if (valorReferencialString.includes("Hasta")) {
+					if (Number(inputValue) > parsedNumbers[0]) {
+						inputElement.style.color = "red";
+						inputElement.style.borderColor = "red";
+					} else {
+						inputElement.style.color = "green";
+						inputElement.style.borderColor = "lightgreen";
+					}
+				}
 			}
 
 			if (parsedNumbers.length === 1) {
