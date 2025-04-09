@@ -5,7 +5,7 @@
                 <ion-title>  
                     Métodos de Pago  
                     <div>  
-                        Total: {{ totales.totalBs }} Bs | {{ totales.total$ }} $  
+                        Total: {{ (totales.totalBs).toFixed(2) }} Bs | {{ totales.total$ }} $  
                     </div>  
                     <div>  
                         Tasa: {{ precioDolar }} 
@@ -374,7 +374,7 @@ const esMontoEquivalente = computed(() => {
         }  
     });  
 
-    return parseFloat(totalBolivares.toFixed(2)) === props.totales.totalBs && parseFloat((totalDolares).toFixed(2)) === props.totales.total$;  
+    return parseFloat((totalBolivares).toFixed(2)) === parseFloat((props.totales.totalBs).toFixed(2)) && parseFloat((totalDolares).toFixed(2)) === parseFloat((props.totales.total$).toFixed(2));  
 });  
 
 async function calcularMontosRestantes() {  
