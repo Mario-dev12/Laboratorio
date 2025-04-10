@@ -80,7 +80,7 @@
 														v-model="item.valor"
 														@change="checkInputValue($event, index, section, i)" />
 												</td>
-												<td class="text-center align-middle">{{ item.unidad }}</td>
+												<td class="unidad align-middle">{{ item.unidad }}</td>
 												<td class="valor-referencial align-middle" ref="valorReferencial">
 													<span v-html="formatValorReferencial(item.valor_referencial)"></span>
 												</td>
@@ -184,6 +184,7 @@
 	const firmaSello = ref();
 	const sectionRef = ref();
 	let profileNamesOrdered: string[] = [];
+	const alertShown = ref(false);
 
 	const toast = ref({
 		isOpen: false,
@@ -215,7 +216,7 @@
 
 		profileNames = route.query.profileNames;
 		profileNames = JSON.parse(profileNames);
-		const primarySectionsStrings: string[] = ["Hematología completa", "vsg", "Química Sanguinea"];
+		const primarySectionsStrings: string[] = ["Hematología completa", "Hematología Completa", "vsg", "Velocidad de Sedimentación Globular (V.S.G)", "Química Sanguinea", "Química Sanguínea"];
 
 		// filtrar y ordenar secciones
 		const filteredSections: any[] = [];
@@ -223,8 +224,11 @@
 		let firstTest = "";
 		const firstSection: AnyKeyObject = {
 			"Hematología completa": "",
+			"Hematología Completa": "",
 			vsg: "",
+			"Velocidad de Sedimentación Globular (V.S.G)": "",
 			"Química Sanguinea": "",
+			"Química Sanguínea": "",
 		};
 		let primarySectionFilled = false;
 
@@ -295,7 +299,7 @@
 
 			profileNames = to.query.profileNames;
 			profileNames = JSON.parse(profileNames);
-			const primarySectionsStrings: string[] = ["Hematología completa", "vsg", "Química Sanguinea"];
+			const primarySectionsStrings: string[] = ["Hematología completa", "Hematología Completa", "vsg", "Velocidad de Sedimentación Globular (V.S.G)", "Química Sanguinea", "Química Sanguínea"];
 
 			// filtrar y ordenar secciones
 			const filteredSections: any[] = [];
@@ -303,8 +307,11 @@
 			let firstTest = "";
 			const firstSection: AnyKeyObject = {
 				"Hematología completa": "",
+				"Hematología Completa": "",
 				vsg: "",
+				"Velocidad de Sedimentación Globular (V.S.G)": "",
 				"Química Sanguinea": "",
+				"Química Sanguínea": "",
 			};
 			let primarySectionFilled = false;
 
@@ -389,6 +396,15 @@
 				} else {
 					inputElement.style.color = "green";
 					inputElement.style.borderColor = "lightgreen";
+				}
+				if (valorReferencialString.includes("Hasta")) {
+					if (Number(inputValue) > parsedNumbers[0]) {
+						inputElement.style.color = "red";
+						inputElement.style.borderColor = "red";
+					} else {
+						inputElement.style.color = "green";
+						inputElement.style.borderColor = "lightgreen";
+					}
 				}
 			}
 
@@ -547,7 +563,7 @@
 						const parentRow = input.closest("tr");
 						if (parentRow) {
 							const nombreCell = parentRow.querySelector("td.align-middle");
-							const unidadCell = parentRow.querySelector("td.text-center.align-middle");
+							const unidadCell = parentRow.querySelector(".unidad");
 							const valorReferencialCell = parentRow.querySelector(".valor-referencial");
 
 							const nombre = nombreCell ? nombreCell.textContent?.trim() : "N/A";
@@ -558,7 +574,7 @@
 								<tr>
 									<td class="align-middle">${nombre}</td>
 									<td class="align-middle">${value}</td>
-									<td class="text-center align-middle">${unidad}</td>
+									<td class="align-middle">${unidad}</td>
 									<td class="valor-referencial align-middle">${valorReferencial}</td>
 								</tr>
 							`);
@@ -573,7 +589,7 @@
 		});
 
 		if (rows.length === 0) {
-			return `<p>No hay datos ingresados.</p>`;
+			return '';
 		}
 
 		const htmlOutput = `
@@ -938,7 +954,8 @@
 				const resultadoIzquierda = parser.evaluate(izquierda);
 				const resultadoDerecha = parseFloat(derecha);
 
-				if (resultadoIzquierda !== resultadoDerecha) {
+				if ((resultadoIzquierda !== resultadoDerecha) && (!alertShown.value)) {
+					alertShown.value = true;
 					alert(`Error: la suma debe ser igual a ${resultadoDerecha}. Revise las entradas de los campos.`);
 					return null;
 				}
