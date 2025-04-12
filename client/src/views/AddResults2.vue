@@ -110,6 +110,7 @@
 					<button class="col btn btn-primary me-1" @click="sharePDFViaWhatsApp">Compartir PDF por WhatsApp</button>
 					<button class="col btn btn-primary me-1" @click="enviarCorreo">Compartir PDF por Mailto</button>
 					<button class="col btn btn-primary me-1" @click="printPDF">Imprimir PDF</button>
+					<button class="col btn btn-primary me-1" @click="pdfCover">Imprimir Portada</button>
 				</div>
 			</div>
 			<ion-toast
@@ -213,10 +214,11 @@
 		order.value = route.query.profile;
 		order.value = JSON.parse(order.value);
 		ordersArray.value = order.value.orders;
+		profileNamesOrdered = []
 
 		profileNames = route.query.profileNames;
 		profileNames = JSON.parse(profileNames);
-		const primarySectionsStrings: string[] = ["Hematología completa", "Hematología Completa", "vsg", "Velocidad de Sedimentación Globular (V.S.G)", "Química Sanguinea", "Química Sanguínea"];
+		const primarySectionsStrings: string[] = ["Hematología completa", "Hematología Completa", "HEMATOLOGÍA COMPLETA", "vsg", "Velocidad de Sedimentación Globular (V.S.G)", "VELOCIDAD DE SEDIMENTACIÓN GLOBULAR (V.S.G)", "Química Sanguinea", "Química Sanguínea", "QUÍMICA SANGUÍNEA"];
 
 		// filtrar y ordenar secciones
 		const filteredSections: any[] = [];
@@ -225,10 +227,13 @@
 		const firstSection: AnyKeyObject = {
 			"Hematología completa": "",
 			"Hematología Completa": "",
+			"HEMATOLOGÍA COMPLETA": "",
 			vsg: "",
 			"Velocidad de Sedimentación Globular (V.S.G)": "",
+			"VELOCIDAD DE SEDIMENTACIÓN GLOBULAR (V.S.G)": "",
 			"Química Sanguinea": "",
 			"Química Sanguínea": "",
+			"QUÍMICA SANGUÍNEA": "",
 		};
 		let primarySectionFilled = false;
 
@@ -281,7 +286,6 @@
 		filteredSections.unshift(firstSection);
 		//
 
-		console.log(filteredSections);
 		profilesData.value = filteredSections;
 
 		sectionData.value = profilesData.value[0];
@@ -299,7 +303,7 @@
 
 			profileNames = to.query.profileNames;
 			profileNames = JSON.parse(profileNames);
-			const primarySectionsStrings: string[] = ["Hematología completa", "Hematología Completa", "vsg", "Velocidad de Sedimentación Globular (V.S.G)", "Química Sanguinea", "Química Sanguínea"];
+			const primarySectionsStrings: string[] = ["Hematología completa", "Hematología Completa", "HEMATOLOGÍA COMPLETA", "vsg", "Velocidad de Sedimentación Globular (V.S.G)", "VELOCIDAD DE SEDIMENTACIÓN GLOBULAR (V.S.G)", "Química Sanguinea", "Química Sanguínea", "QUÍMICA SANGUÍNEA"];
 
 			// filtrar y ordenar secciones
 			const filteredSections: any[] = [];
@@ -308,10 +312,13 @@
 			const firstSection: AnyKeyObject = {
 				"Hematología completa": "",
 				"Hematología Completa": "",
+				"HEMATOLOGÍA COMPLETA": "",
 				vsg: "",
 				"Velocidad de Sedimentación Globular (V.S.G)": "",
+				"VELOCIDAD DE SEDIMENTACIÓN GLOBULAR (V.S.G)": "",
 				"Química Sanguinea": "",
 				"Química Sanguínea": "",
+				"QUÍMICA SANGUÍNEA": "",
 			};
 			let primarySectionFilled = false;
 
@@ -344,14 +351,12 @@
 					}
 				}
 
-				console.log(filteredSection);
-
 				if (hasPrimarySection && !firstTest) {
 					firstTest = profile.profiles[0].profileName;
 				} else {
-					profileNamesOrdered.push(profile.profiles[0].profileName);
 					if (Object.keys(filteredSection).length != 0) {
 						filteredSections.push(filteredSection);
+						profileNamesOrdered.push(profile.profiles[0].profileName);
 					}
 				}
 			}
@@ -365,7 +370,7 @@
 			profileNamesOrdered.unshift(firstTest);
 			filteredSections.unshift(firstSection);
 			//
-			console.log(filteredSections);
+
 			profilesData.value = filteredSections;
 
 			sectionData.value = profilesData.value[0];
@@ -734,6 +739,38 @@
 
 		html2pdf().from(element).set(options).save();
 		html = "";
+	};
+
+	const pdfCover = async () => {
+		const profileRefCopy = profileRef.value.cloneNode(true);
+		const patientInfoDivCopy = profileRefCopy.querySelector(".patient-info");
+		const profileContentDivs = profileRefCopy.querySelectorAll(".profile-content");
+
+		html = patientInfoDivCopy.innerHTML;
+
+		const element = html;
+
+		const firstName = order.value.firstName;
+		const lastName = order.value.lastName;
+
+		const today = new Date();
+		const year = today.getFullYear();
+		const month = String(today.getMonth() + 1).padStart(2, "0");
+		const day = String(today.getDate()).padStart(2, "0");
+		const formattedDate = `${day}-${month}-${year}`;
+
+		const filename = `portada.pdf`;
+		profileName.value = `portada.pdf`;
+
+		const options = {
+			margin: 6,
+			filename: filename,
+			image: { type: "jpeg", quality: 0.98 },
+			html2canvas: { scale: 2 },
+			jsPDF: { unit: "mm", format: "letter", orientation: "portrait" },
+		};
+
+		html2pdf().from(element).set(options).save();
 	};
 
 	// generar pdf sin firma y sello
