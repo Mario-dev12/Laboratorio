@@ -216,7 +216,14 @@
 
 		profileNames = route.query.profileNames;
 		profileNames = JSON.parse(profileNames);
-		const primarySectionsStrings: string[] = ["Hematología completa", "Hematología Completa", "vsg", "Velocidad de Sedimentación Globular (V.S.G)", "Química Sanguinea", "Química Sanguínea"];
+		const primarySectionsStrings: string[] = [
+			"Hematología completa",
+			"Hematología Completa",
+			"vsg",
+			"Velocidad de Sedimentación Globular (V.S.G)",
+			"Química Sanguinea",
+			"Química Sanguínea",
+		];
 
 		// filtrar y ordenar secciones
 		const filteredSections: any[] = [];
@@ -277,11 +284,16 @@
 			}
 		}
 
-		profileNamesOrdered.unshift(firstTest);
-		filteredSections.unshift(firstSection);
+		if (firstTest) {
+			profileNamesOrdered.unshift(firstTest);
+		}
+
+		if (Object.keys(firstSection).length != 0) {
+			filteredSections.unshift(firstSection);
+		}
+
 		//
 
-		console.log(filteredSections);
 		profilesData.value = filteredSections;
 
 		sectionData.value = profilesData.value[0];
@@ -299,7 +311,14 @@
 
 			profileNames = to.query.profileNames;
 			profileNames = JSON.parse(profileNames);
-			const primarySectionsStrings: string[] = ["Hematología completa", "Hematología Completa", "vsg", "Velocidad de Sedimentación Globular (V.S.G)", "Química Sanguinea", "Química Sanguínea"];
+			const primarySectionsStrings: string[] = [
+				"Hematología completa",
+				"Hematología Completa",
+				"vsg",
+				"Velocidad de Sedimentación Globular (V.S.G)",
+				"Química Sanguinea",
+				"Química Sanguínea",
+			];
 
 			// filtrar y ordenar secciones
 			const filteredSections: any[] = [];
@@ -589,7 +608,7 @@
 		});
 
 		if (rows.length === 0) {
-			return '';
+			return "";
 		}
 
 		const htmlOutput = `
@@ -954,7 +973,7 @@
 				const resultadoIzquierda = parser.evaluate(izquierda);
 				const resultadoDerecha = parseFloat(derecha);
 
-				if ((resultadoIzquierda !== resultadoDerecha) && (!alertShown.value)) {
+				if (resultadoIzquierda !== resultadoDerecha && !alertShown.value) {
 					alertShown.value = true;
 					alert(`Error: la suma debe ser igual a ${resultadoDerecha}. Revise las entradas de los campos.`);
 					return null;
