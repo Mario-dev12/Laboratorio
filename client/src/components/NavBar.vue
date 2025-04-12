@@ -104,7 +104,7 @@
 						<ion-icon slot="start" :icon="calculator"></ion-icon>
 						Caja
 					</ion-button>
-					<ion-button class="border-end border-secondary" @click="() => router.push({ name: 'UroResults' })">
+					<ion-button fill="clear" @click="() => router.push({ name: 'UroResults' })">
 						<ion-icon slot="start" :icon="calculator"></ion-icon>
 						Urocultivo
 					</ion-button>
