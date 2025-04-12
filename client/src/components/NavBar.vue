@@ -34,7 +34,7 @@
 					</ion-button>
 					<ion-button class="border-end border-secondary" @click="() => router.push({ name: 'UroResults' })">
 						<ion-icon slot="start" :icon="calculator"></ion-icon>
-						Caja
+						Urocultivo
 					</ion-button>
 					<div class="d-flex align-items-center ms-2">
 						<h5 v-if="!showChangeDolar" class="text-success mb-0 fw-bold">Tasa Dolar: Bs: {{ precioDolar }}</h5>
@@ -103,6 +103,10 @@
 					<ion-button fill="clear" @click="() => router.push({ name: 'Caja' })">
 						<ion-icon slot="start" :icon="calculator"></ion-icon>
 						Caja
+					</ion-button>
+					<ion-button class="border-end border-secondary" @click="() => router.push({ name: 'UroResults' })">
+						<ion-icon slot="start" :icon="calculator"></ion-icon>
+						Urocultivo
 					</ion-button>
 					<div class="d-flex align-items-center justify-content-center">
 						<h5 v-if="!showChangeDolar" class="text-success mb-0 fw-bold">Tasa Dolar: Bs: {{ precioDolar }}</h5>
