@@ -393,8 +393,13 @@
 				}
 			}
 
-			profileNamesOrdered.unshift(firstTest);
-			filteredSections.unshift(firstSection);
+			if (firstTest) {
+				profileNamesOrdered.unshift(firstTest);
+			}
+
+			if (Object.keys(firstSection).length != 0) {
+				filteredSections.unshift(firstSection);
+			}
 			//
 
 			profilesData.value = filteredSections;
