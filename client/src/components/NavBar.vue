@@ -32,6 +32,10 @@
 						<ion-icon slot="start" :icon="calculator"></ion-icon>
 						Caja
 					</ion-button>
+					<ion-button class="border-end border-secondary" @click="() => router.push({ name: 'UroResults' })">
+						<ion-icon slot="start" :icon="calculator"></ion-icon>
+						Caja
+					</ion-button>
 					<div class="d-flex align-items-center ms-2">
 						<h5 v-if="!showChangeDolar" class="text-success mb-0 fw-bold">Tasa Dolar: Bs: {{ precioDolar }}</h5>
 						<input
