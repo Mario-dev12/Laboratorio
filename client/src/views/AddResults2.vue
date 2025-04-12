@@ -775,20 +775,10 @@
 	const pdfCover = async () => {
 		const profileRefCopy = profileRef.value.cloneNode(true);
 		const patientInfoDivCopy = profileRefCopy.querySelector(".patient-info");
-		const profileContentDivs = profileRefCopy.querySelectorAll(".profile-content");
 
 		html = patientInfoDivCopy.innerHTML;
 
 		const element = html;
-
-		const firstName = order.value.firstName;
-		const lastName = order.value.lastName;
-
-		const today = new Date();
-		const year = today.getFullYear();
-		const month = String(today.getMonth() + 1).padStart(2, "0");
-		const day = String(today.getDate()).padStart(2, "0");
-		const formattedDate = `${day}-${month}-${year}`;
 
 		const filename = `portada.pdf`;
 		profileName.value = `portada.pdf`;
