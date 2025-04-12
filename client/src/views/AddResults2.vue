@@ -214,11 +214,21 @@
 		order.value = route.query.profile;
 		order.value = JSON.parse(order.value);
 		ordersArray.value = order.value.orders;
-		profileNamesOrdered = []
+		profileNamesOrdered = [];
 
 		profileNames = route.query.profileNames;
 		profileNames = JSON.parse(profileNames);
-		const primarySectionsStrings: string[] = ["Hematología completa", "Hematología Completa", "HEMATOLOGÍA COMPLETA", "vsg", "Velocidad de Sedimentación Globular (V.S.G)", "VELOCIDAD DE SEDIMENTACIÓN GLOBULAR (V.S.G)", "Química Sanguinea", "Química Sanguínea", "QUÍMICA SANGUÍNEA"];
+		const primarySectionsStrings: string[] = [
+			"Hematología completa",
+			"Hematología Completa",
+			"HEMATOLOGÍA COMPLETA",
+			"vsg",
+			"Velocidad de Sedimentación Globular (V.S.G)",
+			"VELOCIDAD DE SEDIMENTACIÓN GLOBULAR (V.S.G)",
+			"Química Sanguinea",
+			"Química Sanguínea",
+			"QUÍMICA SANGUÍNEA",
+		];
 
 		// filtrar y ordenar secciones
 		const filteredSections: any[] = [];
@@ -282,8 +292,14 @@
 			}
 		}
 
-		profileNamesOrdered.unshift(firstTest);
-		filteredSections.unshift(firstSection);
+		if (firstTest) {
+			profileNamesOrdered.unshift(firstTest);
+		}
+
+		if (Object.keys(firstSection).length != 0) {
+			filteredSections.unshift(firstSection);
+		}
+
 		//
 
 		profilesData.value = filteredSections;
@@ -303,7 +319,17 @@
 
 			profileNames = to.query.profileNames;
 			profileNames = JSON.parse(profileNames);
-			const primarySectionsStrings: string[] = ["Hematología completa", "Hematología Completa", "HEMATOLOGÍA COMPLETA", "vsg", "Velocidad de Sedimentación Globular (V.S.G)", "VELOCIDAD DE SEDIMENTACIÓN GLOBULAR (V.S.G)", "Química Sanguinea", "Química Sanguínea", "QUÍMICA SANGUÍNEA"];
+			const primarySectionsStrings: string[] = [
+				"Hematología completa",
+				"Hematología Completa",
+				"HEMATOLOGÍA COMPLETA",
+				"vsg",
+				"Velocidad de Sedimentación Globular (V.S.G)",
+				"VELOCIDAD DE SEDIMENTACIÓN GLOBULAR (V.S.G)",
+				"Química Sanguinea",
+				"Química Sanguínea",
+				"QUÍMICA SANGUÍNEA",
+			];
 
 			// filtrar y ordenar secciones
 			const filteredSections: any[] = [];
@@ -367,8 +393,13 @@
 				}
 			}
 
-			profileNamesOrdered.unshift(firstTest);
-			filteredSections.unshift(firstSection);
+			if (firstTest) {
+				profileNamesOrdered.unshift(firstTest);
+			}
+
+			if (Object.keys(firstSection).length != 0) {
+				filteredSections.unshift(firstSection);
+			}
 			//
 
 			profilesData.value = filteredSections;
@@ -594,7 +625,7 @@
 		});
 
 		if (rows.length === 0) {
-			return '';
+			return "";
 		}
 
 		const htmlOutput = `
@@ -991,7 +1022,7 @@
 				const resultadoIzquierda = parser.evaluate(izquierda);
 				const resultadoDerecha = parseFloat(derecha);
 
-				if ((resultadoIzquierda !== resultadoDerecha) && (!alertShown.value)) {
+				if (resultadoIzquierda !== resultadoDerecha && !alertShown.value) {
 					alertShown.value = true;
 					alert(`Error: la suma debe ser igual a ${resultadoDerecha}. Revise las entradas de los campos.`);
 					return null;
