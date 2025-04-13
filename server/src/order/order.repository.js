@@ -40,11 +40,30 @@ orderRepository.readOrdersDay = async (today, date) => {
   }
 }
 
+orderRepository.readCultiveOrdersDay = async (today, date) => {
+  try {
+    const resp = await pool.query(`SELECT * FROM sp_find_all_cultive_order_day('${today}', '${date}')`);
+    return resp.rows[0].sp_find_all_cultive_order_day;
+  } catch (error) {
+    throw error;
+  }
+}
+
 orderRepository.readHistOrdersDay = async () => {
   try {
     
     const resp = await pool.query(`SELECT * FROM sp_find_all_hist_order_day()`);
     return resp.rows[0].sp_find_all_hist_order_day;
+  } catch (error) {
+    throw error;
+  }
+}
+
+orderRepository.readCultiveHistOrdersDay = async () => {
+  try {
+    
+    const resp = await pool.query(`SELECT * FROM sp_find_all_cultive_hist_order_day()`);
+    return resp.rows[0].sp_find_all_cultive_hist_order_day;
   } catch (error) {
     throw error;
   }

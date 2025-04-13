@@ -311,7 +311,7 @@
 		user.value.id = userData.value[0].idUser;
 		user.value.email = userData.value[0].email;
 		user.value.phone = userData.value[0].phone;
-		profiles.value = await profilesStore.fecthProfiles();
+		profiles.value = await profilesStore.fecthAllProfiles();
 		profiles.value = profiles.value.map((exam: { cost_bs: string; cost_usd: string }) => ({
 			...exam,
 			cost_bs: parseFloat(exam.cost_bs.replace(",", ".")),

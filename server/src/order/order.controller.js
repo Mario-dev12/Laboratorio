@@ -46,9 +46,31 @@ orderController.readOrdersDay = async (req, res) => {
   }
 }
 
+orderController.readCultiveOrdersDay = async (req, res) => {
+  const today = req.query.today;
+  const date = req.query.date;
+  try {
+    const answer = await orderServices.readCultiveOrdersDay(today, date)
+
+    res.send(answer)
+  } catch (error) {
+    return res.status(400).send(error.stack)
+  }
+}
+
 orderController.readHistOrdersDay = async (req, res) => {
   try {
     const answer = await orderServices.readHistOrdersDay()
+
+    res.send(answer)
+  } catch (error) {
+    return res.status(400).send(error.stack)
+  }
+}
+
+orderController.readCultiveHistOrdersDay = async (req, res) => {
+  try {
+    const answer = await orderServices.readCultiveHistOrdersDay()
 
     res.send(answer)
   } catch (error) {

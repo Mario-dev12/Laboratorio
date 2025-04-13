@@ -10,7 +10,11 @@
 					</ion-button>
 					<ion-button class="border-end border-secondary" fill="clear" @click="() => router.push({ name: 'EditarPerfil' })">
 						<ion-icon slot="start" :icon="pencilSharp"></ion-icon>
-						Editar Perfil
+						Perfil
+					</ion-button>
+					<ion-button class="border-end border-secondary" fill="clear" @click="() => router.push({ name: 'EditarCultivo' })">
+						<ion-icon slot="start" :icon="addCircleSharp"></ion-icon>
+						Cultivo
 					</ion-button>
 					<ion-button class="border-end border-secondary" @click="() => router.push({ name: 'Reactivos' })">
 						<ion-icon slot="start" :icon="flask"></ion-icon>
@@ -82,7 +86,11 @@
 					</ion-button>
 					<ion-button class="clear" fill="clear" @click="() => router.push({ name: 'EditarPerfil' })">
 						<ion-icon slot="start" :icon="pencilSharp"></ion-icon>
-						Editar Perfil
+						Perfil
+					</ion-button>
+					<ion-button class="clear" fill="clear" @click="() => router.push({ name: 'EditarCultivo' })">
+						<ion-icon slot="start" :icon="addCircleSharp"></ion-icon>
+						Cultivo
 					</ion-button>
 					<ion-button fill="clear" class="" @click="() => router.push({ name: 'Reactivos' })">
 						<ion-icon slot="start" :icon="flask"></ion-icon>
@@ -171,7 +179,7 @@
 		IonMenuToggle,
 		IonRow,
 	} from "@ionic/vue";
-	import { flask, home, document, closeOutline, calculator, create, copy, pencilSharp } from "ionicons/icons";
+	import { flask, home, document, closeOutline, calculator, create, copy, pencilSharp, addSharp, addCircleSharp } from "ionicons/icons";
 	import { useRouter } from "vue-router";
 	import { onMounted, ref, watch } from "vue";
 	import eventBus from "../eventBus";

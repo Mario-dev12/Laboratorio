@@ -9,6 +9,12 @@
 					<ion-button @click="createPerfil" color="primary">+ Perfil</ion-button>
 				</div>
 				<div class="perfiles">
+					<input  
+						type="text"  
+						v-model="filtroNombre"  
+						placeholder="Filtrar por nombre"  
+						class="form-control"  
+					/>  
 					<table class="table table-striped text-center">
 						<thead>
 							<tr>
@@ -20,7 +26,7 @@
 							</tr>
 						</thead>
 						<tbody>
-							<tr v-for="perfil in perfiles" :key="perfil.idProfile">
+							<tr v-for="perfil in perfilesFiltrados" :key="perfil.idProfile">
 								<td>{{ perfil.idProfile }}</td>
 								<td>
 									{{ perfil.name }}
@@ -291,7 +297,7 @@
 
 <script setup lang="ts">
 	import { IonContent, IonPage, IonButton, IonToast } from "@ionic/vue";
-	import { onMounted, ref, nextTick, watch } from "vue";
+	import { onMounted, ref, nextTick, watch, computed } from "vue";
 	import { profileStore } from "@/stores/profileStore";
 	import { restrictionStore } from "@/stores/restrictionStore";
 	import { Profile, Campo, Unit } from "@/interfaces/interfaces";
@@ -337,6 +343,7 @@
 	const formulaRestriccion = ref("");
 	const tasa = ref<number>(parseFloat(localStorage.getItem("tasaDolar") || "1"));
 	const completarHematologia = ref();
+	const filtroNombre = ref(''); 
 	const toast = ref({
 		isOpen: false,
 		message: "",
@@ -381,6 +388,12 @@
 		camposExistentes.value = await tests.fecthProfilesInputs();
 		unidadesDeCampos.value = await tests.fecthProfilesInputUnits();
 	});
+
+	const perfilesFiltrados = computed(() => {  
+		return perfiles.value.filter(perfil => {  
+			return perfil.name.toLowerCase().includes(filtroNombre.value.toLowerCase());  
+		});  
+	}); 
 
 	const completarSeccion = async (event: any, seccion: any) => {
 		if (event.target.checked) {
