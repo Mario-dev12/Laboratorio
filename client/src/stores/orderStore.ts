@@ -27,8 +27,18 @@ export const orderStore = defineStore("order", {
 			this.order = response;
 			return this.order;
 		},
+		async fecthCultiveOrdersDay(today: boolean, date: string) {
+			const response = await axiosRepository.getAllCultiveOrders<Order>("order", today, date);
+			this.order = response;
+			return this.order;
+		},
 		async fecthHistOrdersDay() {
 			const response = await axiosRepository.getAllHistOrders<Order>("order");
+			this.order = response;
+			return this.order;
+		},
+		async fecthCultiveHistOrdersDay() {
+			const response = await axiosRepository.getAllCultiveHistOrders<Order>("order");
 			this.order = response;
 			return this.order;
 		},

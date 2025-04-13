@@ -68,6 +68,24 @@ profileRepository.readProfiles = async () => {
 	}
 };
 
+profileRepository.readAllProfiles = async () => {
+	try {
+		const resp = await pool.query(`SELECT * FROM sp_find_all_profile_cultive()`);
+		return resp.rows[0].sp_find_all_profile_cultive;
+	} catch (error) {
+		throw error;
+	}
+};
+
+profileRepository.readCultives = async () => {
+	try {
+		const resp = await pool.query(`SELECT * FROM sp_find_all_cultive()`);
+		return resp.rows[0].sp_find_all_cultive;
+	} catch (error) {
+		throw error;
+	}
+};
+
 profileRepository.readProfilesInputs = async () => {
 	try {
 		const resp = await pool.query(`SELECT * FROM sp_find_all_inputs()`);
@@ -197,6 +215,15 @@ profileRepository.createProfileInputs = async (name, cost_bs, cost_usd, inputs, 
 	}
 };
 
+profileRepository.createCultive = async (name, cost_bs, cost_usd) => {
+	try {
+		const resp = await pool.query(`SELECT * FROM sp_create_profile('${name}', '${cost_bs}', '${cost_usd}')`);
+		return resp.rows[0].sp_create_profile;
+	} catch (error) {
+		throw error;
+	}
+};
+
 profileRepository.createProfileSection = async (idProfile, section) => {
 	try {
 		const resp = await createInsertarPerfilDivisionYCampos(idProfile, section)
@@ -228,6 +255,17 @@ profileRepository.updateProfile = async (id, answer) => {
 	}
 };
 
+profileRepository.updateCultive = async (id, answer) => {
+	try {
+		const resp = await pool.query(
+			`SELECT * FROM sp_update_profile(${id}, '${answer.name}', '${answer.cost_bs}', '${answer.cost_usd}')`
+		);
+		return resp.rows[0].sp_update_profile;
+	} catch (error) {
+		throw error;
+	}
+};
+
 profileRepository.updateInputs = async (id, answer) => {
 	try {
 		const resp = await pool.query(`SELECT * FROM sp_update_inputs(${id}, '${answer.nombre}', '${answer.unidad}', '${answer.valor_referencial}', '${answer.calculado}')`);
@@ -247,6 +285,15 @@ profileRepository.updateInputsProfile = async (id, answer) => {
 };
 
 profileRepository.deleteProfile = async (id) => {
+	try {
+		const resp = await pool.query(`SELECT * FROM sp_delete_profile(${id})`);
+		return resp.rows[0].sp_delete_profile;
+	} catch (error) {
+		throw error;
+	}
+};
+
+profileRepository.deleteCultive = async (id) => {
 	try {
 		const resp = await pool.query(`SELECT * FROM sp_delete_profile(${id})`);
 		return resp.rows[0].sp_delete_profile;

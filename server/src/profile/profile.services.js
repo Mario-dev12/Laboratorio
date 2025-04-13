@@ -6,6 +6,14 @@ profileServices.readProfiles = async () => {
     return await profileRepository.readProfiles()
 }
 
+profileServices.readAllProfiles = async () => {
+    return await profileRepository.readAllProfiles()
+}
+
+profileServices.readCultives = async () => {
+    return await profileRepository.readCultives()
+}
+
 profileServices.readProfilesInputs = async () => {
     return await profileRepository.readProfilesInputs()
 }
@@ -58,6 +66,10 @@ profileServices.createProfileInputs = async (name, cost_bs, cost_usd, inputs, se
     return await profileRepository.createProfileInputs(name, cost_bs, cost_usd, inputs, section)
 }
 
+profileServices.createCultive = async (name, cost_bs, cost_usd) => {
+    return await profileRepository.createCultive(name, cost_bs, cost_usd)
+}
+
 profileServices.createProfileSection = async (idProfile, section) => {
     const sectionArray = [section];
     return await profileRepository.createProfileSection(idProfile, sectionArray)
@@ -71,6 +83,10 @@ profileServices.updateProfile = async (id, answer) => {
     return await profileRepository.updateProfile(id, answer)
 }
 
+profileServices.updateCultive = async (id, answer) => {
+    return await profileRepository.updateCultive(id, answer)
+}
+
 profileServices.updateInputs = async (id, answer) => {
     return await profileRepository.updateInputs(id, answer)
 }
@@ -81,6 +97,10 @@ profileServices.updateInputsProfile = async (id, answer) => {
 
 profileServices.deleteProfile = async id => {
     return await profileRepository.deleteProfile(id)
+}
+
+profileServices.deleteCultive = async id => {
+    return await profileRepository.deleteCultive(id)
 }
 
 profileServices.deleteInputs = async id => {

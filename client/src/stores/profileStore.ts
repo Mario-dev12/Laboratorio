@@ -15,6 +15,18 @@ export const profileStore = defineStore("profile", {
 			return this.profiles;
 		},
 
+		async fecthAllProfiles() {
+			const response = await axiosRepository.getAllProfile<Profile>("profile");
+			this.profiles = response;
+			return this.profiles;
+		},
+
+		async fecthCultives() {
+			const response = await axiosRepository.getAllCultive<Profile>("profile");
+			this.profiles = response;
+			return this.profiles;
+		},
+
 		async fecthProfilesInputs() {
 			const response = await axiosRepository.getAllInputs<Campo>("profile");
 			this.inputs = response;
@@ -86,6 +98,11 @@ export const profileStore = defineStore("profile", {
 			this.profiles = response;
 			return this.profiles;
 		},
+		async createCultive(exam: Partial<Profile>) {
+			const response = await axiosRepository.createCultive<Partial<Profile>>("profile", exam);
+			this.profiles = response;
+			return this.profiles;
+		},
 		async createProfileSection(exam: any, section: any) {
 			const response = await axiosRepository.createProfileSection<Profile>("profile", exam, section);
 			this.profiles = response;
@@ -101,6 +118,11 @@ export const profileStore = defineStore("profile", {
 			this.profiles = response;
 			return this.profiles;
 		},
+		async updateCultive(id: string | number, data: Profile) {
+			const response = await axiosRepository.updateCultive<Profile>("profile", id, data);
+			this.profiles = response;
+			return this.profiles;
+		},
 		async updateInputs(id: string | number, data: Profile) {
 			const response = await axiosRepository.updateInputs<Profile>("profile", id, data);
 			this.profiles = response;
@@ -113,6 +135,9 @@ export const profileStore = defineStore("profile", {
 		},
 		async deleteProfile(id: string | number) {
 			await axiosRepository.delete("profile", id);
+		},
+		async deleteCultive(id: string | number) {
+			await axiosRepository.deleteCultive("profile", id);
 		},
 		async deleteInputs(id: string | number) {
 			await axiosRepository.deleteInputs("profile", id);

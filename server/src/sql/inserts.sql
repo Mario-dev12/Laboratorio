@@ -15,7 +15,8 @@ INSERT INTO users (ci, firstName, lastName, genre, age, address, phone, email) V
 INSERT INTO profile (name, cost_bs, cost_usd) VALUES 
 ('Perfil 20', '244,35', '5'),
 ('Uroanalisis', '244,35', '5'),
-('Perfil Tiroideo', '244,35', '5');
+('Perfil Tiroideo', '244,35', '5'),
+('Urocultivo y Antibiograma', '386,30', '5');
 
 INSERT INTO restriction (idProfile, restriction) VALUES 
 (1, 'colesterol_hdl + colesterol_ldl = 150');
@@ -23,14 +24,16 @@ INSERT INTO restriction (idProfile, restriction) VALUES
 INSERT INTO exam (idUser, total_cost_bs, total_cost_usd) VALUES 
 (1, '488,7', '10'),
 (2, '488,7', '10'),
-(3, '244,35', '5');
+(3, '244,35', '5'),
+(4, '386,30', '5');
 
 INSERT INTO orders (idExam, idProfile, status) VALUES 
 (1, 1, 'Pendiente por pasar'),
 (1, 2, 'Pendiente por pasar'),
 (2, 3, 'Pendiente por pasar'),
 (2, 2, 'Pendiente por pasar'),
-(3, 3, 'Pendiente por pasar');
+(3, 3, 'Pendiente por pasar'),
+(4, 4, 'Pendiente por pasar');
 
 INSERT INTO payment_method (name) VALUES 
 ('Debito'),
@@ -41,7 +44,8 @@ INSERT INTO payment (idPayment_method, idExam, amount_bs, amount_usd, bank, phon
 (1, 1, '244,35', '5', 'Mercantil', '', 'Bolivares'),
 (2, 1, '244,35', '5', 'Venezuela', '0414-894432', 'Bolivares'),
 (3, 2, '488,7', '10', '', '', 'Dolares'),
-(1, 3, '244,35', '5', 'Mercantil', '', 'Bolivares');
+(1, 3, '244,35', '5', 'Mercantil', '', 'Bolivares'),
+(2, 4, '386,30', '5', '', '', 'Dolares');
 
 INSERT INTO reactive (name, total) VALUES   
 ('Glucosa', 5),  
@@ -270,3 +274,42 @@ INSERT INTO division_campo (idDivision, idCampo) VALUES
 (6, 30), 
 (6, 31),  
 (6, 32);
+
+INSERT INTO bacteria (nombre) VALUES 
+('Escherichia coli'),  
+('Klebsiella pneumoniae'),  
+('Proteus mirabilis'),  
+('Enterococcus faecalis');
+
+INSERT INTO antibiotico (nombre) VALUES 
+('Ciprofloxacino'),
+('Amoxicilina'),  
+('Nitrofurantoína'),  
+('Trimetoprim-sulfametoxazol'),  
+('Levofloxacino'),  
+('Fosfomicina'),  
+('Piperacilina-tazobactam'),  
+('Cefalexina'),  
+('Gemifloxacino'),  
+('Ampicilina'),  
+('Cefotaxima'),  
+('Doripenem');  
+
+INSERT INTO resultado_urocultivo (idOrder, idBacteria, contaje, observacion) VALUES 
+(6, 1, '188.000 colonias/cc. De orina', '');
+
+INSERT INTO sensible (idResultado, idAntibiotico) VALUES 
+(1, 1),
+(1, 2),
+(1, 3),
+(1, 4),
+(1, 5),
+(1, 6);
+
+INSERT INTO resistente (idResultado, idAntibiotico) VALUES 
+(1, 7),
+(1, 8),
+(1, 9),
+(1, 10),
+(1, 11),
+(1, 12);

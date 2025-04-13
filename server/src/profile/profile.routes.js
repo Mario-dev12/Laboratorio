@@ -4,6 +4,7 @@ import profileController from "./profile.controller.js";
 
 // Profile
 profileRouter.get("/", profileController.readProfiles);
+profileRouter.get("/profile", profileController.readAllProfiles);
 profileRouter.get("/unrepeated", profileController.readProfilesUnrepeated);
 profileRouter.get("/type/:type", profileController.readProfileByType);
 profileRouter.post("/", profileController.createProfile);
@@ -34,5 +35,11 @@ profileRouter.delete("/section/:idProfile/:nombre", profileController.deleteProf
 //SectionsInputs
 profileRouter.post("/section/input", profileController.createProfileSectionInputs);
 profileRouter.delete("/section/input/:idProfile/:nombre/:idsArray", profileController.deleteProfileSectionInputs);
+
+//Cultive
+profileRouter.get("/cultive", profileController.readCultives);
+profileRouter.post("/cultive", profileController.createCultive);
+profileRouter.put("/cultive/:id", profileController.updateCultive);
+profileRouter.delete("/cultive/:id", profileController.deleteCultive);
 
 export default profileRouter;

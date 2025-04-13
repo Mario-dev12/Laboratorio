@@ -12,6 +12,26 @@ profileController.readProfiles = async (req, res) => {
 	}
 };
 
+profileController.readAllProfiles = async (req, res) => {
+	try {
+		const answer = await profileServices.readAllProfiles();
+
+		res.send(answer);
+	} catch (error) {
+		return res.status(400).send(error.stack);
+	}
+};
+
+profileController.readCultives = async (req, res) => {
+	try {
+		const answer = await profileServices.readCultives();
+
+		res.send(answer);
+	} catch (error) {
+		return res.status(400).send(error.stack);
+	}
+};
+
 profileController.readProfilesInputs = async (req, res) => {
 	try {
 		const answer = await profileServices.readProfilesInputs();
@@ -150,6 +170,20 @@ profileController.createProfileInputs = async (req, res) => {
 	}
 };
 
+profileController.createCultive = async (req, res) => {
+	try {
+		const answer = await profileServices.createCultive(
+			req.body.data.name,
+			req.body.data.cost_bs,
+			req.body.data.cost_usd,
+			req.body.inputs
+		);
+		res.send(answer);
+	} catch (error) {
+		return res.status(400).send(error.stack);
+	}
+};
+
 profileController.createProfileSection = async (req, res) => {
 	try {
 		const answer = await profileServices.createProfileSection(req.body.data, req.body.section);
@@ -183,6 +217,17 @@ profileController.updateProfile = async (req, res) => {
 	}
 };
 
+profileController.updateCultive = async (req, res) => {
+	const { id } = req.params;
+
+	try {
+		const answer = await profileServices.updateCultive(id, req.body);
+		res.send(answer);
+	} catch (error) {
+		return res.status(400).send(error.message);
+	}
+};
+
 profileController.updateInputs = async (req, res) => {
 	const { id } = req.params;
 
@@ -210,6 +255,17 @@ profileController.deleteProfile = async (req, res) => {
 
 	try {
 		const answer = await profileServices.deleteProfile(id);
+		res.send(answer);
+	} catch (error) {
+		return res.status(400).send(error.stack);
+	}
+};
+
+profileController.deleteCultive = async (req, res) => {
+	const { id } = req.params;
+
+	try {
+		const answer = await profileServices.deleteCultive(id);
 		res.send(answer);
 	} catch (error) {
 		return res.status(400).send(error.stack);

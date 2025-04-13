@@ -52,30 +52,84 @@ begin
 end;
 $BODY$;
 
-CREATE OR REPLACE FUNCTION sp_find_all_profile(
-	)
-    RETURNS json[]
-    LANGUAGE 'plpgsql'
-    COST 100
-    VOLATILE PARALLEL UNSAFE
-AS $BODY$
-declare 
-	v_json_resp json[];
-begin
-	select array(
-        select jsonb_build_object(
-			'idProfile', a.idProfile,
-			'name', a.name,
-            'cost_bs', a.cost_bs,
-			'cost_usd', a.cost_usd,
-			'createdDate', a.createdDate,
-            'modifiedDate', a.modifiedDate
-		)
-		from profile a
-        ) ::json[] into v_json_resp;
-		return v_json_resp;
-end;
+CREATE OR REPLACE FUNCTION sp_find_all_profile()  
+RETURNS json[]  
+LANGUAGE 'plpgsql'  
+COST 100  
+VOLATILE PARALLEL UNSAFE  
+AS $BODY$  
+DECLARE   
+	v_json_resp json[];  
+BEGIN  
+	SELECT array(  
+		SELECT jsonb_build_object(  
+			'idProfile', a.idProfile,  
+			'name', a.name,  
+			'cost_bs', a.cost_bs,  
+			'cost_usd', a.cost_usd,  
+			'createdDate', a.createdDate,  
+			'modifiedDate', a.modifiedDate  
+		)  
+		FROM profile a  
+		WHERE a.name NOT ILIKE '%urocultivo%'   
+		  AND a.name NOT ILIKE '%cultivo%'  
+		) ::json[] INTO v_json_resp;  
+
+	RETURN v_json_resp;  
+END;  
 $BODY$;
+
+CREATE OR REPLACE FUNCTION sp_find_all_profile_cultive()  
+RETURNS json[]  
+LANGUAGE 'plpgsql'  
+COST 100  
+VOLATILE PARALLEL UNSAFE  
+AS $BODY$  
+DECLARE   
+	v_json_resp json[];  
+BEGIN  
+	SELECT array(  
+		SELECT jsonb_build_object(  
+			'idProfile', a.idProfile,  
+			'name', a.name,  
+			'cost_bs', a.cost_bs,  
+			'cost_usd', a.cost_usd,  
+			'createdDate', a.createdDate,  
+			'modifiedDate', a.modifiedDate  
+		)  
+		FROM profile a    
+		) ::json[] INTO v_json_resp;  
+
+	RETURN v_json_resp;  
+END;  
+$BODY$;
+
+CREATE OR REPLACE FUNCTION sp_find_all_cultive()  
+RETURNS json[]  
+LANGUAGE 'plpgsql'  
+COST 100  
+VOLATILE PARALLEL UNSAFE  
+AS $BODY$  
+DECLARE   
+	v_json_resp json[];  
+BEGIN  
+	SELECT array(  
+		SELECT jsonb_build_object(  
+			'idProfile', a.idProfile,  
+			'name', a.name,  
+			'cost_bs', a.cost_bs,  
+			'cost_usd', a.cost_usd,  
+			'createdDate', a.createdDate,  
+			'modifiedDate', a.modifiedDate  
+		)  
+		FROM profile a  
+		WHERE a.name ILIKE '%urocultivo%'   
+		  OR a.name ILIKE '%cultivo%'  
+		) ::json[] INTO v_json_resp;  
+
+	RETURN v_json_resp;  
+END;  
+$BODY$; 
 
 CREATE OR REPLACE FUNCTION sp_find_all_restriction(
 	)
@@ -1780,7 +1834,7 @@ begin
 end;
 $BODY$;
 
-CREATE OR REPLACE FUNCTION public.sp_find_all_order_day(
+/*CREATE OR REPLACE FUNCTION public.sp_find_all_order_day(
 	p_today boolean,
 	p_date text)
     RETURNS json[]
@@ -1837,13 +1891,224 @@ BEGIN
 
     RETURN v_json_resp;  
 END;  
+$BODY$;*/
+
+CREATE OR REPLACE FUNCTION public.sp_find_all_order_day(  
+    p_today boolean,  
+    p_date text)  
+    RETURNS json[]  
+    LANGUAGE 'plpgsql'  
+    COST 100  
+    VOLATILE PARALLEL UNSAFE  
+AS $BODY$  
+  
+DECLARE   
+    v_json_resp json[];  
+BEGIN  
+    SELECT array(  
+        SELECT jsonb_build_object(  
+            'idUser', u.idUser,  
+            'address', u.address,  
+            'ci', u.ci,  
+            'firstName', u.firstname,  
+            'lastName', u.lastname,  
+            'genre', u.genre,  
+            'age', u.age,  
+            'phone', u.phone,  
+            'email', u.email,  
+            'orders', jsonb_agg(  
+                jsonb_build_object(  
+                    'idOrder', o.idOrder,  
+                    'idExam', o.idexam,   
+                    'status', o.status,  
+                    'total_cost_bs', e.total_cost_bs,  
+                    'total_cost_usd', e.total_cost_usd,  
+                    'createdDate', o.createddate,  
+                    'modifiedDate', o.modifieddate,  
+                    'profiles', (  
+                        SELECT jsonb_agg(  
+                            jsonb_build_object(  
+                                'idProfile', p.idProfile,  
+                                'profileName', p.name  
+                            )  
+                        )  
+                        FROM profile p  
+                        WHERE p.idProfile = o.idProfile   
+                        AND LOWER(p.name) NOT LIKE '%urocultivo%'  
+                        AND LOWER(p.name) NOT LIKE '%cultivo%'  
+                    )  
+                )  
+            ) FILTER (WHERE (SELECT COUNT(*)  
+                             FROM profile p  
+                             WHERE p.idProfile = o.idProfile  
+                             AND LOWER(p.name) NOT LIKE '%urocultivo%'  
+                             AND LOWER(p.name) NOT LIKE '%cultivo%') > 0)   
+        )  
+        FROM users u  
+        JOIN exam e ON u.idUser = e.idUser  
+        JOIN orders o ON o.idExam = e.idExam  
+        WHERE o.status IN ('Pendiente por pasar', 'Pendiente de enviar', 'Pendiente de imprimir')  
+        AND (  
+            (p_today IS TRUE AND o.createdDate::date = CURRENT_DATE) OR  
+            (p_today IS FALSE AND o.createdDate::date = to_date(p_date, 'DD-MM-YYYY'))  
+        )  
+        GROUP BY u.idUser  
+        HAVING COUNT(o.idOrder) > 0   
+        AND COUNT(  
+            CASE   
+                WHEN LOWER((SELECT p.name FROM profile p WHERE p.idProfile = o.idProfile) ) NOT LIKE '%urocultivo%'   
+                AND LOWER((SELECT p.name FROM profile p WHERE p.idProfile = o.idProfile) ) NOT LIKE '%cultivo%'   
+                THEN 1   
+                ELSE NULL   
+            END  
+        ) > 0 
+    )::json[] INTO v_json_resp;  
+
+    RETURN v_json_resp;  
+END;  
+$BODY$;
+
+CREATE OR REPLACE FUNCTION public.sp_find_all_cultive_order_day(  
+    p_today boolean,  
+    p_date text)  
+    RETURNS json[]  
+    LANGUAGE 'plpgsql'  
+    COST 100  
+    VOLATILE PARALLEL UNSAFE  
+AS $BODY$  
+DECLARE   
+    v_json_resp json[];  
+BEGIN  
+    SELECT array(  
+        SELECT jsonb_build_object(  
+            'idUser', u.idUser,  
+            'address', u.address,  
+            'ci', u.ci,  
+            'firstName', u.firstname,  
+            'lastName', u.lastname,  
+            'genre', u.genre,  
+            'age', u.age,  
+            'phone', u.phone,  
+            'email', u.email,  
+            'orders', jsonb_agg(  
+                jsonb_build_object(  
+                    'idOrder', o.idOrder,  
+                    'idExam', o.idexam,   
+                    'status', o.status,  
+                    'total_cost_bs', e.total_cost_bs,  
+                    'total_cost_usd', e.total_cost_usd,  
+                    'createdDate', o.createddate,  
+                    'modifiedDate', o.modifieddate,  
+                    'profiles', (  
+                        SELECT jsonb_agg(  
+                            jsonb_build_object(  
+                                'idProfile', p.idProfile,  
+                                'profileName', p.name  
+                            )  
+                        )  
+                        FROM profile p  
+                        WHERE p.idProfile = o.idProfile   
+                        AND (LOWER(p.name) LIKE '%urocultivo%' OR LOWER(p.name) LIKE '%cultivo%')
+                    )  
+                )  
+            )  
+        )  
+        FROM users u  
+        JOIN exam e ON u.idUser = e.idUser  
+        JOIN orders o ON o.idExam = e.idExam  
+        WHERE o.status IN ('Pendiente por pasar', 'Pendiente de enviar', 'Pendiente de imprimir')  
+        AND (  
+            (p_today IS TRUE AND o.createdDate::date = CURRENT_DATE) OR  
+            (p_today IS FALSE AND o.createdDate::date = to_date(p_date, 'DD-MM-YYYY'))  
+        )  
+        AND EXISTS (  
+            SELECT 1  
+            FROM profile p  
+            WHERE p.idProfile = o.idProfile  
+            AND (LOWER(p.name) LIKE '%urocultivo%' OR LOWER(p.name) LIKE '%cultivo%')  
+        )  
+        GROUP BY u.idUser  
+    )::json[] INTO v_json_resp;  
+
+    RETURN v_json_resp;  
+END;  
 $BODY$;
 
 CREATE OR REPLACE FUNCTION sp_find_all_hist_order_day()  
 RETURNS json[]  
-LANGUAGE 'plpgsql'  
-COST 100  
-VOLATILE PARALLEL UNSAFE  
+    LANGUAGE 'plpgsql'  
+    COST 100  
+    VOLATILE PARALLEL UNSAFE  
+AS $BODY$  
+  
+DECLARE   
+    v_json_resp json[];  
+BEGIN  
+    SELECT array(  
+        SELECT jsonb_build_object(  
+            'idUser', u.idUser,  
+            'address', u.address,  
+            'ci', u.ci,  
+            'firstName', u.firstname,  
+            'lastName', u.lastname,  
+            'genre', u.genre,  
+            'age', u.age,  
+            'phone', u.phone,  
+            'email', u.email,  
+            'createdDate', MIN(o.createdDate), 
+            'modifiedDate', MAX(o.modifiedDate),
+            'orders', jsonb_agg(  
+                jsonb_build_object(  
+                    'idOrder', o.idOrder,  
+                    'idExam', o.idexam,   
+                    'status', o.status,  
+                    'total_cost_bs', e.total_cost_bs,  
+                    'total_cost_usd', e.total_cost_usd,  
+                    'createdDate', o.createddate,  
+                    'modifiedDate', o.modifieddate,  
+                    'profiles', (  
+                        SELECT jsonb_agg(  
+                            jsonb_build_object(  
+                                'idProfile', p.idProfile,  
+                                'profileName', p.name  
+                            )  
+                        )  
+                        FROM profile p  
+                        WHERE p.idProfile = o.idProfile   
+                        AND LOWER(p.name) NOT LIKE '%urocultivo%'  
+                        AND LOWER(p.name) NOT LIKE '%cultivo%'  
+                    )  
+                )  
+            ) FILTER (WHERE (SELECT COUNT(*)  
+                             FROM profile p  
+                             WHERE p.idProfile = o.idProfile  
+                             AND LOWER(p.name) NOT LIKE '%urocultivo%'  
+                             AND LOWER(p.name) NOT LIKE '%cultivo%') > 0)   
+        )  
+        FROM users u  
+        JOIN exam e ON u.idUser = e.idUser  
+        JOIN orders o ON o.idExam = e.idExam  
+        GROUP BY u.idUser  
+        HAVING COUNT(o.idOrder) > 0   
+        AND COUNT(  
+            CASE   
+                WHEN LOWER((SELECT p.name FROM profile p WHERE p.idProfile = o.idProfile) ) NOT LIKE '%urocultivo%'   
+                AND LOWER((SELECT p.name FROM profile p WHERE p.idProfile = o.idProfile) ) NOT LIKE '%cultivo%'   
+                THEN 1   
+                ELSE NULL   
+            END  
+        ) > 0 
+    )::json[] INTO v_json_resp;  
+
+    RETURN v_json_resp;  
+END;  
+$BODY$;
+
+CREATE OR REPLACE FUNCTION sp_find_all_cultive_hist_order_day() 
+RETURNS json[]  
+    LANGUAGE 'plpgsql'  
+    COST 100  
+    VOLATILE PARALLEL UNSAFE  
 AS $BODY$  
 DECLARE   
     v_json_resp json[];  
@@ -1860,7 +2125,7 @@ BEGIN
             'phone', u.phone,  
             'email', u.email,  
             'createdDate', MIN(o.createdDate), 
-            'modifiedDate', MAX(o.modifiedDate), 
+            'modifiedDate', MAX(o.modifiedDate),
             'orders', jsonb_agg(  
                 jsonb_build_object(  
                     'idOrder', o.idOrder,  
@@ -1868,8 +2133,8 @@ BEGIN
                     'status', o.status,  
                     'total_cost_bs', e.total_cost_bs,  
                     'total_cost_usd', e.total_cost_usd,  
-                    'createdDate', o.createdDate,  
-                    'modifiedDate', o.modifiedDate,  
+                    'createdDate', o.createddate,  
+                    'modifiedDate', o.modifieddate,  
                     'profiles', (  
                         SELECT jsonb_agg(  
                             jsonb_build_object(  
@@ -1879,6 +2144,7 @@ BEGIN
                         )  
                         FROM profile p  
                         WHERE p.idProfile = o.idProfile   
+                        AND (LOWER(p.name) LIKE '%urocultivo%' OR LOWER(p.name) LIKE '%cultivo%')  
                     )  
                 )  
             )  
@@ -1886,9 +2152,15 @@ BEGIN
         FROM users u  
         JOIN exam e ON u.idUser = e.idUser  
         JOIN orders o ON o.idExam = e.idExam  
+        AND EXISTS (  
+            SELECT 1  
+            FROM profile p  
+            WHERE p.idProfile = o.idProfile  
+            AND (LOWER(p.name) LIKE '%urocultivo%' OR LOWER(p.name) LIKE '%cultivo%')  
+        )  
         GROUP BY u.idUser  
     )::json[] INTO v_json_resp;  
-    
+
     RETURN v_json_resp;  
 END;  
 $BODY$;
