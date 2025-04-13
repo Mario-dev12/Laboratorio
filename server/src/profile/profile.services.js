@@ -50,6 +50,10 @@ profileServices.readInputsResults2 = async (name, id) => {
     return await profileRepository.readInputsResults2(name, id)
 }
 
+profileServices.readCultivesResult = async (id, name) => {
+    return await profileRepository.readCultivesResult(id, name)
+}
+
 profileServices.createProfile = async (name, cost_bs, cost_usd) => {
     return await profileRepository.createProfile(name, cost_bs, cost_usd)
 }

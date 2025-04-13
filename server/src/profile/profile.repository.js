@@ -172,6 +172,15 @@ profileRepository.readInputsResults2 = async (name, id) => {
 	}
 };
 
+profileRepository.readCultivesResult = async (id, name) => {
+	try {
+		const resp = await pool.query(`SELECT * FROM obtener_resultado_y_antibioticos(${id}, '${name}')`);
+		return resp.rows[0].obtener_resultado_y_antibioticos;
+	} catch (error) {
+		throw error;
+	}
+};
+
 profileRepository.createProfile = async (name, cost_bs, cost_usd) => {
 	try {
 		const resp = await pool.query(`SELECT * FROM sp_create_profile('${name}', '${cost_bs}', '${cost_usd}')`);

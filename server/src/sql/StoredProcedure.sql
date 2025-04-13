@@ -3131,3 +3131,46 @@ begin
 		return v_json_resp;
 end;
 $BODY$;
+
+CREATE OR REPLACE FUNCTION obtener_resultado_y_antibioticos(  
+    p_idOrder INTEGER,  
+    p_nombre VARCHAR  
+)  
+RETURNS JSON AS $$  
+DECLARE  
+    resultado_record RECORD;  
+BEGIN  
+    SELECT r.idResultado, r.contaje, r.observacion, r.createdDate, r.modifiedDate, b.nombre AS nombre_bacteria  
+    INTO resultado_record  
+    FROM resultado_urocultivo r  
+    JOIN bacteria b ON r.idBacteria = b.idBacteria  
+    WHERE r.idOrder = p_idOrder;  
+ 
+    IF NOT FOUND THEN  
+        RETURN NULL;  
+    END IF;  
+
+    RETURN json_build_object(  
+        'resultado', json_build_object(  
+            'idResultado', resultado_record.idResultado,  
+            'contaje', resultado_record.contaje,  
+            'observacion', resultado_record.observacion,  
+            'createdDate', resultado_record.createdDate,  
+            'modifiedDate', resultado_record.modifiedDate,  
+            'nombreBacteria', resultado_record.nombre_bacteria  
+        ),  
+        'sensibles', (  
+            SELECT json_agg(json_build_object('nombreAntibiotico', a.nombre))  
+            FROM sensible s  
+            JOIN antibiotico a ON s.idAntibiotico = a.idAntibiotico  
+            WHERE s.idResultado = resultado_record.idResultado  
+        ),  
+        'resistentes', (  
+            SELECT json_agg(json_build_object('nombreAntibiotico', a.nombre))  
+            FROM resistente r  
+            JOIN antibiotico a ON r.idAntibiotico = a.idAntibiotico  
+            WHERE r.idResultado = resultado_record.idResultado  
+        )  
+    );  
+END;  
+$$ LANGUAGE plpgsql;

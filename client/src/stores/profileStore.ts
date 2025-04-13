@@ -78,6 +78,12 @@ export const profileStore = defineStore("profile", {
 			this.profiles = response;
 			return this.profiles;
 		},
+		//ESTE ES PARA SABER EL RESULTADO DE LOS CULTIVOS
+		async fetchCultiveResult(id: string | number, name: string) {
+			const response = await axiosRepository.getCultiveResult<Profile>("profile", id, name);
+			this.profiles = response;
+			return this.profiles;
+		},
 		async createProfile(exam: Profile) {
 			const response = await axiosRepository.create<Profile>("profile", exam);
 			this.profiles = response;

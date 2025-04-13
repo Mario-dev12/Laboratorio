@@ -127,6 +127,11 @@ class AxiosRepository {
 		return response.data;
 	}
 
+	async getCultiveResult<T>(domain: string, id: number | string, name: number | string): Promise<T> {
+		const response = await axios.get<T>(`${import.meta.env.VITE_API_URL}/${domain}/cultive/result/${id}/${name}`);
+		return response.data;
+	}
+
 	async getByUnitName<T>(domain: string, name: string): Promise<T> {
 		const response = await axios.get<T>(`${import.meta.env.VITE_API_URL}/${domain}/name?name=${name}`);
 		return response.data;
