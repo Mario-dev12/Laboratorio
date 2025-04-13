@@ -167,3 +167,43 @@ CREATE TABLE IF NOT EXISTS division_campo (
     createdDate TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),  
     modifiedDate TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now()  
 );
+
+CREATE TABLE IF NOT EXISTS bacteria (  
+    idBacteria SERIAL PRIMARY KEY, 
+    nombre character varying(255) NOT NULL,  
+    createdDate TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),  
+    modifiedDate TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now()  
+);
+
+CREATE TABLE IF NOT EXISTS antibiotico (  
+    idAntibiotico SERIAL PRIMARY KEY, 
+    nombre character varying(255) NOT NULL,  
+    createdDate TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),  
+    modifiedDate TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now()  
+);
+
+CREATE TABLE IF NOT EXISTS resultado_urocultivo (  
+    idResultado SERIAL PRIMARY KEY,  
+    idOrder INTEGER NOT NULL REFERENCES orders(idOrder) ON DELETE CASCADE,  
+    idBacteria integer NOT NULL REFERENCES bacteria(idBacteria) ON DELETE CASCADE,   
+    contaje character varying(255) NOT NULL,
+    observacion character varying(255),
+    createdDate timestamp with time zone NOT NULL DEFAULT now(),  
+    modifiedDate timestamp with time zone NOT NULL DEFAULT now()  
+);
+
+CREATE TABLE IF NOT EXISTS sensible (  
+    idSensible SERIAL PRIMARY KEY, 
+    idResultado INTEGER NOT NULL REFERENCES resultado_urocultivo(idResultado) ON DELETE CASCADE,
+    idAntibiotico INTEGER NOT NULL REFERENCES antibiotico(idAntibiotico) ON DELETE CASCADE,  
+    createdDate TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),  
+    modifiedDate TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now()  
+);
+
+CREATE TABLE IF NOT EXISTS resistente (  
+    idResistente SERIAL PRIMARY KEY, 
+    idResultado INTEGER NOT NULL REFERENCES resultado_urocultivo(idResultado) ON DELETE CASCADE,
+    idAntibiotico INTEGER NOT NULL REFERENCES antibiotico(idAntibiotico) ON DELETE CASCADE,  
+    createdDate TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),  
+    modifiedDate TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now()  
+);

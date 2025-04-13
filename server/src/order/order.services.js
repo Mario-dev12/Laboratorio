@@ -18,8 +18,16 @@ orderServices.readOrdersDay = async (today, date) => {
     return await orderRepository.readOrdersDay(today, date)
 }
 
+orderServices.readCultiveOrdersDay = async (today, date) => {
+    return await orderRepository.readCultiveOrdersDay(today, date)
+}
+
 orderServices.readHistOrdersDay = async () => {
     return await orderRepository.readHistOrdersDay()
+}
+
+orderServices.readCultiveHistOrdersDay = async () => {
+    return await orderRepository.readCultiveHistOrdersDay()
 }
 
 orderServices.createOrder = async (idExam, idProfile, status) => {

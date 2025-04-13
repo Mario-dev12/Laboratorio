@@ -1,3 +1,8 @@
+DROP TABLE IF EXISTS bacteria CASCADE; 
+DROP TABLE IF EXISTS antibiotico CASCADE; 
+DROP TABLE IF EXISTS resultado_urocultivo CASCADE; 
+DROP TABLE IF EXISTS sensible CASCADE; 
+DROP TABLE IF EXISTS resistente CASCADE; 
 DROP TABLE IF EXISTS division_campo CASCADE; 
 DROP TABLE IF EXISTS perfil_division CASCADE; 
 DROP TABLE IF EXISTS resultados_perfil_tiroideo CASCADE;  

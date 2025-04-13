@@ -11,6 +11,7 @@ import EditarOrden from "@/views/EditarOrden.vue";
 import TemplatePDF from "@/views/TemplatePDF.vue";
 import AddResults from "@/views/AddResults.vue";
 import AddResults2 from "@/views/AddResults2.vue";
+import EditCultive from "@/views/EditCultive.vue";
 
 const routes: Array<RouteRecordRaw> = [
 	{
@@ -46,6 +47,11 @@ const routes: Array<RouteRecordRaw> = [
 		path: "/editarPerfil",
 		name: "EditarPerfil",
 		component: EditUserExam,
+	},
+	{
+		path: "/editarCultivo",
+		name: "EditarCultivo",
+		component: EditCultive,
 	},
 	{
 		path: "/ordenes",

@@ -14,6 +14,16 @@ class AxiosRepository {
 		return response.data;
 	}
 
+	async getAllProfile<T>(domain: string): Promise<T[]> {
+		const response = await axios.get<T[]>(`${import.meta.env.VITE_API_URL}/${domain}/profile`);
+		return response.data;
+	}
+
+	async getAllCultive<T>(domain: string): Promise<T[]> {
+		const response = await axios.get<T[]>(`${import.meta.env.VITE_API_URL}/${domain}/cultive`);
+		return response.data;
+	}
+
 	async getAllInputs<T>(domain: string): Promise<T[]> {
 		const response = await axios.get<T[]>(`${import.meta.env.VITE_API_URL}/${domain}/input`);
 		return response.data;
@@ -34,8 +44,18 @@ class AxiosRepository {
 		return response.data;
 	}
 
+	async getAllCultiveOrders<T>(domain: string, today: boolean, date: string): Promise<T[]> {
+		const response = await axios.get<T[]>(`${import.meta.env.VITE_API_URL}/${domain}/cultiveorders?today=${today}&date=${date}`);
+		return response.data;
+	}
+
 	async getAllHistOrders<T>(domain: string): Promise<T[]> {
 		const response = await axios.get<T[]>(`${import.meta.env.VITE_API_URL}/${domain}/history`);
+		return response.data;
+	}
+
+	async getAllCultiveHistOrders<T>(domain: string): Promise<T[]> {
+		const response = await axios.get<T[]>(`${import.meta.env.VITE_API_URL}/${domain}/cultivehistory`);
 		return response.data;
 	}
 
@@ -104,6 +124,11 @@ class AxiosRepository {
 
 	async getInputsByProfileName2<T>(domain: string, name: string, id: number | string): Promise<T> {
 		const response = await axios.get<T>(`${import.meta.env.VITE_API_URL}/${domain}/inputresults2/${name}/${id}`);
+		return response.data;
+	}
+
+	async getCultiveResult<T>(domain: string, id: number | string, name: number | string): Promise<T> {
+		const response = await axios.get<T>(`${import.meta.env.VITE_API_URL}/${domain}/cultive/result/${id}/${name}`);
 		return response.data;
 	}
 
@@ -183,8 +208,21 @@ class AxiosRepository {
 		return response.data;
 	}
 
+	async createCultive<T>(domain: string, data: T): Promise<T> {
+		const requestData = {
+			data
+		};
+		const response = await axios.post<T>(`${import.meta.env.VITE_API_URL}/${domain}/cultive`, requestData);
+		return response.data;
+	}
+
 	async update<T>(domain: string, id: string | number | undefined, data: T): Promise<T> {
 		const response = await axios.put<T>(`${import.meta.env.VITE_API_URL}/${domain}/${id}`, data);
+		return response.data;
+	}
+
+	async updateCultive<T>(domain: string, id: string | number | undefined, data: T): Promise<T> {
+		const response = await axios.put<T>(`${import.meta.env.VITE_API_URL}/${domain}/cultive/${id}`, data);
 		return response.data;
 	}
 
@@ -205,6 +243,10 @@ class AxiosRepository {
 
 	async delete(domain: string, id: string | number): Promise<void> {
 		await axios.delete(`${import.meta.env.VITE_API_URL}/${domain}/${id}`);
+	}
+
+	async deleteCultive(domain: string, id: string | number): Promise<void> {
+		await axios.delete(`${import.meta.env.VITE_API_URL}/${domain}/cultive/${id}`);
 	}
 
 	async deleteInputsInProfile(domain: string, idProfile: number, idsArray: number[]): Promise<void> {
