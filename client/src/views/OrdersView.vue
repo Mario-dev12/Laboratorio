@@ -93,7 +93,7 @@
 									<td>{{ order.genre }}</td>
 									<td>{{ order.age }}</td>
 									<td>
-										<i class="fa-solid fa-plus" style="cursor: pointer; margin-right: 10px"></i>
+										<i class="fa-solid fa-plus" style="cursor: pointer; margin-right: 10px" @click="openTabsView2(order)"></i>
 										<i class="fas fa-edit" @click="editOrder(order)" style="cursor: pointer; margin-right: 10px"></i>
 										<i class="fas fa-info-circle" @click="toggleDetails(order)" style="cursor: pointer"></i>
 
@@ -177,6 +177,16 @@
 			name: "Results2",
 			query: { profile: JSON.stringify(profileName), profileNames: JSON.stringify(profileNamesArray) },
 		});
+	};
+
+	const openTabsView2 = (profileName: any) => {
+		const profileNamesArray = profileName.orders.flatMap((order: { profiles: any[] }) =>
+			order.profiles.map((profile: { profileName: any }) => profile.profileName)
+		);
+		/*router.push({
+			name: "Results2",
+			query: { profile: JSON.stringify(profileName), profileNames: JSON.stringify(profileNamesArray) },
+		});*/
 	};
 
 	const filteredOrders = computed(() => {
