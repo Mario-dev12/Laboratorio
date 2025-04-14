@@ -9,13 +9,13 @@
 						:class="{'btn-light': index !== activeIndex, 'bg-gray': index === activeIndex}" 
 						v-for="(profileName, index) in profileNamesOrdered"  
 						:key="index"  
-						@click="handleTap(index)">  
+						@click="handleTap(index, profileName)">  
 						  {{ profileName }}  
 					  </div>  
 					</div>  
 				</div> 
 
-				<div v-if="showProfile">
+				<div v-if="showProfile === 'Pruebas de Sangre'">
 					<h2 class="text-center mb-4">Histórico Órdenes</h2>  
 
 					<div class="mb-3">  
@@ -68,7 +68,7 @@
 					</div>
 				</div>
 
-				<div v-else>
+				<div v-else-if="showProfile === 'Cultivos'">
 					<h2 class="text-center mb-4">Histórico Cultivos</h2>  
 
 					<div class="mb-3">  
@@ -120,6 +120,59 @@
 						</table>
 					</div>
 				</div>
+
+				<div v-else>
+					<h2 class="text-center mb-4">Histórico Espermatograma</h2>  
+
+					<div class="mb-3">  
+						<input  
+							type="text"  
+							placeholder="Buscar por Documento, Nombre o Fecha"  
+							v-model="searchQuery"  
+							class="form-control"  
+						/>  
+					</div>  
+
+					<div v-if="isLoading" class="text-center">Cargando...</div>  
+					<div v-else class="table-responsive" style="max-height: 400px; overflow-y: auto">
+						<table class="table table-striped">
+							<thead>
+								<tr>
+									<th>Documento Identidad</th>
+									<th>Nombre Paciente</th>
+									<th>Género</th>
+									<th>Edad</th>
+									<th>Creación</th>  
+									<th>Modificación</th> 
+									<th>Acciones</th>
+								</tr>
+							</thead>
+							<tbody>
+								<tr v-for="order in filteredSpermiogramOrders" :key="order.idUser">
+									<td>{{ order.ci }}</td>
+									<td>{{ order.firstName }} {{ order.lastName }}</td>
+									<td>{{ order.genre }}</td>
+									<td>{{ order.age }}</td>
+									<td>{{ formatearFecha(order.createdDate) }}</td>
+									<td>{{ formatearFecha(order.modifiedDate) }}</td>
+									<td>
+										<i class="fas fa-edit" @click="openTabsView2(order)" style="cursor: pointer; margin-right: 10px"></i>
+										<i class="fas fa-info-circle" @click="toggleDetails(order)" style="cursor: pointer"></i>
+
+										<div v-if="expandedOrder === order.idUser" class="order-details">
+											<ul>
+												<div v-for="ord in order.orders" :key="ord.idOrder">
+													{{ ord.profiles[0].profileName }} - {{ ord.status }} - {{ ord.total_cost_bs }} Bs /
+													{{ ord.total_cost_usd }} USD
+												</div>
+											</ul>
+										</div>
+									</td>
+								</tr>
+							</tbody>
+						</table>
+					</div>
+				</div>
 			</div>  
 		</ion-content>  
 	</ion-page>  
@@ -133,19 +186,22 @@
 	  
 	const orders = ref(); 
 	const cultive = ref();   
+	const spermiogram = ref();  
 	const isLoading = ref(true);  
 	const searchQuery = ref("");  
 	const ordersStore = orderStore(); 
 	const expandedOrder = ref<number | null>(null); 
 	const router = useRouter();
-	const profileNamesOrdered = ref(["Pruebas de Sangre", "Cultivos"])
-	const showProfile = ref<boolean>(true);
+	const profileNamesOrdered = ref(["Pruebas de Sangre", "Cultivos", "Espermatograma"])
+	const showProfile = ref('');
 	const activeIndex = ref<number>(0);
 
 	onMounted(async () => {  
 		try {  
 			orders.value = await ordersStore.fecthHistOrdersDay();  
-			cultive.value = await ordersStore.fecthCultiveHistOrdersDay();  
+			cultive.value = await ordersStore.fecthCultiveHistOrdersDay(); 
+			spermiogram.value = await ordersStore.fecthSpermiogramHistOrdersDay(); 
+			showProfile.value = 'Pruebas de Sangre'; 
 		} catch (error) {  
 			showToast("Error al cargar las órdenes");  
 		} finally {  
@@ -157,6 +213,8 @@
 		if (to.name === "OrdersView") {
 			orders.value = await ordersStore.fecthOrdersDay(true, "");
 			cultive.value = await ordersStore.fecthCultiveOrdersDay(true, "");
+			spermiogram.value = await ordersStore.fecthSpermiogramOrdersDay(true, "");
+			showProfile.value = 'Pruebas de Sangre';
 		}
 		next();
 	});
@@ -186,6 +244,20 @@
 	const filteredCultiveOrders = computed(() => {  
 		const query = searchQuery.value.toLowerCase();  
 		return cultive.value.filter((order: { firstName: string; lastName: string; ci: string; createdDate: string; modifiedDate: string; }) => {  
+			const fullName = `${order.firstName} ${order.lastName}`.toLowerCase();  
+			const formattedCreatedDate = formatDate(order.createdDate);  
+			const formattedModifiedDate = formatDate(order.modifiedDate);  
+			
+			return order.ci.toLowerCase().includes(query) ||  
+				fullName.includes(query) ||  
+				formattedCreatedDate.includes(query) ||  
+				formattedModifiedDate.includes(query);  
+		});  
+	});  
+	
+	const filteredSpermiogramOrders = computed(() => {  
+		const query = searchQuery.value.toLowerCase();  
+		return spermiogram.value.filter((order: { firstName: string; lastName: string; ci: string; createdDate: string; modifiedDate: string; }) => {  
 			const fullName = `${order.firstName} ${order.lastName}`.toLowerCase();  
 			const formattedCreatedDate = formatDate(order.createdDate);  
 			const formattedModifiedDate = formatDate(order.modifiedDate);  
@@ -237,9 +309,15 @@
 		});*/
 	};
 
-	function handleTap(index: number) {
+	function handleTap(index: number, profileName: string) {
 		if (index !== activeIndex.value){
-			showProfile.value = !showProfile.value
+			if (profileName === 'Pruebas de Sangre'){
+				showProfile.value = 'Pruebas de Sangre'
+			} else if (profileName === 'Cultivos'){
+				showProfile.value = 'Cultivos'
+			} else {
+				showProfile.value = 'Espermatograma'
+			}
 		}
 		activeIndex.value = index;
 	}

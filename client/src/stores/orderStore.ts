@@ -32,6 +32,11 @@ export const orderStore = defineStore("order", {
 			this.order = response;
 			return this.order;
 		},
+		async fecthSpermiogramOrdersDay(today: boolean, date: string) {
+			const response = await axiosRepository.getAllSpermiogramOrders<Order>("order", today, date);
+			this.order = response;
+			return this.order;
+		},
 		async fecthHistOrdersDay() {
 			const response = await axiosRepository.getAllHistOrders<Order>("order");
 			this.order = response;
@@ -39,6 +44,11 @@ export const orderStore = defineStore("order", {
 		},
 		async fecthCultiveHistOrdersDay() {
 			const response = await axiosRepository.getAllCultiveHistOrders<Order>("order");
+			this.order = response;
+			return this.order;
+		},
+		async fecthSpermiogramHistOrdersDay() {
+			const response = await axiosRepository.getAllSpermiogramHistOrders<Order>("order");
 			this.order = response;
 			return this.order;
 		},

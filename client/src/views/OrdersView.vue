@@ -9,13 +9,13 @@
 						:class="{'btn-light': index !== activeIndex, 'bg-gray': index === activeIndex}" 
 						v-for="(profileName, index) in profileNamesOrdered"  
 						:key="index"  
-						@click="handleTap(index)">  
+						@click="handleTap(index, profileName)">  
 						  {{ profileName }}  
 					  </div>  
 					</div>  
 				</div>  
 
-				<div v-if="showProfile">
+				<div v-if="showProfile === 'Pruebas de Sangre'">
 					<h2 class="text-center mb-4">Lista de Órdenes</h2>
 
 					<div class="mb-3 d-flex">
@@ -66,7 +66,7 @@
 					</div>
 				</div>
 
-				<div v-else>
+				<div v-else-if="showProfile === 'Cultivos'">
 					<h2 class="text-center mb-4">Lista de Cultivos</h2>
 
 					<div class="mb-3 d-flex">
@@ -116,6 +116,57 @@
 						</table>
 					</div>
 				</div>
+
+				<div v-else>
+					<h2 class="text-center mb-4">Lista de Espermatograma</h2>
+
+					<div class="mb-3 d-flex">
+						<input type="text" placeholder="Buscar por Documento o Nombre" v-model="searchQuery" class="form-control" />
+						<input type="date" v-model="selectedDate" class="form-control" style="margin-left: 10px; margin-right: 10px" />
+						<button class="btn btn-primary ml-2" @click="searchOrders">Buscar</button>
+					</div>
+
+					<div class="table-responsive" style="max-height: 400px; overflow-y: auto">
+						<table class="table table-striped">
+							<thead>
+								<tr>
+									<th>Documento Identidad</th>
+									<th>Nombre Paciente</th>
+									<th>Género</th>
+									<th>Edad</th>
+									<th>Acciones</th>
+								</tr>
+							</thead>
+							<tbody>
+								<tr v-for="order in filteredSpermiogramOrders" :key="order.idUser">
+									<td>{{ order.ci }}</td>
+									<td>{{ order.firstName }} {{ order.lastName }}</td>
+									<td>{{ order.genre }}</td>
+									<td>{{ order.age }}</td>
+									<td>
+										<i class="fa-solid fa-plus" style="cursor: pointer; margin-right: 10px" @click="openTabsView3(order)"></i>
+										<i class="fas fa-edit" @click="editOrder(order)" style="cursor: pointer; margin-right: 10px"></i>
+										<i class="fas fa-info-circle" @click="toggleDetails(order)" style="cursor: pointer"></i>
+
+										<div v-if="expandedOrder === order.idUser" class="order-details">
+											<ul>
+												<div v-for="ord in order.orders" :key="ord.idOrder">
+													{{ ord.profiles[0].profileName }} - {{ ord.status }} - {{ ord.total_cost_bs }} Bs /
+													{{ ord.total_cost_usd }} USD
+													<i
+														class="fas fa-trash"
+														@click="deleteOrder(ord.idOrder)"
+														style="cursor: pointer; margin-left: 10px; color: black"
+														title="Eliminar orden"></i>
+												</div>
+											</ul>
+										</div>
+									</td>
+								</tr>
+							</tbody>
+						</table>
+					</div>
+				</div>
 			</div>
 		</ion-content>
 	</ion-page>
@@ -129,12 +180,13 @@
 
 	const orders = ref();
 	const cultive = ref();
+	const spermiogram = ref();
 	const router = useRouter();
 	const searchQuery = ref("");
 	const selectedDate = ref("");
 	const ordersStore = orderStore();
-	const profileNamesOrdered = ref(["Pruebas de Sangre", "Cultivos"])
-	const showProfile = ref<boolean>(true);
+	const profileNamesOrdered = ref(["Pruebas de Sangre", "Cultivos", "Espermatograma"])
+	const showProfile = ref('');
 	const activeIndex = ref<number>(0);
 	const toast = ref({
 		isOpen: false,
@@ -146,6 +198,8 @@
 	onMounted(async () => {
 		orders.value = await ordersStore.fecthOrdersDay(true, "");
 		cultive.value = await ordersStore.fecthCultiveOrdersDay(true, "");
+		spermiogram.value = await ordersStore.fecthSpermiogramOrdersDay(true, "");
+		showProfile.value = 'Pruebas de Sangre';
 	});
 
 	router.beforeEach(async (to, from, next) => {
@@ -157,9 +211,13 @@
 
 				orders.value = await ordersStore.fecthOrdersDay(false, formattedDate);
 				cultive.value = await ordersStore.fecthCultiveOrdersDay(false, formattedDate);
+				spermiogram.value = await ordersStore.fecthSpermiogramOrdersDay(false, formattedDate);
+				showProfile.value = 'Pruebas de Sangre';
 			} else {
 				orders.value = await ordersStore.fecthOrdersDay(true, "");
 				cultive.value = await ordersStore.fecthCultiveOrdersDay(true, "");
+				spermiogram.value = await ordersStore.fecthSpermiogramOrdersDay(true, "");
+				showProfile.value = 'Pruebas de Sangre';
 			}
 		}
 		next();
@@ -180,6 +238,16 @@
 	};
 
 	const openTabsView2 = (profileName: any) => {
+		const profileNamesArray = profileName.orders.flatMap((order: { profiles: any[] }) =>
+			order.profiles.map((profile: { profileName: any }) => profile.profileName)
+		);
+		/*router.push({
+			name: "Results2",
+			query: { profile: JSON.stringify(profileName), profileNames: JSON.stringify(profileNamesArray) },
+		});*/
+	};
+
+	const openTabsView3 = (profileName: any) => {
 		const profileNamesArray = profileName.orders.flatMap((order: { profiles: any[] }) =>
 			order.profiles.map((profile: { profileName: any }) => profile.profileName)
 		);
@@ -211,6 +279,17 @@
 		});
 	});
 
+	const filteredSpermiogramOrders = computed(() => {
+		if (!spermiogram.value) return [];
+
+		const query = searchQuery.value ? searchQuery.value.toLowerCase() : "";
+		return spermiogram.value.filter((order: { firstName: any; lastName: any; ci: string }) => {
+			if (!order.firstName || !order.lastName || !order.ci) return false;
+			const fullName = `${order.firstName} ${order.lastName}`.toLowerCase();
+			return order.ci.toLowerCase().includes(query) || fullName.includes(query);
+		});
+	});
+
 	const showToast = (message: string) => {
 		toast.value.message = message;
 		toast.value.isOpen = true;
@@ -220,6 +299,8 @@
 		await ordersStore.deleteOrder(id);
 		showToast("Orden borrada correctamente");
 		orders.value = await ordersStore.fecthOrdersDay(true, "");
+		cultive.value = await ordersStore.fecthCultiveOrdersDay(true, "");
+		spermiogram.value = await ordersStore.fecthSpermiogramOrdersDay(true, "");
 	};
 
 	const editOrder = async (order: any) => {
@@ -242,14 +323,21 @@
 
 			orders.value = await ordersStore.fecthOrdersDay(false, formattedDate);
 			cultive.value = await ordersStore.fecthCultiveOrdersDay(false, formattedDate);
+			spermiogram.value = await ordersStore.fecthSpermiogramOrdersDay(false, formattedDate);
 		} else {
 			showToast("Por favor, selecciona una fecha.");
 		}
 	};
 
-	function handleTap(index: number) {
+	function handleTap(index: number, profileName: string) {
 		if (index !== activeIndex.value){
-			showProfile.value = !showProfile.value
+			if (profileName === 'Pruebas de Sangre'){
+				showProfile.value = 'Pruebas de Sangre'
+			} else if (profileName === 'Cultivos'){
+				showProfile.value = 'Cultivos'
+			} else {
+				showProfile.value = 'Espermatograma'
+			}
 		}
 		activeIndex.value = index;
 	}

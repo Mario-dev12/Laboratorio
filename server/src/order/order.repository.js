@@ -49,6 +49,15 @@ orderRepository.readCultiveOrdersDay = async (today, date) => {
   }
 }
 
+orderRepository.readSpermiogramOrdersDay = async (today, date) => {
+  try {
+    const resp = await pool.query(`SELECT * FROM sp_find_all_spermiogram_order_day('${today}', '${date}')`);
+    return resp.rows[0].sp_find_all_spermiogram_order_day;
+  } catch (error) {
+    throw error;
+  }
+}
+
 orderRepository.readHistOrdersDay = async () => {
   try {
     
@@ -64,6 +73,16 @@ orderRepository.readCultiveHistOrdersDay = async () => {
     
     const resp = await pool.query(`SELECT * FROM sp_find_all_cultive_hist_order_day()`);
     return resp.rows[0].sp_find_all_cultive_hist_order_day;
+  } catch (error) {
+    throw error;
+  }
+}
+
+orderRepository.readSpermiogramHistOrdersDay = async () => {
+  try {
+    
+    const resp = await pool.query(`SELECT * FROM sp_find_all_spermiogram_hist_order_day()`);
+    return resp.rows[0].sp_find_all_spermiogram_hist_order_day;
   } catch (error) {
     throw error;
   }

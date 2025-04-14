@@ -32,6 +32,16 @@ profileController.readCultives = async (req, res) => {
 	}
 };
 
+profileController.readSpermiogram = async (req, res) => {
+	try {
+		const answer = await profileServices.readSpermiogram();
+
+		res.send(answer);
+	} catch (error) {
+		return res.status(400).send(error.stack);
+	}
+};
+
 profileController.readProfilesInputs = async (req, res) => {
 	try {
 		const answer = await profileServices.readProfilesInputs();
@@ -132,6 +142,17 @@ profileController.readCultivesResult = async (req, res) => {
 	try {
 		const { name, id } = req.params;
 		const answer = await profileServices.readCultivesResult(id, name);
+
+		res.send(answer);
+	} catch (error) {
+		return res.status(400).send(error.stack);
+	}
+};
+
+profileController.readSpermiogramResult = async (req, res) => {
+	try {
+		const { name, id } = req.params;
+		const answer = await profileServices.readSpermiogramResult(id, name);
 
 		res.send(answer);
 	} catch (error) {
