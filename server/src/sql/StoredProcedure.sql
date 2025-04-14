@@ -3352,8 +3352,7 @@ CREATE OR REPLACE FUNCTION obtener_resultados_espermatograma(
 RETURNS JSON AS $$  
 DECLARE  
     resultado RECORD;  
-BEGIN  
-    -- Obtener el registro del espermatograma correspondiente al idOrder  
+BEGIN   
     SELECT   
         volumen,  
         contaje,  
@@ -3384,8 +3383,7 @@ BEGIN
     INTO resultado  
     FROM resultado_espermatograma  
     WHERE idOrder = p_idOrder;  
-
-    -- Crear el JSON estructurado  
+ 
     RETURN json_build_object(  
         'espermatograma', json_build_object(  
             'volumen', resultado.volumen,  
