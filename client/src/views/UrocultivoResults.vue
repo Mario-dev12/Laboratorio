@@ -130,6 +130,9 @@
 			<div class="d-flex justify-content-center mb-4">
 				<button class="btn btn-primary" @click="generatePDF">Generate PDF</button>
 			</div>
+			<div class="d-flex justify-content-center mb-4">
+				<button class="btn btn-primary" @click="guardarCambios">Guardar Cambios</button>
+			</div>
 		</ion-content>
 	</ion-page>
 </template>
@@ -140,6 +143,7 @@
 	import { ref, onMounted } from "vue";
 	import { useRoute } from "vue-router";
 	import { profileStore } from "@/stores/profileStore";
+	import { useRouter } from "vue-router";
 
 	let html: string = "";
 	const urocultivoPDF = ref();
@@ -160,6 +164,7 @@
 	const store = profileStore();
 	const germs = ref();
 	const antibioticos = ref();
+	const router = useRouter();
 
 	onMounted(async () => {
 		order.value = route.query;
@@ -167,6 +172,17 @@
 		profileNames.value = JSON.parse(order.value.profileNames);
 		germs.value = await store.fecthBacterium();
 		antibioticos.value = await store.fecthAntibiotics();
+	});
+
+	router.beforeEach(async (to, from, next) => {
+		if (to.name === "UroResults") {
+			order.value = route.query;
+			profile.value = JSON.parse(order.value.profile);
+			profileNames.value = JSON.parse(order.value.profileNames);
+			germs.value = await store.fecthBacterium();
+			antibioticos.value = await store.fecthAntibiotics();
+		}
+		next();
 	});
 
 	function agregarSensible() {
@@ -260,5 +276,31 @@
 		html2pdf().from(element).set(options).save();
 		html = "";
 	};
+
+	function guardarCambios() {
+		const bacteriologicoCopy = bacteriologico.value.cloneNode(true);
+		const profileId = profile.value.orders[0].profiles[0].idProfile;
+		const profileName = profileNames.value[0];
+		const germen = bacteriologico.value.querySelector("#germen").value;
+		const bacteriologicoInputs = bacteriologicoCopy.querySelectorAll("input");
+		const contaje = bacteriologicoInputs[0].value;
+		const observaciones = bacteriologicoInputs[1].value;
+		const sensiblesValues: string[] = [];
+		const resistentesValues: string[] = [];
+		const sensiblesSelects = sensibles.value.querySelectorAll("select");
+		const resistentesSelects = resistentes.value.querySelectorAll("select");
+
+		sensiblesSelects.forEach((item: any) => {
+			if (item.value) {
+				sensiblesValues.push(item.value);
+			}
+		});
+
+		resistentesSelects.forEach((item: any) => {
+			if (item.value) {
+				resistentesValues.push(item.value);
+			}
+		});
+	}
 </script>
 <style scoped></style>
