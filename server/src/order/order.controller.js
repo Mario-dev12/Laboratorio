@@ -58,6 +58,18 @@ orderController.readCultiveOrdersDay = async (req, res) => {
   }
 }
 
+orderController.readSpermiogramOrdersDay = async (req, res) => {
+  const today = req.query.today;
+  const date = req.query.date;
+  try {
+    const answer = await orderServices.readSpermiogramOrdersDay(today, date)
+
+    res.send(answer)
+  } catch (error) {
+    return res.status(400).send(error.stack)
+  }
+}
+
 orderController.readHistOrdersDay = async (req, res) => {
   try {
     const answer = await orderServices.readHistOrdersDay()
@@ -71,6 +83,16 @@ orderController.readHistOrdersDay = async (req, res) => {
 orderController.readCultiveHistOrdersDay = async (req, res) => {
   try {
     const answer = await orderServices.readCultiveHistOrdersDay()
+
+    res.send(answer)
+  } catch (error) {
+    return res.status(400).send(error.stack)
+  }
+}
+
+orderController.readSpermiogramHistOrdersDay = async (req, res) => {
+  try {
+    const answer = await orderServices.readSpermiogramHistOrdersDay()
 
     res.send(answer)
   } catch (error) {

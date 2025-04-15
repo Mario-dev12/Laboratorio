@@ -20,8 +20,8 @@
 							<tr>
 								<th scope="col">ID</th>
 								<th scope="col">Name</th>
-								<th scope="col">Cost $</th>
-								<th scope="col">Cost Bs</th>
+								<th scope="col">Costo $</th>
+								<th scope="col">Costo Bs</th>
 								<th scope="col">Acciones</th>
 							</tr>
 						</thead>

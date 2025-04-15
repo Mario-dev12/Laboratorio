@@ -21,6 +21,52 @@ begin
 end;
 $BODY$;
 
+CREATE OR REPLACE FUNCTION sp_find_all_bacterium(
+	)
+    RETURNS json[]
+    LANGUAGE 'plpgsql'
+    COST 100
+    VOLATILE PARALLEL UNSAFE
+AS $BODY$
+declare 
+	v_json_resp json[];
+begin
+	select array(
+        select jsonb_build_object(
+			'idBacteria', a.idBacteria,
+			'nombre', a.nombre,
+			'createdDate', a.createdDate,
+            'modifiedDate', a.modifiedDate
+		)
+		from bacteria a
+        ) ::json[] into v_json_resp;
+		return v_json_resp;
+end;
+$BODY$;
+
+CREATE OR REPLACE FUNCTION sp_find_all_antibiotics(
+	)
+    RETURNS json[]
+    LANGUAGE 'plpgsql'
+    COST 100
+    VOLATILE PARALLEL UNSAFE
+AS $BODY$
+declare 
+	v_json_resp json[];
+begin
+	select array(
+        select jsonb_build_object(
+			'idAntibiotico', a.idAntibiotico,
+			'nombre', a.nombre,
+			'createdDate', a.createdDate,
+            'modifiedDate', a.modifiedDate
+		)
+		from antibiotico a
+        ) ::json[] into v_json_resp;
+		return v_json_resp;
+end;
+$BODY$;
+
 CREATE OR REPLACE FUNCTION sp_find_all_users(
 	)
     RETURNS json[]
@@ -73,6 +119,8 @@ BEGIN
 		FROM profile a  
 		WHERE a.name NOT ILIKE '%urocultivo%'   
 		  AND a.name NOT ILIKE '%cultivo%'  
+          AND a.name NOT ILIKE '%espermatograma%'
+          AND a.name NOT ILIKE '%espermiograma%'
 		) ::json[] INTO v_json_resp;  
 
 	RETURN v_json_resp;  
@@ -125,6 +173,33 @@ BEGIN
 		FROM profile a  
 		WHERE a.name ILIKE '%urocultivo%'   
 		  OR a.name ILIKE '%cultivo%'  
+		) ::json[] INTO v_json_resp;  
+
+	RETURN v_json_resp;  
+END;  
+$BODY$; 
+
+CREATE OR REPLACE FUNCTION sp_find_all_spermiogram()  
+RETURNS json[]  
+LANGUAGE 'plpgsql'  
+COST 100  
+VOLATILE PARALLEL UNSAFE  
+AS $BODY$  
+DECLARE   
+	v_json_resp json[];  
+BEGIN  
+	SELECT array(  
+		SELECT jsonb_build_object(  
+			'idProfile', a.idProfile,  
+			'name', a.name,  
+			'cost_bs', a.cost_bs,  
+			'cost_usd', a.cost_usd,  
+			'createdDate', a.createdDate,  
+			'modifiedDate', a.modifiedDate  
+		)  
+		FROM profile a  
+		WHERE a.name ILIKE '%espermatograma%'   
+		  OR a.name ILIKE '%espermiograma%'  
 		) ::json[] INTO v_json_resp;  
 
 	RETURN v_json_resp;  
@@ -1936,13 +2011,18 @@ BEGIN
                         WHERE p.idProfile = o.idProfile   
                         AND LOWER(p.name) NOT LIKE '%urocultivo%'  
                         AND LOWER(p.name) NOT LIKE '%cultivo%'  
+                        AND LOWER(p.name) NOT LIKE '%espermatograma%'  
+                        AND LOWER(p.name) NOT LIKE '%espermiograma%'  
                     )  
                 )  
             ) FILTER (WHERE (SELECT COUNT(*)  
                              FROM profile p  
                              WHERE p.idProfile = o.idProfile  
                              AND LOWER(p.name) NOT LIKE '%urocultivo%'  
-                             AND LOWER(p.name) NOT LIKE '%cultivo%') > 0)   
+                             AND LOWER(p.name) NOT LIKE '%cultivo%'  
+                             AND LOWER(p.name) NOT LIKE '%espermatograma%'  
+                             AND LOWER(p.name) NOT LIKE '%espermiograma%'  
+                             ) > 0)   
         )  
         FROM users u  
         JOIN exam e ON u.idUser = e.idUser  
@@ -1958,10 +2038,12 @@ BEGIN
             CASE   
                 WHEN LOWER((SELECT p.name FROM profile p WHERE p.idProfile = o.idProfile) ) NOT LIKE '%urocultivo%'   
                 AND LOWER((SELECT p.name FROM profile p WHERE p.idProfile = o.idProfile) ) NOT LIKE '%cultivo%'   
+                AND LOWER((SELECT p.name FROM profile p WHERE p.idProfile = o.idProfile) ) NOT LIKE '%espermatograma%'   
+                AND LOWER((SELECT p.name FROM profile p WHERE p.idProfile = o.idProfile) ) NOT LIKE '%espermiograma%'   
                 THEN 1   
                 ELSE NULL   
             END  
-        ) > 0 
+        ) > 0   
     )::json[] INTO v_json_resp;  
 
     RETURN v_json_resp;  
@@ -2034,6 +2116,72 @@ BEGIN
 END;  
 $BODY$;
 
+CREATE OR REPLACE FUNCTION public.sp_find_all_spermiogram_order_day(  
+    p_today boolean,  
+    p_date text)  
+    RETURNS json[]  
+    LANGUAGE 'plpgsql'  
+    COST 100  
+    VOLATILE PARALLEL UNSAFE  
+AS $BODY$  
+DECLARE   
+    v_json_resp json[];  
+BEGIN  
+    SELECT array(  
+        SELECT jsonb_build_object(  
+            'idUser', u.idUser,  
+            'address', u.address,  
+            'ci', u.ci,  
+            'firstName', u.firstname,  
+            'lastName', u.lastname,  
+            'genre', u.genre,  
+            'age', u.age,  
+            'phone', u.phone,  
+            'email', u.email,  
+            'orders', jsonb_agg(  
+                jsonb_build_object(  
+                    'idOrder', o.idOrder,  
+                    'idExam', o.idexam,   
+                    'status', o.status,  
+                    'total_cost_bs', e.total_cost_bs,  
+                    'total_cost_usd', e.total_cost_usd,  
+                    'createdDate', o.createddate,  
+                    'modifiedDate', o.modifieddate,  
+                    'profiles', (  
+                        SELECT jsonb_agg(  
+                            jsonb_build_object(  
+                                'idProfile', p.idProfile,  
+                                'profileName', p.name  
+                            )  
+                        )  
+                        FROM profile p  
+                        WHERE p.idProfile = o.idProfile   
+                        AND (LOWER(p.name) LIKE '%espermatograma%' OR LOWER(p.name) LIKE '%espermiograma%')
+                    )  
+                )  
+            )  
+        )  
+        FROM users u  
+        JOIN exam e ON u.idUser = e.idUser  
+        JOIN orders o ON o.idExam = e.idExam  
+        WHERE o.status IN ('Pendiente por pasar', 'Pendiente de enviar', 'Pendiente de imprimir')  
+        AND (  
+            (p_today IS TRUE AND o.createdDate::date = CURRENT_DATE) OR  
+            (p_today IS FALSE AND o.createdDate::date = to_date(p_date, 'DD-MM-YYYY'))  
+        )  
+        AND EXISTS (  
+            SELECT 1  
+            FROM profile p  
+            WHERE p.idProfile = o.idProfile  
+            AND (LOWER(p.name) LIKE '%espermatograma%' OR LOWER(p.name) LIKE '%espermiograma%')  
+        )  
+        GROUP BY u.idUser  
+    )::json[] INTO v_json_resp;  
+
+    RETURN v_json_resp;  
+END;  
+$BODY$;
+
 CREATE OR REPLACE FUNCTION sp_find_all_hist_order_day()  
 RETURNS json[]  
     LANGUAGE 'plpgsql'  
@@ -2055,8 +2203,8 @@ BEGIN
             'age', u.age,  
             'phone', u.phone,  
             'email', u.email,  
-            'createdDate', MIN(o.createdDate), 
-            'modifiedDate', MAX(o.modifiedDate),
+            'createdDate', MIN(o.createdDate),  
+            'modifiedDate', MAX(o.modifiedDate),  
             'orders', jsonb_agg(  
                 jsonb_build_object(  
                     'idOrder', o.idOrder,  
@@ -2077,13 +2225,18 @@ BEGIN
                         WHERE p.idProfile = o.idProfile   
                         AND LOWER(p.name) NOT LIKE '%urocultivo%'  
                         AND LOWER(p.name) NOT LIKE '%cultivo%'  
+                        AND LOWER(p.name) NOT LIKE '%espermatograma%'  
+                        AND LOWER(p.name) NOT LIKE '%espermiograma%'  
                     )  
                 )  
             ) FILTER (WHERE (SELECT COUNT(*)  
                              FROM profile p  
                              WHERE p.idProfile = o.idProfile  
                              AND LOWER(p.name) NOT LIKE '%urocultivo%'  
-                             AND LOWER(p.name) NOT LIKE '%cultivo%') > 0)   
+                             AND LOWER(p.name) NOT LIKE '%cultivo%'  
+                             AND LOWER(p.name) NOT LIKE '%espermatograma%'  
+                             AND LOWER(p.name) NOT LIKE '%espermiograma%'  
+                            ) > 0)   
         )  
         FROM users u  
         JOIN exam e ON u.idUser = e.idUser  
@@ -2092,12 +2245,14 @@ BEGIN
         HAVING COUNT(o.idOrder) > 0   
         AND COUNT(  
             CASE   
-                WHEN LOWER((SELECT p.name FROM profile p WHERE p.idProfile = o.idProfile) ) NOT LIKE '%urocultivo%'   
-                AND LOWER((SELECT p.name FROM profile p WHERE p.idProfile = o.idProfile) ) NOT LIKE '%cultivo%'   
+                WHEN LOWER((SELECT p.name FROM profile p WHERE p.idProfile = o.idProfile)) NOT LIKE '%urocultivo%'   
+                AND LOWER((SELECT p.name FROM profile p WHERE p.idProfile = o.idProfile)) NOT LIKE '%cultivo%'   
+                AND LOWER((SELECT p.name FROM profile p WHERE p.idProfile = o.idProfile)) NOT LIKE '%espermatograma%'   
+                AND LOWER((SELECT p.name FROM profile p WHERE p.idProfile = o.idProfile)) NOT LIKE '%espermiograma%'   
                 THEN 1   
                 ELSE NULL   
             END  
-        ) > 0 
+        ) > 0   
     )::json[] INTO v_json_resp;  
 
     RETURN v_json_resp;  
@@ -2157,6 +2312,67 @@ BEGIN
             FROM profile p  
             WHERE p.idProfile = o.idProfile  
             AND (LOWER(p.name) LIKE '%urocultivo%' OR LOWER(p.name) LIKE '%cultivo%')  
+        )  
+        GROUP BY u.idUser  
+    )::json[] INTO v_json_resp;  
+
+    RETURN v_json_resp;  
+END;  
+$BODY$;
+
+CREATE OR REPLACE FUNCTION sp_find_all_spermiogram_hist_order_day() 
+RETURNS json[]  
+    LANGUAGE 'plpgsql'  
+    COST 100  
+    VOLATILE PARALLEL UNSAFE  
+AS $BODY$  
+DECLARE   
+    v_json_resp json[];  
+BEGIN  
+    SELECT array(  
+        SELECT jsonb_build_object(  
+            'idUser', u.idUser,  
+            'address', u.address,  
+            'ci', u.ci,  
+            'firstName', u.firstname,  
+            'lastName', u.lastname,  
+            'genre', u.genre,  
+            'age', u.age,  
+            'phone', u.phone,  
+            'email', u.email,  
+            'createdDate', MIN(o.createdDate), 
+            'modifiedDate', MAX(o.modifiedDate),
+            'orders', jsonb_agg(  
+                jsonb_build_object(  
+                    'idOrder', o.idOrder,  
+                    'idExam', o.idexam,   
+                    'status', o.status,  
+                    'total_cost_bs', e.total_cost_bs,  
+                    'total_cost_usd', e.total_cost_usd,  
+                    'createdDate', o.createddate,  
+                    'modifiedDate', o.modifieddate,  
+                    'profiles', (  
+                        SELECT jsonb_agg(  
+                            jsonb_build_object(  
+                                'idProfile', p.idProfile,  
+                                'profileName', p.name  
+                            )  
+                        )  
+                        FROM profile p  
+                        WHERE p.idProfile = o.idProfile   
+                        AND (LOWER(p.name) LIKE '%espermatograma%' OR LOWER(p.name) LIKE '%espermiograma%')  
+                    )  
+                )  
+            )  
+        )  
+        FROM users u  
+        JOIN exam e ON u.idUser = e.idUser  
+        JOIN orders o ON o.idExam = e.idExam  
+        AND EXISTS (  
+            SELECT 1  
+            FROM profile p  
+            WHERE p.idProfile = o.idProfile  
+            AND (LOWER(p.name) LIKE '%espermatograma%' OR LOWER(p.name) LIKE '%espermiograma%')  
         )  
         GROUP BY u.idUser  
     )::json[] INTO v_json_resp;  
@@ -3170,6 +3386,84 @@ BEGIN
             FROM resistente r  
             JOIN antibiotico a ON r.idAntibiotico = a.idAntibiotico  
             WHERE r.idResultado = resultado_record.idResultado  
+        )  
+    );  
+END;  
+$$ LANGUAGE plpgsql;
+
+CREATE OR REPLACE FUNCTION obtener_resultados_espermatograma(  
+    p_idOrder INTEGER,  
+    p_nombre_perfil VARCHAR  
+)  
+RETURNS JSON AS $$  
+DECLARE  
+    resultado RECORD;  
+BEGIN   
+    SELECT   
+        volumen,  
+        contaje,  
+        liquefaccion,  
+        ph,  
+        aspecto_macroscopico,  
+        hora_recoleccion,  
+        densidad,  
+        abstinencia,  
+        color,  
+        progresivo_rapido,  
+        progresivo_lento,  
+        no_progresivo,  
+        lento,  
+        normales,  
+        tapering,  
+        microcefalos,  
+        macrocefalo,  
+        leucocitos,  
+        hematies,  
+        celulas_epi,  
+        bacterias,  
+        mucina,  
+        cristales,  
+        vivos_moviles,  
+        vivos_inmoviles,  
+        muertos  
+    INTO resultado  
+    FROM resultado_espermatograma  
+    WHERE idOrder = p_idOrder;  
+ 
+    RETURN json_build_object(  
+        'espermatograma', json_build_object(  
+            'volumen', resultado.volumen,  
+            'contaje', resultado.contaje,  
+            'liquefaccion', resultado.liquefaccion,  
+            'ph', resultado.ph,  
+            'aspecto_macroscopico', resultado.aspecto_macroscopico,  
+            'hora_recoleccion', resultado.hora_recoleccion,  
+            'densidad', resultado.densidad,  
+            'abstinencia', resultado.abstinencia,  
+            'color', resultado.color  
+        ),  
+        'motilidad', json_build_object(  
+            'progresivo_rapido', resultado.progresivo_rapido,  
+            'progresivo_lento', resultado.progresivo_lento,  
+            'no_progresivo', resultado.no_progresivo,  
+            'lento', resultado.lento  
+        ),  
+        'morfologia', json_build_object(  
+            'normales', resultado.normales,  
+            'tapering', resultado.tapering,  
+            'microcefalos', resultado.microcefalos,  
+            'macrocefalo', resultado.macrocefalo,  
+            'leucocitos', resultado.leucocitos,  
+            'hematies', resultado.hematies,  
+            'celulas_epi', resultado.celulas_epi,  
+            'bacterias', resultado.bacterias,  
+            'mucina', resultado.mucina,  
+            'cristales', resultado.cristales  
+        ),  
+        'test_eosina', json_build_object(  
+            'vivos_moviles', resultado.vivos_moviles,  
+            'vivos_inmoviles', resultado.vivos_inmoviles,  
+            'muertos', resultado.muertos  
         )  
     );  
 END;  

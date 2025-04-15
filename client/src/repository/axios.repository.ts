@@ -24,6 +24,21 @@ class AxiosRepository {
 		return response.data;
 	}
 
+	async getAllSpermiogram<T>(domain: string): Promise<T[]> {
+		const response = await axios.get<T[]>(`${import.meta.env.VITE_API_URL}/${domain}/spermiogram`);
+		return response.data;
+	}
+
+	async getAllBacterium<T>(domain: string): Promise<T[]> {
+		const response = await axios.get<T[]>(`${import.meta.env.VITE_API_URL}/${domain}/bacterium`);
+		return response.data;
+	}
+
+	async getAllAntibiotics<T>(domain: string): Promise<T[]> {
+		const response = await axios.get<T[]>(`${import.meta.env.VITE_API_URL}/${domain}/antibiotics`);
+		return response.data;
+	}
+
 	async getAllInputs<T>(domain: string): Promise<T[]> {
 		const response = await axios.get<T[]>(`${import.meta.env.VITE_API_URL}/${domain}/input`);
 		return response.data;
@@ -48,7 +63,10 @@ class AxiosRepository {
 		const response = await axios.get<T[]>(`${import.meta.env.VITE_API_URL}/${domain}/cultiveorders?today=${today}&date=${date}`);
 		return response.data;
 	}
-
+	async getAllSpermiogramOrders<T>(domain: string, today: boolean, date: string): Promise<T[]> {
+		const response = await axios.get<T[]>(`${import.meta.env.VITE_API_URL}/${domain}/spermiogramorders?today=${today}&date=${date}`);
+		return response.data;
+	}
 	async getAllHistOrders<T>(domain: string): Promise<T[]> {
 		const response = await axios.get<T[]>(`${import.meta.env.VITE_API_URL}/${domain}/history`);
 		return response.data;
@@ -58,7 +76,10 @@ class AxiosRepository {
 		const response = await axios.get<T[]>(`${import.meta.env.VITE_API_URL}/${domain}/cultivehistory`);
 		return response.data;
 	}
-
+	async getAllSpermiogramHistOrders<T>(domain: string): Promise<T[]> {
+		const response = await axios.get<T[]>(`${import.meta.env.VITE_API_URL}/${domain}/spermiogramhistory`);
+		return response.data;
+	}
 	async getAllIncome<T>(domain: string, all: boolean, startDate: string, endDate: string): Promise<T[]> {
 		const response = await axios.get<T[]>(
 			`${import.meta.env.VITE_API_URL}/${domain}/ingreso?all=${all}&startDate=${startDate}&endDate=${endDate}`
@@ -129,6 +150,11 @@ class AxiosRepository {
 
 	async getCultiveResult<T>(domain: string, id: number | string, name: number | string): Promise<T> {
 		const response = await axios.get<T>(`${import.meta.env.VITE_API_URL}/${domain}/cultive/result/${id}/${name}`);
+		return response.data;
+	}
+
+	async getSpermiogramResult<T>(domain: string, id: number | string, name: number | string): Promise<T> {
+		const response = await axios.get<T>(`${import.meta.env.VITE_API_URL}/${domain}/spermiogram/result/${id}/${name}`);
 		return response.data;
 	}
 
