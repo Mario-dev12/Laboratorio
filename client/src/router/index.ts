@@ -11,6 +11,7 @@ import EditarOrden from "@/views/EditarOrden.vue";
 import TemplatePDF from "@/views/TemplatePDF.vue";
 import AddResults from "@/views/AddResults.vue";
 import AddResults2 from "@/views/AddResults2.vue";
+import UrocultivoResults from "@/views/UrocultivoResults.vue";
 import EditCultive from "@/views/EditCultive.vue";
 
 const routes: Array<RouteRecordRaw> = [
@@ -77,6 +78,11 @@ const routes: Array<RouteRecordRaw> = [
 		path: "/result2",
 		name: "Results2",
 		component: AddResults2,
+	},
+	{
+		path: "/uroResults",
+		name: "UroResults",
+		component: UrocultivoResults,
 	},
 ];
 

@@ -2,18 +2,18 @@
 	<ion-page>
 		<ion-content>
 			<div class="container mt-3">
-				<div class="perfiles mt-3 mb-3">  
-					<div class="row w-100 m-auto gap-2">  
-					  <div  
-						class="col btn"  
-						:class="{'btn-light': index !== activeIndex, 'bg-gray': index === activeIndex}" 
-						v-for="(profileName, index) in profileNamesOrdered"  
-						:key="index"  
-						@click="handleTap(index, profileName)">  
-						  {{ profileName }}  
-					  </div>  
-					</div>  
-				</div>  
+				<div class="perfiles mt-3 mb-3">
+					<div class="row w-100 m-auto gap-2">
+						<div
+							class="col btn"
+							:class="{ 'btn-light': index !== activeIndex, 'bg-gray': index === activeIndex }"
+							v-for="(profileName, index) in profileNamesOrdered"
+							:key="index"
+							@click="handleTap(index, profileName)">
+							{{ profileName }}
+						</div>
+					</div>
+				</div>
 
 				<div v-if="showProfile === 'Pruebas de Sangre'">
 					<h2 class="text-center mb-4">Lista de Órdenes</h2>
@@ -185,8 +185,8 @@
 	const searchQuery = ref("");
 	const selectedDate = ref("");
 	const ordersStore = orderStore();
-	const profileNamesOrdered = ref(["Pruebas de Sangre", "Cultivos", "Espermatograma"])
-	const showProfile = ref('');
+	const profileNamesOrdered = ref(["Pruebas de Sangre", "Cultivos", "Espermatograma"]);
+	const showProfile = ref("");
 	const activeIndex = ref<number>(0);
 	const toast = ref({
 		isOpen: false,
@@ -199,7 +199,7 @@
 		orders.value = await ordersStore.fecthOrdersDay(true, "");
 		cultive.value = await ordersStore.fecthCultiveOrdersDay(true, "");
 		spermiogram.value = await ordersStore.fecthSpermiogramOrdersDay(true, "");
-		showProfile.value = 'Pruebas de Sangre';
+		showProfile.value = "Pruebas de Sangre";
 	});
 
 	router.beforeEach(async (to, from, next) => {
@@ -212,12 +212,12 @@
 				orders.value = await ordersStore.fecthOrdersDay(false, formattedDate);
 				cultive.value = await ordersStore.fecthCultiveOrdersDay(false, formattedDate);
 				spermiogram.value = await ordersStore.fecthSpermiogramOrdersDay(false, formattedDate);
-				showProfile.value = 'Pruebas de Sangre';
+				showProfile.value = "Pruebas de Sangre";
 			} else {
 				orders.value = await ordersStore.fecthOrdersDay(true, "");
 				cultive.value = await ordersStore.fecthCultiveOrdersDay(true, "");
 				spermiogram.value = await ordersStore.fecthSpermiogramOrdersDay(true, "");
-				showProfile.value = 'Pruebas de Sangre';
+				showProfile.value = "Pruebas de Sangre";
 			}
 		}
 		next();
@@ -241,10 +241,10 @@
 		const profileNamesArray = profileName.orders.flatMap((order: { profiles: any[] }) =>
 			order.profiles.map((profile: { profileName: any }) => profile.profileName)
 		);
-		/*router.push({
-			name: "Results2",
+		router.push({
+			name: "UroResults",
 			query: { profile: JSON.stringify(profileName), profileNames: JSON.stringify(profileNamesArray) },
-		});*/
+		});
 	};
 
 	const openTabsView3 = (profileName: any) => {
@@ -330,13 +330,13 @@
 	};
 
 	function handleTap(index: number, profileName: string) {
-		if (index !== activeIndex.value){
-			if (profileName === 'Pruebas de Sangre'){
-				showProfile.value = 'Pruebas de Sangre'
-			} else if (profileName === 'Cultivos'){
-				showProfile.value = 'Cultivos'
+		if (index !== activeIndex.value) {
+			if (profileName === "Pruebas de Sangre") {
+				showProfile.value = "Pruebas de Sangre";
+			} else if (profileName === "Cultivos") {
+				showProfile.value = "Cultivos";
 			} else {
-				showProfile.value = 'Espermatograma'
+				showProfile.value = "Espermatograma";
 			}
 		}
 		activeIndex.value = index;
@@ -365,7 +365,7 @@
 		border-radius: 4px;
 	}
 
-	.bg-gray {  
-		background-color: #DCD7C9; 
-	}  
+	.bg-gray {
+		background-color: #dcd7c9;
+	}
 </style>
