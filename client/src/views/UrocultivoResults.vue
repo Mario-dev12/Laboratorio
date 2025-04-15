@@ -15,7 +15,7 @@
 					</div>
 					<div class="patient-info">
 						<div class="border-bottom border-black mt-2"></div>
-						<div class="row mt-3">
+						<div class="row mt-3 text-center">
 							<div class="col">
 								<div class="d-inline fw-bold">Paciente: {{ profile?.firstName }}</div>
 							</div>
@@ -45,7 +45,7 @@
 						<div class="col-8 border border-black">
 							<select class="w-100" name="germen" id="germen">
 								<option value="">select germen</option>
-								<option v-for="(germen, index) in germenes" :key="index" :value="germen">{{ germen }}</option>
+								<option v-for="(germen, index) in germs" :key="index" :value="germen.nombre">{{ germen.nombre }}</option>
 							</select>
 						</div>
 					</div>
@@ -66,24 +66,24 @@
 							<div class="col-8 border border-black" ref="dropdown1">
 								<select class="w-100" name="germen" id="germen">
 									<option value="">Seleccionar Antibiótico</option>
-									<option v-for="(antibiotico, index) in antibioticos" :key="index" :value="antibiotico">
-										{{ antibiotico }}
+									<option v-for="(antibiotico, index) in antibioticos" :key="index" :value="antibiotico.nombre">
+										{{ antibiotico.nombre }}
 									</option>
 								</select>
 							</div>
 							<div class="col-8 border border-black">
 								<select class="w-100" name="germen" id="germen">
 									<option value="">Seleccionar Antibiótico</option>
-									<option v-for="(antibiotico, index) in antibioticos" :key="index" :value="antibiotico">
-										{{ antibiotico }}
+									<option v-for="(antibiotico, index) in antibioticos" :key="index" :value="antibiotico.nombre">
+										{{ antibiotico.nombre }}
 									</option>
 								</select>
 							</div>
 							<div class="col-8 border border-black">
 								<select class="w-100" name="germen" id="germen">
 									<option value="">Seleccionar Antibiótico</option>
-									<option v-for="(antibiotico, index) in antibioticos" :key="index" :value="antibiotico">
-										{{ antibiotico }}
+									<option v-for="(antibiotico, index) in antibioticos" :key="index" :value="antibiotico.nombre">
+										{{ antibiotico.nombre }}
 									</option>
 								</select>
 							</div>
@@ -99,24 +99,24 @@
 							<div class="col-8 border border-black">
 								<select class="w-100" name="germen" id="germen">
 									<option value="">Seleccionar Antibiótico</option>
-									<option v-for="(antibiotico, index) in antibioticos" :key="index" :value="antibiotico">
-										{{ antibiotico }}
+									<option v-for="(antibiotico, index) in antibioticos" :key="index" :value="antibiotico.nombre">
+										{{ antibiotico.nombre }}
 									</option>
 								</select>
 							</div>
 							<div class="col-8 border border-black">
 								<select class="w-100" name="germen" id="germen">
 									<option value="">Seleccionar Antibiótico</option>
-									<option v-for="(antibiotico, index) in antibioticos" :key="index" :value="antibiotico">
-										{{ antibiotico }}
+									<option v-for="(antibiotico, index) in antibioticos" :key="index" :value="antibiotico.nombre">
+										{{ antibiotico.nombre }}
 									</option>
 								</select>
 							</div>
 							<div class="col-8 border border-black">
 								<select class="w-100" name="germen" id="germen">
 									<option value="">Seleccionar Antibiótico</option>
-									<option v-for="(antibiotico, index) in antibioticos" :key="index" :value="antibiotico">
-										{{ antibiotico }}
+									<option v-for="(antibiotico, index) in antibioticos" :key="index" :value="antibiotico.nombre">
+										{{ antibiotico.nombre }}
 									</option>
 								</select>
 							</div>
@@ -139,6 +139,7 @@
 	import html2pdf from "html2pdf.js";
 	import { ref, onMounted } from "vue";
 	import { useRoute } from "vue-router";
+	import { profileStore } from "@/stores/profileStore";
 
 	let html: string = "";
 	const urocultivoPDF = ref();
@@ -156,15 +157,16 @@
 	const day = today.getDate();
 	const month = today.getMonth() + 1;
 	const year = today.getFullYear();
-
-	const germenes: string[] = ["germen1", "germen2", "germen3"];
-	const antibioticos: string[] = ["anti1", "anti2", "anti3", "anti4"];
+	const store = profileStore();
+	const germs = ref();
+	const antibioticos = ref();
 
 	onMounted(async () => {
 		order.value = route.query;
 		profile.value = JSON.parse(order.value.profile);
 		profileNames.value = JSON.parse(order.value.profileNames);
-		console.log(profile.value);
+		germs.value = await store.fecthBacterium();
+		antibioticos.value = await store.fecthAntibiotics();
 	});
 
 	function agregarSensible() {
@@ -176,17 +178,6 @@
 		const dropdown1Copy = dropdown1.value.cloneNode(true);
 		resistentes.value.appendChild(dropdown1Copy);
 	}
-
-	// const getHtmlWithSelectValues = (element: any) => {
-	// 	const selects = element.querySelectorAll("select");
-
-	// 	selects.forEach((select: any) => {
-	// 		const value = select.value;
-	// 		select.outerHTML = `<span>${value}</span>`;
-	// 	});
-
-	// 	return element.innerHTML;
-	// };
 
 	const generatePDF = async () => {
 		html = headerPatientInfo.value.innerHTML;
