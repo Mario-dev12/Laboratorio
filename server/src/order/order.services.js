@@ -22,12 +22,20 @@ orderServices.readCultiveOrdersDay = async (today, date) => {
     return await orderRepository.readCultiveOrdersDay(today, date)
 }
 
+orderServices.readSpermiogramOrdersDay = async (today, date) => {
+    return await orderRepository.readSpermiogramOrdersDay(today, date)
+}
+
 orderServices.readHistOrdersDay = async () => {
     return await orderRepository.readHistOrdersDay()
 }
 
 orderServices.readCultiveHistOrdersDay = async () => {
     return await orderRepository.readCultiveHistOrdersDay()
+}
+
+orderServices.readSpermiogramHistOrdersDay = async () => {
+    return await orderRepository.readSpermiogramHistOrdersDay()
 }
 
 orderServices.createOrder = async (idExam, idProfile, status) => {

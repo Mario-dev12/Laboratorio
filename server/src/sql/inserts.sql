@@ -16,7 +16,8 @@ INSERT INTO profile (name, cost_bs, cost_usd) VALUES
 ('Perfil 20', '244,35', '5'),
 ('Uroanalisis', '244,35', '5'),
 ('Perfil Tiroideo', '244,35', '5'),
-('Urocultivo y Antibiograma', '386,30', '5');
+('Urocultivo y Antibiograma', '386,30', '5'),
+('Espermatograma', '386,30', '5');
 
 INSERT INTO restriction (idProfile, restriction) VALUES 
 (1, 'colesterol_hdl + colesterol_ldl = 150');
@@ -25,7 +26,8 @@ INSERT INTO exam (idUser, total_cost_bs, total_cost_usd) VALUES
 (1, '488,7', '10'),
 (2, '488,7', '10'),
 (3, '244,35', '5'),
-(4, '386,30', '5');
+(4, '386,30', '5'),
+(5, '386,30', '5');
 
 INSERT INTO orders (idExam, idProfile, status) VALUES 
 (1, 1, 'Pendiente por pasar'),
@@ -33,7 +35,8 @@ INSERT INTO orders (idExam, idProfile, status) VALUES
 (2, 3, 'Pendiente por pasar'),
 (2, 2, 'Pendiente por pasar'),
 (3, 3, 'Pendiente por pasar'),
-(4, 4, 'Pendiente por pasar');
+(4, 4, 'Pendiente por pasar'),
+(5, 5, 'Pendiente por pasar');
 
 INSERT INTO payment_method (name) VALUES 
 ('Debito'),
@@ -45,7 +48,8 @@ INSERT INTO payment (idPayment_method, idExam, amount_bs, amount_usd, bank, phon
 (2, 1, '244,35', '5', 'Venezuela', '0414-894432', 'Bolivares'),
 (3, 2, '488,7', '10', '', '', 'Dolares'),
 (1, 3, '244,35', '5', 'Mercantil', '', 'Bolivares'),
-(2, 4, '386,30', '5', '', '', 'Dolares');
+(2, 4, '386,30', '5', '', '', 'Dolares'),
+(2, 5, '386,30', '5', '', '', 'Dolares');
 
 INSERT INTO reactive (name, total) VALUES   
 ('Glucosa', 5),  
@@ -313,3 +317,6 @@ INSERT INTO resistente (idResultado, idAntibiotico) VALUES
 (1, 10),
 (1, 11),
 (1, 12);
+
+INSERT INTO resultado_espermatograma (idOrder, volumen, contaje, liquefaccion, ph, aspecto_macroscopico, hora_recoleccion, densidad, abstinencia, color, progresivo_rapido, progresivo_lento, no_progresivo, lento, normales, tapering, microcefalos, macrocefalo, leucocitos, hematies, celulas_epi, bacterias, mucina, cristales, vivos_moviles, vivos_inmoviles, muertos) VALUES 
+(7, '3.5 ml', '50 millones/ml', 'Normal', '7.5', 'Opaco', '10:00 am', '1.2', '3 días', 'Blanco', '40%', '30%', '20%', '10%', '60%', '5%', '3%', '2%', '1 millón/ml', '0', '2 células/ml', '0', '0', '0', '30 millones', '10 millones', '5 millones');

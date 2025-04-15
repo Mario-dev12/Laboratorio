@@ -86,6 +86,33 @@ profileRepository.readCultives = async () => {
 	}
 };
 
+profileRepository.readSpermiogram = async () => {
+	try {
+		const resp = await pool.query(`SELECT * FROM sp_find_all_spermiogram()`);
+		return resp.rows[0].sp_find_all_spermiogram;
+	} catch (error) {
+		throw error;
+	}
+};
+
+profileRepository.readAntibiotics = async () => {
+	try {
+		const resp = await pool.query(`SELECT * FROM sp_find_all_antibiotics()`);
+		return resp.rows[0].sp_find_all_antibiotics;
+	} catch (error) {
+		throw error;
+	}
+};
+
+profileRepository.readBacterium = async () => {
+	try {
+		const resp = await pool.query(`SELECT * FROM sp_find_all_bacterium()`);
+		return resp.rows[0].sp_find_all_bacterium;
+	} catch (error) {
+		throw error;
+	}
+};
+
 profileRepository.readProfilesInputs = async () => {
 	try {
 		const resp = await pool.query(`SELECT * FROM sp_find_all_inputs()`);
@@ -176,6 +203,15 @@ profileRepository.readCultivesResult = async (id, name) => {
 	try {
 		const resp = await pool.query(`SELECT * FROM obtener_resultado_y_antibioticos(${id}, '${name}')`);
 		return resp.rows[0].obtener_resultado_y_antibioticos;
+	} catch (error) {
+		throw error;
+	}
+};
+
+profileRepository.readSpermiogramResult = async (id, name) => {
+	try {
+		const resp = await pool.query(`SELECT * FROM obtener_resultados_espermatograma(${id}, '${name}')`);
+		return resp.rows[0].obtener_resultados_espermatograma;
 	} catch (error) {
 		throw error;
 	}

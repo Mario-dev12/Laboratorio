@@ -1,109 +1,231 @@
 <template>
 	<ion-page>
 		<ion-content>
-			<div class="container">
-				<div>
-					<h1 class="mb-4 text-center mt-4">Cultivos</h1>
-				</div>
-				<div class="d-flex justify-content-end mb-3">
-					<ion-button @click="createPerfil" color="primary">+ Cultivo</ion-button>
-				</div>
-				<div class="perfiles">
-					<input  
-						type="text"  
-						v-model="filtroNombre"  
-						placeholder="Filtrar por nombre"  
-						class="form-control"  
-					/>  
-					<table class="table table-striped text-center">
-						<thead>
-							<tr>
-								<th scope="col">ID</th>
-								<th scope="col">Name</th>
-								<th scope="col">Cost $</th>
-								<th scope="col">Cost Bs</th>
-								<th scope="col">Acciones</th>
-							</tr>
-						</thead>
-						<tbody>
-							<tr v-for="perfil in perfilesFiltrados" :key="perfil.idProfile">
-								<td>{{ perfil.idProfile }}</td>
-								<td>
-									{{ perfil.name }}
-								</td>
+			<div class="container mt-3">
+				<div class="perfiles mt-3 mb-3">  
+					<div class="row w-100 m-auto gap-2">  
+					  <div  
+						class="col btn"  
+						:class="{'btn-light': index !== activeIndex, 'bg-gray': index === activeIndex}" 
+						v-for="(profileName, index) in profileNamesOrdered"  
+						:key="index"  
+						@click="handleTap(index)">  
+						  {{ profileName }}  
+					  </div>  
+					</div>  
+				</div> 
 
-								<td>$ {{ perfil.cost_usd }}</td>
-
-								<td>Bs {{ perfil.cost_bs }}</td>
-
-								<td class="align-middle">
-									<i class="fas fa-edit" style="cursor: pointer; margin-right: 10px" @click="editPerfil(perfil)"></i>
-									<i class="fas fa-trash" style="cursor: pointer" @click="deletePerfil(perfil.idProfile)"></i>
-								</td>
-							</tr>
-						</tbody>
-					</table>
-				</div>
-
-				<div class="editar-perfil mt-4" v-if="create || update" ref="edicionPerfil">
-					<h1 class="text-center" v-if="!update">Cultivo Nuevo</h1>
-					<h1 class="text-center" v-if="update">{{ perfilName }}</h1>
-					<div class="informacion-perfil bg-dark-subtle rounded p-3">
-						<div class="w-100 m-auto row px-2 mb-3">
-							<label class="col-12 p-0" for="documento">Nombre Del Cultivo</label>
-							<input
-								v-if="!update"
-								class="col-12"
-								type="text"
-								:placeholder="update ? selectedPerfil.name : 'Nombre'"
-								ref="nombrePerfilNuevo" />
-							<input
-								v-else
-								class="col-12"
-								type="text"
-								v-model="selectedPerfil.name"
-								:placeholder="create ? 'Nombre' : ''"
-								ref="nombrePerfilNuevo" />
+				<div v-if="showProfile">
+					<div>
+						<h1 class="mb-4 text-center">Cultivos</h1>
+					</div>
+					<div class="d-flex justify-content-end mb-3">
+						<ion-button @click="createPerfil" color="primary">+ Cultivo</ion-button>
+					</div>
+					<div class="perfiles">
+						<input  
+							type="text"  
+							v-model="filtroNombre"  
+							placeholder="Filtrar por nombre"  
+							class="form-control"  
+						/>  
+						<table class="table table-striped text-center">
+							<thead>
+								<tr>
+									<th scope="col">ID</th>
+									<th scope="col">Name</th>
+									<th scope="col">Costo $</th>
+									<th scope="col">Costo Bs</th>
+									<th scope="col">Acciones</th>
+								</tr>
+							</thead>
+							<tbody>
+								<tr v-for="perfil in perfilesFiltrados" :key="perfil.idProfile">
+									<td>{{ perfil.idProfile }}</td>
+									<td>
+										{{ perfil.name }}
+									</td>
+	
+									<td>$ {{ perfil.cost_usd }}</td>
+	
+									<td>Bs {{ perfil.cost_bs }}</td>
+	
+									<td class="align-middle">
+										<i class="fas fa-edit" style="cursor: pointer; margin-right: 10px" @click="editPerfil(perfil)"></i>
+										<i class="fas fa-trash" style="cursor: pointer" @click="deletePerfil(perfil.idProfile)"></i>
+									</td>
+								</tr>
+							</tbody>
+						</table>
+					</div>
+	
+					<div class="editar-perfil mt-4" v-if="create || update" ref="edicionPerfil">
+						<h1 class="text-center" v-if="!update">Cultivo Nuevo</h1>
+						<h1 class="text-center" v-if="update">{{ perfilName }}</h1>
+						<div class="informacion-perfil bg-dark-subtle rounded p-3">
+							<div class="w-100 m-auto row px-2 mb-3">
+								<label class="col-12 p-0" for="documento">Nombre Del Cultivo</label>
+								<input
+									v-if="!update"
+									class="col-12"
+									type="text"
+									:placeholder="update ? selectedPerfil.name : 'Nombre'"
+									ref="nombrePerfilNuevo" />
+								<input
+									v-else
+									class="col-12"
+									type="text"
+									v-model="selectedPerfil.name"
+									:placeholder="create ? 'Nombre' : ''"
+									ref="nombrePerfilNuevo" />
+							</div>
+							<div class="w-100 m-auto row px-2 mb-3">
+								<label class="col-12 p-0" for="documento">Costo En Dolares</label>
+								<input
+									v-if="!update"
+									class="col-12"
+									type="text"
+									:placeholder="update ? selectedPerfil.cost_usd : 'Costo $'"
+									ref="costoDolaresPerfilNuevo"
+									@input="updateCostBs" />
+								<input
+									v-else
+									class="col-12"
+									type="text"
+									v-model="selectedPerfil.cost_usd"
+									:placeholder="create ? 'Costo $' : ''"
+									ref="costoDolaresPerfilNuevo"
+									@input="updateCostBs" />
+							</div>
+							<div class="w-100 m-auto row px-2">
+								<label class="col-12 p-0" for="documento">Costo En Bolivares</label>
+								<input
+									v-if="!update"
+									class="col-12"
+									type="text"
+									:placeholder="update ? selectedPerfil.cost_bs : 'Costo Bs'"
+									ref="costoBsPerfilNuevo" />
+								<input
+									v-else
+									class="col-12"
+									type="text"
+									v-model="selectedPerfil.cost_bs"
+									:placeholder="create ? 'Costo Bs' : ''"
+									ref="costoBsPerfilNuevo" />
+							</div>
 						</div>
-						<div class="w-100 m-auto row px-2 mb-3">
-							<label class="col-12 p-0" for="documento">Costo En Dolares</label>
-							<input
-								v-if="!update"
-								class="col-12"
-								type="text"
-								:placeholder="update ? selectedPerfil.cost_usd : 'Costo $'"
-								ref="costoDolaresPerfilNuevo"
-								@input="updateCostBs" />
-							<input
-								v-else
-								class="col-12"
-								type="text"
-								v-model="selectedPerfil.cost_usd"
-								:placeholder="create ? 'Costo $' : ''"
-								ref="costoDolaresPerfilNuevo"
-								@input="updateCostBs" />
-						</div>
-						<div class="w-100 m-auto row px-2">
-							<label class="col-12 p-0" for="documento">Costo En Bolivares</label>
-							<input
-								v-if="!update"
-								class="col-12"
-								type="text"
-								:placeholder="update ? selectedPerfil.cost_bs : 'Costo Bs'"
-								ref="costoBsPerfilNuevo" />
-							<input
-								v-else
-								class="col-12"
-								type="text"
-								v-model="selectedPerfil.cost_bs"
-								:placeholder="create ? 'Costo Bs' : ''"
-								ref="costoBsPerfilNuevo" />
+	
+						<div class="d-flex justify-content-center mt-3 mb-3">
+							<button class="btn btn-primary mb-4" @click="crearPerfil" v-if="!update">Crear Cultivo</button>
+							<button class="btn btn-primary mb-4" v-if="update" @click="updatePerfil">Guardar Cambios</button>
 						</div>
 					</div>
+				</div>
 
-					<div class="d-flex justify-content-center mt-3 mb-3">
-						<button class="btn btn-primary mb-4" @click="crearPerfil" v-if="!update">Crear Cultivo</button>
-						<button class="btn btn-primary mb-4" v-if="update" @click="updatePerfil">Guardar Cambios</button>
+				<div v-else>
+					<div>
+						<h1 class="mb-4 text-center">Espermatograma</h1>
+					</div>
+					<div class="d-flex justify-content-end mb-3">
+						<ion-button @click="createPerfil" color="primary">+ Espermatograma</ion-button>
+					</div>
+					<div class="perfiles">
+						<input  
+							type="text"  
+							v-model="filtroNombre"  
+							placeholder="Filtrar por nombre"  
+							class="form-control"  
+						/>  
+						<table class="table table-striped text-center">
+							<thead>
+								<tr>
+									<th scope="col">ID</th>
+									<th scope="col">Name</th>
+									<th scope="col">Costo $</th>
+									<th scope="col">Costo Bs</th>
+									<th scope="col">Acciones</th>
+								</tr>
+							</thead>
+							<tbody>
+								<tr v-for="perfil in espermatogramaFiltrados" :key="perfil.idProfile">
+									<td>{{ perfil.idProfile }}</td>
+									<td>
+										{{ perfil.name }}
+									</td>
+	
+									<td>$ {{ perfil.cost_usd }}</td>
+	
+									<td>Bs {{ perfil.cost_bs }}</td>
+	
+									<td class="align-middle">
+										<i class="fas fa-edit" style="cursor: pointer; margin-right: 10px" @click="editPerfil(perfil)"></i>
+										<i class="fas fa-trash" style="cursor: pointer" @click="deletePerfil(perfil.idProfile)"></i>
+									</td>
+								</tr>
+							</tbody>
+						</table>
+					</div>
+	
+					<div class="editar-perfil mt-4" v-if="create || update" ref="edicionPerfil">
+						<h1 class="text-center" v-if="!update">Espermatograma Nuevo</h1>
+						<h1 class="text-center" v-if="update">{{ perfilName }}</h1>
+						<div class="informacion-perfil bg-dark-subtle rounded p-3">
+							<div class="w-100 m-auto row px-2 mb-3">
+								<label class="col-12 p-0" for="documento">Nombre Del Espermatograma</label>
+								<input
+									v-if="!update"
+									class="col-12"
+									type="text"
+									:placeholder="update ? selectedPerfil.name : 'Nombre'"
+									ref="nombrePerfilNuevo" />
+								<input
+									v-else
+									class="col-12"
+									type="text"
+									v-model="selectedPerfil.name"
+									:placeholder="create ? 'Nombre' : ''"
+									ref="nombrePerfilNuevo" />
+							</div>
+							<div class="w-100 m-auto row px-2 mb-3">
+								<label class="col-12 p-0" for="documento">Costo En Dolares</label>
+								<input
+									v-if="!update"
+									class="col-12"
+									type="text"
+									:placeholder="update ? selectedPerfil.cost_usd : 'Costo $'"
+									ref="costoDolaresPerfilNuevo"
+									@input="updateCostBs" />
+								<input
+									v-else
+									class="col-12"
+									type="text"
+									v-model="selectedPerfil.cost_usd"
+									:placeholder="create ? 'Costo $' : ''"
+									ref="costoDolaresPerfilNuevo"
+									@input="updateCostBs" />
+							</div>
+							<div class="w-100 m-auto row px-2">
+								<label class="col-12 p-0" for="documento">Costo En Bolivares</label>
+								<input
+									v-if="!update"
+									class="col-12"
+									type="text"
+									:placeholder="update ? selectedPerfil.cost_bs : 'Costo Bs'"
+									ref="costoBsPerfilNuevo" />
+								<input
+									v-else
+									class="col-12"
+									type="text"
+									v-model="selectedPerfil.cost_bs"
+									:placeholder="create ? 'Costo Bs' : ''"
+									ref="costoBsPerfilNuevo" />
+							</div>
+						</div>
+	
+						<div class="d-flex justify-content-center mt-3 mb-3">
+							<button class="btn btn-primary mb-4" @click="crearPerfil" v-if="!update">Crear Espermatograma</button>
+							<button class="btn btn-primary mb-4" v-if="update" @click="updatePerfil">Guardar Cambios</button>
+						</div>
 					</div>
 				</div>
 			</div>
@@ -132,6 +254,7 @@
 	const tests = profileStore();
 	const secciones = ref<Seccion[]>([]);
 	const perfiles = ref<Profile[]>([]);
+	const spermiogram = ref<Profile[]>([]);
 	const create = ref(false);
 	const update = ref(false);
 	const nombrePerfilNuevo = ref();
@@ -142,6 +265,9 @@
 	const isOpen = ref(false);
 	const tasa = ref<number>(parseFloat(localStorage.getItem("tasaDolar") || "1"));
 	const filtroNombre = ref(''); 
+	const profileNamesOrdered = ref(["Cultivos", "Espermatograma"])
+	const activeIndex = ref<number>(0);
+	const showProfile = ref<boolean>(true);
 	const toast = ref({
 		isOpen: false,
 		message: "",
@@ -154,15 +280,6 @@
 		cost_bs: "",
 		cost_usd: "",
 	};
-
-	interface CampoNuevo {
-		idCampo: number;
-		nombre: string;
-		unidad: string;
-		valor_referencial: string;
-		calculado: string;
-		checked?: boolean;
-	}
 
 	interface Seccion {
 		nombre: string;
@@ -178,7 +295,13 @@
 		eventBus.on("precioActualizado", handlePrecioActualizado);
 		tasa.value = Number(localStorage.getItem("tasaDolar")) || 50;
 		perfiles.value = await tests.fecthCultives();
+		spermiogram.value = await tests.fecthSpermiogram();
 		perfiles.value.forEach((perfil) => {
+			const costUsd = parseFloat(perfil.cost_usd);
+			const costBs = (costUsd * tasa.value).toFixed(2);
+			perfil.cost_bs = costBs.toString().replace(",", ".");
+		});
+		spermiogram.value.forEach((perfil) => {
 			const costUsd = parseFloat(perfil.cost_usd);
 			const costBs = (costUsd * tasa.value).toFixed(2);
 			perfil.cost_bs = costBs.toString().replace(",", ".");
@@ -187,6 +310,12 @@
 
 	const perfilesFiltrados = computed(() => {  
 		return perfiles.value.filter(perfil => {  
+			return perfil.name.toLowerCase().includes(filtroNombre.value.toLowerCase());  
+		});  
+	}); 
+
+	const espermatogramaFiltrados = computed(() => {  
+		return spermiogram.value.filter(perfil => {  
 			return perfil.name.toLowerCase().includes(filtroNombre.value.toLowerCase());  
 		});  
 	}); 
@@ -367,9 +496,19 @@
 		}
 	}
 
+	function handleTap(index: number) {
+		if (index !== activeIndex.value){
+			showProfile.value = !showProfile.value
+		}
+		activeIndex.value = index;
+	}
 </script>
 
 <style scoped>
+
+	.container {
+		padding: 16px;
+	}
 	.perfiles:not(:last-child) {
 		margin-bottom: 15px;
 	}
@@ -393,5 +532,9 @@
 	ion-toast.warning {
 		--background: rgb(219, 248, 0);
 		--color: #323232;
+	}
+
+	.bg-gray {  
+		background-color: #DCD7C9; 
 	}
 </style>

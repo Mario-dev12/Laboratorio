@@ -207,3 +207,36 @@ CREATE TABLE IF NOT EXISTS resistente (
     createdDate TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),  
     modifiedDate TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now()  
 );
+
+CREATE TABLE IF NOT EXISTS resultado_espermatograma (  
+    idResultado SERIAL PRIMARY KEY,  
+    idOrder INTEGER NOT NULL REFERENCES orders(idOrder) ON DELETE CASCADE,     
+    volumen character varying(255),
+    contaje character varying(255),
+    liquefaccion character varying(255),
+    ph character varying(255),
+    aspecto_macroscopico character varying(255),
+    hora_recoleccion character varying(255),
+    densidad character varying(255),
+    abstinencia character varying(255),
+    color character varying(255),
+    progresivo_rapido character varying(255),
+    progresivo_lento character varying(255),
+    no_progresivo character varying(255),
+    lento character varying(255),
+    normales character varying(255),
+    tapering character varying(255),
+    microcefalos character varying(255),
+    macrocefalo character varying(255),
+    leucocitos character varying(255),
+    hematies character varying(255),
+    celulas_epi character varying(255),
+    bacterias character varying(255),
+    mucina character varying(255),
+    cristales character varying(255),
+    vivos_moviles character varying(255),
+    vivos_inmoviles character varying(255),
+    muertos character varying(255),
+    createdDate timestamp with time zone NOT NULL DEFAULT now(),  
+    modifiedDate timestamp with time zone NOT NULL DEFAULT now()  
+);

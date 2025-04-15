@@ -26,7 +26,21 @@ export const profileStore = defineStore("profile", {
 			this.profiles = response;
 			return this.profiles;
 		},
-
+		async fecthSpermiogram() {
+			const response = await axiosRepository.getAllSpermiogram<Profile>("profile");
+			this.profiles = response;
+			return this.profiles;
+		},
+		async fecthBacterium() {
+			const response = await axiosRepository.getAllBacterium<Profile>("profile");
+			this.profiles = response;
+			return this.profiles;
+		},
+		async fecthAntibiotics() {
+			const response = await axiosRepository.getAllAntibiotics<Profile>("profile");
+			this.profiles = response;
+			return this.profiles;
+		},
 		async fecthProfilesInputs() {
 			const response = await axiosRepository.getAllInputs<Campo>("profile");
 			this.inputs = response;
@@ -81,6 +95,12 @@ export const profileStore = defineStore("profile", {
 		//ESTE ES PARA SABER EL RESULTADO DE LOS CULTIVOS
 		async fetchCultiveResult(id: string | number, name: string) {
 			const response = await axiosRepository.getCultiveResult<Profile>("profile", id, name);
+			this.profiles = response;
+			return this.profiles;
+		},
+		//ESTE ES PARA SABER EL RESULTADO DE LOS ESPERMATOGRAMA
+		async fetchSpermiogramResult(id: string | number, name: string) {
+			const response = await axiosRepository.getSpermiogramResult<Profile>("profile", id, name);
 			this.profiles = response;
 			return this.profiles;
 		},

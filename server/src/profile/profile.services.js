@@ -14,6 +14,18 @@ profileServices.readCultives = async () => {
     return await profileRepository.readCultives()
 }
 
+profileServices.readSpermiogram = async () => {
+    return await profileRepository.readSpermiogram()
+}
+
+profileServices.readAntibiotics = async () => {
+    return await profileRepository.readAntibiotics()
+}
+
+profileServices.readBacterium = async () => {
+    return await profileRepository.readBacterium()
+}
+
 profileServices.readProfilesInputs = async () => {
     return await profileRepository.readProfilesInputs()
 }
@@ -52,6 +64,10 @@ profileServices.readInputsResults2 = async (name, id) => {
 
 profileServices.readCultivesResult = async (id, name) => {
     return await profileRepository.readCultivesResult(id, name)
+}
+
+profileServices.readSpermiogramResult = async (id, name) => {
+    return await profileRepository.readSpermiogramResult(id, name)
 }
 
 profileServices.createProfile = async (name, cost_bs, cost_usd) => {
