@@ -18,6 +18,14 @@ profileServices.readSpermiogram = async () => {
     return await profileRepository.readSpermiogram()
 }
 
+profileServices.readAntibiotics = async () => {
+    return await profileRepository.readAntibiotics()
+}
+
+profileServices.readBacterium = async () => {
+    return await profileRepository.readBacterium()
+}
+
 profileServices.readProfilesInputs = async () => {
     return await profileRepository.readProfilesInputs()
 }

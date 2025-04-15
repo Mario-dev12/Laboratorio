@@ -42,6 +42,26 @@ profileController.readSpermiogram = async (req, res) => {
 	}
 };
 
+profileController.readAntibiotics = async (req, res) => {
+	try {
+		const answer = await profileServices.readAntibiotics();
+
+		res.send(answer);
+	} catch (error) {
+		return res.status(400).send(error.stack);
+	}
+};
+
+profileController.readBacterium = async (req, res) => {
+	try {
+		const answer = await profileServices.readBacterium();
+
+		res.send(answer);
+	} catch (error) {
+		return res.status(400).send(error.stack);
+	}
+};
+
 profileController.readProfilesInputs = async (req, res) => {
 	try {
 		const answer = await profileServices.readProfilesInputs();

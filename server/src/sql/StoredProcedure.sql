@@ -21,6 +21,52 @@ begin
 end;
 $BODY$;
 
+CREATE OR REPLACE FUNCTION sp_find_all_bacterium(
+	)
+    RETURNS json[]
+    LANGUAGE 'plpgsql'
+    COST 100
+    VOLATILE PARALLEL UNSAFE
+AS $BODY$
+declare 
+	v_json_resp json[];
+begin
+	select array(
+        select jsonb_build_object(
+			'idBacteria', a.idBacteria,
+			'nombre', a.nombre,
+			'createdDate', a.createdDate,
+            'modifiedDate', a.modifiedDate
+		)
+		from bacteria a
+        ) ::json[] into v_json_resp;
+		return v_json_resp;
+end;
+$BODY$;
+
+CREATE OR REPLACE FUNCTION sp_find_all_antibiotics(
+	)
+    RETURNS json[]
+    LANGUAGE 'plpgsql'
+    COST 100
+    VOLATILE PARALLEL UNSAFE
+AS $BODY$
+declare 
+	v_json_resp json[];
+begin
+	select array(
+        select jsonb_build_object(
+			'idAntibiotico', a.idAntibiotico,
+			'nombre', a.nombre,
+			'createdDate', a.createdDate,
+            'modifiedDate', a.modifiedDate
+		)
+		from antibiotico a
+        ) ::json[] into v_json_resp;
+		return v_json_resp;
+end;
+$BODY$;
+
 CREATE OR REPLACE FUNCTION sp_find_all_users(
 	)
     RETURNS json[]

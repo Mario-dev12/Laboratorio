@@ -95,6 +95,24 @@ profileRepository.readSpermiogram = async () => {
 	}
 };
 
+profileRepository.readAntibiotics = async () => {
+	try {
+		const resp = await pool.query(`SELECT * FROM sp_find_all_antibiotics()`);
+		return resp.rows[0].sp_find_all_antibiotics;
+	} catch (error) {
+		throw error;
+	}
+};
+
+profileRepository.readBacterium = async () => {
+	try {
+		const resp = await pool.query(`SELECT * FROM sp_find_all_bacterium()`);
+		return resp.rows[0].sp_find_all_bacterium;
+	} catch (error) {
+		throw error;
+	}
+};
+
 profileRepository.readProfilesInputs = async () => {
 	try {
 		const resp = await pool.query(`SELECT * FROM sp_find_all_inputs()`);

@@ -31,6 +31,16 @@ export const profileStore = defineStore("profile", {
 			this.profiles = response;
 			return this.profiles;
 		},
+		async fecthBacterium() {
+			const response = await axiosRepository.getAllBacterium<Profile>("profile");
+			this.profiles = response;
+			return this.profiles;
+		},
+		async fecthAntibiotics() {
+			const response = await axiosRepository.getAllAntibiotics<Profile>("profile");
+			this.profiles = response;
+			return this.profiles;
+		},
 		async fecthProfilesInputs() {
 			const response = await axiosRepository.getAllInputs<Campo>("profile");
 			this.inputs = response;

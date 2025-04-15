@@ -29,6 +29,16 @@ class AxiosRepository {
 		return response.data;
 	}
 
+	async getAllBacterium<T>(domain: string): Promise<T[]> {
+		const response = await axios.get<T[]>(`${import.meta.env.VITE_API_URL}/${domain}/bacterium`);
+		return response.data;
+	}
+
+	async getAllAntibiotics<T>(domain: string): Promise<T[]> {
+		const response = await axios.get<T[]>(`${import.meta.env.VITE_API_URL}/${domain}/antibiotics`);
+		return response.data;
+	}
+
 	async getAllInputs<T>(domain: string): Promise<T[]> {
 		const response = await axios.get<T[]>(`${import.meta.env.VITE_API_URL}/${domain}/input`);
 		return response.data;
