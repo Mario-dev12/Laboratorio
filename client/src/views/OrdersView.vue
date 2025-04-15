@@ -2,18 +2,18 @@
 	<ion-page>
 		<ion-content>
 			<div class="container mt-3">
-				<div class="perfiles mt-3 mb-3">  
-					<div class="row w-100 m-auto gap-2">  
-					  <div  
-						class="col btn"  
-						:class="{'btn-light': index !== activeIndex, 'bg-gray': index === activeIndex}" 
-						v-for="(profileName, index) in profileNamesOrdered"  
-						:key="index"  
-						@click="handleTap(index)">  
-						  {{ profileName }}  
-					  </div>  
-					</div>  
-				</div>  
+				<div class="perfiles mt-3 mb-3">
+					<div class="row w-100 m-auto gap-2">
+						<div
+							class="col btn"
+							:class="{ 'btn-light': index !== activeIndex, 'bg-gray': index === activeIndex }"
+							v-for="(profileName, index) in profileNamesOrdered"
+							:key="index"
+							@click="handleTap(index)">
+							{{ profileName }}
+						</div>
+					</div>
+				</div>
 
 				<div v-if="showProfile">
 					<h2 class="text-center mb-4">Lista de Órdenes</h2>
@@ -133,7 +133,7 @@
 	const searchQuery = ref("");
 	const selectedDate = ref("");
 	const ordersStore = orderStore();
-	const profileNamesOrdered = ref(["Pruebas de Sangre", "Cultivos"])
+	const profileNamesOrdered = ref(["Pruebas de Sangre", "Cultivos"]);
 	const showProfile = ref<boolean>(true);
 	const activeIndex = ref<number>(0);
 	const toast = ref({
@@ -183,10 +183,10 @@
 		const profileNamesArray = profileName.orders.flatMap((order: { profiles: any[] }) =>
 			order.profiles.map((profile: { profileName: any }) => profile.profileName)
 		);
-		/*router.push({
-			name: "Results2",
+		router.push({
+			name: "UroResults",
 			query: { profile: JSON.stringify(profileName), profileNames: JSON.stringify(profileNamesArray) },
-		});*/
+		});
 	};
 
 	const filteredOrders = computed(() => {
@@ -248,8 +248,8 @@
 	};
 
 	function handleTap(index: number) {
-		if (index !== activeIndex.value){
-			showProfile.value = !showProfile.value
+		if (index !== activeIndex.value) {
+			showProfile.value = !showProfile.value;
 		}
 		activeIndex.value = index;
 	}
@@ -277,7 +277,7 @@
 		border-radius: 4px;
 	}
 
-	.bg-gray {  
-		background-color: #DCD7C9; 
-	}  
+	.bg-gray {
+		background-color: #dcd7c9;
+	}
 </style>
