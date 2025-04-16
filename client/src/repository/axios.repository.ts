@@ -242,6 +242,16 @@ class AxiosRepository {
 		return response.data;
 	}
 
+	async createCultiveResults<T>(domain: string, data: T, sensibles: T, resistentes: T): Promise<T> {
+		const requestData = {
+			data,
+			sensibles,
+			resistentes
+		};
+		const response = await axios.post<T>(`${import.meta.env.VITE_API_URL}/${domain}/cultive/results`, requestData);
+		return response.data;
+	}
+
 	async update<T>(domain: string, id: string | number | undefined, data: T): Promise<T> {
 		const response = await axios.put<T>(`${import.meta.env.VITE_API_URL}/${domain}/${id}`, data);
 		return response.data;

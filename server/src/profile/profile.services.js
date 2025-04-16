@@ -86,6 +86,10 @@ profileServices.createProfileInputs = async (name, cost_bs, cost_usd, inputs, se
     return await profileRepository.createProfileInputs(name, cost_bs, cost_usd, inputs, section)
 }
 
+profileServices.createCultiveResult = async (idOrder, idBacteria, contaje, observacion, sensibles, resistentes) => {
+    return await profileRepository.createCultiveResult(idOrder, idBacteria, contaje, observacion, sensibles, resistentes)
+}
+
 profileServices.createCultive = async (name, cost_bs, cost_usd) => {
     return await profileRepository.createCultive(name, cost_bs, cost_usd)
 }

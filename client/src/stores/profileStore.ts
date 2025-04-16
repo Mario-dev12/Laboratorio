@@ -129,6 +129,11 @@ export const profileStore = defineStore("profile", {
 			this.profiles = response;
 			return this.profiles;
 		},
+		async createCultiveResults(exam: any, sensibles: any, resistentes: any) {
+			const response = await axiosRepository.createCultiveResults<Partial<Profile>>("profile", exam, sensibles, resistentes);
+			this.profiles = response;
+			return this.profiles;
+		},
 		async createProfileSection(exam: any, section: any) {
 			const response = await axiosRepository.createProfileSection<Profile>("profile", exam, section);
 			this.profiles = response;

@@ -40,6 +40,7 @@ profileRouter.delete("/section/input/:idProfile/:nombre/:idsArray", profileContr
 profileRouter.get("/cultive", profileController.readCultives);
 profileRouter.get("/cultive/result/:id/:name", profileController.readCultivesResult);
 profileRouter.post("/cultive", profileController.createCultive);
+profileRouter.post("/cultive/results", profileController.createCultiveResult);
 profileRouter.put("/cultive/:id", profileController.updateCultive);
 profileRouter.delete("/cultive/:id", profileController.deleteCultive);
 

@@ -2,7 +2,7 @@
 	<ion-page>
 		<ion-content>
 			<div class="container" ref="urocultivoPDF">
-				<div ref="headerPatientInfo">
+				<div class="info" ref="headerPatientInfo">
 					<div class="header">
 						<div class="row">
 							<div class="col text-center">
@@ -14,90 +14,148 @@
 						</div>
 					</div>
 					<div class="patient-info">
-						<div class="border-bottom border-black mt-2"></div>
-						<div class="row mt-3 text-center">
+						<div class="border-bottom border-black mt-1"></div>
+						<div class="row mt-2">
 							<div class="col">
-								<div class="d-inline fw-bold">Paciente: {{ profile?.firstName }}</div>
+								<div class="d-inline fw-bold">Paciente: </div>
+								{{ profile?.firstName }} {{profile?.lastName}}
 							</div>
 							<div class="col">
-								<div class="d-inline fw-bold">CI: {{ profile?.ci }}</div>
+								<div class="d-inline fw-bold">CI: </div>
+								{{ profile?.ci }}
 							</div>
 							<div class="col">
-								<div class="d-inline fw-bold">Edad: {{ profile?.age }}</div>
+								<div class="d-inline fw-bold">Edad: </div>
+								{{ profile?.age }}
 							</div>
 							<div class="col">
-								<div class="d-inline fw-bold">Sexo: {{ profile?.genre === "M" ? "Masculino" : "Femenino" }}</div>
+								<div class="d-inline fw-bold">Sexo: </div>
+								{{ profile?.genre === "M" ? "Masculino" : "Femenino" }}
 							</div>
 							<div class="col">
-								<div class="d-inline fw-bold">Fecha: {{ day }}/{{ month }}/{{ year }}</div>
+								<div class="d-inline fw-bold">Fecha: </div>
+								{{ day }}/{{ month }}/{{ year }}
 							</div>
 						</div>
 					</div>
 				</div>
 				<div class="bacteriologico" ref="bacteriologico">
-					<h1 class="text-center mt-5 mb-2">Estudio Bacteriológico</h1>
+					<h2 class="text-center mt-5 mb-2">Estudio Bacteriológico</h2>
 					<div class="row px-2 w-100 m-auto">
 						<div class="col-4 border border-black">Examen:</div>
 						<div class="col-8 border border-black">{{ profileNames ? profileNames[0] : null }}</div>
 					</div>
 					<div class="row px-2 w-100 m-auto">
 						<div class="col-4 border border-black">Germen:</div>
-						<div class="col-8 border border-black">
-							<select class="w-100" name="germen" id="germen">
-								<option value="">select germen</option>
+						<div v-if="resultData" class="col-8 border border-black">
+							<select v-model="resultData.nombreBacteria" class="custom-select" name="germen" id="germen">
+								<option value="">Seleccionar Germen</option>
+								<option v-for="(germen, index) in germs" :key="index" :value="germen.nombre">{{ germen.nombre }}</option>
+							</select>
+						</div>
+						<div v-else class="col-8 border border-black">
+							<select class="custom-select" name="germen" id="germen">
+								<option value="">Seleccionar Germen</option>
 								<option v-for="(germen, index) in germs" :key="index" :value="germen.nombre">{{ germen.nombre }}</option>
 							</select>
 						</div>
 					</div>
 					<div class="row px-2 w-100 m-auto">
 						<div class="col-4 border border-black">Contaje:</div>
-						<div class="col-8 border border-black"><input class="w-100 border-0" type="text" /></div>
+						<div v-if="resultData" class="col-8 border border-black"><input v-model="resultData.contaje" class="w-100 border-0" type="text" /></div>
+						<div v-else class="col-8 border border-black"><input class="w-100 border-0" type="text" /></div>
 					</div>
-					<div class="row px-2 w-100 m-auto mb-5">
+					<div class="row px-2 w-100 m-auto mb-3">
 						<div class="col-4 border border-black">Observaciones:</div>
-						<div class="col-8 border border-black"><input class="w-100 border-0" type="text" /></div>
+						<div v-if="resultData" class="col-8 border border-black"><input v-model="resultData.observacion" class="w-100 border-0" type="text" /></div>
+						<div v-else class="col-8 border border-black"><input class="w-100 border-0" type="text" /></div>
 					</div>
 				</div>
 				<div class="Antibiograma" ref="antibiograma">
-					<h1 class="text-center mb-2">Antibiograma</h1>
-					<div class="sensibles mb-4">
-						<h3>Sensibles:</h3>
-						<div class="row w-100 m-auto" ref="sensibles">
-							<div class="col-8 border border-black" ref="dropdown1">
-								<select class="w-100" name="germen" id="germen">
-									<option value="">Seleccionar Antibiótico</option>
-									<option v-for="(antibiotico, index) in antibioticos" :key="index" :value="antibiotico.nombre">
-										{{ antibiotico.nombre }}
-									</option>
-								</select>
+					<h2 class="text-center mb-2">Antibiograma</h2>  
+						<div v-if="resultSensibles" class="sensibles" style="margin-left: 10px;">  
+							<h4>Sensibles:</h4>  
+							<div class="row w-100 m-auto" ref="sensibles">  
+								<div v-for="(selected, index) in resultSensibles" :key="index" class="col-8 border border-black">  
+									<select class="custom-select" name="germen" :id="'germen' + index" v-model="resultSensibles[index].nombreAntibiotico">  
+										<option value="">Seleccionar Antibiótico</option>  
+										<option   
+											v-for="(antibiotico, index) in antibioticos"   
+											:key="index"   
+											:value="antibiotico.nombre"  
+											:disabled="resultSensibles.includes(antibiotico.nombre)" 
+										>  
+											{{ antibiotico.nombre }}  
+										</option>  
+									</select>  
+								</div>  
+							</div>  
+
+							<div class="agregarSensible text-center mb-2">  
+							<button @click="agregarSensible" class="btn btn-primary mt-2">Agregar Antibiótico</button>  
+							</div>  
+						</div>  
+
+						<div v-else class="sensibles" style="margin-left: 10px;">
+							<h4>Sensibles:</h4>
+							<div class="row w-100 m-auto" ref="sensibles">
+								<div class="col-8 border border-black" ref="dropdown1">
+									<select class="custom-select" name="germen" id="germen">
+										<option value="">Seleccionar Antibiótico</option>
+										<option v-for="(antibiotico, index) in antibioticos" :key="index" :value="antibiotico.nombre">
+											{{ antibiotico.nombre }}
+										</option>
+									</select>
+								</div>
+								<div class="col-8 border border-black">
+									<select class="custom-select" name="germen" id="germen">
+										<option value="">Seleccionar Antibiótico</option>
+										<option v-for="(antibiotico, index) in antibioticos" :key="index" :value="antibiotico.nombre">
+											{{ antibiotico.nombre }}
+										</option>
+									</select>
+								</div>
+								<div class="col-8 border border-black">
+									<select class="custom-select" name="germen" id="germen">
+										<option value="">Seleccionar Antibiótico</option>
+										<option v-for="(antibiotico, index) in antibioticos" :key="index" :value="antibiotico.nombre">
+											{{ antibiotico.nombre }}
+										</option>
+									</select>
+								</div>
 							</div>
-							<div class="col-8 border border-black">
-								<select class="w-100" name="germen" id="germen">
-									<option value="">Seleccionar Antibiótico</option>
-									<option v-for="(antibiotico, index) in antibioticos" :key="index" :value="antibiotico.nombre">
-										{{ antibiotico.nombre }}
-									</option>
-								</select>
-							</div>
-							<div class="col-8 border border-black">
-								<select class="w-100" name="germen" id="germen">
-									<option value="">Seleccionar Antibiótico</option>
-									<option v-for="(antibiotico, index) in antibioticos" :key="index" :value="antibiotico.nombre">
-										{{ antibiotico.nombre }}
-									</option>
-								</select>
+							<div class="agregarSensible text-center mb-2">
+								<button @click="agregarSensible" class="btn btn-primary mt-2">Agregar Antibiótico</button>
 							</div>
 						</div>
-						<div class="agregarSensible text-center">
-							<button @click="agregarSensible" class="btn btn-primary mt-2">Agregar Antibiótico</button>
+
+					<div v-if="resultResistentes" class="resistentes" style="margin-left: 10px;">
+						<h4>Resistentes:</h4>
+						<div class="row w-100 m-auto" ref="resistentes">
+							<div v-for="(selected, index) in resultResistentes" :key="index" class="col-8 border border-black">  
+								<select class="custom-select" name="germen" :id="'germen' + index" v-model="resultResistentes[index].nombreAntibiotico">  
+									<option value="">Seleccionar Antibiótico</option>  
+									<option   
+										v-for="(antibiotico, index) in antibioticos"   
+										:key="index"   
+										:value="antibiotico.nombre"  
+										:disabled="resultResistentes.includes(antibiotico.nombre)" 
+									>  
+										{{ antibiotico.nombre }}  
+									</option>  
+								</select>  
+							</div>  
+						</div>
+						<div class="agregarResistente text-center mb-2">
+							<button @click="agregarResistente" class="btn btn-primary mt-2">Agregar Antibiótico</button>
 						</div>
 					</div>
 
-					<div class="resistentes">
-						<h3>Resistentes:</h3>
+					<div v-else class="resistentes" style="margin-left: 10px;">
+						<h4>Resistentes:</h4>
 						<div class="row w-100 m-auto" ref="resistentes">
 							<div class="col-8 border border-black">
-								<select class="w-100" name="germen" id="germen">
+								<select class="custom-select" name="germen" id="germen">
 									<option value="">Seleccionar Antibiótico</option>
 									<option v-for="(antibiotico, index) in antibioticos" :key="index" :value="antibiotico.nombre">
 										{{ antibiotico.nombre }}
@@ -105,7 +163,7 @@
 								</select>
 							</div>
 							<div class="col-8 border border-black">
-								<select class="w-100" name="germen" id="germen">
+								<select class="custom-select" name="germen" id="germen">
 									<option value="">Seleccionar Antibiótico</option>
 									<option v-for="(antibiotico, index) in antibioticos" :key="index" :value="antibiotico.nombre">
 										{{ antibiotico.nombre }}
@@ -113,7 +171,7 @@
 								</select>
 							</div>
 							<div class="col-8 border border-black">
-								<select class="w-100" name="germen" id="germen">
+								<select class="custom-select" name="germen" id="germen">
 									<option value="">Seleccionar Antibiótico</option>
 									<option v-for="(antibiotico, index) in antibioticos" :key="index" :value="antibiotico.nombre">
 										{{ antibiotico.nombre }}
@@ -121,17 +179,30 @@
 								</select>
 							</div>
 						</div>
-						<div class="agregarResistente text-center mb-5">
+						<div class="agregarResistente text-center mb-2">
 							<button @click="agregarResistente" class="btn btn-primary mt-2">Agregar Antibiótico</button>
 						</div>
 					</div>
 				</div>
-			</div>
-			<div class="d-flex justify-content-center mb-4">
-				<button class="btn btn-primary" @click="generatePDF">Generate PDF</button>
-			</div>
-			<div class="d-flex justify-content-center mb-4">
-				<button class="btn btn-primary" @click="guardarCambios">Guardar Cambios</button>
+				<div class="firma-sello" ref="firmaSello">
+					<div class="row justify-content-end">
+						<div class="sello-img col-4"><img class="h-100 w-100" src="/images/selloLab3.png" alt="" /></div>
+					</div>
+					<div class="row justify-content-end">
+						<div class="firma-img col-4">
+							<img class="h-100 w-100" style="margin-left: 25px" src="/images/firmaLab3-sinfondo.png" alt="" />
+						</div>
+					</div>
+				</div>
+				<div class="row mb-3">
+					<button class="col btn btn-primary me-1" @click="guardarCambios">Guardar Cambios</button>
+					<button class="col btn btn-primary me-1" @click="generatePDF">Generate PDF</button>
+					<button class="col btn btn-primary me-1" @click="sendEmail">Enviar por Correo</button>
+					<button class="col btn btn-primary me-1" @click="sharePDFViaWhatsApp">Compartir PDF por WhatsApp</button>
+					<button class="col btn btn-primary me-1" @click="enviarCorreo">Compartir PDF por Mailto</button>
+					<button class="col btn btn-primary me-1" @click="printPDF">Imprimir PDF</button>
+					<button class="col btn btn-primary me-1" @click="pdfCover">Imprimir Portada</button>
+				</div>
 			</div>
 		</ion-content>
 	</ion-page>
@@ -144,6 +215,8 @@
 	import { useRoute } from "vue-router";
 	import { profileStore } from "@/stores/profileStore";
 	import { useRouter } from "vue-router";
+	import { orderStore } from "@/stores/orderStore";
+	import { mailStore } from "@/stores/mailStore";
 
 	let html: string = "";
 	const urocultivoPDF = ref();
@@ -165,6 +238,15 @@
 	const germs = ref();
 	const antibioticos = ref();
 	const router = useRouter();
+	const pdfFileName = ref();
+	const ordersStore = orderStore();
+	const mailsStore = mailStore();
+	const print = ref(false);
+	const result = ref();
+	const resultData = ref();
+	const resultSensibles = ref();
+	const resultResistentes = ref();
+	const firmaSello = ref();
 
 	onMounted(async () => {
 		order.value = route.query;
@@ -172,6 +254,11 @@
 		profileNames.value = JSON.parse(order.value.profileNames);
 		germs.value = await store.fecthBacterium();
 		antibioticos.value = await store.fecthAntibiotics();
+		result.value = await store.fetchCultiveResult(profile.value.orders[0].idOrder, profileNames.value);
+		resultData.value = result.value.resultado
+		resultSensibles.value = result.value.sensibles
+		resultResistentes.value = result.value.resistentes
+		console.log(result.value)
 	});
 
 	router.beforeEach(async (to, from, next) => {
@@ -181,40 +268,49 @@
 			profileNames.value = JSON.parse(order.value.profileNames);
 			germs.value = await store.fecthBacterium();
 			antibioticos.value = await store.fecthAntibiotics();
+			result.value = await store.fetchCultiveResult(profile.value.orders[0].idOrder, profileNames.value)
+			resultData.value = result.value.resultado
+			resultSensibles.value = result.value.sensibles
+			resultResistentes.value = result.value.resistentes
 		}
 		next();
 	});
 
 	function agregarSensible() {
-		const dropdown1Copy = dropdown1.value.cloneNode(true);
-		sensibles.value.appendChild(dropdown1Copy);
+		if (resultSensibles.value){
+			resultSensibles.value.push([])
+		} else {
+			const dropdown1Copy = dropdown1.value.cloneNode(true);
+			sensibles.value.appendChild(dropdown1Copy);
+		}
 	}
 
 	function agregarResistente() {
-		const dropdown1Copy = dropdown1.value.cloneNode(true);
-		resistentes.value.appendChild(dropdown1Copy);
+		if (resultResistentes.value){
+			resultResistentes.value.push([])
+		} else {
+			const dropdown1Copy = dropdown1.value.cloneNode(true);
+			resistentes.value.appendChild(dropdown1Copy);
+		}
 	}
 
-	const generatePDF = async () => {
+	const generatePDFWithoutSignature: any = async () => {
 		html = headerPatientInfo.value.innerHTML;
 		const bacteriologicoCopy = bacteriologico.value.cloneNode(true);
 		const germen = bacteriologico.value.querySelector("#germen").value;
 		const bacteriologicoSelect = bacteriologicoCopy.querySelector("select");
 		const bacteriologicoInputs = bacteriologicoCopy.querySelectorAll("input");
+		const divFirmaSelloCopy = firmaSello.value.cloneNode(true);
 
-		// cambiar inputs por spans
 		bacteriologicoInputs.forEach((input: any) => {
 			const inputValue = input.value;
 			input.outerHTML = `<span>${inputValue}</span>`;
 		});
 
-		// cambiar select por span
 		bacteriologicoSelect.outerHTML = `<span>${germen}</span>`;
 		html += bacteriologicoCopy.innerHTML;
 
-		// antibiograma
 		const antibiogramaCopy = antibiograma.value.cloneNode(true);
-		// quitar botones del PDF
 		const agregarSensibleButton = antibiogramaCopy.querySelector(".agregarSensible");
 		const agregarResistenteButton = antibiogramaCopy.querySelector(".agregarResistente");
 		agregarSensibleButton.remove();
@@ -243,7 +339,6 @@
 			}
 		});
 
-		// cambiar selects de tabla sensibles por span
 		sensiblesSelectsCopies.forEach((item: any, index: number) => {
 			if (sensiblesValues[index] != "N/A") {
 				item.outerHTML = `<span>${sensiblesValues[index]}</span>`;
@@ -252,7 +347,6 @@
 			}
 		});
 
-		// cambiar selects de tabla resistentes por span
 		resistentesSelectsCopies.forEach((item: any, index: number) => {
 			if (resistentesValues[index] != "N/A") {
 				item.outerHTML = `<span>${resistentesValues[index]}</span>`;
@@ -263,21 +357,157 @@
 
 		html += antibiogramaCopy.innerHTML;
 
+		html += divFirmaSelloCopy.innerHTML;
+
+		const firstName = profile.value.firstName;
+		const lastName = profile.value.lastName;
+
+		const today = new Date();
+		const year = today.getFullYear();
+		const month = String(today.getMonth() + 1).padStart(2, "0");
+		const day = String(today.getDate()).padStart(2, "0");
+		const formattedDate = `${day}-${month}-${year}`;
+
 		const options = {
-			margin: 14,
-			filename: "Urocultivo",
+			margin: 1,
+			filename: `Urocultivo_${lastName}_${firstName}_${formattedDate}.pdf`,
 			image: { type: "jpeg", quality: 0.98 },
 			html2canvas: { scale: 2 },
 			jsPDF: { unit: "mm", format: "letter", orientation: "portrait" },
 		};
 
+		pdfFileName.value = options.filename;
+
 		const element = html;
 
-		html2pdf().from(element).set(options).save();
-		html = "";
+		if(!print.value){
+			html2pdf().from(element).set(options).save();
+			html = "";
+		} else {
+			return new Promise((resolve, reject) => {
+				html2pdf()
+					.from(element)
+					.set(options)
+					.toPdf()
+					.get("pdf")
+					.then((pdf: { output: (arg0: string) => any }) => {
+						const blob = pdf.output("blob");
+						resolve(blob);
+					})
+					.catch((error: any) => {
+						console.error("Error generando el PDF:", error);
+						reject(error);
+					});
+			});
+		}
 	};
 
-	function guardarCambios() {
+	const generatePDF: any = async () => {
+		html = headerPatientInfo.value.innerHTML;
+		const bacteriologicoCopy = bacteriologico.value.cloneNode(true);
+		const germen = bacteriologico.value.querySelector("#germen").value;
+		const bacteriologicoSelect = bacteriologicoCopy.querySelector("select");
+		const bacteriologicoInputs = bacteriologicoCopy.querySelectorAll("input");
+
+		bacteriologicoInputs.forEach((input: any) => {
+			const inputValue = input.value;
+			input.outerHTML = `<span>${inputValue}</span>`;
+		});
+
+		bacteriologicoSelect.outerHTML = `<span>${germen}</span>`;
+		html += bacteriologicoCopy.innerHTML;
+
+		const antibiogramaCopy = antibiograma.value.cloneNode(true);
+		const agregarSensibleButton = antibiogramaCopy.querySelector(".agregarSensible");
+		const agregarResistenteButton = antibiogramaCopy.querySelector(".agregarResistente");
+		agregarSensibleButton.remove();
+		agregarResistenteButton.remove();
+
+		const sensiblesValues: string[] = [];
+		const resistentesValues: string[] = [];
+		const sensiblesSelects = sensibles.value.querySelectorAll("select");
+		const resistentesSelects = resistentes.value.querySelectorAll("select");
+		const sensiblesSelectsCopies = antibiogramaCopy.querySelectorAll(".sensibles select");
+		const resistentesSelectsCopies = antibiogramaCopy.querySelectorAll(".resistentes select");
+
+		sensiblesSelects.forEach((item: any) => {
+			if (item.value) {
+				sensiblesValues.push(item.value);
+			} else {
+				sensiblesValues.push("N/A");
+			}
+		});
+
+		resistentesSelects.forEach((item: any) => {
+			if (item.value) {
+				resistentesValues.push(item.value);
+			} else {
+				resistentesValues.push("N/A");
+			}
+		});
+
+		sensiblesSelectsCopies.forEach((item: any, index: number) => {
+			if (sensiblesValues[index] != "N/A") {
+				item.outerHTML = `<span>${sensiblesValues[index]}</span>`;
+			} else {
+				item.outerHTML = `<span style="opacity: 0;">${sensiblesValues[index]}</span>`;
+			}
+		});
+
+		resistentesSelectsCopies.forEach((item: any, index: number) => {
+			if (resistentesValues[index] != "N/A") {
+				item.outerHTML = `<span>${resistentesValues[index]}</span>`;
+			} else {
+				item.outerHTML = `<span style="opacity: 0;">${resistentesValues[index]}</span>`;
+			}
+		});
+
+		html += antibiogramaCopy.innerHTML;
+
+		const firstName = profile.value.firstName;
+		const lastName = profile.value.lastName;
+
+		const today = new Date();
+		const year = today.getFullYear();
+		const month = String(today.getMonth() + 1).padStart(2, "0");
+		const day = String(today.getDate()).padStart(2, "0");
+		const formattedDate = `${day}-${month}-${year}`;
+
+		const options = {
+			margin: 14,
+			filename: `Urocultivo_${lastName}_${firstName}_${formattedDate}.pdf`,
+			image: { type: "jpeg", quality: 0.98 },
+			html2canvas: { scale: 2 },
+			jsPDF: { unit: "mm", format: "letter", orientation: "portrait" },
+		};
+
+		pdfFileName.value = options.filename;
+
+		const element = html;
+
+		if(!print.value){
+			html2pdf().from(element).set(options).save();
+			html = "";
+		} else {
+			return new Promise((resolve, reject) => {
+				html2pdf()
+					.from(element)
+					.set(options)
+					.toPdf()
+					.get("pdf")
+					.then((pdf: { output: (arg0: string) => any }) => {
+						const blob = pdf.output("blob");
+						resolve(blob);
+					})
+					.catch((error: any) => {
+						console.error("Error generando el PDF:", error);
+						reject(error);
+					});
+			});
+		}
+	};
+
+	async function guardarCambios() {
 		const bacteriologicoCopy = bacteriologico.value.cloneNode(true);
 		const profileId = profile.value.orders[0].profiles[0].idProfile;
 		const profileName = profileNames.value[0];
@@ -301,6 +531,128 @@
 				resistentesValues.push(item.value);
 			}
 		});
+
+		const data = {
+			idOrder: profile.value.orders[0].idOrder,
+			idBacteria: germen, 
+			contaje: contaje, 
+			observacion: observaciones
+		}
+
+		await store.createCultiveResults(data, sensiblesValues, resistentesValues)
 	}
+
+	async function sendEmail() {
+		const profileId = profile.value.orders[0].idOrder;
+		const emailData = {
+			to: "francorm007@gmail.com",
+			subject: "email test",
+			text: "prueba desde la app del laboratorio",
+			attachment: pdfFileName.value,
+		};
+
+		const data = {
+			id: profileId,
+			status: "Pendiente de imprimir",
+		};
+		await ordersStore.updateStatusOrder(profileId, data);
+
+		mailsStore.sendEmail(emailData);
+	}
+
+	const sharePDFViaWhatsApp = async () => {
+		const profileId = profile.value.orders[0].idOrder;
+		const data = {
+			id: profileId,
+			status: "Pendiente de imprimir",
+		};
+		await ordersStore.updateStatusOrder(profileId, data);
+		await generatePDFWithoutSignature();
+		const message = `Echa un vistazo a este PDF`;
+		const whatsappUrl = `https://web.whatsapp.com/send?phone=${profile.value.phone.substring(1)}&text=${encodeURIComponent(
+			message
+		)}`;
+		window.open(whatsappUrl, "_blank");
+	};
+
+	const enviarCorreo = async () => {
+		const profileId = profile.value.orders[0].idOrder;
+		const data = {
+			id: profileId,
+			status: "Pendiente de imprimir",
+		};
+		await ordersStore.updateStatusOrder(profileId, data);
+		const recipientEmail = "mario12dev@gmail.com";
+		const subject = "Prueba";
+		const body = "Este es un correo de prueba.";
+		const mailtoLink = `https://mail.google.com/mail/?view=cm&fs=1&to=${recipientEmail}&su=${encodeURIComponent(
+			subject
+		)}&body=${encodeURIComponent(body)}`;
+		window.open(mailtoLink, "_blank");
+	};
+
+	const printPDF = async () => {
+		print.value = true
+		const pdfBlob = await generatePDF();
+
+		const pdfUrl = URL.createObjectURL(pdfBlob);
+
+		const printWindow = window.open(pdfUrl);
+
+		print.value = false
+
+		if (printWindow) {
+			printWindow.onload = function () {
+				printWindow.print();
+				printWindow.onafterprint = function () {
+					printWindow.close();
+				};
+			};
+		} else {
+			console.error("No se pudo abrir la ventana de impresión.");
+		}
+	};
+
+	const pdfCover = async () => {
+		const profileRefCopy = headerPatientInfo.value.cloneNode(true);
+
+		html = profileRefCopy.innerHTML;
+
+		const element = html;
+
+		const filename = `portada.pdf`;
+
+		const options = {
+			margin: 6,
+			filename: filename,
+			image: { type: "jpeg", quality: 0.98 },
+			html2canvas: { scale: 2 },
+			jsPDF: { unit: "mm", format: "letter", orientation: "portrait" },
+		};
+
+		html2pdf().from(element).set(options).save();
+	};
 </script>
-<style scoped></style>
+<style scoped>
+.custom-select {  
+	width: 100%; 
+	border: none;
+	outline: none;
+	box-shadow: none; 
+  }  
+  
+  .col-8 {  
+	position: relative; 
+  }  
+
+  .firma-img {
+		height: 65px;
+		width: 180px;
+	}
+
+	.sello-img {
+		height: 50px;
+		width: 150px;
+	}
+
+</style>
