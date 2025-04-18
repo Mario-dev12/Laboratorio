@@ -17,23 +17,23 @@
 						<div class="border-bottom border-black mt-1"></div>
 						<div class="row mt-2">
 							<div class="col">
-								<div class="d-inline fw-bold">Paciente: </div>
-								{{ profile?.firstName }} {{profile?.lastName}}
+								<div class="d-inline fw-bold">Paciente:</div>
+								{{ profile?.firstName }} {{ profile?.lastName }}
 							</div>
 							<div class="col">
-								<div class="d-inline fw-bold">CI: </div>
+								<div class="d-inline fw-bold">CI:</div>
 								{{ profile?.ci }}
 							</div>
 							<div class="col">
-								<div class="d-inline fw-bold">Edad: </div>
+								<div class="d-inline fw-bold">Edad:</div>
 								{{ profile?.age }}
 							</div>
 							<div class="col">
-								<div class="d-inline fw-bold">Sexo: </div>
+								<div class="d-inline fw-bold">Sexo:</div>
 								{{ profile?.genre === "M" ? "Masculino" : "Femenino" }}
 							</div>
 							<div class="col">
-								<div class="d-inline fw-bold">Fecha: </div>
+								<div class="d-inline fw-bold">Fecha:</div>
 								{{ day }}/{{ month }}/{{ year }}
 							</div>
 						</div>
@@ -62,96 +62,106 @@
 					</div>
 					<div class="row px-2 w-100 m-auto">
 						<div class="col-4 border border-black">Contaje:</div>
-						<div v-if="resultData" class="col-8 border border-black"><input v-model="resultData.contaje" class="w-100 border-0" type="text" /></div>
+						<div v-if="resultData" class="col-8 border border-black">
+							<input v-model="resultData.contaje" class="w-100 border-0" type="text" />
+						</div>
 						<div v-else class="col-8 border border-black"><input class="w-100 border-0" type="text" /></div>
 					</div>
 					<div class="row px-2 w-100 m-auto mb-3">
 						<div class="col-4 border border-black">Observaciones:</div>
-						<div v-if="resultData" class="col-8 border border-black"><input v-model="resultData.observacion" class="w-100 border-0" type="text" /></div>
+						<div v-if="resultData" class="col-8 border border-black">
+							<input v-model="resultData.observacion" class="w-100 border-0" type="text" />
+						</div>
 						<div v-else class="col-8 border border-black"><input class="w-100 border-0" type="text" /></div>
 					</div>
 				</div>
 				<div class="Antibiograma" ref="antibiograma">
-					<h2 class="text-center mb-2">Antibiograma</h2>  
-						<div v-if="resultSensibles" class="sensibles" style="margin-left: 10px;">  
-							<h4>Sensibles:</h4>  
-							<div class="row w-100 m-auto" ref="sensibles">  
-								<div v-for="(selected, index) in resultSensibles" :key="index" class="col-8 border border-black">  
-									<select class="custom-select" name="germen" :id="'germen' + index" v-model="resultSensibles[index].nombreAntibiotico">  
-										<option value="">Seleccionar Antibiótico</option>  
-										<option   
-											v-for="(antibiotico, index) in antibioticos"   
-											:key="index"   
-											:value="antibiotico.nombre"  
-											:disabled="resultSensibles.includes(antibiotico.nombre)" 
-										>  
-											{{ antibiotico.nombre }}  
-										</option>  
-									</select>  
-								</div>  
-							</div>  
-
-							<div class="agregarSensible text-center mb-2">  
-							<button @click="agregarSensible" class="btn btn-primary mt-2">Agregar Antibiótico</button>  
-							</div>  
-						</div>  
-
-						<div v-else class="sensibles" style="margin-left: 10px;">
-							<h4>Sensibles:</h4>
-							<div class="row w-100 m-auto" ref="sensibles">
-								<div class="col-8 border border-black" ref="dropdown1">
-									<select class="custom-select" name="germen" id="germen">
-										<option value="">Seleccionar Antibiótico</option>
-										<option v-for="(antibiotico, index) in antibioticos" :key="index" :value="antibiotico.nombre">
-											{{ antibiotico.nombre }}
-										</option>
-									</select>
-								</div>
-								<div class="col-8 border border-black">
-									<select class="custom-select" name="germen" id="germen">
-										<option value="">Seleccionar Antibiótico</option>
-										<option v-for="(antibiotico, index) in antibioticos" :key="index" :value="antibiotico.nombre">
-											{{ antibiotico.nombre }}
-										</option>
-									</select>
-								</div>
-								<div class="col-8 border border-black">
-									<select class="custom-select" name="germen" id="germen">
-										<option value="">Seleccionar Antibiótico</option>
-										<option v-for="(antibiotico, index) in antibioticos" :key="index" :value="antibiotico.nombre">
-											{{ antibiotico.nombre }}
-										</option>
-									</select>
-								</div>
-							</div>
-							<div class="agregarSensible text-center mb-2">
-								<button @click="agregarSensible" class="btn btn-primary mt-2">Agregar Antibiótico</button>
+					<h2 class="text-center mb-2">Antibiograma</h2>
+					<div v-if="resultSensibles" class="sensibles" style="margin-left: 10px">
+						<h4>Sensibles:</h4>
+						<div class="row w-100 m-auto" ref="sensibles">
+							<div v-for="(selected, index) in resultSensibles" :key="index" class="col-8 border border-black">
+								<select
+									class="custom-select"
+									name="germen"
+									:id="'germen' + index"
+									v-model="resultSensibles[index].nombreAntibiotico">
+									<option value="">Seleccionar Antibiótico</option>
+									<option
+										v-for="(antibiotico, index) in antibioticos"
+										:key="index"
+										:value="antibiotico.nombre"
+										:disabled="resultSensibles.includes(antibiotico.nombre)">
+										{{ antibiotico.nombre }}
+									</option>
+								</select>
 							</div>
 						</div>
 
-					<div v-if="resultResistentes" class="resistentes" style="margin-left: 10px;">
+						<div class="agregarSensible text-center mb-2">
+							<button @click="agregarSensible" class="btn btn-primary mt-2">Agregar Antibiótico</button>
+						</div>
+					</div>
+
+					<div v-else class="sensibles" style="margin-left: 10px">
+						<h4>Sensibles:</h4>
+						<div class="row w-100 m-auto" ref="sensibles">
+							<div class="col-8 border border-black" ref="dropdown1">
+								<select class="custom-select" name="germen" id="germen">
+									<option value="">Seleccionar Antibiótico</option>
+									<option v-for="(antibiotico, index) in antibioticos" :key="index" :value="antibiotico.nombre">
+										{{ antibiotico.nombre }}
+									</option>
+								</select>
+							</div>
+							<div class="col-8 border border-black">
+								<select class="custom-select" name="germen" id="germen">
+									<option value="">Seleccionar Antibiótico</option>
+									<option v-for="(antibiotico, index) in antibioticos" :key="index" :value="antibiotico.nombre">
+										{{ antibiotico.nombre }}
+									</option>
+								</select>
+							</div>
+							<div class="col-8 border border-black">
+								<select class="custom-select" name="germen" id="germen">
+									<option value="">Seleccionar Antibiótico</option>
+									<option v-for="(antibiotico, index) in antibioticos" :key="index" :value="antibiotico.nombre">
+										{{ antibiotico.nombre }}
+									</option>
+								</select>
+							</div>
+						</div>
+						<div class="agregarSensible text-center mb-2">
+							<button @click="agregarSensible" class="btn btn-primary mt-2">Agregar Antibiótico</button>
+						</div>
+					</div>
+
+					<div v-if="resultResistentes" class="resistentes" style="margin-left: 10px">
 						<h4>Resistentes:</h4>
 						<div class="row w-100 m-auto" ref="resistentes">
-							<div v-for="(selected, index) in resultResistentes" :key="index" class="col-8 border border-black">  
-								<select class="custom-select" name="germen" :id="'germen' + index" v-model="resultResistentes[index].nombreAntibiotico">  
-									<option value="">Seleccionar Antibiótico</option>  
-									<option   
-										v-for="(antibiotico, index) in antibioticos"   
-										:key="index"   
-										:value="antibiotico.nombre"  
-										:disabled="resultResistentes.includes(antibiotico.nombre)" 
-									>  
-										{{ antibiotico.nombre }}  
-									</option>  
-								</select>  
-							</div>  
+							<div v-for="(selected, index) in resultResistentes" :key="index" class="col-8 border border-black">
+								<select
+									class="custom-select"
+									name="germen"
+									:id="'germen' + index"
+									v-model="resultResistentes[index].nombreAntibiotico">
+									<option value="">Seleccionar Antibiótico</option>
+									<option
+										v-for="(antibiotico, index) in antibioticos"
+										:key="index"
+										:value="antibiotico.nombre"
+										:disabled="resultResistentes.includes(antibiotico.nombre)">
+										{{ antibiotico.nombre }}
+									</option>
+								</select>
+							</div>
 						</div>
 						<div class="agregarResistente text-center mb-2">
 							<button @click="agregarResistente" class="btn btn-primary mt-2">Agregar Antibiótico</button>
 						</div>
 					</div>
 
-					<div v-else class="resistentes" style="margin-left: 10px;">
+					<div v-else class="resistentes" style="margin-left: 10px">
 						<h4>Resistentes:</h4>
 						<div class="row w-100 m-auto" ref="resistentes">
 							<div class="col-8 border border-black">
@@ -255,10 +265,10 @@
 		germs.value = await store.fecthBacterium();
 		antibioticos.value = await store.fecthAntibiotics();
 		result.value = await store.fetchCultiveResult(profile.value.orders[0].idOrder, profileNames.value);
-		resultData.value = result.value.resultado
-		resultSensibles.value = result.value.sensibles
-		resultResistentes.value = result.value.resistentes
-		console.log(result.value)
+		resultData.value = result.value.resultado;
+		resultSensibles.value = result.value.sensibles;
+		resultResistentes.value = result.value.resistentes;
+		console.log(result.value);
 	});
 
 	router.beforeEach(async (to, from, next) => {
@@ -268,17 +278,17 @@
 			profileNames.value = JSON.parse(order.value.profileNames);
 			germs.value = await store.fecthBacterium();
 			antibioticos.value = await store.fecthAntibiotics();
-			result.value = await store.fetchCultiveResult(profile.value.orders[0].idOrder, profileNames.value)
-			resultData.value = result.value.resultado
-			resultSensibles.value = result.value.sensibles
-			resultResistentes.value = result.value.resistentes
+			result.value = await store.fetchCultiveResult(profile.value.orders[0].idOrder, profileNames.value);
+			resultData.value = result.value.resultado;
+			resultSensibles.value = result.value.sensibles;
+			resultResistentes.value = result.value.resistentes;
 		}
 		next();
 	});
 
 	function agregarSensible() {
-		if (resultSensibles.value){
-			resultSensibles.value.push([])
+		if (resultSensibles.value) {
+			resultSensibles.value.push([]);
 		} else {
 			const dropdown1Copy = dropdown1.value.cloneNode(true);
 			sensibles.value.appendChild(dropdown1Copy);
@@ -286,8 +296,8 @@
 	}
 
 	function agregarResistente() {
-		if (resultResistentes.value){
-			resultResistentes.value.push([])
+		if (resultResistentes.value) {
+			resultResistentes.value.push([]);
 		} else {
 			const dropdown1Copy = dropdown1.value.cloneNode(true);
 			resistentes.value.appendChild(dropdown1Copy);
@@ -380,7 +390,7 @@
 
 		const element = html;
 
-		if(!print.value){
+		if (!print.value) {
 			html2pdf().from(element).set(options).save();
 			html = "";
 		} else {
@@ -485,7 +495,7 @@
 
 		const element = html;
 
-		if(!print.value){
+		if (!print.value) {
 			html2pdf().from(element).set(options).save();
 			html = "";
 		} else {
@@ -509,8 +519,6 @@
 
 	async function guardarCambios() {
 		const bacteriologicoCopy = bacteriologico.value.cloneNode(true);
-		const profileId = profile.value.orders[0].profiles[0].idProfile;
-		const profileName = profileNames.value[0];
 		const germen = bacteriologico.value.querySelector("#germen").value;
 		const bacteriologicoInputs = bacteriologicoCopy.querySelectorAll("input");
 		const contaje = bacteriologicoInputs[0].value;
@@ -534,12 +542,12 @@
 
 		const data = {
 			idOrder: profile.value.orders[0].idOrder,
-			idBacteria: germen, 
-			contaje: contaje, 
-			observacion: observaciones
-		}
+			idBacteria: germen,
+			contaje: contaje,
+			observacion: observaciones,
+		};
 
-		await store.createCultiveResults(data, sensiblesValues, resistentesValues)
+		await store.createCultiveResults(data, sensiblesValues, resistentesValues);
 	}
 
 	async function sendEmail() {
@@ -592,14 +600,14 @@
 	};
 
 	const printPDF = async () => {
-		print.value = true
+		print.value = true;
 		const pdfBlob = await generatePDF();
 
 		const pdfUrl = URL.createObjectURL(pdfBlob);
 
 		const printWindow = window.open(pdfUrl);
 
-		print.value = false
+		print.value = false;
 
 		if (printWindow) {
 			printWindow.onload = function () {
@@ -634,18 +642,18 @@
 	};
 </script>
 <style scoped>
-.custom-select {  
-	width: 100%; 
-	border: none;
-	outline: none;
-	box-shadow: none; 
-  }  
-  
-  .col-8 {  
-	position: relative; 
-  }  
+	.custom-select {
+		width: 100%;
+		border: none;
+		outline: none;
+		box-shadow: none;
+	}
 
-  .firma-img {
+	.col-8 {
+		position: relative;
+	}
+
+	.firma-img {
 		height: 65px;
 		width: 180px;
 	}
@@ -654,5 +662,4 @@
 		height: 50px;
 		width: 150px;
 	}
-
 </style>
