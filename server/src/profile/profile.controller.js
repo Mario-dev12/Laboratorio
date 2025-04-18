@@ -236,6 +236,22 @@ profileController.createCultive = async (req, res) => {
 	}
 };
 
+profileController.createCultiveResult = async (req, res) => {
+	try {
+		const answer = await profileServices.createCultiveResult(
+			req.body.data.idOrder,
+			req.body.data.idBacteria,
+			req.body.data.contaje,
+			req.body.data.observacion,
+			req.body.sensibles,
+			req.body.resistentes
+		);
+		return res.send(201);
+	} catch (error) {
+		return res.status(400).send(error.stack);
+	}
+};
+
 profileController.createProfileSection = async (req, res) => {
 	try {
 		const answer = await profileServices.createProfileSection(req.body.data, req.body.section);

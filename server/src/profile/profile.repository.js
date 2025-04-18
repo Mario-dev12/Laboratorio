@@ -11,6 +11,26 @@ async function createProfileResults(name) {
 	}
 }
 
+async function createSensibleInputs(idResultado, sensibles) {  
+    try {   
+        await pool.query(`SELECT guardar_sensibles(\$1, \$2)`, [idResultado, sensibles]); 
+        return 'Inserción Exitosa';  
+    } catch (error) {  
+        console.error("Error al insertar antibióticos sensibles:", error);  
+        throw error;  
+    }  
+}  
+
+async function createResistantInputs(idResultado, resistentes) {  
+    try {  
+        await pool.query(`SELECT guardar_resistentes(\$1, \$2)`, [idResultado, resistentes]);  
+        return 'Inserción Exitosa'; 
+    } catch (error) {  
+        console.error("Error al insertar antibióticos resistentes:", error);  
+        throw error;  
+    }  
+}
+
 async function createInsertarPerfilDivisionYCampos(idProfile, section) { 
     try {  
         const sectionJson = JSON.stringify(section);  
@@ -255,6 +275,17 @@ profileRepository.createProfileInputs = async (name, cost_bs, cost_usd, inputs, 
 		await createProfileInputsTable(resp.rows[0].sp_create_profile.id, inputs);
 		await createInsertarPerfilDivisionYCampos(resp.rows[0].sp_create_profile.id, section)
 		return resp.rows[0].sp_create_profile;
+	} catch (error) {
+		throw error;
+	}
+};
+
+profileRepository.createCultiveResult = async (idOrder, idBacteria, contaje, observacion, sensibles, resistentes) => {
+	try {
+		const resp = await pool.query(`SELECT * FROM crear_resultado_urocultivo(${idOrder}, '${idBacteria}', '${contaje}', '${observacion}')`);
+		await createSensibleInputs(resp.rows[0].crear_resultado_urocultivo, sensibles)
+		await createResistantInputs(resp.rows[0].crear_resultado_urocultivo, resistentes)
+		return resp.rows[0].crear_resultado_urocultivo;
 	} catch (error) {
 		throw error;
 	}

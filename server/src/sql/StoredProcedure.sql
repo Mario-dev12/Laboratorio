@@ -3468,3 +3468,89 @@ BEGIN
     );  
 END;  
 $$ LANGUAGE plpgsql;
+
+CREATE OR REPLACE FUNCTION crear_resultado_urocultivo(  
+    p_idOrder INTEGER,  
+    p_nombreBacteria VARCHAR,  
+    p_contaje VARCHAR,  
+    p_observacion VARCHAR  
+) RETURNS INTEGER AS $$  
+DECLARE  
+    v_idBacteria INTEGER;  
+    v_idResultado INTEGER;  
+BEGIN  
+    SELECT idBacteria INTO v_idBacteria  
+    FROM bacteria  
+    WHERE nombre = p_nombreBacteria;  
+
+    IF v_idBacteria IS NULL THEN  
+        RAISE EXCEPTION 'No se encontró la bacteria con el nombre: %', p_nombreBacteria;  
+    END IF;  
+
+    DELETE FROM resultado_urocultivo  
+    WHERE idOrder = p_idOrder;  
+
+    INSERT INTO resultado_urocultivo (idOrder, idBacteria, contaje, observacion)  
+    VALUES (p_idOrder, v_idBacteria, p_contaje, p_observacion)  
+    RETURNING idResultado INTO v_idResultado;  
+
+    RETURN v_idResultado;  
+EXCEPTION  
+    WHEN OTHERS THEN  
+        RAISE EXCEPTION 'Error al crear el resultado: %', SQLERRM;  
+END;  
+$$ LANGUAGE plpgsql;
+
+CREATE OR REPLACE FUNCTION guardar_sensibles(  
+    p_idResultado INTEGER,  
+    p_antibioticos_sensibles TEXT[]  
+) RETURNS VOID AS $$  
+DECLARE  
+    v_idAntibiotico INTEGER;  
+    antibiotico TEXT;   
+BEGIN   
+    DELETE FROM sensible  
+    WHERE idResultado = p_idResultado;  
+
+    FOREACH antibiotico IN ARRAY p_antibioticos_sensibles  
+    LOOP    
+        SELECT a.idAntibiotico INTO v_idAntibiotico  
+        FROM antibiotico a  
+        WHERE nombre = antibiotico;  
+  
+        IF v_idAntibiotico IS NULL THEN  
+            RAISE EXCEPTION 'No se encontró el antibiótico con el nombre: %', antibiotico;  
+        END IF;  
+
+        INSERT INTO sensible (idResultado, idAntibiotico)  
+        VALUES (p_idResultado, v_idAntibiotico);  
+    END LOOP;  
+END;  
+$$ LANGUAGE plpgsql;
+
+CREATE OR REPLACE FUNCTION guardar_resistentes(  
+    p_idResultado INTEGER,  
+    p_antibioticos_resistentes TEXT[]  
+) RETURNS VOID AS $$  
+DECLARE  
+    v_idAntibiotico INTEGER;  
+    antibiotico TEXT;  
+BEGIN   
+    DELETE FROM resistente  
+    WHERE idResultado = p_idResultado;  
+
+    FOREACH antibiotico IN ARRAY p_antibioticos_resistentes  
+    LOOP   
+        SELECT a.idAntibiotico INTO v_idAntibiotico  
+        FROM antibiotico a   
+        WHERE nombre = antibiotico;  
+
+        IF v_idAntibiotico IS NULL THEN  
+            RAISE EXCEPTION 'No se encontró el antibiótico con el nombre: %', antibiotico;  
+        END IF;  
+  
+        INSERT INTO resistente (idResultado, idAntibiotico)  
+        VALUES (p_idResultado, v_idAntibiotico);  
+    END LOOP;  
+END;  
+$$ LANGUAGE plpgsql;
