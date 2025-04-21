@@ -6,10 +6,10 @@
 					<div class="header">
 						<div class="row">
 							<div class="col text-center">
-								<img src="/images/laboratorio.png" alt="" style="width: 55%;" />
+								<img src="/images/laboratorio.png" alt="" style="width: 55%" />
 							</div>
 							<div class="col text-center">
-								<img src="/images/direccion.png" alt="" style="width: 80%;" />
+								<img src="/images/direccion.png" alt="" style="width: 80%" />
 							</div>
 						</div>
 					</div>
@@ -43,39 +43,57 @@
 					<h3 class="text-center">Espermatograma</h3>
 					<div class="row px-2 w-100 m-auto">
 						<div class="col-3 border border-black">Volumen:</div>
-						<div v-if="resultEspermatograma" class="col-3 border border-black"><input class="w-100 border-0" type="text" v-model="resultEspermatograma.volumen" /></div>
+						<div v-if="resultEspermatograma" class="col-3 border border-black">
+							<input class="w-100 border-0" type="text" v-model="resultEspermatograma.volumen" />
+						</div>
 						<div v-else class="col-3 border border-black"><input class="w-100 border-0" type="text" /></div>
 						<div class="col-4 border border-black">Hora de Recolección:</div>
-						<div v-if="resultEspermatograma" class="col-2 border border-black"><input class="w-100 border-0" type="text" v-model="resultEspermatograma.hora_recoleccion" /></div>
+						<div v-if="resultEspermatograma" class="col-2 border border-black">
+							<input class="w-100 border-0" type="text" v-model="resultEspermatograma.hora_recoleccion" />
+						</div>
 						<div v-else class="col-2 border border-black"><input class="w-100 border-0" type="text" /></div>
 					</div>
 					<div class="row px-2 w-100 m-auto">
 						<div class="col-3 border border-black">Contaje:</div>
-						<div v-if="resultEspermatograma" class="col-3 border border-black"><input class="w-100 border-0" type="text" v-model="resultEspermatograma.contaje" /></div>
+						<div v-if="resultEspermatograma" class="col-3 border border-black">
+							<input class="w-100 border-0" type="text" v-model="resultEspermatograma.contaje" />
+						</div>
 						<div v-else class="col-3 border border-black"><input class="w-100 border-0" type="text" /></div>
 						<div class="col-4 border border-black">Densidad:</div>
-						<div v-if="resultEspermatograma" class="col-2 border border-black"><input class="w-100 border-0" type="text" v-model="resultEspermatograma.densidad" /></div>
+						<div v-if="resultEspermatograma" class="col-2 border border-black">
+							<input class="w-100 border-0" type="text" v-model="resultEspermatograma.densidad" />
+						</div>
 						<div v-else class="col-2 border border-black"><input class="w-100 border-0" type="text" /></div>
 					</div>
 					<div class="row px-2 w-100 m-auto">
 						<div class="col-3 border border-black">Liquefacción:</div>
-						<div v-if="resultEspermatograma" class="col-3 border border-black"><input class="w-100 border-0" type="text" v-model="resultEspermatograma.liquefaccion" /></div>
+						<div v-if="resultEspermatograma" class="col-3 border border-black">
+							<input class="w-100 border-0" type="text" v-model="resultEspermatograma.liquefaccion" />
+						</div>
 						<div v-else class="col-3 border border-black"><input class="w-100 border-0" type="text" /></div>
 						<div class="col-4 border border-black">Abstinencia:</div>
-						<div v-if="resultEspermatograma" class="col-2 border border-black"><input class="w-100 border-0" type="text" v-model="resultEspermatograma.abstinencia" /></div>
+						<div v-if="resultEspermatograma" class="col-2 border border-black">
+							<input class="w-100 border-0" type="text" v-model="resultEspermatograma.abstinencia" />
+						</div>
 						<div v-else class="col-2 border border-black"><input class="w-100 border-0" type="text" /></div>
 					</div>
 					<div class="row px-2 w-100 m-auto">
 						<div class="col-3 border border-black">PH:</div>
-						<div v-if="resultEspermatograma" class="col-3 border border-black"><input class="w-100 border-0" type="text" v-model="resultEspermatograma.ph" /></div>
+						<div v-if="resultEspermatograma" class="col-3 border border-black">
+							<input class="w-100 border-0" type="text" v-model="resultEspermatograma.ph" />
+						</div>
 						<div v-else class="col-3 border border-black"><input class="w-100 border-0" type="text" /></div>
 						<div class="col-4 border border-black">Color:</div>
-						<div v-if="resultEspermatograma" class="col-2 border border-black"><input class="w-100 border-0" type="text" v-model="resultEspermatograma.color" /></div>
+						<div v-if="resultEspermatograma" class="col-2 border border-black">
+							<input class="w-100 border-0" type="text" v-model="resultEspermatograma.color" />
+						</div>
 						<div v-else class="col-2 border border-black"><input class="w-100 border-0" type="text" /></div>
 					</div>
 					<div class="row px-2 w-100 m-auto">
 						<div class="col-4 border border-black">Aspecto Macroscópico:</div>
-						<div v-if="resultEspermatograma" class="col-8 border border-black"><input class="w-100 border-0" type="text" v-model="resultEspermatograma.aspecto_macroscopico" /></div>
+						<div v-if="resultEspermatograma" class="col-8 border border-black">
+							<input class="w-100 border-0" type="text" v-model="resultEspermatograma.aspecto_macroscopico" />
+						</div>
 						<div v-else class="col-8 border border-black"><input class="w-100 border-0" type="text" /></div>
 					</div>
 				</div>
@@ -90,13 +108,21 @@
 						<div class="col border border-black text-center">Lento</div>
 					</div>
 					<div class="row px-2 w-100 m-auto">
-						<div v-if="resultMotilidad" class="col border border-black text-center"><input class="w-100 border-0" type="text" v-model="resultMotilidad.progresivo_rapido" /></div>
+						<div v-if="resultMotilidad" class="col border border-black text-center">
+							<input class="w-100 border-0" type="text" v-model="resultMotilidad.progresivo_rapido" />
+						</div>
 						<div v-else class="col border border-black text-center"><input class="w-100 border-0" type="text" /></div>
-						<div v-if="resultMotilidad" class="col border border-black text-center"><input class="w-100 border-0" type="text" v-model="resultMotilidad.progresivo_lento" /></div>
+						<div v-if="resultMotilidad" class="col border border-black text-center">
+							<input class="w-100 border-0" type="text" v-model="resultMotilidad.progresivo_lento" />
+						</div>
 						<div v-else class="col border border-black text-center"><input class="w-100 border-0" type="text" /></div>
-						<div v-if="resultMotilidad" class="col border border-black text-center"><input class="w-100 border-0" type="text" v-model="resultMotilidad.no_progresivo" /></div>
+						<div v-if="resultMotilidad" class="col border border-black text-center">
+							<input class="w-100 border-0" type="text" v-model="resultMotilidad.no_progresivo" />
+						</div>
 						<div v-else class="col border border-black text-center"><input class="w-100 border-0" type="text" /></div>
-						<div v-if="resultMotilidad" class="col border border-black text-center"><input class="w-100 border-0" type="text" v-model="resultMotilidad.lento" /></div>
+						<div v-if="resultMotilidad" class="col border border-black text-center">
+							<input class="w-100 border-0" type="text" v-model="resultMotilidad.lento" />
+						</div>
 						<div v-else class="col border border-black text-center"><input class="w-100 border-0" type="text" /></div>
 					</div>
 				</div>
@@ -108,58 +134,70 @@
 					</div>
 					<div class="row px-2 w-100 m-auto">
 						<div class="col-4 border border-black text-center">Normales:</div>
-						<div class="col-4 border border-black text-center" style="font-weight: bold;">60%</div>
+						<div class="col-4 border border-black text-center" style="font-weight: bold">60%</div>
 						<div class="col-4 border border-black text-center"><input class="w-100 border-0" type="text" /></div>
 					</div>
 					<div class="row px-2 w-100 m-auto">
 						<div class="col-4 border border-black text-center">Tapering</div>
-						<div class="col-4 border border-black text-center" style="font-weight: bold;">25%</div>
+						<div class="col-4 border border-black text-center" style="font-weight: bold">25%</div>
 						<div class="col-4 border border-black text-center"><input class="w-100 border-0" type="text" /></div>
 					</div>
 					<div class="row px-2 w-100 m-auto">
 						<div class="col-4 border border-black text-center">Microcefalos</div>
-						<div class="col-4 border border-black text-center" style="font-weight: bold;">8%</div>
+						<div class="col-4 border border-black text-center" style="font-weight: bold">8%</div>
 						<div class="col-4 border border-black text-center"><input class="w-100 border-0" type="text" /></div>
 					</div>
 					<div class="row px-2 w-100 m-auto">
 						<div class="col-4 border border-black text-center">Macrocefalo</div>
-						<div class="col-4 border border-black text-center" style="font-weight: bold;">7%</div>
+						<div class="col-4 border border-black text-center" style="font-weight: bold">7%</div>
 						<div class="col-4 border border-black text-center"><input class="w-100 border-0" type="text" /></div>
 					</div>
 					<div class="row px-2 w-100 m-auto">
 						<div class="col-4 border border-black text-center">Observaciones</div>
-						<div class="col-4 border border-black text-center" style="font-weight: bold;">Leucocitos:</div>
-						<div v-if="resultMorfologia" class="col-4 border border-black text-center"><input class="w-100 border-0" type="text" v-model="resultMorfologia.leucocitos" /></div>
+						<div class="col-4 border border-black text-center" style="font-weight: bold">Leucocitos:</div>
+						<div v-if="resultMorfologia" class="col-4 border border-black text-center">
+							<input class="w-100 border-0" type="text" v-model="resultMorfologia.leucocitos" />
+						</div>
 						<div v-else class="col-4 border border-black text-center"><input class="w-100 border-0" type="text" /></div>
 					</div>
 					<div class="row px-2 w-100 m-auto">
 						<div class="col-4 border border-black text-center"></div>
-						<div class="col-4 border border-black text-center" style="font-weight: bold;">Hematies:</div>
-						<div v-if="resultMorfologia" class="col-4 border border-black text-center"><input class="w-100 border-0" type="text" v-model="resultMorfologia.hematies" /></div>
+						<div class="col-4 border border-black text-center" style="font-weight: bold">Hematies:</div>
+						<div v-if="resultMorfologia" class="col-4 border border-black text-center">
+							<input class="w-100 border-0" type="text" v-model="resultMorfologia.hematies" />
+						</div>
 						<div v-else class="col-4 border border-black text-center"><input class="w-100 border-0" type="text" /></div>
 					</div>
 					<div class="row px-2 w-100 m-auto">
 						<div class="col-4 border border-black text-center"></div>
-						<div class="col-4 border border-black text-center" style="font-weight: bold;">Celulas EPI:</div>
-						<div v-if="resultMorfologia" class="col-4 border border-black text-center"><input class="w-100 border-0" type="text" v-model="resultMorfologia.celulas_epi" /></div>
+						<div class="col-4 border border-black text-center" style="font-weight: bold">Celulas EPI:</div>
+						<div v-if="resultMorfologia" class="col-4 border border-black text-center">
+							<input class="w-100 border-0" type="text" v-model="resultMorfologia.celulas_epi" />
+						</div>
 						<div v-else class="col-4 border border-black text-center"><input class="w-100 border-0" type="text" /></div>
 					</div>
 					<div class="row px-2 w-100 m-auto">
 						<div class="col-4 border border-black text-center"></div>
-						<div class="col-4 border border-black text-center" style="font-weight: bold;">Bacterias:</div>
-						<div v-if="resultMorfologia" class="col-4 border border-black text-center"><input class="w-100 border-0" type="text" v-model="resultMorfologia.bacterias" /></div>
+						<div class="col-4 border border-black text-center" style="font-weight: bold">Bacterias:</div>
+						<div v-if="resultMorfologia" class="col-4 border border-black text-center">
+							<input class="w-100 border-0" type="text" v-model="resultMorfologia.bacterias" />
+						</div>
 						<div v-else class="col-4 border border-black text-center"><input class="w-100 border-0" type="text" /></div>
 					</div>
 					<div class="row px-2 w-100 m-auto">
 						<div class="col-4 border border-black text-center"></div>
-						<div class="col-4 border border-black text-center" style="font-weight: bold;">Mucina:</div>
-						<div v-if="resultMorfologia" class="col-4 border border-black text-center"><input class="w-100 border-0" type="text" v-model="resultMorfologia.mucina" /></div>
+						<div class="col-4 border border-black text-center" style="font-weight: bold">Mucina:</div>
+						<div v-if="resultMorfologia" class="col-4 border border-black text-center">
+							<input class="w-100 border-0" type="text" v-model="resultMorfologia.mucina" />
+						</div>
 						<div v-else class="col-4 border border-black text-center"><input class="w-100 border-0" type="text" /></div>
 					</div>
 					<div class="row px-2 w-100 m-auto">
 						<div class="col-4 border border-black text-center"></div>
-						<div class="col-4 border border-black text-center" style="font-weight: bold;">Cristales</div>
-						<div v-if="resultMorfologia" class="col-4 border border-black text-center"><input class="w-100 border-0" type="text" v-model="result.morfologia.cristales" /></div>
+						<div class="col-4 border border-black text-center" style="font-weight: bold">Cristales</div>
+						<div v-if="resultMorfologia" class="col-4 border border-black text-center">
+							<input class="w-100 border-0" type="text" v-model="result.morfologia.cristales" />
+						</div>
 						<div v-else class="col-4 border border-black text-center"><input class="w-100 border-0" type="text" /></div>
 					</div>
 				</div>
@@ -170,17 +208,23 @@
 					</div>
 					<div class="row px-2 w-100 m-auto">
 						<div class="col-4 border border-black text-center">Vivos Moviles</div>
-						<div v-if="resultTestEosina" class="col-4 border border-black text-center"><input class="w-100 border-0" type="text" v-model="resultTestEosina.vivos_moviles" /></div>
+						<div v-if="resultTestEosina" class="col-4 border border-black text-center">
+							<input class="w-100 border-0" type="text" v-model="resultTestEosina.vivos_moviles" />
+						</div>
 						<div v-else class="col-4 border border-black text-center"><input class="w-100 border-0" type="text" /></div>
 					</div>
 					<div class="row px-2 w-100 m-auto">
 						<div class="col-4 border border-black text-center">Vivos Inmobiles</div>
-						<div v-if="resultTestEosina" class="col-4 border border-black text-center"><input class="w-100 border-0" type="text" v-model="resultTestEosina.vivos_inmoviles" /></div>
+						<div v-if="resultTestEosina" class="col-4 border border-black text-center">
+							<input class="w-100 border-0" type="text" v-model="resultTestEosina.vivos_inmoviles" />
+						</div>
 						<div v-else class="col-4 border border-black text-center"><input class="w-100 border-0" type="text" /></div>
 					</div>
 					<div class="row px-2 w-100 m-auto">
 						<div class="col-4 border border-black text-center">Muertos</div>
-						<div v-if="resultTestEosina" class="col-4 border border-black text-center"><input class="w-100 border-0" type="text" v-model="resultTestEosina.muertos" /></div>
+						<div v-if="resultTestEosina" class="col-4 border border-black text-center">
+							<input class="w-100 border-0" type="text" v-model="resultTestEosina.muertos" />
+						</div>
 						<div v-else class="col-4 border border-black text-center"><input class="w-100 border-0" type="text" /></div>
 					</div>
 				</div>
@@ -246,11 +290,11 @@
 		order.value = route.query;
 		profile.value = JSON.parse(order.value.profile);
 		profileNames.value = JSON.parse(order.value.profileNames);
-		result.value = await store.fetchSpermiogramResult(profile.value.orders[0].idOrder, profileNames.value)
-		resultEspermatograma.value = result.value.espermatograma
-		resultMotilidad.value = result.value.motilidad
-		resultMorfologia.value = result.value.morfologia
-		resultTestEosina.value = result.value.test_eosina
+		result.value = await store.fetchSpermiogramResult(profile.value.orders[0].idOrder, profileNames.value);
+		resultEspermatograma.value = result.value.espermatograma;
+		resultMotilidad.value = result.value.motilidad;
+		resultMorfologia.value = result.value.morfologia;
+		resultTestEosina.value = result.value.test_eosina;
 	});
 
 	router.beforeEach(async (to, from, next) => {
@@ -258,11 +302,11 @@
 			order.value = route.query;
 			profile.value = JSON.parse(order.value.profile);
 			profileNames.value = JSON.parse(order.value.profileNames);
-			result.value = await store.fetchSpermiogramResult(profile.value.orders[0].idOrder, profileNames.value)
-			resultEspermatograma.value = result.value.espermatograma
-			resultMotilidad.value = result.value.motilidad
-			resultMorfologia.value = result.value.morfologia
-			resultTestEosina.value = result.value.test_eosina
+			result.value = await store.fetchSpermiogramResult(profile.value.orders[0].idOrder, profileNames.value);
+			resultEspermatograma.value = result.value.espermatograma;
+			resultMotilidad.value = result.value.motilidad;
+			resultMorfologia.value = result.value.morfologia;
+			resultTestEosina.value = result.value.test_eosina;
 		}
 		next();
 	});
@@ -276,7 +320,11 @@
 		button.remove();
 		espermatogramaInputs.forEach((input: any) => {
 			const inputValue = input.value;
-			input.outerHTML = `<span>${inputValue}</span>`;
+			if (input.value) {
+				input.outerHTML = `<span>${inputValue}</span>`;
+			} else {
+				input.outerHTML = `<span style="opacity: 0;">N/A</span>`;
+			}
 		});
 
 		html = espermatogramaCopy.innerHTML;
@@ -329,9 +377,14 @@
 		const espermatogramaInputs = espermatogramaCopy.querySelectorAll("input");
 		const button = espermatogramaCopy.querySelector(".pdfButton");
 		button.remove();
+
 		espermatogramaInputs.forEach((input: any) => {
 			const inputValue = input.value;
-			input.outerHTML = `<span>${inputValue}</span>`;
+			if (input.value) {
+				input.outerHTML = `<span>${inputValue}</span>`;
+			} else {
+				input.outerHTML = `<span style="opacity: 0;">N/A</span>`;
+			}
 		});
 
 		html = espermatogramaCopy.innerHTML;
@@ -424,7 +477,7 @@
 			data[key as keyof typeof data] = inputValues[index];
 		});
 
-		await store.createSpermiogramResults(data, profile.value.orders[0].idOrder)
+		await store.createSpermiogramResults(data, profile.value.orders[0].idOrder);
 	};
 
 	async function sendEmail() {
@@ -520,13 +573,13 @@
 </script>
 
 <style scoped>
-.firma-img {
-	height: 65px;
-	width: 180px;
-}
+	.firma-img {
+		height: 65px;
+		width: 180px;
+	}
 
-.sello-img {
-	height: 50px;
-	width: 150px;
-}
+	.sello-img {
+		height: 50px;
+		width: 150px;
+	}
 </style>
