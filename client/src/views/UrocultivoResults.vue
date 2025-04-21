@@ -6,10 +6,10 @@
 					<div class="header">
 						<div class="row">
 							<div class="col text-center">
-								<img src="/images/laboratorio.png" alt="" />
+								<img src="/images/laboratorio.png" alt="" style="width: 55%;" />
 							</div>
 							<div class="col text-center">
-								<img src="/images/direccion.png" alt="" />
+								<img src="/images/direccion.png" alt="" style="width: 80%;" />
 							</div>
 						</div>
 					</div>
@@ -40,7 +40,7 @@
 					</div>
 				</div>
 				<div class="bacteriologico" ref="bacteriologico">
-					<h2 class="text-center mt-5 mb-2">Estudio Bacteriológico</h2>
+					<h3 class="text-center mt-5 mb-2">Estudio Bacteriológico</h3>
 					<div class="row px-2 w-100 m-auto">
 						<div class="col-4 border border-black">Examen:</div>
 						<div class="col-8 border border-black">{{ profileNames ? profileNames[0] : null }}</div>
@@ -76,9 +76,9 @@
 					</div>
 				</div>
 				<div class="Antibiograma" ref="antibiograma">
-					<h2 class="text-center mb-2">Antibiograma</h2>
+					<h3 class="text-center mb-2">Antibiograma</h3>
 					<div v-if="resultSensibles" class="sensibles" style="margin-left: 10px">
-						<h4>Sensibles:</h4>
+						<h5>Sensibles:</h5>
 						<div class="row w-100 m-auto" ref="sensibles">
 							<div v-for="(selected, index) in resultSensibles" :key="index" class="col-8 border border-black">
 								<select
@@ -104,7 +104,7 @@
 					</div>
 
 					<div v-else class="sensibles" style="margin-left: 10px">
-						<h4>Sensibles:</h4>
+						<h5>Sensibles:</h5>
 						<div class="row w-100 m-auto" ref="sensibles">
 							<div class="col-8 border border-black" ref="dropdown1">
 								<select class="custom-select" name="germen" id="germen">
@@ -137,7 +137,7 @@
 					</div>
 
 					<div v-if="resultResistentes" class="resistentes" style="margin-left: 10px">
-						<h4>Resistentes:</h4>
+						<h5>Resistentes:</h5>
 						<div class="row w-100 m-auto" ref="resistentes">
 							<div v-for="(selected, index) in resultResistentes" :key="index" class="col-8 border border-black">
 								<select
@@ -162,7 +162,7 @@
 					</div>
 
 					<div v-else class="resistentes" style="margin-left: 10px">
-						<h4>Resistentes:</h4>
+						<h5>Resistentes:</h5>
 						<div class="row w-100 m-auto" ref="resistentes">
 							<div class="col-8 border border-black">
 								<select class="custom-select" name="germen" id="germen">
@@ -206,7 +206,7 @@
 				</div>
 				<div class="row mb-3">
 					<button class="col btn btn-primary me-1" @click="guardarCambios">Guardar Cambios</button>
-					<button class="col btn btn-primary me-1" @click="generatePDF">Generate PDF</button>
+					<button class="col btn btn-primary me-1" @click="generatePDF">Generar PDF</button>
 					<button class="col btn btn-primary me-1" @click="sendEmail">Enviar por Correo</button>
 					<button class="col btn btn-primary me-1" @click="sharePDFViaWhatsApp">Compartir PDF por WhatsApp</button>
 					<button class="col btn btn-primary me-1" @click="enviarCorreo">Compartir PDF por Mailto</button>
@@ -268,7 +268,6 @@
 		resultData.value = result.value.resultado;
 		resultSensibles.value = result.value.sensibles;
 		resultResistentes.value = result.value.resistentes;
-		console.log(result.value);
 	});
 
 	router.beforeEach(async (to, from, next) => {

@@ -251,10 +251,10 @@
 		const profileNamesArray = profileName.orders.flatMap((order: { profiles: any[] }) =>
 			order.profiles.map((profile: { profileName: any }) => profile.profileName)
 		);
-		/*router.push({
-			name: "Results2",
+		router.push({
+			name: "Espermatograma",
 			query: { profile: JSON.stringify(profileName), profileNames: JSON.stringify(profileNamesArray) },
-		});*/
+		});
 	};
 
 	const filteredOrders = computed(() => {

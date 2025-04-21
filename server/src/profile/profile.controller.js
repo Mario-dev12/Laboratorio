@@ -252,6 +252,18 @@ profileController.createCultiveResult = async (req, res) => {
 	}
 };
 
+profileController.createSpermiogramResult = async (req, res) => {
+	try {
+		const answer = await profileServices.createSpermiogramResult(
+			req.body.id,
+			req.body.data
+		);
+		return res.send(201);
+	} catch (error) {
+		return res.status(400).send(error.stack);
+	}
+};
+
 profileController.createProfileSection = async (req, res) => {
 	try {
 		const answer = await profileServices.createProfileSection(req.body.data, req.body.section);

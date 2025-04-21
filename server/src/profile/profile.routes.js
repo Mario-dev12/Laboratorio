@@ -47,6 +47,7 @@ profileRouter.delete("/cultive/:id", profileController.deleteCultive);
 // Spermiogram
 profileRouter.get("/spermiogram", profileController.readSpermiogram);
 profileRouter.get("/spermiogram/result/:id/:name", profileController.readSpermiogramResult);
+profileRouter.post("/spermiogram/results", profileController.createSpermiogramResult);
 
 //Antibiotics
 profileRouter.get("/antibiotics", profileController.readAntibiotics);

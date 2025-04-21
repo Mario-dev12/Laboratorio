@@ -291,6 +291,15 @@ profileRepository.createCultiveResult = async (idOrder, idBacteria, contaje, obs
 	}
 };
 
+profileRepository.createSpermiogramResult = async (id, answer) => {
+	try {
+		const resp = await pool.query(`SELECT * FROM insertar_resultado_espermatograma(${id}, '${answer.volumen}', '${answer.contaje}', '${answer.liquefaccion}', '${answer.ph}', '${answer.aspectoMacro}', '${answer.recoleccion}', '${answer.densidad}', '${answer.abstinencia}', '${answer.color}', '${answer.progresivoRapido}', '${answer.progresivoLento}', '${answer.noProgresivo}', '${answer.lento}', '${answer.normales}', '${answer.tapering}', '${answer.microcefalos}', '${answer.macrocefalo}', '${answer.leucocitos}', '${answer.hematies}', '${answer.celulasEPI}', '${answer.bacterias}', '${answer.mucina}', '${answer.cristales}', '${answer.vivosMobiles}', '${answer.vivosInmobiles}', '${answer.muertos}')`);
+		return resp.rows[0].insertar_resultado_espermatograma;
+	} catch (error) {
+		throw error;
+	}
+};
+
 profileRepository.createCultive = async (name, cost_bs, cost_usd) => {
 	try {
 		const resp = await pool.query(`SELECT * FROM sp_create_profile('${name}', '${cost_bs}', '${cost_usd}')`);
