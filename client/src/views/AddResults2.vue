@@ -18,10 +18,10 @@
 					<div class="patient-info">
 						<div class="row">
 							<div class="col">
-								<img src="/images/laboratorio.png" alt="" />
+								<img src="/images/laboratorio.png" alt="" style="width: 55%;" />
 							</div>
 							<div class="col">
-								<img src="/images/direccion.png" alt="" />
+								<img src="/images/direccion.png" alt="" style="width: 80%;" />
 							</div>
 						</div>
 						<div class="border-bottom border-black mt-2"></div>
@@ -52,14 +52,14 @@
 					<div class="profile-content mt-5" v-for="(profile, indx) in profilesData" :key="indx">
 						<div class="profile-sections mt-4" v-show="showProfile[indx]" ref="profileRef2">
 							<div class="text-center">
-								<h2>{{ profileNamesOrdered[indx] }}</h2>
+								<h3>{{ profileNamesOrdered[indx] }}</h3>
 							</div>
 							<div
 								class="profile-tables mb-5"
 								v-for="([key, section], i) in profile ? Object.entries(profile) : null"
 								:key="i"
 								ref="sectionRef">
-								<h3>{{ key }}</h3>
+								<h4>{{ key }}</h4>
 								<div class="table-responsive">
 									<table class="table table-hover table-striped">
 										<thead>
@@ -676,7 +676,7 @@
 				const sections = item.querySelectorAll(".profile-tables");
 
 				sections.forEach((table: any) => {
-					const tableName = table.querySelector("h3");
+					const tableName = table.querySelector("h4");
 					const tableData = table.querySelectorAll("tbody tr");
 					testSections[tableName.innerHTML] = [];
 
@@ -713,6 +713,7 @@
 					id: ordersArray.value[index].idOrder,
 					status: "Pendiente de enviar",
 				};
+				console.log('llega', results)
 				await examsStore.createExamResults(results);
 				await ordersStore.updateStatusOrder(ordersArray.value[index].idOrder, data);
 			});

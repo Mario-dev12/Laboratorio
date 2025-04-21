@@ -6,10 +6,10 @@
 					<div class="header">
 						<div class="row">
 							<div class="col text-center">
-								<img src="/images/laboratorio.png" alt="" />
+								<img src="/images/laboratorio.png" alt="" style="width: 55%;" />
 							</div>
 							<div class="col text-center">
-								<img src="/images/direccion.png" alt="" />
+								<img src="/images/direccion.png" alt="" style="width: 80%;" />
 							</div>
 						</div>
 					</div>
@@ -40,7 +40,7 @@
 					</div>
 				</div>
 				<div class="espermatograma mt-5">
-					<h2 class="text-center">Espermatograma</h2>
+					<h3 class="text-center">Espermatograma</h3>
 					<div class="row px-2 w-100 m-auto">
 						<div class="col-3 border border-black">Volumen:</div>
 						<div v-if="resultEspermatograma" class="col-3 border border-black"><input class="w-100 border-0" type="text" v-model="resultEspermatograma.volumen" /></div>
