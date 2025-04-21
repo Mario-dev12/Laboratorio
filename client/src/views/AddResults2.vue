@@ -579,10 +579,10 @@
 	};*/
 
 	const getHtmlWithInputValues = (element: HTMLElement): string => {
-		const perfilHeading = element.querySelector("h2");
+		const perfilHeading = element.querySelector("h3");
 		const perfilName = perfilHeading ? perfilHeading.textContent?.trim() : "Perfil sin nombre";
 
-		const sections = element.querySelectorAll("h3");
+		const sections = element.querySelectorAll("h4");
 		const rows: { section: string; data: string[] }[] = [];
 
 		sections.forEach((section) => {
