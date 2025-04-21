@@ -90,6 +90,10 @@ profileServices.createCultiveResult = async (idOrder, idBacteria, contaje, obser
     return await profileRepository.createCultiveResult(idOrder, idBacteria, contaje, observacion, sensibles, resistentes)
 }
 
+profileServices.createSpermiogramResult = async (id, answer) => {
+    return await profileRepository.createSpermiogramResult(id, answer)
+}
+
 profileServices.createCultive = async (name, cost_bs, cost_usd) => {
     return await profileRepository.createCultive(name, cost_bs, cost_usd)
 }

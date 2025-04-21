@@ -3554,3 +3554,101 @@ BEGIN
     END LOOP;  
 END;  
 $$ LANGUAGE plpgsql;
+
+CREATE OR REPLACE FUNCTION insertar_resultado_espermatograma(  
+    p_idOrder INTEGER,  
+    p_volumen VARCHAR,  
+    p_contaje VARCHAR,  
+    p_liquefaccion VARCHAR,  
+    p_ph VARCHAR,  
+    p_aspecto_macroscopico VARCHAR,  
+    p_hora_recoleccion VARCHAR,  
+    p_densidad VARCHAR,  
+    p_abstinencia VARCHAR,  
+    p_color VARCHAR,  
+    p_progresivo_rapido VARCHAR,  
+    p_progresivo_lento VARCHAR,  
+    p_no_progresivo VARCHAR,  
+    p_lento VARCHAR,  
+    p_normales VARCHAR,  
+    p_tapering VARCHAR,  
+    p_microcefalos VARCHAR,  
+    p_macrocefalo VARCHAR,  
+    p_leucocitos VARCHAR,  
+    p_hematies VARCHAR,  
+    p_celulas_epi VARCHAR,  
+    p_bacterias VARCHAR,  
+    p_mucina VARCHAR,  
+    p_cristales VARCHAR,  
+    p_vivos_moviles VARCHAR,  
+    p_vivos_inmoviles VARCHAR,  
+    p_muertos VARCHAR  
+)   
+RETURNS INTEGER AS $$  
+DECLARE  
+    v_idResultado INTEGER;  
+BEGIN   
+    DELETE FROM resultado_espermatograma  
+    WHERE idOrder = p_idOrder;  
+
+    INSERT INTO resultado_espermatograma (  
+        idOrder,  
+        volumen,  
+        contaje,  
+        liquefaccion,  
+        ph,  
+        aspecto_macroscopico,  
+        hora_recoleccion,  
+        densidad,  
+        abstinencia,  
+        color,  
+        progresivo_rapido,  
+        progresivo_lento,  
+        no_progresivo,  
+        lento,  
+        normales,  
+        tapering,  
+        microcefalos,  
+        macrocefalo,  
+        leucocitos,  
+        hematies,  
+        celulas_epi,  
+        bacterias,  
+        mucina,  
+        cristales,  
+        vivos_moviles,  
+        vivos_inmoviles,  
+        muertos 
+    ) VALUES (  
+        p_idOrder,  
+        p_volumen,  
+        p_contaje,  
+        p_liquefaccion,  
+        p_ph,  
+        p_aspecto_macroscopico,  
+        p_hora_recoleccion,  
+        p_densidad,  
+        p_abstinencia,  
+        p_color,  
+        p_progresivo_rapido,  
+        p_progresivo_lento,  
+        p_no_progresivo,  
+        p_lento,  
+        p_normales,  
+        p_tapering,  
+        p_microcefalos,  
+        p_macrocefalo,  
+        p_leucocitos,  
+        p_hematies,  
+        p_celulas_epi,  
+        p_bacterias,  
+        p_mucina,  
+        p_cristales,  
+        p_vivos_moviles,  
+        p_vivos_inmoviles,  
+        p_muertos
+    ) RETURNING idResultado INTO v_idResultado;  
+
+    RETURN v_idResultado; 
+END;  
+$$ LANGUAGE plpgsql;

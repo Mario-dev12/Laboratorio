@@ -252,6 +252,15 @@ class AxiosRepository {
 		return response.data;
 	}
 
+	async createSpermiogramResults<T>(domain: string, data: T, id: number): Promise<T> {
+		const requestData = {
+			id,
+			data
+		};
+		const response = await axios.post<T>(`${import.meta.env.VITE_API_URL}/${domain}/spermiogram/results`, requestData);
+		return response.data;
+	}
+
 	async update<T>(domain: string, id: string | number | undefined, data: T): Promise<T> {
 		const response = await axios.put<T>(`${import.meta.env.VITE_API_URL}/${domain}/${id}`, data);
 		return response.data;

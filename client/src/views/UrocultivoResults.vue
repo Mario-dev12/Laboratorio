@@ -206,7 +206,7 @@
 				</div>
 				<div class="row mb-3">
 					<button class="col btn btn-primary me-1" @click="guardarCambios">Guardar Cambios</button>
-					<button class="col btn btn-primary me-1" @click="generatePDF">Generate PDF</button>
+					<button class="col btn btn-primary me-1" @click="generatePDF">Generar PDF</button>
 					<button class="col btn btn-primary me-1" @click="sendEmail">Enviar por Correo</button>
 					<button class="col btn btn-primary me-1" @click="sharePDFViaWhatsApp">Compartir PDF por WhatsApp</button>
 					<button class="col btn btn-primary me-1" @click="enviarCorreo">Compartir PDF por Mailto</button>
@@ -268,7 +268,6 @@
 		resultData.value = result.value.resultado;
 		resultSensibles.value = result.value.sensibles;
 		resultResistentes.value = result.value.resistentes;
-		console.log(result.value);
 	});
 
 	router.beforeEach(async (to, from, next) => {

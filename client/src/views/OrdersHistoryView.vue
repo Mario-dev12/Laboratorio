@@ -156,7 +156,7 @@
 									<td>{{ formatearFecha(order.createdDate) }}</td>
 									<td>{{ formatearFecha(order.modifiedDate) }}</td>
 									<td>
-										<i class="fas fa-edit" @click="openTabsView2(order)" style="cursor: pointer; margin-right: 10px"></i>
+										<i class="fas fa-edit" @click="openTabsView3(order)" style="cursor: pointer; margin-right: 10px"></i>
 										<i class="fas fa-info-circle" @click="toggleDetails(order)" style="cursor: pointer"></i>
 
 										<div v-if="expandedOrder === order.idUser" class="order-details">
@@ -303,10 +303,20 @@
 		const profileNamesArray = profileName.orders.flatMap((order: { profiles: any[] }) =>
 			order.profiles.map((profile: { profileName: any }) => profile.profileName)
 		);
-		/*router.push({
-			name: "Results2",
+		router.push({
+			name: "UroResults",
 			query: { profile: JSON.stringify(profileName), profileNames: JSON.stringify(profileNamesArray) },
-		});*/
+		});
+	};
+
+	const openTabsView3 = (profileName: any) => {
+		const profileNamesArray = profileName.orders.flatMap((order: { profiles: any[] }) =>
+			order.profiles.map((profile: { profileName: any }) => profile.profileName)
+		);
+		router.push({
+			name: "Espermatograma",
+			query: { profile: JSON.stringify(profileName), profileNames: JSON.stringify(profileNamesArray) },
+		});
 	};
 
 	function handleTap(index: number, profileName: string) {
