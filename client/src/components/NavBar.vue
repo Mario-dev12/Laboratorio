@@ -36,6 +36,10 @@
 						<ion-icon slot="start" :icon="calculator"></ion-icon>
 						Caja
 					</ion-button>
+					<ion-button class="border-end border-secondary" @click="() => router.push({ name: 'Espermatograma' })">
+						<ion-icon slot="start" :icon="calculator"></ion-icon>
+						espermatograma
+					</ion-button>
 					<div class="d-flex align-items-center ms-2">
 						<h5 v-if="!showChangeDolar" class="text-success mb-0 fw-bold">Tasa Dolar: Bs: {{ precioDolar }}</h5>
 						<input
@@ -171,7 +175,7 @@
 		IonMenuToggle,
 		IonRow,
 	} from "@ionic/vue";
-	import { flask, home, document, closeOutline, calculator, create, copy, pencilSharp, addSharp, addCircleSharp } from "ionicons/icons";
+	import { flask, home, document, closeOutline, calculator, create, copy, pencilSharp, addCircleSharp } from "ionicons/icons";
 	import { useRouter } from "vue-router";
 	import { onMounted, ref, watch } from "vue";
 	import eventBus from "../eventBus";

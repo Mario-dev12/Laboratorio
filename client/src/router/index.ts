@@ -13,6 +13,7 @@ import AddResults from "@/views/AddResults.vue";
 import AddResults2 from "@/views/AddResults2.vue";
 import UrocultivoResults from "@/views/UrocultivoResults.vue";
 import EditCultive from "@/views/EditCultive.vue";
+import EspermatogramaView from "@/views/EspermatogramaView.vue";
 
 const routes: Array<RouteRecordRaw> = [
 	{
@@ -83,6 +84,11 @@ const routes: Array<RouteRecordRaw> = [
 		path: "/uroResults",
 		name: "UroResults",
 		component: UrocultivoResults,
+	},
+	{
+		path: "/espermatograma",
+		name: "Espermatograma",
+		component: EspermatogramaView,
 	},
 ];
 
