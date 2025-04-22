@@ -109,96 +109,89 @@
 					</div>
 					<div class="row px-2 w-100 m-auto">
 						<div v-if="resultMotilidad" class="col border border-black text-center">
-							<input class="w-100 border-0" type="text" v-model="resultMotilidad.progresivo_rapido" />
+							<input class="w-100 border-0" type="text" style="text-align: center;" v-model="resultMotilidad.progresivo_rapido" />
 						</div>
-						<div v-else class="col border border-black text-center"><input class="w-100 border-0" type="text" /></div>
+						<div v-else class="col border border-black text-center"><input class="w-100 border-0" type="text" style="text-align: center;" /></div>
 						<div v-if="resultMotilidad" class="col border border-black text-center">
-							<input class="w-100 border-0" type="text" v-model="resultMotilidad.progresivo_lento" />
+							<input class="w-100 border-0" type="text" style="text-align: center;" v-model="resultMotilidad.progresivo_lento" />
 						</div>
-						<div v-else class="col border border-black text-center"><input class="w-100 border-0" type="text" /></div>
+						<div v-else class="col border border-black text-center"><input class="w-100 border-0" type="text" style="text-align: center;" /></div>
 						<div v-if="resultMotilidad" class="col border border-black text-center">
-							<input class="w-100 border-0" type="text" v-model="resultMotilidad.no_progresivo" />
+							<input class="w-100 border-0" type="text" style="text-align: center;" v-model="resultMotilidad.no_progresivo" />
 						</div>
-						<div v-else class="col border border-black text-center"><input class="w-100 border-0" type="text" /></div>
+						<div v-else class="col border border-black text-center"><input class="w-100 border-0" type="text" style="text-align: center;" /></div>
 						<div v-if="resultMotilidad" class="col border border-black text-center">
-							<input class="w-100 border-0" type="text" v-model="resultMotilidad.lento" />
+							<input class="w-100 border-0" type="text" style="text-align: center;" v-model="resultMotilidad.lento" />
 						</div>
-						<div v-else class="col border border-black text-center"><input class="w-100 border-0" type="text" /></div>
+						<div v-else class="col border border-black text-center"><input class="w-100 border-0" type="text" style="text-align: center;" /></div>
 					</div>
 				</div>
 				<div class="Morfología mt-5 mb-5">
 					<div class="row px-2 w-100 m-auto">
 						<div class="col-4 border border-black text-center fw-bold">Morfología</div>
-						<div class="col-4 border border-black text-center"></div>
 						<div class="col-4 border border-black text-center fw-bold">Elementos</div>
 					</div>
 					<div class="row px-2 w-100 m-auto">
 						<div class="col-4 border border-black text-center">Normales:</div>
-						<div class="col-4 border border-black text-center" style="font-weight: bold">60%</div>
-						<div class="col-4 border border-black text-center"><input class="w-100 border-0" type="text" /></div>
+						<div v-if="resultMorfologia" class="col-4 border border-black text-center"><input class="w-100 border-0" type="text" style="text-align: center;" v-model="resultMorfologia.normales" /></div>
+						<div v-else class="col-4 border border-black text-center"><input class="w-100 border-0" type="text" style="text-align: center;" /></div>
 					</div>
 					<div class="row px-2 w-100 m-auto">
 						<div class="col-4 border border-black text-center">Tapering</div>
-						<div class="col-4 border border-black text-center" style="font-weight: bold">25%</div>
-						<div class="col-4 border border-black text-center"><input class="w-100 border-0" type="text" /></div>
+						<div v-if="resultMorfologia" class="col-4 border border-black text-center"><input class="w-100 border-0" type="text" style="text-align: center;" v-model="resultMorfologia.tapering" /></div>
+						<div v-else class="col-4 border border-black text-center"><input class="w-100 border-0" type="text" style="text-align: center;" /></div>
 					</div>
 					<div class="row px-2 w-100 m-auto">
 						<div class="col-4 border border-black text-center">Microcefalos</div>
-						<div class="col-4 border border-black text-center" style="font-weight: bold">8%</div>
-						<div class="col-4 border border-black text-center"><input class="w-100 border-0" type="text" /></div>
+						<div v-if="resultMorfologia" class="col-4 border border-black text-center"><input class="w-100 border-0" type="text" style="text-align: center;" v-model="resultMorfologia.microcefalos" /></div>
+						<div v-else class="col-4 border border-black text-center"><input class="w-100 border-0" type="text" style="text-align: center;" /></div>
 					</div>
 					<div class="row px-2 w-100 m-auto">
 						<div class="col-4 border border-black text-center">Macrocefalo</div>
-						<div class="col-4 border border-black text-center" style="font-weight: bold">7%</div>
-						<div class="col-4 border border-black text-center"><input class="w-100 border-0" type="text" /></div>
+						<div v-if="resultMorfologia" class="col-4 border border-black text-center"><input class="w-100 border-0" type="text" style="text-align: center;" v-model="resultMorfologia.macrocefalo" /></div>
+						<div v-else class="col-4 border border-black text-center"><input class="w-100 border-0" type="text" style="text-align: center;" /></div>
 					</div>
 					<div class="row px-2 w-100 m-auto">
-						<div class="col-4 border border-black text-center">Observaciones</div>
-						<div class="col-4 border border-black text-center" style="font-weight: bold">Leucocitos:</div>
+						<div class="col-4 border border-black text-center">Leucocitos:</div>
 						<div v-if="resultMorfologia" class="col-4 border border-black text-center">
-							<input class="w-100 border-0" type="text" v-model="resultMorfologia.leucocitos" />
+							<input class="w-100 border-0" type="text" style="text-align: center;" v-model="resultMorfologia.leucocitos" />
 						</div>
-						<div v-else class="col-4 border border-black text-center"><input class="w-100 border-0" type="text" /></div>
+						<div v-else class="col-4 border border-black text-center"><input class="w-100 border-0" type="text" style="text-align: center;" /></div>
 					</div>
 					<div class="row px-2 w-100 m-auto">
-						<div class="col-4 border border-black text-center"></div>
-						<div class="col-4 border border-black text-center" style="font-weight: bold">Hematies:</div>
+						<div class="col-4 border border-black text-center">Hematies:</div>
 						<div v-if="resultMorfologia" class="col-4 border border-black text-center">
-							<input class="w-100 border-0" type="text" v-model="resultMorfologia.hematies" />
+							<input class="w-100 border-0" type="text" style="text-align: center;" v-model="resultMorfologia.hematies" />
 						</div>
-						<div v-else class="col-4 border border-black text-center"><input class="w-100 border-0" type="text" /></div>
+						<div v-else class="col-4 border border-black text-center"><input class="w-100 border-0" type="text" style="text-align: center;" /></div>
 					</div>
 					<div class="row px-2 w-100 m-auto">
-						<div class="col-4 border border-black text-center"></div>
-						<div class="col-4 border border-black text-center" style="font-weight: bold">Celulas EPI:</div>
+						<div class="col-4 border border-black text-center">Celulas EPI:</div>
 						<div v-if="resultMorfologia" class="col-4 border border-black text-center">
-							<input class="w-100 border-0" type="text" v-model="resultMorfologia.celulas_epi" />
+							<input class="w-100 border-0" type="text" style="text-align: center;" v-model="resultMorfologia.celulas_epi" />
 						</div>
-						<div v-else class="col-4 border border-black text-center"><input class="w-100 border-0" type="text" /></div>
+						<div v-else class="col-4 border border-black text-center"><input class="w-100 border-0" type="text" style="text-align: center;" /></div>
 					</div>
 					<div class="row px-2 w-100 m-auto">
-						<div class="col-4 border border-black text-center"></div>
-						<div class="col-4 border border-black text-center" style="font-weight: bold">Bacterias:</div>
+						<div class="col-4 border border-black text-center">Bacterias:</div>
 						<div v-if="resultMorfologia" class="col-4 border border-black text-center">
-							<input class="w-100 border-0" type="text" v-model="resultMorfologia.bacterias" />
+							<input class="w-100 border-0" type="text" style="text-align: center;" v-model="resultMorfologia.bacterias" />
 						</div>
-						<div v-else class="col-4 border border-black text-center"><input class="w-100 border-0" type="text" /></div>
+						<div v-else class="col-4 border border-black text-center"><input class="w-100 border-0" type="text" style="text-align: center;" /></div>
 					</div>
 					<div class="row px-2 w-100 m-auto">
-						<div class="col-4 border border-black text-center"></div>
-						<div class="col-4 border border-black text-center" style="font-weight: bold">Mucina:</div>
+						<div class="col-4 border border-black text-center">Mucina:</div>
 						<div v-if="resultMorfologia" class="col-4 border border-black text-center">
-							<input class="w-100 border-0" type="text" v-model="resultMorfologia.mucina" />
+							<input class="w-100 border-0" type="text" style="text-align: center;" v-model="resultMorfologia.mucina" />
 						</div>
-						<div v-else class="col-4 border border-black text-center"><input class="w-100 border-0" type="text" /></div>
+						<div v-else class="col-4 border border-black text-center"><input class="w-100 border-0" type="text" style="text-align: center;" /></div>
 					</div>
 					<div class="row px-2 w-100 m-auto">
-						<div class="col-4 border border-black text-center"></div>
-						<div class="col-4 border border-black text-center" style="font-weight: bold">Cristales</div>
+						<div class="col-4 border border-black text-center">Cristales</div>
 						<div v-if="resultMorfologia" class="col-4 border border-black text-center">
-							<input class="w-100 border-0" type="text" v-model="result.morfologia.cristales" />
+							<input class="w-100 border-0" type="text" style="text-align: center;" v-model="result.morfologia.cristales" />
 						</div>
-						<div v-else class="col-4 border border-black text-center"><input class="w-100 border-0" type="text" /></div>
+						<div v-else class="col-4 border border-black text-center"><input class="w-100 border-0" type="text" style="text-align: center;" /></div>
 					</div>
 				</div>
 				<div class="eosina mb-5">
@@ -325,6 +318,7 @@
 		resultMotilidad.value = result.value.motilidad;
 		resultMorfologia.value = result.value.morfologia;
 		resultTestEosina.value = result.value.test_eosina;
+		console.log('llega', resultMorfologia.value)
 	});
 
 	router.beforeEach(async (to, from, next) => {

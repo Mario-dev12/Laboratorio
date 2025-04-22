@@ -3210,20 +3210,20 @@ BEGIN
 END;  
 $$ LANGUAGE plpgsql;  
 
-CREATE OR REPLACE FUNCTION obtener_perfil_con_resultados(
-	nomb_perfil character varying,
-	idorder integer)
-    RETURNS json
-    LANGUAGE 'plpgsql'
-    COST 100
-    VOLATILE PARALLEL UNSAFE
-AS $BODY$
+CREATE OR REPLACE FUNCTION obtener_perfil_con_resultados(  
+    nomb_perfil character varying,  
+    idorder integer)  
+    RETURNS json  
+    LANGUAGE 'plpgsql'  
+    COST 100  
+    VOLATILE PARALLEL UNSAFE  
+AS $BODY$  
 DECLARE  
     resultado JSON;  
     division_cursor CURSOR FOR  
         SELECT idDivision, nombre, orden  
         FROM perfil_division  
-        WHERE idProfile = (SELECT idProfile FROM profile WHERE name = nomb_perfil)  
+        WHERE idProfile = (SELECT idProfile FROM profile WHERE name = nomb_perfil LIMIT 1)  
         ORDER BY orden;  
     id_division INTEGER;  
     nombre_division TEXT;  
@@ -3233,17 +3233,17 @@ DECLARE
     unidad_campo TEXT;  
     valor_referencial_campo TEXT;   
     calculado_campo TEXT;   
-    resultado_campo TEXT;
+    resultado_campo TEXT;  
     divisiones_array JSON[];   
     division_json JSON;  
     final_json JSONB := '{}'::JSONB;  
     division_element JSON;  
     record RECORD;  
     nombre_tabla TEXT;  
-	restricciones_json JSON;
+    restricciones_json JSON;  
 BEGIN   
     -- Comprobamos si existe el perfil  
-    IF NOT EXISTS (SELECT 1 FROM profile WHERE name = nomb_perfil) THEN  
+    IF NOT EXISTS (SELECT 1 FROM profile WHERE name = nomb_perfil LIMIT 1) THEN  
         RAISE EXCEPTION 'Perfil no reconocido: %', nomb_perfil;  
     END IF;  
 
@@ -3274,27 +3274,26 @@ BEGIN
                             FROM %I r   
                             JOIN campo_perfil c ON r.idcampo_perfil = c.idcampo_perfil   
                             JOIN campo ca ON ca.idcampo = c.idcampo   
-                            WHERE r.idOrder = $1 AND ca.nombre = $2', nombre_tabla)   
+                            WHERE r.idOrder = \$1 AND ca.nombre = \$2', nombre_tabla)   
             INTO resultado_campo USING idOrder, nombre_campo;   
             
             -- Manejar el caso en que resultado_campo es nulo  
             IF resultado_campo IS NULL THEN  
                 resultado_campo := NULL;  -- Mensaje en caso de no encontrar resultados  
             END IF;  
-			
-			SELECT json_agg(r.restriction) INTO restricciones_json  
-			FROM restriction r  
-			WHERE r.idProfile = (SELECT idProfile FROM profile WHERE name = nomb_perfil);
+            
+            SELECT json_agg(r.restriction) INTO restricciones_json  
+            FROM restriction r  
+            WHERE r.idProfile = (SELECT idProfile FROM profile WHERE name = nomb_perfil LIMIT 1);  
 
             campos_json := array_append(campos_json, json_build_object(  
                 'nombre', nombre_campo,   
                 'unidad', unidad_campo,   
                 'valor_referencial', valor_referencial_campo,   
                 'calculado', calculado_campo,  
-                'valor', resultado_campo,
-				'restricciones', COALESCE(restricciones_json, '[]')
+                'valor', resultado_campo,  
+                'restricciones', COALESCE(restricciones_json, '[]')  
             ));  
-			  
         END LOOP;  
 
         division_json := json_build_object(nombre_division, json_build_object('resultado', json_build_array(VARIADIC campos_json)));  
