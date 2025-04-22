@@ -3223,7 +3223,7 @@ DECLARE
     division_cursor CURSOR FOR  
         SELECT idDivision, nombre, orden  
         FROM perfil_division  
-        WHERE idProfile = (SELECT idProfile FROM profile WHERE name = nomb_perfil)  
+        WHERE idProfile = (SELECT idProfile FROM profile WHERE name = nomb_perfil LIMIT 1)  
         ORDER BY orden;  
     id_division INTEGER;  
     nombre_division TEXT;  
@@ -3284,7 +3284,7 @@ BEGIN
 			
 			SELECT json_agg(r.restriction) INTO restricciones_json  
 			FROM restriction r  
-			WHERE r.idProfile = (SELECT idProfile FROM profile WHERE name = nomb_perfil);
+			WHERE r.idProfile = (SELECT idProfile FROM profile WHERE name = nomb_perfil LIMIT 1);
 
             campos_json := array_append(campos_json, json_build_object(  
                 'nombre', nombre_campo,   

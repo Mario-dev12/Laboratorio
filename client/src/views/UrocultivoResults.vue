@@ -214,12 +214,21 @@
 					<button class="col btn btn-primary me-1" @click="pdfCover">Imprimir Portada</button>
 				</div>
 			</div>
+			<ion-toast
+				:class="toast.class"
+				:icon="toast.icon"
+				:is-open="isOpen"
+				:message="toast.message"
+				duration="2000"
+				@didDismiss="setOpen(false)"
+				position="top">
+			</ion-toast>
 		</ion-content>
 	</ion-page>
 </template>
 
 <script setup lang="ts">
-	import { IonPage, IonContent } from "@ionic/vue";
+	import { IonPage, IonContent, IonToast } from "@ionic/vue";
 	import html2pdf from "html2pdf.js";
 	import { ref, onMounted } from "vue";
 	import { useRoute } from "vue-router";
@@ -227,6 +236,7 @@
 	import { useRouter } from "vue-router";
 	import { orderStore } from "@/stores/orderStore";
 	import { mailStore } from "@/stores/mailStore";
+	import { checkboxOutline } from "ionicons/icons";
 
 	let html: string = "";
 	const urocultivoPDF = ref();
@@ -257,6 +267,26 @@
 	const resultSensibles = ref();
 	const resultResistentes = ref();
 	const firmaSello = ref();
+	const isOpen = ref(false);
+
+	const toast = ref({
+		isOpen: false,
+		message: "",
+		class: "",
+		icon: null,
+	});
+
+	const setOpen = (state: boolean) => {
+		isOpen.value = state;
+	};
+
+	const showToast = (message: string, style: string, icon: any) => {
+		toast.value.message = message;
+		toast.value.isOpen = true;
+		toast.value.class = style;
+		toast.value.icon = icon;
+		setOpen(true);
+	};
 
 	onMounted(async () => {
 		order.value = route.query;
@@ -547,6 +577,8 @@
 		};
 
 		await store.createCultiveResults(data, sensiblesValues, resistentesValues);
+
+		showToast("Cambios guradados exitosamnte!", "creado", checkboxOutline);
 	}
 
 	async function sendEmail() {
