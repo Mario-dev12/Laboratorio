@@ -713,7 +713,6 @@
 					id: ordersArray.value[index].idOrder,
 					status: "Pendiente de enviar",
 				};
-				console.log('llega', results)
 				await examsStore.createExamResults(results);
 				await ordersStore.updateStatusOrder(ordersArray.value[index].idOrder, data);
 			});
