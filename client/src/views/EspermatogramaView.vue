@@ -322,7 +322,6 @@
 		resultMotilidad.value = result.value.motilidad;
 		resultMorfologia.value = result.value.morfologia;
 		resultTestEosina.value = result.value.test_eosina;
-		console.log('llega', resultMorfologia.value)
 	});
 
 	router.beforeEach(async (to, from, next) => {
