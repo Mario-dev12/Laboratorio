@@ -293,9 +293,12 @@
 		const profileNamesArray = profileName.orders.flatMap((order: { profiles: any[] }) =>
 			order.profiles.map((profile: { profileName: any }) => profile.profileName)
 		);
+		const filteredProfiles = profileNamesArray.filter((profileName: string | string[]) =>   
+			!profileName.includes('(Externo)') && !profileName.includes('(externo)')  
+		);   
 		router.push({
 			name: "Results2",
-			query: { profile: JSON.stringify(profileName), profileNames: JSON.stringify(profileNamesArray) },
+			query: { profile: JSON.stringify(profileName), profileNames: JSON.stringify(filteredProfiles) },
 		});
 	};
 

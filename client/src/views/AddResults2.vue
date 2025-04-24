@@ -34,6 +34,10 @@
 								<div class="d-inline fw-bold">CI:</div>
 								{{ order?.ci }}
 							</div>
+							<div v-if="order?.doctor" class="col">
+								<div class="d-inline fw-bold">Dr:</div>
+								{{ order?.doctor }}
+							</div>
 							<div class="col">
 								<div class="d-inline fw-bold">Edad:</div>
 								{{ order?.age }}
@@ -215,7 +219,6 @@
 		order.value = JSON.parse(order.value);
 		ordersArray.value = order.value.orders;
 		profileNamesOrdered = [];
-
 		profileNames = route.query.profileNames;
 		profileNames = JSON.parse(profileNames);
 		const primarySectionsStrings: string[] = [

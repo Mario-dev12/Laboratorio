@@ -10,4 +10,16 @@ boxServices.readBills = async (all, startDate, endDate) => {
     return await boxRepository.readBills(all, startDate, endDate)
 }
 
+boxServices.readDebt = async (all, startDate, endDate) => {
+    return await boxRepository.readDebt(all, startDate, endDate)
+}
+
+boxServices.createDebt = async (idExam, deuda_bs, deuda_dolar, tasa) => {  
+    return await boxRepository.createDebt(idExam, deuda_bs, deuda_dolar, tasa);  
+};
+
+boxServices.deleteDebt = async id => {
+    return await boxRepository.deleteDebt(id)
+}
+
 export default boxServices

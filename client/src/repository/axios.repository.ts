@@ -94,6 +94,13 @@ class AxiosRepository {
 		return response.data;
 	}
 
+	async getAllDebt<T>(domain: string, all: boolean, startDate: string, endDate: string): Promise<T[]> {
+		const response = await axios.get<T[]>(
+			`${import.meta.env.VITE_API_URL}/${domain}/deuda?all=${all}&startDate=${startDate}&endDate=${endDate}`
+		);
+		return response.data;
+	}
+
 	async getById<T>(domain: string, id: string | number): Promise<T> {
 		const response = await axios.get<T>(`${import.meta.env.VITE_API_URL}/${domain}/${id}`);
 		return response.data;

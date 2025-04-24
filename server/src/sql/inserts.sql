@@ -5,19 +5,21 @@ INSERT INTO provider (name) VALUES
 ('Lucía Torres'),  
 ('Pedro Sánchez');
 
-INSERT INTO users (ci, firstName, lastName, genre, age, address, phone, email) VALUES  
-('1234567', 'Juan', 'Pérez', 'M', 30, 'Calle Falsa 123, Ciudad X', '+5812345678', 'juanperez@gmail.com'),  
-('2345678', 'María', 'Gómez', 'F', 28, 'Avenida Siempre Viva 742, Ciudad Y', '', 'mariagomez@hotmail.com'),  
-('3456789', 'Carlos', 'Fernández', 'M', 35, 'Bulevar de los Sueños Rotos, Ciudad Z', '+5834598764', ''),  
-('4567890', 'Lucía', 'Torres', 'F', 22, 'Camino de la Libertad, Ciudad W', '', ''),  
-('5678901', 'Pedro', 'Sánchez', 'M', 40, 'Ruta del Progreso 99, Ciudad V', '', ''); 
+INSERT INTO users (ci, firstName, lastName, genre, age, address, phone, email, doctor) VALUES  
+('1234567', 'Juan', 'Pérez', 'M', 30, 'Calle Falsa 123, Ciudad X', '+5812345678', 'juanperez@gmail.com', 'Dr. José Ramirez'),  
+('2345678', 'María', 'Gómez', 'F', 28, 'Avenida Siempre Viva 742, Ciudad Y', '', 'mariagomez@hotmail.com', ''),  
+('3456789', 'Carlos', 'Fernández', 'M', 35, 'Bulevar de los Sueños Rotos, Ciudad Z', '+5834598764', '', ''),  
+('4567890', 'Lucía', 'Torres', 'F', 22, 'Camino de la Libertad, Ciudad W', '', '', ''),  
+('5678901', 'Pedro', 'Sánchez', 'M', 40, 'Ruta del Progreso 99, Ciudad V', '', '', ''),
+('9007644', 'Marco', 'Jimenez', 'M', 40, 'Ruta del Progreso 99, Ciudad V', '', '', 'Manuel Rengifo'); 
 
 INSERT INTO profile (name, cost_bs, cost_usd) VALUES 
 ('Perfil 20', '244,35', '5'),
 ('Uroanalisis', '244,35', '5'),
 ('Perfil Tiroideo', '244,35', '5'),
 ('Urocultivo y Antibiograma', '386,30', '5'),
-('Espermatograma', '386,30', '5');
+('Espermatograma', '386,30', '5'),
+('Vitamina B12 (Externo)', '386,30', '5');
 
 INSERT INTO restriction (idProfile, restriction) VALUES 
 (1, 'colesterol_hdl + colesterol_ldl = 150');
@@ -27,7 +29,8 @@ INSERT INTO exam (idUser, total_cost_bs, total_cost_usd) VALUES
 (2, '488,7', '10'),
 (3, '244,35', '5'),
 (4, '386,30', '5'),
-(5, '386,30', '5');
+(5, '386,30', '5'),
+(6, '488,7', '10');
 
 INSERT INTO orders (idExam, idProfile, status) VALUES 
 (1, 1, 'Pendiente por pasar'),
@@ -36,7 +39,9 @@ INSERT INTO orders (idExam, idProfile, status) VALUES
 (2, 2, 'Pendiente por pasar'),
 (3, 3, 'Pendiente por pasar'),
 (4, 4, 'Pendiente por pasar'),
-(5, 5, 'Pendiente por pasar');
+(5, 5, 'Pendiente por pasar'),
+(6, 1, 'Pendiente por pasar'),
+(6, 2, 'Pendiente por pasar');
 
 INSERT INTO payment_method (name) VALUES 
 ('Debito'),
@@ -49,7 +54,8 @@ INSERT INTO payment (idPayment_method, idExam, amount_bs, amount_usd, bank, phon
 (3, 2, '488,7', '10', '', '', 'Dolares'),
 (1, 3, '244,35', '5', 'Mercantil', '', 'Bolivares'),
 (2, 4, '386,30', '5', '', '', 'Dolares'),
-(2, 5, '386,30', '5', '', '', 'Dolares');
+(2, 5, '386,30', '5', '', '', 'Dolares'),
+(2, 6, '244,35', '5', '', '', 'Dolares');
 
 INSERT INTO reactive (name, total) VALUES   
 ('Glucosa', 5),  
@@ -320,3 +326,6 @@ INSERT INTO resistente (idResultado, idAntibiotico) VALUES
 
 INSERT INTO resultado_espermatograma (idOrder, volumen, contaje, liquefaccion, ph, aspecto_macroscopico, hora_recoleccion, densidad, abstinencia, color, progresivo_rapido, progresivo_lento, no_progresivo, lento, normales, tapering, microcefalos, macrocefalo, leucocitos, hematies, celulas_epi, bacterias, mucina, cristales, vivos_moviles, vivos_inmoviles, muertos) VALUES 
 (7, '3.5 ml', '50 millones/ml', 'Normal', '7.5', 'Opaco', '10:00 am', '1.2', '3 días', 'Blanco', '40%', '30%', '20%', '10%', '60%', '5%', '3%', '2%', '1 millón/ml', '0', '2 células/ml', '0', '0', '0', '30 millones', '10 millones', '5 millones');
+
+INSERT INTO deuda (idExam, deuda_bs, deuda_dolar, tasa) VALUES 
+(6, '244,35', '5', '48,87');

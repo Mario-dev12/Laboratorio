@@ -24,6 +24,10 @@
 								<div class="d-inline fw-bold">CI:</div>
 								{{ profile?.ci }}
 							</div>
+							<div v-if="profile?.doctor" class="col">
+								<div class="d-inline fw-bold">Dr:</div>
+								{{ profile?.doctor }}
+							</div>
 							<div class="col">
 								<div class="d-inline fw-bold">Edad:</div>
 								{{ profile?.age }}
@@ -318,7 +322,6 @@
 		resultMotilidad.value = result.value.motilidad;
 		resultMorfologia.value = result.value.morfologia;
 		resultTestEosina.value = result.value.test_eosina;
-		console.log('llega', resultMorfologia.value)
 	});
 
 	router.beforeEach(async (to, from, next) => {
@@ -607,5 +610,20 @@
 	.sello-img {
 		height: 50px;
 		width: 150px;
+	}
+
+	ion-toast.creado {
+		--background: rgb(0, 204, 0);
+		--color: #323232;
+	}
+
+	ion-toast.borrar {
+		--background: rgb(229, 0, 0);
+		--color: #323232;
+	}
+
+	ion-toast.warning {
+		--background: rgb(219, 248, 0);
+		--color: #323232;
 	}
 </style>

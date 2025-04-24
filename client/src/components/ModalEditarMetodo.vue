@@ -209,7 +209,7 @@
                 <a class="a-class" style="padding-bottom: 5px;" v-if="!esMontoEquivalente && isFormValid" @click="agregarMetodoPago">+ Nuevo Método de Pago</a>  
 
                 <ion-footer>  
-                    <ion-button expand="full" type="submit" :disabled="!esMontoEquivalente">Añadir Métodos de Pago</ion-button>  
+                    <ion-button expand="full" type="submit">Añadir Métodos de Pago</ion-button>  
                 </ion-footer>  
             </form>  
         </ion-content>  
