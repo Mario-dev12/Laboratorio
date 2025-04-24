@@ -58,6 +58,12 @@
 							<input class="col w-auto" type="text" placeholder="Ingrese Numero Telefónico" v-model="user.phone" />
 						</div>
 					</div>
+					<div class="col-12 mb-2">
+						<div class="row w-100 m-auto">
+							<label class="col align-content-center p-0" for="Doctor">Doctor</label>
+							<input class="col w-auto" type="text" placeholder="Doctor" v-model="user.doctor" />
+						</div>
+					</div>
 				</div>
 			</div>
 			<div class="bg-dark-subtle container p-3 rounded mt-3">
@@ -102,11 +108,35 @@
 				<div class="row w-100 m-auto">
 					<div class="col-12">
 						<div class="row w-100 m-auto">
-							<label class="col align-content-center p-0" for="examen">Tipo de Examen:</label>
-							<select class="col p-1" name="examen" id="examen" v-model="tipoDeExamen" @change="agregarExamen()">
-								<option value="">Seleccionar</option>
-								<option v-for="profile in profiles" :key="profile.idProfile" :value="profile.name">{{ profile.name }}</option>
-							</select>
+							<label class="col align-content-center p-0" for="filterInput">Tipo de Examen:</label>
+							<div class="col p-1" style="position: relative;">
+								<input
+									id="filterInput"
+									type="text"
+									class="form-control"
+									v-model="filterText"
+									@focus="showDropdown = true"
+									@input="showDropdown = true"
+									placeholder="Seleccionar"
+									autocomplete="off" >
+								<button v-if="tipoDeExamen" @click="clearSelection" class="clear-button">x</button>
+
+
+								<ul v-if="showDropdown && (filteredProfiles.length > 0 || filterText)" class="dropdown-list">
+									<li
+										v-for="profile in filteredProfiles"
+										:key="profile.idProfile"
+										@click="selectProfile(profile)"
+										@mousedown.prevent >
+										{{ profile.name }}
+									</li>
+									<li v-if="filterText && filteredProfiles.length === 0" class="no-results">No hay perfiles con ese nombre</li>
+									<li v-if="tipoDeExamen && filteredProfiles.length === 0 && !filterText" @click="clearSelection" @mousedown.prevent class="clear-option">Clear Selection</li>
+								</ul>
+								<ul v-else-if="showDropdown && !filterText && profiles.length === 0" class="dropdown-list">
+									<li class="no-results">No hay perfiles con ese nombre</li>
+								</ul>
+							</div>
 						</div>
 					</div>
 				</div>
@@ -194,10 +224,10 @@
 </template>
 
 <script setup lang="ts">
-	import { ref, watch, onMounted } from "vue";
+	import { ref, watch, onMounted, computed } from "vue";
 	import { IonContent, IonPage, IonToast } from "@ionic/vue";
 	import { userStore } from "@/stores/userStore";
-	import { User, Exam, Order, Payment } from "@/interfaces/interfaces";
+	import { User, Exam, Order, Payment, Profile } from "@/interfaces/interfaces";
 	import ModalEditarMetodo from "@/components/ModalEditarMetodo.vue";
 	import { examStore } from "@/stores/examStore";
 	import { profileStore } from "@/stores/profileStore";
@@ -206,6 +236,8 @@
 	import { useRoute, useRouter } from "vue-router";
 	import { checkboxOutline } from "ionicons/icons";
 	import eventBus from "../eventBus";
+	import { boxStore } from "@/stores/boxStore";
+	
 
 	const tipoDeExamen = ref();
 	const pagoEnDivisas = ref();
@@ -233,6 +265,39 @@
 	const paymentData = ref();
 	const isOpen = ref(false);
 	const nuevoMontoDolar = ref<number | null>(null);
+	const filterText = ref('');
+	const showDropdown = ref(false);
+	const totalPagadoDolares = ref();
+	const totalPagadoBs = ref();
+	const boxsStore = boxStore();
+
+	const filteredProfiles = computed(() => {
+		if (!filterText.value) {
+			return profiles.value;
+		}
+		const lowerFilter = filterText.value.toLowerCase();
+		return profiles.value.filter((profile: { name: string; }) =>
+			profile.name.toLowerCase().includes(lowerFilter)
+		);
+	});
+
+	function selectProfile(profile: Profile) {
+		tipoDeExamen.value = profile.name;
+		filterText.value = profile.name;
+		showDropdown.value = false;
+		agregarExamen();
+		const inputElement = document.getElementById('filterInput') as HTMLInputElement;
+		if (inputElement) {
+		inputElement.blur();
+		}
+		filterText.value = ''
+	}
+
+	function clearSelection() {
+		tipoDeExamen.value = '';
+		filterText.value = '';
+		agregarExamen();
+	}
 
 	const user = ref({
 		id: 0,
@@ -244,6 +309,7 @@
 		procedencia: "",
 		email: "",
 		phone: "",
+		doctor: ""
 	});
 
 	const toast = ref({
@@ -266,6 +332,11 @@
 	};
 
 	const totales = ref({
+		totalBs: 0,
+		total$: 0,
+	});
+
+	const totalesRestantes = ref({
 		totalBs: 0,
 		total$: 0,
 	});
@@ -311,6 +382,7 @@
 		user.value.id = userData.value[0].idUser;
 		user.value.email = userData.value[0].email;
 		user.value.phone = userData.value[0].phone;
+		user.value.doctor = userData.value[0].doctor;
 		profiles.value = await profilesStore.fecthAllProfiles();
 		profiles.value = profiles.value.map((exam: { cost_bs: string; cost_usd: string }) => ({
 			...exam,
@@ -432,6 +504,7 @@
 				passport: 0,
 				email: user.value.email,
 				phone: user.value.phone,
+				doctor: user.value.doctor
 			};
 			await usersStore.updateUser(user.value.id, userBody);
 		}
@@ -537,6 +610,24 @@
 			}
 		}
 
+		let bs: number = 0;
+		let dolar: number = 0;
+
+		for (let i = 0; i < paymentData.value.length; i++) {
+			bs += Number(paymentData.value[i].amount_bs)
+			dolar += Number(paymentData.value[i].amount_usd)
+		}
+
+		if ((totales.value.total$ - dolar) !== 0 && (totales.value.totalBs - bs) !== 0){
+			const data = {
+				idExam: examenesSeleccionados.value[0].idExam,
+				deuda_bs: (totales.value.totalBs - bs).toFixed(2),
+				deuda_dolar: (totales.value.total$ - dolar).toFixed(2),
+				tasa: precioDolar.value
+			}
+			await boxsStore.createDebt(data)
+		}
+
 		showToast("Cambios Guardados Con Éxito", "creado", checkboxOutline);
 
 		await resetOrderData();
@@ -568,6 +659,11 @@
 			});
 		}
 		paymentData.value = resp;
+
+		if (!(totales.value.total$ === totalPagadoDolares.value) && !(totales.value.totalBs === totalPagadoBs.value)){
+			totalesRestantes.value.total$ = (totales.value.total$ - totalPagadoDolares.value)
+			totalesRestantes.value.totalBs = (totales.value.totalBs - totalPagadoBs.value)
+		}
 		closeModal();
 	};
 
@@ -582,6 +678,7 @@
 			procedencia: "",
 			email: "",
 			phone: "",
+			doctor: ""
 		};
 		examenesSeleccionados.value = [];
 		metodoPagos.value = [];
@@ -622,5 +719,70 @@
 	ion-toast.warning {
 		--background: rgb(219, 248, 0);
 		--color: #323232;
+	}
+
+	.dropdown-list {
+		position: absolute;
+		top: 100%;
+		left: 0;
+		right: 0;
+		z-index: 1000;
+		border: 1px solid #ccc;
+		background-color: white;
+		list-style: none;
+		padding: 0;
+		margin: 0;
+		max-height: 300px;
+		overflow-y: auto;
+		box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+		border-radius: 4px;
+	}
+
+	.dropdown-list li {
+		padding: 8px 12px;
+		cursor: pointer;
+	}
+
+	.dropdown-list li:hover {
+		background-color: #f0f0f0;
+	}
+
+	.no-results, .clear-option {
+		font-style: italic;
+		color: #666;
+		padding: 8px 12px;
+	}
+	.clear-option {
+		cursor: pointer;
+		text-decoration: underline;
+	}
+
+
+	.form-control {
+		display: block;
+		width: 100%;
+		padding: 0.375rem 0.75rem;
+		font-size: 1rem;
+		line-height: 1.5;
+		color: #495057;
+		background-color: #fff;
+		background-clip: padding-box;
+		border: 1px solid #ced4da;
+		border-radius: 0.25rem;
+		transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+	}
+
+	.clear-button {
+		position: absolute;
+		right: 10px;
+		top: 50%;
+		transform: translateY(-50%);
+		background: none;
+		border: none;
+		cursor: pointer;
+		font-weight: bold;
+		color: #999;
+		padding: 0 5px;
+		z-index: 1001;
 	}
 </style>

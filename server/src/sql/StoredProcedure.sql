@@ -89,6 +89,7 @@ begin
 			'address', a.address,
 			'phone', a.phone,
 			'email', a.email,
+            'doctor', a.doctor,
 			'createdDate', a.createdDate,
             'modifiedDate', a.modifiedDate
 		)
@@ -480,6 +481,7 @@ begin
 			'address', a.address,
 			'phone', a.phone,
 			'email', a.email,
+            'doctor', a.doctor,
 			'createdDate', a.createdDate,
             'modifiedDate', a.modifiedDate
 		)
@@ -874,7 +876,8 @@ CREATE OR REPLACE FUNCTION sp_create_users(
 	p_age integer,
 	p_address character varying,
 	p_phone character varying,
-	p_email character varying)
+	p_email character varying,
+    p_doctor character varying)
     RETURNS json
     LANGUAGE 'plpgsql'
     COST 100
@@ -884,8 +887,8 @@ declare
 	v_id                                    integer;
 	v_returning_id                                 integer;
 begin
-		Insert into users(ci, passport, firstName, lastName, genre, age, address, phone, email) 
-		VALUES (p_ci, p_passport, p_firstName, p_lastName, p_genre, p_age, p_address, p_phone, p_email)
+		Insert into users(ci, passport, firstName, lastName, genre, age, address, phone, email, doctor) 
+		VALUES (p_ci, p_passport, p_firstName, p_lastName, p_genre, p_age, p_address, p_phone, p_email, p_doctor)
 		RETURNING iduser INTO v_returning_id;
 		return json_build_object('message', 'Inserción exitosa.', 
 								 'id', v_returning_id);
@@ -1310,7 +1313,8 @@ CREATE OR REPLACE FUNCTION sp_update_users(
 	p_age integer,
 	p_address character varying,
 	p_phone character varying,
-	p_email character varying)
+	p_email character varying,
+    p_doctor character varying)
     RETURNS json
     LANGUAGE 'plpgsql'
     COST 100
@@ -1326,12 +1330,13 @@ declare
 	v_address                              character varying;
 	v_phone                              character varying;
 	v_email                              character varying;
+    v_doctor                              character varying;
 	v_createdDate                       TIMESTAMP;
 	v_modifiedDate                      TIMESTAMP;
 	v_id                                    integer;
 begin
 	update users
-	set ci = p_ci, passport = p_passport, firstName = p_firstName, lastName = p_lastName, genre = p_genre, age = p_age, address = p_address, phone = p_phone, email = p_email, modifiedDate = now()
+	set ci = p_ci, passport = p_passport, firstName = p_firstName, lastName = p_lastName, genre = p_genre, age = p_age, address = p_address, phone = p_phone, email = p_email, doctor = p_doctor, modifiedDate = now()
 	where idusers = p_id;
 	select u.ci into v_ci from users u where idusers = p_id;
 	select u.passport into v_passport from users u where idusers = p_id;
@@ -1342,6 +1347,7 @@ begin
 	select u.address into v_address from users u where idusers = p_id;
 	select u.phone into v_phone from users u where idusers = p_id;
 	select u.email into v_email from users u where idusers = p_id;
+    select u.doctor into v_doctor from users u where idusers = p_id;
 	select u.createdDate into v_createdDate from users u where idusers = p_id;
 	select u.modifiedDate into v_modifiedDate from users u where idusers = p_id;
 	return json_build_object(
@@ -1355,6 +1361,7 @@ begin
 		'address', v_address,
 		'phone', v_phone,
 		'email', v_email,
+        'doctor', v_doctor,
 		'createdDate', v_createdDate,
 		'modifiedDate', v_modifiedDate
 	);
@@ -1519,6 +1526,7 @@ begin
 			'address', a.address,
 			'phone', a.phone,
 			'email', a.email,
+            'doctor', a.doctor,
 			'createdDate', a.createdDate,
             'modifiedDate', a.modifiedDate
 		)
@@ -1990,7 +1998,8 @@ BEGIN
             'genre', u.genre,  
             'age', u.age,  
             'phone', u.phone,  
-            'email', u.email,  
+            'email', u.email, 
+            'doctor', u.doctor, 
             'orders', jsonb_agg(  
                 jsonb_build_object(  
                     'idOrder', o.idOrder,  
@@ -2072,6 +2081,7 @@ BEGIN
             'age', u.age,  
             'phone', u.phone,  
             'email', u.email,  
+            'doctor', u.doctor,
             'orders', jsonb_agg(  
                 jsonb_build_object(  
                     'idOrder', o.idOrder,  
@@ -2138,6 +2148,7 @@ BEGIN
             'age', u.age,  
             'phone', u.phone,  
             'email', u.email,  
+            'doctor', u.doctor,
             'orders', jsonb_agg(  
                 jsonb_build_object(  
                     'idOrder', o.idOrder,  
@@ -2203,6 +2214,7 @@ BEGIN
             'age', u.age,  
             'phone', u.phone,  
             'email', u.email,  
+            'doctor', u.doctor,
             'createdDate', MIN(o.createdDate),  
             'modifiedDate', MAX(o.modifiedDate),  
             'orders', jsonb_agg(  
@@ -2279,6 +2291,7 @@ BEGIN
             'age', u.age,  
             'phone', u.phone,  
             'email', u.email,  
+            'doctor', u.doctor,
             'createdDate', MIN(o.createdDate), 
             'modifiedDate', MAX(o.modifiedDate),
             'orders', jsonb_agg(  
@@ -2339,7 +2352,8 @@ BEGIN
             'genre', u.genre,  
             'age', u.age,  
             'phone', u.phone,  
-            'email', u.email,  
+            'email', u.email, 
+            'doctor', u.doctor, 
             'createdDate', MIN(o.createdDate), 
             'modifiedDate', MAX(o.modifiedDate),
             'orders', jsonb_agg(  
@@ -3652,3 +3666,182 @@ BEGIN
     RETURN v_idResultado; 
 END;  
 $$ LANGUAGE plpgsql;
+
+CREATE OR REPLACE FUNCTION sp_find_all_debt(  
+    p_all boolean,  
+    p_startdate character varying,  
+    p_enddate character varying)  
+RETURNS json[]  
+LANGUAGE 'plpgsql'  
+COST 100  
+VOLATILE PARALLEL UNSAFE  
+AS $BODY$  
+
+DECLARE   
+    v_json_resp json[];  
+BEGIN  
+    IF p_all THEN   
+        SELECT array(  
+            SELECT jsonb_build_object(  
+                'idUser', s.idUser,  
+                'idDeuda', d.idDeuda,
+                'ci', s.ci,  
+                'passport', s.passport,  
+                'firstName', s.firstName,  
+                'lastName', s.lastName,  
+                'genre', s.genre,  
+                'age', s.age,  
+                'phone', s.phone,  
+                'email', s.email,  
+                'deuda_bs', d.deuda_bs,
+                'deuda_dolar', d.deuda_dolar,
+                'tasa', d.tasa,
+                'exams', jsonb_agg(  
+                    jsonb_build_object(  
+                        'idProfile', o.idProfile, 
+                        'idExam', e.idExam,  
+                        'examName', p.name,  
+                        'cost_bs', p.cost_bs,  
+                        'cost_usd', p.cost_usd,  
+                        'createdDate', e.createdDate,  
+                        'payments', (  
+                            SELECT jsonb_agg(  
+                                jsonb_build_object(  
+                                    'idPaymentMethod', m.idPayment_method,  
+                                    'PaymentMethodName', m.name,  
+                                    'amount_bs', pa.amount_bs,  
+                                    'amount_usd', pa.amount_usd,  
+                                    'bank', pa.bank,  
+                                    'phone', pa.phone,  
+                                    'type', pa.type  
+                                )  
+                            )  
+                            FROM payment pa  
+                            LEFT JOIN payment_method m ON pa.idPayment_method = m.idPayment_method  
+                            WHERE pa.idExam = e.idExam   
+                        )  
+                    )  
+                ),  
+                'totalCost_bs', SUM(CAST(replace(p.cost_bs, ',', '.') AS numeric)),  
+                'totalCost_usd', SUM(CAST(replace(p.cost_usd, ',', '.') AS numeric)),  
+                'payments', (  
+                    SELECT jsonb_agg(  
+                        jsonb_build_object(  
+                            'idPaymentMethod', m.idPayment_method,  
+                            'PaymentMethodName', m.name,  
+                            'amount_bs', pa.amount_bs,  
+                            'amount_usd', pa.amount_usd,  
+                            'bank', pa.bank,  
+                            'phone', pa.phone,  
+                            'type', pa.type  
+                        )  
+                    )  
+                    FROM payment pa  
+                    LEFT JOIN payment_method m ON pa.idPayment_method = m.idPayment_method  
+                    JOIN exam ex ON pa.idExam = ex.idExam   
+                    WHERE ex.idUser = s.idUser  
+                )  
+            )  
+            FROM orders o  
+            JOIN exam e ON o.idExam = e.idExam  
+            JOIN profile p ON o.idProfile = p.idProfile  
+            JOIN users s ON e.idUser = s.idUser  
+            JOIN deuda d ON d.idExam = e.idExam
+            GROUP BY s.idUser, d.idDeuda, s.ci, s.passport, s.firstName, s.lastName, s.genre, s.age, s.phone, s.email, d.deuda_bs, d.deuda_dolar, d.tasa  
+        ) ::json[] INTO v_json_resp;  
+      
+    ELSE    
+        SELECT array(  
+            SELECT jsonb_build_object(  
+                'idUser', s.idUser,  
+                'idDeuda', d.idDeuda,
+                'ci', s.ci,  
+                'passport', s.passport,  
+                'firstName', s.firstName,  
+                'lastName', s.lastName,  
+                'genre', s.genre,  
+                'age', s.age,  
+                'phone', s.phone,  
+                'email', s.email,  
+                'deuda_bs', d.deuda_bs,
+                'deuda_dolar', d.deuda_dolar,
+                'tasa', d.tasa,  
+                'exams', jsonb_agg(  
+                    jsonb_build_object(  
+                        'idProfile', o.idProfile,
+                        'idExam', e.idExam,  
+                        'examName', p.name,  
+                        'cost_bs', p.cost_bs,  
+                        'cost_usd', p.cost_usd,  
+                        'createdDate', e.createdDate,  
+                        'payments', (  
+                            SELECT jsonb_agg(  
+                                jsonb_build_object(  
+                                    'idPaymentMethod', m.idPayment_method,  
+                                    'PaymentMethodName', m.name,  
+                                    'amount_bs', pa.amount_bs,  
+                                    'amount_usd', pa.amount_usd,  
+                                    'bank', pa.bank,  
+                                    'phone', pa.phone,  
+                                    'type', pa.type  
+                                )  
+                            )  
+                            FROM payment pa  
+                            LEFT JOIN payment_method m ON pa.idPayment_method = m.idPayment_method  
+                            WHERE pa.idExam = e.idExam   
+                        )  
+                    )  
+                ),  
+                'totalCost_bs', SUM(CAST(replace(p.cost_bs, ',', '.') AS numeric)),  
+                'totalCost_usd', SUM(CAST(replace(p.cost_usd, ',', '.') AS numeric))  
+            )  
+            FROM orders o  
+            JOIN exam e ON o.idExam = e.idExam  
+            JOIN profile p ON o.idProfile = p.idProfile  
+            JOIN users s ON e.idUser = s.idUser 
+            JOIN deuda d ON d.idExam = e.idExam  
+            WHERE (p_startDate = '' OR e.createdDate >= p_startDate::timestamp with time zone)  
+            AND (p_endDate = '' OR e.createdDate <= p_endDate::timestamp with time zone)  
+            GROUP BY s.idUser, d.idDeuda, s.ci, s.passport, s.firstName, s.lastName, s.genre, s.age, s.phone, s.email, d.deuda_bs, d.deuda_dolar, d.tasa
+        ) ::json[] INTO v_json_resp;  
+    END IF;  
+
+    RETURN v_json_resp;  
+END;  
+$BODY$;  
+
+CREATE OR REPLACE FUNCTION sp_delete_debt(
+	p_id integer)
+    RETURNS character varying
+    LANGUAGE 'plpgsql'
+    COST 100
+    VOLATILE PARALLEL UNSAFE
+AS $BODY$
+begin
+	delete from deuda
+	where idDeuda = p_id;
+	return 'Se ha borrado la deuda correctamente';
+end;
+$BODY$;
+
+CREATE OR REPLACE FUNCTION sp_create_debt(
+	p_idexam integer,
+	p_deuda_bs character varying,
+    p_deuda_dolar character varying,
+    p_tasa character varying)
+    RETURNS json
+    LANGUAGE 'plpgsql'
+    COST 100
+    VOLATILE PARALLEL UNSAFE
+AS $BODY$
+declare
+	v_id                                    integer;
+	v_returning_id                                 integer;
+begin
+		Insert into deuda(idExam, deuda_bs, deuda_dolar, tasa) 
+		VALUES (p_idexam, p_deuda_bs, p_deuda_dolar, p_tasa)
+		RETURNING idDeuda INTO v_returning_id;
+		return json_build_object('message', 'Inserción exitosa.', 
+								 'id', v_returning_id);
+end;
+$BODY$;

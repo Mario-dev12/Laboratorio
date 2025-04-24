@@ -18,6 +18,7 @@ CREATE TABLE IF NOT EXISTS users
     address character varying(255) not null,
     phone character varying(255),
     email character varying(255),
+    doctor character varying(255),
     createdDate timestamp with time zone NOT NULL default now(),
     modifiedDate timestamp with time zone NOT NULL default now()
 );
@@ -239,4 +240,14 @@ CREATE TABLE IF NOT EXISTS resultado_espermatograma (
     muertos character varying(255),
     createdDate timestamp with time zone NOT NULL DEFAULT now(),  
     modifiedDate timestamp with time zone NOT NULL DEFAULT now()  
+);
+
+CREATE TABLE IF NOT EXISTS deuda (  
+    idDeuda SERIAL PRIMARY KEY, 
+    idExam integer NOT NULL references exam(idExam) ON DELETE CASCADE, 
+    deuda_bs character varying(255) not null,
+    deuda_dolar character varying(255) not null,
+    tasa character varying(255) not null,
+    createdDate TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),  
+    modifiedDate TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now()  
 );

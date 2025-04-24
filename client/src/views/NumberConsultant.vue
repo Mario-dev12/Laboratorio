@@ -149,18 +149,103 @@
 					</tfoot>
 				</table>
 			</div>
+			<div class="container mt-3">
+				<h2 class="text-center mb-4">Lista de Pago Pendiente</h2>
+
+				<div class="table-responsive" style="max-height: 400px; overflow-y: auto">
+					<table class="table table-striped">
+						<thead>
+							<tr>
+								<th>Nombre del Paciente</th>
+								<th>Documento Identidad</th>
+								<th>Género</th>
+								<th>Edad</th>
+								<th>Monto Bs</th>
+								<th>Monto $</th>
+								<th>Tasa</th>
+								<th>Exámen</th>
+								<th>Método de Pago</th>
+								<th>Acciones</th>
+							</tr>
+						</thead>
+						<tbody>
+							<tr v-for="income in debt" :key="income.idUser">
+								<td>{{ income.firstName }} {{ income.lastName }}</td>
+								<td>{{ income.ci ? income.ci : income.passport ? income.passport : "N/A" }}</td>
+								<td>{{ income.genre }}</td>
+								<td>{{ income.age }}</td>
+								<td>{{ income.deuda_bs }}</td>
+								<td>{{ income.deuda_dolar }}</td>
+								<td>{{ income.tasa }}</td>
+								<td>
+									<div v-for="exam in income.exams" :key="exam.idProfile">  
+										{{ exam.examName }}
+										<div>
+											{{ exam.cost_bs }} bs -
+											{{ exam.cost_usd }} $
+										</div>
+									</div> 
+								</td>
+								<td>
+									<div v-for="payment in income.payments" :key="payment.idPaymentMethod">  
+										{{ payment.PaymentMethodName }}
+										<div>
+											{{ payment.type }}
+										</div>
+										<div v-if="payment.bank">
+											Banco {{ payment.bank }}
+										</div>
+										<div v-if="payment.phone">
+											{{ payment.phone }}
+										</div>
+										{{ payment.amount_bs }} bs -
+										{{ payment.amount_usd }} $
+										<hr>
+									</div> 
+								</td>
+								<td>
+									<i class="fas fa-edit" style="cursor: pointer; margin-right: 10px" @click="abrirModal(income)"></i>
+								</td>
+							</tr>
+						</tbody>
+					</table>
+				</div>
+			</div>
+			<ModalAgregarMetodo
+					:isOpen="mostrarModal"
+					:totales="totales"
+					:precioDolar="precioDolar"
+					@update-precio-dolar="cambiarPrecioDolar($event)"
+					@close="closeModal"
+					@add="guardarMetodoPago" />
+
+			<ion-toast
+				:class="toast.class"
+				:icon="toast.icon"
+				:is-open="isOpen"
+				:message="toast.message"
+				duration="2000"
+				@didDismiss="setOpen(false)"
+				position="top">
+			</ion-toast>
 		</ion-content>
 	</ion-page>
 </template>
 
 <script setup lang="ts">
-	import { IonContent, IonPage } from "@ionic/vue";
+	import { IonContent, IonPage, IonToast } from "@ionic/vue";
 	import { boxStore } from "@/stores/boxStore";
 	import { onMounted, ref, watch } from "vue";
 	import { useRoute } from "vue-router";
+	import ModalAgregarMetodo from "@/components/ModalAgregarMetodo.vue";
+	import eventBus from '../eventBus';
+	import { Payment } from "@/interfaces/interfaces";
+	import { paymentStore } from "@/stores/paymentStore";
+	import { checkboxOutline } from "ionicons/icons";
 
 	const incomes = ref();
 	const bills = ref();
+	const debt = ref(); 
 	const totalBs = ref(0);
 	const totalDolares = ref(0);
 	const billsTotalBs = ref(0);
@@ -169,10 +254,43 @@
 	const startDate = ref("");
 	const endDate = ref(""); 
 	const route = useRoute();  
+	const mostrarModal = ref(false);
+	const totales = ref({
+		totalBs: 0,
+		total$: 0,
+	});
+	const precioDolar = ref(Number(localStorage.getItem("tasaDolar")) || 50);
+	const cambioDolar = ref(precioDolar.value);
+	const showChangeDolar = ref(false);
+	const metodoPagos = ref();
+	const totalPagadoDolares = ref();
+	const totalPagadoBs = ref();
+	const catchDebt = ref();
+	const paymentsStore = paymentStore();
+	const toast = ref({
+		isOpen: false,
+		message: "",
+		class: "",
+		icon: null,
+	});
+	const isOpen = ref(false);
+
+	const setOpen = (state: boolean) => {
+		isOpen.value = state;
+	};
+
+	const showToast = (message: string, style: string, icon: any) => {
+		toast.value.message = message;
+		toast.value.isOpen = true;
+		toast.value.class = style;
+		toast.value.icon = icon;
+		setOpen(true);
+	};
 
 	onMounted(async () => {
 		incomes.value = await boxsStore.fecthIncome(true, "", "");
 		bills.value = await boxsStore.fecthBills(true, "", "");
+		debt.value = await boxsStore.fecthDebt(true, "", "");
 		await totalAmountIncome();
 		await totalAmountBills();
 	});
@@ -180,7 +298,8 @@
 	const loadData = async () => {  
 		try {  
 			incomes.value = await boxsStore.fecthIncome(true, "", "");  
-			bills.value = await boxsStore.fecthBills(true, "", "");  
+			bills.value = await boxsStore.fecthBills(true, "", ""); 
+			debt.value = await boxsStore.fecthDebt(true, "", ""); 
 			await totalAmountIncome();  
 			await totalAmountBills();  
 		} catch (error) {  
@@ -189,9 +308,9 @@
 	};
 
 	watch(route, (to) => {  
-	if (to.name === "Caja") {  
-		loadData(); 
-	}  
+		if (to.name === "Caja") {  
+			loadData(); 
+		}  
 	}); 
 
 	async function totalAmountIncome() {  
@@ -225,6 +344,60 @@
 			alert("Ocurrió un error al buscar los datos.");  
 		}  
 	}  
+
+	const cambiarPrecioDolar = (nuevoPrecio: any) => {
+		const newPrice = Number(nuevoPrecio);
+		if (isNaN(nuevoPrecio) || nuevoPrecio === "") {
+			alert("Ingrese un valor válido");
+		} else {
+			precioDolar.value = newPrice;
+			cambioDolar.value = newPrice;
+			localStorage.setItem("tasaDolar", newPrice.toString());
+			totales.value.total$ = 0;
+			totales.value.totalBs = 0;
+			showChangeDolar.value = false;
+			eventBus.emit("precioActualizado", precioDolar.value)
+		}
+	};
+
+	const guardarMetodoPago = async (metodo: any) => {
+		metodoPagos.value = metodo;
+		totalPagadoDolares.value = 0;
+		totalPagadoBs.value = 0;
+		for (const payment of metodo) {
+			totalPagadoDolares.value += Number(payment.montoDolares);
+			totalPagadoBs.value += Number(payment.montoBolivares);
+		}
+		for (let i = 0; i < metodoPagos.value.length; i++) {
+			const paymentBody: Payment = {
+				idPayment_method: metodoPagos.value[i].idPayment_method,
+				amount_bs: metodoPagos.value[i].montoBolivares,
+				amount_usd: metodoPagos.value[i].montoDolares,
+				type: metodoPagos.value[i].tipo,
+				bank: metodoPagos.value[i].banco,
+				idExam: catchDebt.value.exams[0].idExam,
+				phone: metodoPagos.value[i].telefono,
+			};
+			await paymentsStore.createPayment(paymentBody);
+		}
+
+		await boxsStore.deleteDebt(catchDebt.value.idDeuda)
+		await loadData();
+		showToast("Deuda pagada Exitosamente!!", "creado", checkboxOutline);
+		closeModal();
+	};
+
+	const abrirModal = (income: any) => {
+		totales.value.total$ = parseFloat(income.deuda_dolar.replace(",", "."))
+		totales.value.totalBs = parseFloat(income.deuda_bs.replace(",", "."))
+		precioDolar.value = parseFloat(income.tasa.replace(",", "."))
+		catchDebt.value = income
+		mostrarModal.value = true;
+	};
+
+	const closeModal = () => {
+		mostrarModal.value = false;
+	};
 </script>
 
 <style scoped>
@@ -242,5 +415,20 @@
 
 	.balance-negativo {
 		color: red;
+	}
+
+	ion-toast.creado {
+		--background: rgb(0, 204, 0);
+		--color: #323232;
+	}
+
+	ion-toast.borrar {
+		--background: rgb(229, 0, 0);
+		--color: #323232;
+	}
+
+	ion-toast.warning {
+		--background: rgb(219, 248, 0);
+		--color: #323232;
 	}
 </style>
