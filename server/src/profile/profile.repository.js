@@ -247,6 +247,24 @@ profileRepository.createProfile = async (name, cost_bs, cost_usd) => {
 	}
 };
 
+profileRepository.createAntibiotics = async (name) => {
+	try {
+		const resp = await pool.query(`SELECT * FROM insertar_antibiotico('${name}')`);
+		return resp.rows[0].insertar_antibiotico;
+	} catch (error) {
+		throw error;
+	}
+};
+
+profileRepository.createBacterium = async (name) => {
+	try {
+		const resp = await pool.query(`SELECT * FROM insertar_bacteria('${name}')`);
+		return resp.rows[0].insertar_bacteria;
+	} catch (error) {
+		throw error;
+	}
+};
+
 profileRepository.createInputsInProfile = async (idProfile, inputs) => {
 	try {
 		const formattedInputs = `{${inputs.join(",")}}`;
@@ -340,6 +358,28 @@ profileRepository.updateProfile = async (id, answer) => {
 	}
 };
 
+profileRepository.updateAntibiotics = async (id, answer) => {
+	try {
+		const resp = await pool.query(
+			`SELECT * FROM sp_update_antibiotics(${id}, '${answer.name}')`
+		);
+		return resp.rows[0].sp_update_antibiotics;
+	} catch (error) {
+		throw error;
+	}
+};
+
+profileRepository.updateBacterium = async (id, answer) => {
+	try {
+		const resp = await pool.query(
+			`SELECT * FROM sp_update_bacterium(${id}, '${answer.name}')`
+		);
+		return resp.rows[0].sp_update_bacterium;
+	} catch (error) {
+		throw error;
+	}
+};
+
 profileRepository.updateCultive = async (id, answer) => {
 	try {
 		const resp = await pool.query(
@@ -373,6 +413,24 @@ profileRepository.deleteProfile = async (id) => {
 	try {
 		const resp = await pool.query(`SELECT * FROM sp_delete_profile(${id})`);
 		return resp.rows[0].sp_delete_profile;
+	} catch (error) {
+		throw error;
+	}
+};
+
+profileRepository.deleteAntibiotics = async (id) => {
+	try {
+		const resp = await pool.query(`SELECT * FROM sp_delete_antibiotics(${id})`);
+		return resp.rows[0].sp_delete_antibiotics;
+	} catch (error) {
+		throw error;
+	}
+};
+
+profileRepository.deleteBacterium = async (id) => {
+	try {
+		const resp = await pool.query(`SELECT * FROM sp_delete_bacterium(${id})`);
+		return resp.rows[0].sp_delete_bacterium;
 	} catch (error) {
 		throw error;
 	}

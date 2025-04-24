@@ -74,6 +74,14 @@ profileServices.createProfile = async (name, cost_bs, cost_usd) => {
     return await profileRepository.createProfile(name, cost_bs, cost_usd)
 }
 
+profileServices.createAntibiotics = async (name) => {
+    return await profileRepository.createAntibiotics(name)
+}
+
+profileServices.createBacterium = async (name) => {
+    return await profileRepository.createBacterium(name)
+}
+
 profileServices.createInputsInProfile = async (idProfile, inputs) => {
     return await profileRepository.createInputsInProfile(idProfile, inputs)
 }
@@ -111,6 +119,14 @@ profileServices.updateProfile = async (id, answer) => {
     return await profileRepository.updateProfile(id, answer)
 }
 
+profileServices.updateAntibiotics = async (id, answer) => {
+    return await profileRepository.updateAntibiotics(id, answer)
+}
+
+profileServices.updateBacterium = async (id, answer) => {
+    return await profileRepository.updateBacterium(id, answer)
+}
+
 profileServices.updateCultive = async (id, answer) => {
     return await profileRepository.updateCultive(id, answer)
 }
@@ -125,6 +141,14 @@ profileServices.updateInputsProfile = async (id, answer) => {
 
 profileServices.deleteProfile = async id => {
     return await profileRepository.deleteProfile(id)
+}
+
+profileServices.deleteAntibiotics = async id => {
+    return await profileRepository.deleteAntibiotics(id)
+}
+
+profileServices.deleteBacterium = async id => {
+    return await profileRepository.deleteBacterium(id)
 }
 
 profileServices.deleteCultive = async id => {

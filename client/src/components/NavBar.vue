@@ -20,6 +20,10 @@
 						<ion-icon slot="start" :icon="flask"></ion-icon>
 						Reactivos
 					</ion-button>
+					<ion-button class="border-end border-secondary" @click="() => router.push({ name: 'Antibioticos' })">
+						<ion-icon slot="start" :icon="flask"></ion-icon>
+						Antibiotico
+					</ion-button>
 					<ion-button class="border-end border-secondary" @click="() => router.push({ name: 'CrearOrden' })">
 						<ion-icon slot="start" :icon="document"></ion-icon>
 						Crear Orden
@@ -91,6 +95,10 @@
 					<ion-button fill="clear" class="" @click="() => router.push({ name: 'Reactivos' })">
 						<ion-icon slot="start" :icon="flask"></ion-icon>
 						Reactivos
+					</ion-button>
+					<ion-button fill="clear" class="" @click="() => router.push({ name: 'Antibioticos' })">
+						<ion-icon slot="start" :icon="flask"></ion-icon>
+						Antibiotico
 					</ion-button>
 					<ion-button fill="clear" @click="() => router.push({ name: 'CrearOrden' })">
 						<ion-icon slot="start" :icon="document"></ion-icon>
