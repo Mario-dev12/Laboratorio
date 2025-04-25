@@ -6,10 +6,10 @@
 					<div class="header">
 						<div class="row">
 							<div class="col text-center">
-								<img src="/images/laboratorio.png" alt="" style="width: 55%;" />
+								<img src="/images/laboratorio.png" alt="" style="width: 55%" />
 							</div>
 							<div class="col text-center">
-								<img src="/images/direccion.png" alt="" style="width: 80%;" />
+								<img src="/images/direccion.png" alt="" style="width: 80%" />
 							</div>
 						</div>
 					</div>
@@ -306,7 +306,7 @@
 
 	router.beforeEach(async (to, from, next) => {
 		if (to.name === "UroResults") {
-			order.value = route.query;
+			order.value = to.query;
 			profile.value = JSON.parse(order.value.profile);
 			profileNames.value = JSON.parse(order.value.profileNames);
 			germs.value = await store.fecthBacterium();
