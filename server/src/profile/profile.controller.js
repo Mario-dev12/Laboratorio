@@ -189,6 +189,24 @@ profileController.createProfile = async (req, res) => {
 	}
 };
 
+profileController.createAntibiotics = async (req, res) => {
+	try {
+		const answer = await profileServices.createAntibiotics(req.body.name);
+		res.send(201);
+	} catch (error) {
+		return res.status(400).send(error.stack);
+	}
+};
+
+profileController.createBacterium = async (req, res) => {
+	try {
+		const answer = await profileServices.createBacterium(req.body.name);
+		res.send(201);
+	} catch (error) {
+		return res.status(400).send(error.stack);
+	}
+};
+
 profileController.createInputsInProfile = async (req, res) => {
 	try {
 		const answer = await profileServices.createInputsInProfile(req.body.data, req.body.inputs);
@@ -297,6 +315,28 @@ profileController.updateProfile = async (req, res) => {
 	}
 };
 
+profileController.updateAntibiotics = async (req, res) => {
+	const { id } = req.params;
+
+	try {
+		const answer = await profileServices.updateAntibiotics(id, req.body);
+		res.send(answer);
+	} catch (error) {
+		return res.status(400).send(error.message);
+	}
+};
+
+profileController.updateBacterium = async (req, res) => {
+	const { id } = req.params;
+
+	try {
+		const answer = await profileServices.updateBacterium(id, req.body);
+		res.send(answer);
+	} catch (error) {
+		return res.status(400).send(error.message);
+	}
+};
+
 profileController.updateCultive = async (req, res) => {
 	const { id } = req.params;
 
@@ -340,6 +380,30 @@ profileController.deleteProfile = async (req, res) => {
 		return res.status(400).send(error.stack);
 	}
 };
+
+profileController.deleteAntibiotics = async (req, res) => {
+	const { id } = req.params;
+
+	try {
+		const answer = await profileServices.deleteAntibiotics(id);
+		res.send(answer);
+	} catch (error) {
+		return res.status(400).send(error.stack);
+	}
+};
+
+
+profileController.deleteBacterium = async (req, res) => {
+	const { id } = req.params;
+
+	try {
+		const answer = await profileServices.deleteBacterium(id);
+		res.send(answer);
+	} catch (error) {
+		return res.status(400).send(error.stack);
+	}
+};
+
 
 profileController.deleteCultive = async (req, res) => {
 	const { id } = req.params;

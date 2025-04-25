@@ -190,6 +190,16 @@ class AxiosRepository {
 		return response.data;
 	}
 
+	async createAntibiotics<T>(domain: string, data: T): Promise<T> {
+		const response = await axios.post<T>(`${import.meta.env.VITE_API_URL}/${domain}/antibiotics`, data);
+		return response.data;
+	}
+
+	async createBacterium<T>(domain: string, data: T): Promise<T> {
+		const response = await axios.post<T>(`${import.meta.env.VITE_API_URL}/${domain}/bacterium`, data);
+		return response.data;
+	}
+
 	async createExamResults<T>(domain: string, data: T): Promise<T> {
 		const response = await axios.post<T>(`${import.meta.env.VITE_API_URL}/${domain}/results`, data);
 		return response.data;
@@ -273,6 +283,16 @@ class AxiosRepository {
 		return response.data;
 	}
 
+	async updateAntibiotics<T>(domain: string, id: string | number | undefined, data: T): Promise<T> {
+		const response = await axios.put<T>(`${import.meta.env.VITE_API_URL}/${domain}/antibiotics/${id}`, data);
+		return response.data;
+	}
+
+	async updateBacterium<T>(domain: string, id: string | number | undefined, data: T): Promise<T> {
+		const response = await axios.put<T>(`${import.meta.env.VITE_API_URL}/${domain}/bacterium/${id}`, data);
+		return response.data;
+	}
+
 	async updateCultive<T>(domain: string, id: string | number | undefined, data: T): Promise<T> {
 		const response = await axios.put<T>(`${import.meta.env.VITE_API_URL}/${domain}/cultive/${id}`, data);
 		return response.data;
@@ -295,6 +315,14 @@ class AxiosRepository {
 
 	async delete(domain: string, id: string | number): Promise<void> {
 		await axios.delete(`${import.meta.env.VITE_API_URL}/${domain}/${id}`);
+	}
+
+	async deleteAntibiotics(domain: string, id: string | number): Promise<void> {
+		await axios.delete(`${import.meta.env.VITE_API_URL}/${domain}/antibiotics/${id}`);
+	}
+
+	async deleteBacterium(domain: string, id: string | number): Promise<void> {
+		await axios.delete(`${import.meta.env.VITE_API_URL}/${domain}/bacterium/${id}`);
 	}
 
 	async deleteCultive(domain: string, id: string | number): Promise<void> {

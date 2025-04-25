@@ -109,6 +109,16 @@ export const profileStore = defineStore("profile", {
 			this.profiles = response;
 			return this.profiles;
 		},
+		async createAntibiotics(exam: any) {
+			const response = await axiosRepository.createAntibiotics<Profile>("profile", exam);
+			this.profiles = response;
+			return this.profiles;
+		},
+		async createBacteria(exam: any) {
+			const response = await axiosRepository.createBacterium<Profile>("profile", exam);
+			this.profiles = response;
+			return this.profiles;
+		},
 		async createInputsInProfile(exam: any, inputs: any) {
 			const response = await axiosRepository.createInputsInProfile<Profile>("profile", exam, inputs);
 			this.profiles = response;
@@ -154,6 +164,16 @@ export const profileStore = defineStore("profile", {
 			this.profiles = response;
 			return this.profiles;
 		},
+		async updateAntibiotics(id: string | number, data: any) {
+			const response = await axiosRepository.updateAntibiotics<Profile>("profile", id, data);
+			this.profiles = response;
+			return this.profiles;
+		},
+		async updateBacterium(id: string | number, data: any) {
+			const response = await axiosRepository.updateBacterium<Profile>("profile", id, data);
+			this.profiles = response;
+			return this.profiles;
+		},
 		async updateCultive(id: string | number, data: Profile) {
 			const response = await axiosRepository.updateCultive<Profile>("profile", id, data);
 			this.profiles = response;
@@ -171,6 +191,12 @@ export const profileStore = defineStore("profile", {
 		},
 		async deleteProfile(id: string | number) {
 			await axiosRepository.delete("profile", id);
+		},
+		async deleteAntibiotics(id: string | number) {
+			await axiosRepository.deleteAntibiotics("profile", id);
+		},
+		async deleteBacterium(id: string | number) {
+			await axiosRepository.deleteBacterium("profile", id);
 		},
 		async deleteCultive(id: string | number) {
 			await axiosRepository.deleteCultive("profile", id);

@@ -101,6 +101,20 @@ export interface Provider {
 	modifieddate: any;
 }
 
+export interface Antibiotics {
+	idAntibiotico: number;
+	name: string;
+	createddate: any;
+	modifieddate: any;
+}
+
+export interface Bacteria {
+	idBacteria: number;
+	name: string;
+	createddate: any;
+	modifieddate: any;
+}
+
 export interface Restriction {
 	idrestriction: number;
 	idProfile: number;

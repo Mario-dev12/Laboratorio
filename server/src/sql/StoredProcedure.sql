@@ -3845,3 +3845,115 @@ begin
 								 'id', v_returning_id);
 end;
 $BODY$;
+
+CREATE OR REPLACE FUNCTION insertar_bacteria(nombre_bacteria character varying)  
+RETURNS INTEGER AS $$  
+DECLARE  
+    nuevo_id INTEGER;  
+BEGIN  
+    INSERT INTO bacteria (nombre)   
+    VALUES (nombre_bacteria)   
+    RETURNING idBacteria INTO nuevo_id;  
+
+    RETURN nuevo_id;  
+END;  
+$$ LANGUAGE plpgsql;
+
+CREATE OR REPLACE FUNCTION insertar_antibiotico(nombre_antibiotico character varying)  
+RETURNS INTEGER AS $$  
+DECLARE  
+    nuevo_id INTEGER;  
+BEGIN  
+    INSERT INTO antibiotico (nombre)   
+    VALUES (nombre_antibiotico)   
+    RETURNING idAntibiotico INTO nuevo_id;  
+
+    RETURN nuevo_id;  
+END;  
+$$ LANGUAGE plpgsql;
+
+CREATE OR REPLACE FUNCTION sp_update_antibiotics(
+	p_id integer,
+	p_name character varying)
+    RETURNS json
+    LANGUAGE 'plpgsql'
+    COST 100
+    VOLATILE PARALLEL UNSAFE
+AS $BODY$
+declare
+	v_name                              character varying;
+	v_createdDate                       TIMESTAMP;
+	v_modifiedDate                      TIMESTAMP;
+	v_id                                    integer;
+begin
+	update antibiotico
+	set nombre = p_name, modifiedDate = now()
+	where idAntibiotico = p_id;
+	select u.nombre into v_name from antibiotico u where idAntibiotico = p_id;
+	select u.createdDate into v_createdDate from antibiotico u where idAntibiotico = p_id;
+	select u.modifiedDate into v_modifiedDate from antibiotico u where idAntibiotico = p_id;
+	return json_build_object(
+		'idAntibiotico', p_id,
+		'name', v_name,
+		'createdDate', v_createdDate,
+		'modifiedDate', v_modifiedDate
+	);
+end;
+$BODY$;
+
+CREATE OR REPLACE FUNCTION sp_update_bacterium(
+	p_id integer,
+	p_name character varying)
+    RETURNS json
+    LANGUAGE 'plpgsql'
+    COST 100
+    VOLATILE PARALLEL UNSAFE
+AS $BODY$
+declare
+	v_name                              character varying;
+	v_createdDate                       TIMESTAMP;
+	v_modifiedDate                      TIMESTAMP;
+	v_id                                    integer;
+begin
+	update bacteria
+	set nombre = p_name, modifiedDate = now()
+	where idBacteria = p_id;
+	select u.nombre into v_name from bacteria u where idBacteria = p_id;
+	select u.createdDate into v_createdDate from bacteria u where idBacteria = p_id;
+	select u.modifiedDate into v_modifiedDate from bacteria u where idBacteria = p_id;
+	return json_build_object(
+		'idBacteria', p_id,
+		'name', v_name,
+		'createdDate', v_createdDate,
+		'modifiedDate', v_modifiedDate
+	);
+end;
+$BODY$;
+
+CREATE OR REPLACE FUNCTION sp_delete_antibiotics(
+	p_id integer)
+    RETURNS character varying
+    LANGUAGE 'plpgsql'
+    COST 100
+    VOLATILE PARALLEL UNSAFE
+AS $BODY$
+begin
+	delete from antibiotico
+	where idAntibiotico = p_id;
+	return 'Se ha borrado el antibiotico correctamente';
+end;
+$BODY$;
+
+CREATE OR REPLACE FUNCTION sp_delete_bacterium(
+	p_id integer)
+    RETURNS character varying
+    LANGUAGE 'plpgsql'
+    COST 100
+    VOLATILE PARALLEL UNSAFE
+AS $BODY$
+begin
+	delete from bacteria
+	where idBacteria = p_id;
+	return 'Se ha borrado la bacteria correctamente';
+end;
+$BODY$;

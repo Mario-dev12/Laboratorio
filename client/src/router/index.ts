@@ -14,6 +14,7 @@ import AddResults2 from "@/views/AddResults2.vue";
 import UrocultivoResults from "@/views/UrocultivoResults.vue";
 import EditCultive from "@/views/EditCultive.vue";
 import EspermatogramaView from "@/views/EspermatogramaView.vue";
+import Antibiotics from "@/views/Antibiotics.vue";
 
 const routes: Array<RouteRecordRaw> = [
 	{
@@ -89,6 +90,11 @@ const routes: Array<RouteRecordRaw> = [
 		path: "/espermatograma",
 		name: "Espermatograma",
 		component: EspermatogramaView,
+	},
+	{
+		path: "/antibioticos",
+		name: "Antibioticos",
+		component: Antibiotics,
 	},
 ];
 

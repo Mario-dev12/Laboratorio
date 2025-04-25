@@ -51,8 +51,14 @@ profileRouter.post("/spermiogram/results", profileController.createSpermiogramRe
 
 //Antibiotics
 profileRouter.get("/antibiotics", profileController.readAntibiotics);
+profileRouter.post("/antibiotics", profileController.createAntibiotics);
+profileRouter.put("/antibiotics/:id", profileController.updateAntibiotics);
+profileRouter.delete("/antibiotics/:id", profileController.deleteAntibiotics);
 
 //Bacterium
 profileRouter.get("/bacterium", profileController.readBacterium);
+profileRouter.post("/bacterium", profileController.createBacterium);
+profileRouter.put("/bacterium/:id", profileController.updateBacterium);
+profileRouter.delete("/bacterium/:id", profileController.deleteBacterium);
 
 export default profileRouter;

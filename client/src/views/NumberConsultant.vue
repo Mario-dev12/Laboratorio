@@ -241,7 +241,7 @@
 	import eventBus from '../eventBus';
 	import { Payment } from "@/interfaces/interfaces";
 	import { paymentStore } from "@/stores/paymentStore";
-	import { checkboxOutline } from "ionicons/icons";
+	import { checkboxOutline, alertCircleOutline } from "ionicons/icons";
 
 	const incomes = ref();
 	const bills = ref();
@@ -368,23 +368,28 @@
 			totalPagadoDolares.value += Number(payment.montoDolares);
 			totalPagadoBs.value += Number(payment.montoBolivares);
 		}
-		for (let i = 0; i < metodoPagos.value.length; i++) {
-			const paymentBody: Payment = {
-				idPayment_method: metodoPagos.value[i].idPayment_method,
-				amount_bs: metodoPagos.value[i].montoBolivares,
-				amount_usd: metodoPagos.value[i].montoDolares,
-				type: metodoPagos.value[i].tipo,
-				bank: metodoPagos.value[i].banco,
-				idExam: catchDebt.value.exams[0].idExam,
-				phone: metodoPagos.value[i].telefono,
-			};
-			await paymentsStore.createPayment(paymentBody);
-		}
+		if (catchDebt.value.deuda_bs.replace('.', ',') !== totalPagadoBs.value.toString().replace('.', ',') && catchDebt.value.deuda_dolar.replace('.', ',') !== totalPagadoDolares.value.toString().replace('.', ',')){
+			showToast("El monto ingresado es diferente al monto pendiente. Revise el monto", "warning", alertCircleOutline);
+			closeModal();
+		} else {
+			for (let i = 0; i < metodoPagos.value.length; i++) {
+				const paymentBody: Payment = {
+					idPayment_method: metodoPagos.value[i].idPayment_method,
+					amount_bs: metodoPagos.value[i].montoBolivares,
+					amount_usd: metodoPagos.value[i].montoDolares,
+					type: metodoPagos.value[i].tipo,
+					bank: metodoPagos.value[i].banco,
+					idExam: catchDebt.value.exams[0].idExam,
+					phone: metodoPagos.value[i].telefono,
+				};
+				await paymentsStore.createPayment(paymentBody);
+			}
 
-		await boxsStore.deleteDebt(catchDebt.value.idDeuda)
-		await loadData();
-		showToast("Deuda pagada Exitosamente!!", "creado", checkboxOutline);
-		closeModal();
+			await boxsStore.deleteDebt(catchDebt.value.idDeuda)
+			await loadData();
+			showToast("Deuda pagada Exitosamente!!", "creado", checkboxOutline);
+			closeModal();
+		}
 	};
 
 	const abrirModal = (income: any) => {
