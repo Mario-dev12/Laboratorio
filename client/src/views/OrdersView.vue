@@ -232,7 +232,7 @@
 			order.profiles.map((profile: { profileName: any }) => profile.profileName)
 		);
 		const filteredProfiles = profileNamesArray.filter((profileName: string | string[]) =>   
-			!profileName.includes('(Externo)') && !profileName.includes('(externo)')  
+			!profileName.includes('(Externo)') && !profileName.includes('(externo)') && !profileName.includes('(EXTERNO)')
 		);   
 
 		router.push({

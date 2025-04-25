@@ -548,9 +548,9 @@
 	async function sendEmail() {
 		const profileId = profile.value.orders[0].idOrder;
 		const emailData = {
-			to: "francorm007@gmail.com",
-			subject: "email test",
-			text: "prueba desde la app del laboratorio",
+			to: profile.value.email,
+			subject: "Resultados Exámenes",
+			text: "Adjunto los resultados de los exámenes. Por favor confirmar la llegada de este correo. Gracias de antemano",
 			attachment: pdfFileName.value,
 		};
 
@@ -571,11 +571,16 @@
 		};
 		await ordersStore.updateStatusOrder(profileId, data);
 		await generatePDFWithoutSignature();
-		const message = `Echa un vistazo a este PDF`;
-		const whatsappUrl = `https://web.whatsapp.com/send?phone=${profile.value.phone.substring(1)}&text=${encodeURIComponent(
-			message
-		)}`;
-		window.open(whatsappUrl, "_blank");
+		const message = `Adjuntos resultados del laboratorio`
+		if (!profile.value.phone || profile.value.phone === "" || profile.value.phone === undefined || profile.value.phone === null) {
+			const whatsappUrl = `https://web.whatsapp.com/send`;
+			window.open(whatsappUrl, "_blank");
+		} else {
+			const whatsappUrl = `https://web.whatsapp.com/send?phone=${profile.value.phone.substring(1)}&text=${encodeURIComponent(
+				message
+			)}`;
+			window.open(whatsappUrl, "_blank");
+		}
 	};
 
 	const enviarCorreo = async () => {
@@ -585,9 +590,9 @@
 			status: "Pendiente de imprimir",
 		};
 		await ordersStore.updateStatusOrder(profileId, data);
-		const recipientEmail = "mario12dev@gmail.com";
-		const subject = "Prueba";
-		const body = "Este es un correo de prueba.";
+		const recipientEmail = "labmadreemilia@gmail.com";
+		const subject = "Resultados Exámenes";
+		const body = "Adjunto los resultados de los exámenes. Por favor confirmar la llegada de este correo. Gracias de antemano";
 		const mailtoLink = `https://mail.google.com/mail/?view=cm&fs=1&to=${recipientEmail}&su=${encodeURIComponent(
 			subject
 		)}&body=${encodeURIComponent(body)}`;

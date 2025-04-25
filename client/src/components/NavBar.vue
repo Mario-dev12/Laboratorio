@@ -41,7 +41,7 @@
 						Caja
 					</ion-button>
 					<div class="d-flex align-items-center ms-2">
-						<h5 v-if="!showChangeDolar" class="text-success mb-0 fw-bold">Tasa Dolar: Bs: {{ precioDolar }}</h5>
+						<h6 v-if="!showChangeDolar" class="text-success mb-0 fw-bold">Dolar: Bs: {{ precioDolar }}</h6>
 						<input
 							v-if="showChangeDolar"
 							v-model.number="precioDolar"
@@ -117,7 +117,7 @@
 						Caja
 					</ion-button>
 					<div class="d-flex align-items-center justify-content-center">
-						<h5 v-if="!showChangeDolar" class="text-success mb-0 fw-bold">Tasa Dolar: Bs: {{ precioDolar }}</h5>
+						<h6 v-if="!showChangeDolar" class="text-success mb-0 fw-bold">Dolar: Bs: {{ precioDolar }}</h6>
 						<input
 							v-if="showChangeDolar"
 							v-model.number="precioDolar"
@@ -246,6 +246,7 @@
 
 	ion-button {
 		--color: black;
+		font-size: 12px;
 	}
 
 	ion-menu-button {
