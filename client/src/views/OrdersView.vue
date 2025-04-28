@@ -228,10 +228,17 @@
 	};
 
 	const openTabsView = (profileName: any) => {
-		const profileNamesArray = profileName.orders.flatMap((order: { profiles: any[] }) =>
+		/*const profileNamesArray = profileName.orders.flatMap((order: { profiles: any[] }) =>
 			order.profiles.map((profile: { profileName: any }) => profile.profileName)
-		);
-		const filteredProfiles = profileNamesArray.filter((profileName: string | string[]) =>   
+		);*/
+		const profileNamesArray2 = computed(() =>  
+			profileName.orders.flatMap((order: { profiles: any[]; }) =>  
+				order.profiles  
+				.filter((profile: { externo: any; }) => !profile.externo) 
+				.map((profile: { profileName: any; }) => profile.profileName)
+			)  
+		);  
+		const filteredProfiles = profileNamesArray2.value.filter((profileName: string | string[]) =>   
 			!profileName.includes('(Externo)') && !profileName.includes('(externo)') && !profileName.includes('(EXTERNO)')
 		);   
 

@@ -182,7 +182,7 @@ profileController.readSpermiogramResult = async (req, res) => {
 
 profileController.createProfile = async (req, res) => {
 	try {
-		const answer = await profileServices.createProfile(req.body.name, req.body.cost_bs, req.body.cost_usd);
+		const answer = await profileServices.createProfile(req.body.name, req.body.cost_bs, req.body.cost_usd, req.body.externo);
 		res.send(answer);
 	} catch (error) {
 		return res.status(400).send(error.stack);
@@ -231,6 +231,7 @@ profileController.createProfileInputs = async (req, res) => {
 			req.body.data.name,
 			req.body.data.cost_bs,
 			req.body.data.cost_usd,
+			req.body.data.externo,
 			req.body.inputs,
 			req.body.section
 		);
@@ -246,6 +247,7 @@ profileController.createCultive = async (req, res) => {
 			req.body.data.name,
 			req.body.data.cost_bs,
 			req.body.data.cost_usd,
+			req.body.data.externo,
 			req.body.inputs
 		);
 		res.send(answer);

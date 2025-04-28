@@ -70,8 +70,8 @@ profileServices.readSpermiogramResult = async (id, name) => {
     return await profileRepository.readSpermiogramResult(id, name)
 }
 
-profileServices.createProfile = async (name, cost_bs, cost_usd) => {
-    return await profileRepository.createProfile(name, cost_bs, cost_usd)
+profileServices.createProfile = async (name, cost_bs, cost_usd, externo) => {
+    return await profileRepository.createProfile(name, cost_bs, cost_usd, externo)
 }
 
 profileServices.createAntibiotics = async (name) => {
@@ -90,8 +90,8 @@ profileServices.createInputs = async (idProfile, inputs) => {
     return await profileRepository.createInputs(idProfile, inputs)
 }
 
-profileServices.createProfileInputs = async (name, cost_bs, cost_usd, inputs, section) => {
-    return await profileRepository.createProfileInputs(name, cost_bs, cost_usd, inputs, section)
+profileServices.createProfileInputs = async (name, cost_bs, cost_usd, externo, inputs, section) => {
+    return await profileRepository.createProfileInputs(name, cost_bs, cost_usd, externo, inputs, section)
 }
 
 profileServices.createCultiveResult = async (idOrder, idBacteria, contaje, observacion, sensibles, resistentes) => {
@@ -102,8 +102,8 @@ profileServices.createSpermiogramResult = async (id, answer) => {
     return await profileRepository.createSpermiogramResult(id, answer)
 }
 
-profileServices.createCultive = async (name, cost_bs, cost_usd) => {
-    return await profileRepository.createCultive(name, cost_bs, cost_usd)
+profileServices.createCultive = async (name, cost_bs, cost_usd, externo) => {
+    return await profileRepository.createCultive(name, cost_bs, cost_usd, externo)
 }
 
 profileServices.createProfileSection = async (idProfile, section) => {

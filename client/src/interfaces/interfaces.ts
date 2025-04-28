@@ -20,6 +20,7 @@ export interface Profile {
 	name: string;
 	cost_bs: string;
 	cost_usd: string;
+	externo: boolean;
 	createddate?: any;
 	modifieddate?: any;
 }

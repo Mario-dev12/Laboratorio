@@ -113,7 +113,8 @@ BEGIN
 			'idProfile', a.idProfile,  
 			'name', a.name,  
 			'cost_bs', a.cost_bs,  
-			'cost_usd', a.cost_usd,  
+			'cost_usd', a.cost_usd, 
+            'externo', a.externo, 
 			'createdDate', a.createdDate,  
 			'modifiedDate', a.modifiedDate  
 		)  
@@ -143,6 +144,7 @@ BEGIN
 			'name', a.name,  
 			'cost_bs', a.cost_bs,  
 			'cost_usd', a.cost_usd,  
+            'externo', a.externo,
 			'createdDate', a.createdDate,  
 			'modifiedDate', a.modifiedDate  
 		)  
@@ -898,7 +900,8 @@ $BODY$;
 CREATE OR REPLACE FUNCTION sp_create_profile(
 	p_name character varying,
 	p_cost_bs character varying,
-	p_cost_usd character varying)
+	p_cost_usd character varying,
+    p_externo boolean)
     RETURNS json
     LANGUAGE 'plpgsql'
     COST 100
@@ -908,8 +911,8 @@ declare
 	v_id                                    integer;
 	v_returning_id                                 integer;
 begin
-		Insert into profile(name, cost_bs, cost_usd) 
-		VALUES (p_name, p_cost_bs, p_cost_usd)
+		Insert into profile(name, cost_bs, cost_usd, externo) 
+		VALUES (p_name, p_cost_bs, p_cost_usd, p_externo)
 		RETURNING idProfile INTO v_returning_id;
 		return json_build_object('message', 'Inserción exitosa.', 
 								 'id', v_returning_id);
@@ -1195,7 +1198,8 @@ CREATE OR REPLACE FUNCTION sp_update_profile(
 	p_id integer,
 	p_name character varying,
 	p_cost_bs character varying,
-	p_cost_usd character varying)
+	p_cost_usd character varying,
+    p_externo boolean)
     RETURNS json
     LANGUAGE 'plpgsql'
     COST 100
@@ -1205,16 +1209,18 @@ declare
 	v_name                              character varying;
 	v_cost_bs                              character varying;
 	v_cost_usd                              character varying;
+    v_externo                              boolean;
 	v_createdDate                       TIMESTAMP;
 	v_modifiedDate                      TIMESTAMP;
 	v_id                                    integer;
 begin
 	update profile
-	set name = p_name, cost_bs = p_cost_bs, cost_usd = p_cost_usd, modifiedDate = now()
+	set name = p_name, cost_bs = p_cost_bs, cost_usd = p_cost_usd, externo = p_externo, modifiedDate = now()
 	where idProfile = p_id;
 	select u.name into v_name from profile u where idProfile = p_id;
 	select u.cost_bs into v_cost_bs from profile u where idProfile = p_id;
 	select u.cost_usd into v_cost_usd from profile u where idProfile = p_id;
+    select u.externo into v_externo from profile u where idProfile = p_id;
 	select u.createdDate into v_createdDate from profile u where idProfile = p_id;
 	select u.modifiedDate into v_modifiedDate from profile u where idProfile = p_id;
 	return json_build_object(
@@ -1222,6 +1228,7 @@ begin
 		'name', v_name,
 		'cost_bs', v_cost_bs,
 		'cost_usd', v_cost_usd,
+        'externo', v_externo,
 		'createdDate', v_createdDate,
 		'modifiedDate', v_modifiedDate
 	);
@@ -1906,7 +1913,8 @@ begin
             'idProfile', MIN(a.idProfile),
             'name', a.name,  
             'cost_bs', MIN(a.cost_bs),  
-            'cost_usd', MIN(a.cost_usd),   
+            'cost_usd', MIN(a.cost_usd),
+            'externo', MIN(a.externo),
             'createdDate', MIN(a.createdDate),  
             'modifiedDate', MIN(a.modifiedDate)  
         )  
@@ -2013,7 +2021,8 @@ BEGIN
                         SELECT jsonb_agg(  
                             jsonb_build_object(  
                                 'idProfile', p.idProfile,  
-                                'profileName', p.name  
+                                'profileName', p.name,
+                                'externo', p.externo 
                             )  
                         )  
                         FROM profile p  
@@ -2095,7 +2104,8 @@ BEGIN
                         SELECT jsonb_agg(  
                             jsonb_build_object(  
                                 'idProfile', p.idProfile,  
-                                'profileName', p.name  
+                                'profileName', p.name,
+                                'externo', p.externo   
                             )  
                         )  
                         FROM profile p  
@@ -2162,7 +2172,8 @@ BEGIN
                         SELECT jsonb_agg(  
                             jsonb_build_object(  
                                 'idProfile', p.idProfile,  
-                                'profileName', p.name  
+                                'profileName', p.name,
+                                'externo', p.externo   
                             )  
                         )  
                         FROM profile p  
@@ -2230,7 +2241,8 @@ BEGIN
                         SELECT jsonb_agg(  
                             jsonb_build_object(  
                                 'idProfile', p.idProfile,  
-                                'profileName', p.name  
+                                'profileName', p.name,
+                                'externo', p.externo   
                             )  
                         )  
                         FROM profile p  
@@ -2307,7 +2319,8 @@ BEGIN
                         SELECT jsonb_agg(  
                             jsonb_build_object(  
                                 'idProfile', p.idProfile,  
-                                'profileName', p.name  
+                                'profileName', p.name,
+                                'externo', p.externo   
                             )  
                         )  
                         FROM profile p  
@@ -2369,7 +2382,8 @@ BEGIN
                         SELECT jsonb_agg(  
                             jsonb_build_object(  
                                 'idProfile', p.idProfile,  
-                                'profileName', p.name  
+                                'profileName', p.name,
+                                'externo', p.externo   
                             )  
                         )  
                         FROM profile p  
