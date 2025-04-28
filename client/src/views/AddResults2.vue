@@ -916,11 +916,16 @@
 			await ordersStore.updateStatusOrder(orders.idOrder, data);
 		}
 		await generatePDF();
-		const message = `Echa un vistazo a este PDF`;
-		const whatsappUrl = `https://web.whatsapp.com/send?phone=${order.value.phone.substring(1)}&text=${encodeURIComponent(
-			message
-		)}`;
-		window.open(whatsappUrl, "_blank");
+		const message = `Adjuntos resultados del laboratorio`;
+		if (!order.value.phone || order.value.phone === "" || order.value.phone === undefined || order.value.phone === null){
+			const whatsappUrl = `https://web.whatsapp.com/send`;
+			window.open(whatsappUrl, "_blank");
+		} else {
+			const whatsappUrl = `https://web.whatsapp.com/send?phone=${order.value.phone.substring(1)}&text=${encodeURIComponent(
+				message
+			)}`;
+			window.open(whatsappUrl, "_blank");
+		}
 	};
 
 	const enviarCorreo = async () => {
@@ -931,9 +936,9 @@
 			};
 			await ordersStore.updateStatusOrder(orders.idOrder, data);
 		}
-		const recipientEmail = "mario12dev@gmail.com";
-		const subject = "Prueba";
-		const body = "Este es un correo de prueba.";
+		const recipientEmail = "labmadreemilia@gmail.com";
+		const subject = "Resultados Exámenes";
+		const body = "Adjunto los resultados de los exámenes. Por favor confirmar la llegada de este correo. Gracias de antemano";
 		const mailtoLink = `https://mail.google.com/mail/?view=cm&fs=1&to=${recipientEmail}&su=${encodeURIComponent(
 			subject
 		)}&body=${encodeURIComponent(body)}`;
@@ -942,9 +947,9 @@
 
 	async function sendEmail() {
 		const emailData = {
-			to: "francorm007@gmail.com",
-			subject: "email test",
-			text: "prueba desde la app del laboratorio",
+			to: order.value.email,
+			subject: "Resultados Exámenes",
+			text: "Adjunto los resultados de los exámenes. Por favor confirmar la llegada de este correo. Gracias de antemano",
 			attachment: pdfFileName.value,
 		};
 

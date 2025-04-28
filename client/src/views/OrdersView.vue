@@ -168,15 +168,25 @@
 					</div>
 				</div>
 			</div>
+			<ion-toast
+				:class="toast.class"
+				:icon="toast.icon"
+				:is-open="isOpen"
+				:message="toast.message"
+				duration="2000"
+				@didDismiss="setOpen(false)"
+				position="top">
+			</ion-toast>
 		</ion-content>
 	</ion-page>
 </template>
 
 <script setup lang="ts">
-	import { IonContent, IonPage } from "@ionic/vue";
+	import { IonContent, IonPage, IonToast } from "@ionic/vue";
 	import { onMounted, ref, computed } from "vue";
 	import { orderStore } from "@/stores/orderStore";
 	import { useRouter } from "vue-router";
+	import { checkboxOutline, alertCircleOutline } from "ionicons/icons";
 
 	const orders = ref();
 	const cultive = ref();
@@ -188,10 +198,12 @@
 	const profileNamesOrdered = ref(["Pruebas de Sangre", "Cultivos", "Espermatograma"]);
 	const showProfile = ref("");
 	const activeIndex = ref<number>(0);
+	const isOpen = ref(false);
 	const toast = ref({
 		isOpen: false,
 		message: "",
-		duration: 2000,
+		class: "",
+		icon: null,
 	});
 	const expandedOrder = ref<number | null>(null);
 
@@ -228,17 +240,28 @@
 	};
 
 	const openTabsView = (profileName: any) => {
-		const profileNamesArray = profileName.orders.flatMap((order: { profiles: any[] }) =>
+		/*const profileNamesArray = profileName.orders.flatMap((order: { profiles: any[] }) =>
 			order.profiles.map((profile: { profileName: any }) => profile.profileName)
-		);
-		const filteredProfiles = profileNamesArray.filter((profileName: string | string[]) =>   
-			!profileName.includes('(Externo)') && !profileName.includes('(externo)')  
+		);*/
+		const profileNamesArray2 = computed(() =>  
+			profileName.orders.flatMap((order: { profiles: any[]; }) =>  
+				order.profiles  
+				.filter((profile: { externo: any; }) => !profile.externo) 
+				.map((profile: { profileName: any; }) => profile.profileName)
+			)  
+		);  
+		const filteredProfiles = profileNamesArray2.value.filter((profileName: string | string[]) =>   
+			!profileName.includes('(Externo)') && !profileName.includes('(externo)') && !profileName.includes('(EXTERNO)')
 		);   
 
-		router.push({
-			name: "Results2",
-			query: { profile: JSON.stringify(profileName), profileNames: JSON.stringify(filteredProfiles) },
-		});
+		if (filteredProfiles.length === 0){
+			showToast("Los examenes son externos", "warning", checkboxOutline);
+		} else {
+			router.push({
+				name: "Results2",
+				query: { profile: JSON.stringify(profileName), profileNames: JSON.stringify(filteredProfiles) },
+			});
+		}
 	};
 
 	const openTabsView2 = (profileName: any) => {
@@ -294,14 +317,21 @@
 		});
 	});
 
-	const showToast = (message: string) => {
+	const setOpen = (state: boolean) => {
+		isOpen.value = state;
+	};
+
+	const showToast = (message: string, style: string, icon: any) => {
 		toast.value.message = message;
 		toast.value.isOpen = true;
+		toast.value.class = style;
+		toast.value.icon = icon;
+		setOpen(true);
 	};
 
 	const deleteOrder = async (id: number | string) => {
 		await ordersStore.deleteOrder(id);
-		showToast("Orden borrada correctamente");
+		showToast("Orden borrada correctamente", "creado", checkboxOutline);
 		orders.value = await ordersStore.fecthOrdersDay(true, "");
 		cultive.value = await ordersStore.fecthCultiveOrdersDay(true, "");
 		spermiogram.value = await ordersStore.fecthSpermiogramOrdersDay(true, "");
@@ -329,7 +359,7 @@
 			cultive.value = await ordersStore.fecthCultiveOrdersDay(false, formattedDate);
 			spermiogram.value = await ordersStore.fecthSpermiogramOrdersDay(false, formattedDate);
 		} else {
-			showToast("Por favor, selecciona una fecha.");
+			showToast("Por favor, selecciona una fecha.", "warning", checkboxOutline);
 		}
 	};
 
@@ -371,5 +401,20 @@
 
 	.bg-gray {
 		background-color: #dcd7c9;
+	}
+
+	ion-toast.creado {
+		--background: rgb(0, 204, 0);
+		--color: #323232;
+	}
+
+	ion-toast.borrar {
+		--background: rgb(229, 0, 0);
+		--color: #323232;
+	}
+
+	ion-toast.warning {
+		--background: rgb(219, 248, 0);
+		--color: #323232;
 	}
 </style>

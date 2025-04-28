@@ -100,6 +100,20 @@
 								ref="costoBsPerfilNuevo" />
 						</div>
 					</div>
+					<div class="w-100 m-auto row px-2 mb-3 mt-3">  
+						<label v-if="!update" class="col-12 p-0">  
+						  <input   
+							type="checkbox" 
+							v-model="externoNuevo"  
+							 /> Examen Externo  
+						</label>  
+						<label v-else class="col-12 p-0">  
+							<input   
+							  type="checkbox"   
+							  v-model="selectedPerfil.externo"
+							  ref="externoNuevo" /> Examen Externo  
+						  </label>  
+					  </div>  
 					<h1 class="mt-4 text-center">Secciones Del Perfil</h1>
 					<div class="secciones mt-4">
 						<div v-if="secciones.length === 0" class="text-center mt-3">No hay secciones para este perfil.</div>
@@ -327,6 +341,7 @@
 	const valorReferencial = ref();
 	const nombrePerfilNuevo = ref();
 	const costoBsPerfilNuevo = ref();
+	const externoNuevo = ref();
 	const costoDolaresPerfilNuevo = ref();
 	const crearCampo = ref(false);
 	const crearRestriccion = ref(false);
@@ -344,6 +359,7 @@
 	const tasa = ref<number>(parseFloat(localStorage.getItem("tasaDolar") || "1"));
 	const completarHematologia = ref();
 	const filtroNombre = ref(''); 
+	const examenExterno = ref(false);
 	const toast = ref({
 		isOpen: false,
 		message: "",
@@ -355,6 +371,7 @@
 		name: "",
 		cost_bs: "",
 		cost_usd: "",
+		externo: false
 	};
 
 	interface CampoNuevo {
@@ -766,6 +783,7 @@
 				dataPerfilNuevo.name = nombrePerfilNuevo.value.value;
 				dataPerfilNuevo.cost_usd = costoDolaresPerfilNuevo.value.value;
 				dataPerfilNuevo.cost_bs = costoBsPerfilNuevo.value.value;
+				dataPerfilNuevo.externo = externoNuevo.value;
 
 				if (secciones.value.length === 0) {
 					alert("El perfil debe contener al menos una sección.");

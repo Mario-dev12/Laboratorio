@@ -174,15 +174,25 @@
 					</div>
 				</div>
 			</div>  
+			<ion-toast
+				:class="toast.class"
+				:icon="toast.icon"
+				:is-open="isOpen"
+				:message="toast.message"
+				duration="2000"
+				@didDismiss="setOpen(false)"
+				position="top">
+			</ion-toast>
 		</ion-content>  
 	</ion-page>  
 </template>  
 
 <script setup lang="ts">  
-	import { IonContent, IonPage } from "@ionic/vue";  
+	import { IonContent, IonPage, IonToast } from "@ionic/vue";  
 	import { onMounted, ref, computed } from "vue";  
 	import { orderStore } from "@/stores/orderStore"; 
 	import { useRouter } from "vue-router"; 
+	import { checkboxOutline, alertCircleOutline } from "ionicons/icons";
 	  
 	const orders = ref(); 
 	const cultive = ref();   
@@ -195,6 +205,13 @@
 	const profileNamesOrdered = ref(["Pruebas de Sangre", "Cultivos", "Espermatograma"])
 	const showProfile = ref('');
 	const activeIndex = ref<number>(0);
+	const isOpen = ref(false);
+	const toast = ref({
+		isOpen: false,
+		message: "",
+		class: "",
+		icon: null,
+	});
 
 	onMounted(async () => {  
 		try {  
@@ -203,7 +220,7 @@
 			spermiogram.value = await ordersStore.fecthSpermiogramHistOrdersDay(); 
 			showProfile.value = 'Pruebas de Sangre'; 
 		} catch (error) {  
-			showToast("Error al cargar las órdenes");  
+			showToast("Error al cargar las órdenes", "warning", alertCircleOutline);  
 		} finally {  
 			isLoading.value = false;  
 		}  
@@ -269,12 +286,16 @@
 		});  
 	});   
 
-	const showToast = (message: string) => {  
-		const toast = document.createElement('ion-toast');  
-		toast.message = message;  
-		toast.duration = 2000;  
-		document.body.appendChild(toast);  
-		toast.present();  
+	const setOpen = (state: boolean) => {
+		isOpen.value = state;
+	};
+
+	const showToast = (message: string, style: string, icon: any) => {
+		toast.value.message = message;
+		toast.value.isOpen = true;
+		toast.value.class = style;
+		toast.value.icon = icon;
+		setOpen(true);
 	};
 
 	function formatearFecha(fecha: string | number | Date) {  
@@ -290,16 +311,28 @@
 	};
 
 	const openTabsView = (profileName: any) => {
-		const profileNamesArray = profileName.orders.flatMap((order: { profiles: any[] }) =>
+		/*const profileNamesArray = profileName.orders.flatMap((order: { profiles: any[] }) =>
 			order.profiles.map((profile: { profileName: any }) => profile.profileName)
-		);
-		const filteredProfiles = profileNamesArray.filter((profileName: string | string[]) =>   
-			!profileName.includes('(Externo)') && !profileName.includes('(externo)')  
+		);*/
+		const profileNamesArray2 = computed(() =>  
+			profileName.orders.flatMap((order: { profiles: any[]; }) =>  
+				order.profiles  
+				.filter((profile: { externo: any; }) => !profile.externo) 
+				.map((profile: { profileName: any; }) => profile.profileName)
+			)  
+		);  
+		const filteredProfiles = profileNamesArray2.value.filter((profileName: string | string[]) =>   
+			!profileName.includes('(Externo)') && !profileName.includes('(externo)') && !profileName.includes('(EXTERNO)')
 		);   
-		router.push({
-			name: "Results2",
-			query: { profile: JSON.stringify(profileName), profileNames: JSON.stringify(filteredProfiles) },
-		});
+
+		if (filteredProfiles.length === 0){
+			showToast("Los examenes son externos", "warning", checkboxOutline);
+		} else {
+			router.push({
+				name: "Results2",
+				query: { profile: JSON.stringify(profileName), profileNames: JSON.stringify(filteredProfiles) },
+			});
+		}
 	};
 
 	const openTabsView2 = (profileName: any) => {
@@ -354,4 +387,19 @@
 	.bg-gray {  
 		background-color: #DCD7C9; 
 	}  
+
+	ion-toast.creado {
+		--background: rgb(0, 204, 0);
+		--color: #323232;
+	}
+
+	ion-toast.borrar {
+		--background: rgb(229, 0, 0);
+		--color: #323232;
+	}
+
+	ion-toast.warning {
+		--background: rgb(219, 248, 0);
+		--color: #323232;
+	}
 </style>

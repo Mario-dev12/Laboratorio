@@ -29,6 +29,7 @@ CREATE TABLE IF NOT EXISTS profile
     name character varying(255) not null,
     cost_bs character varying(255),
     cost_usd character varying(255),
+    externo boolean default false,
     createdDate timestamp with time zone NOT NULL default now(),
     modifiedDate timestamp with time zone NOT NULL default now()
 );

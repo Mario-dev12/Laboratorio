@@ -13,13 +13,13 @@ INSERT INTO users (ci, firstName, lastName, genre, age, address, phone, email, d
 ('5678901', 'Pedro', 'Sánchez', 'M', 40, 'Ruta del Progreso 99, Ciudad V', '', '', ''),
 ('9007644', 'Marco', 'Jimenez', 'M', 40, 'Ruta del Progreso 99, Ciudad V', '', '', 'Manuel Rengifo'); 
 
-INSERT INTO profile (name, cost_bs, cost_usd) VALUES 
-('Perfil 20', '244,35', '5'),
-('Uroanalisis', '244,35', '5'),
-('Perfil Tiroideo', '244,35', '5'),
-('Urocultivo y Antibiograma', '386,30', '5'),
-('Espermatograma', '386,30', '5'),
-('Vitamina B12 (Externo)', '386,30', '5');
+INSERT INTO profile (name, cost_bs, cost_usd, externo) VALUES 
+('Perfil 20', '244,35', '5', false),
+('Uroanalisis', '244,35', '5', false),
+('Perfil Tiroideo', '244,35', '5', false),
+('Urocultivo y Antibiograma', '386,30', '5', false),
+('Espermatograma', '386,30', '5', false),
+('Vitamina B12 (Externo)', '386,30', '5', true);
 
 INSERT INTO restriction (idProfile, restriction) VALUES 
 (1, 'colesterol_hdl + colesterol_ldl = 150');

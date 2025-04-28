@@ -237,9 +237,9 @@ profileRepository.readSpermiogramResult = async (id, name) => {
 	}
 };
 
-profileRepository.createProfile = async (name, cost_bs, cost_usd) => {
+profileRepository.createProfile = async (name, cost_bs, cost_usd, externo) => {
 	try {
-		const resp = await pool.query(`SELECT * FROM sp_create_profile('${name}', '${cost_bs}', '${cost_usd}')`);
+		const resp = await pool.query(`SELECT * FROM sp_create_profile('${name}', '${cost_bs}', '${cost_usd}', ${externo})`);
 		await createProfileResults(name);
 		return resp.rows[0].sp_create_profile;
 	} catch (error) {
@@ -285,9 +285,10 @@ profileRepository.createInputs = async (idProfile, inputs) => {
 	}
 };
 
-profileRepository.createProfileInputs = async (name, cost_bs, cost_usd, inputs, section) => {
+profileRepository.createProfileInputs = async (name, cost_bs, cost_usd, externo, inputs, section) => {
+	console.log('rrrrrr', externo)
 	try {
-		const resp = await pool.query(`SELECT * FROM sp_create_profile('${name}', '${cost_bs}', '${cost_usd}')`);
+		const resp = await pool.query(`SELECT * FROM sp_create_profile('${name}', '${cost_bs}', '${cost_usd}', ${externo})`);
 		await createProfileResults(name);
 		await agregarCampos(inputs);
 		await createProfileInputsTable(resp.rows[0].sp_create_profile.id, inputs);
@@ -318,9 +319,9 @@ profileRepository.createSpermiogramResult = async (id, answer) => {
 	}
 };
 
-profileRepository.createCultive = async (name, cost_bs, cost_usd) => {
+profileRepository.createCultive = async (name, cost_bs, cost_usd, externo) => {
 	try {
-		const resp = await pool.query(`SELECT * FROM sp_create_profile('${name}', '${cost_bs}', '${cost_usd}')`);
+		const resp = await pool.query(`SELECT * FROM sp_create_profile('${name}', '${cost_bs}', '${cost_usd}', ${externo})`);
 		return resp.rows[0].sp_create_profile;
 	} catch (error) {
 		throw error;
@@ -350,7 +351,7 @@ profileRepository.createProfileSectionInputs = async (idProfile, nombre, inputs)
 profileRepository.updateProfile = async (id, answer) => {
 	try {
 		const resp = await pool.query(
-			`SELECT * FROM sp_update_profile(${id}, '${answer.name}', '${answer.cost_bs}', '${answer.cost_usd}')`
+			`SELECT * FROM sp_update_profile(${id}, '${answer.name}', '${answer.cost_bs}', '${answer.cost_usd}', ${answer.externo})`
 		);
 		return resp.rows[0].sp_update_profile;
 	} catch (error) {
@@ -383,7 +384,7 @@ profileRepository.updateBacterium = async (id, answer) => {
 profileRepository.updateCultive = async (id, answer) => {
 	try {
 		const resp = await pool.query(
-			`SELECT * FROM sp_update_profile(${id}, '${answer.name}', '${answer.cost_bs}', '${answer.cost_usd}')`
+			`SELECT * FROM sp_update_profile(${id}, '${answer.name}', '${answer.cost_bs}', '${answer.cost_usd}', ${answer.externo})`
 		);
 		return resp.rows[0].sp_update_profile;
 	} catch (error) {
