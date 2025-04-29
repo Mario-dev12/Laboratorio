@@ -495,7 +495,7 @@
 				isNaN(costoBsPerfilNuevo.value.value.replace(",", ".")) ||
 				!isNaN(nombrePerfilNuevo.value.value)
 			) {
-				alert("Por favor ingresa datos válidos.");
+				showToast("Por favor ingresa datos válidos.", "warning", alertCircleOutline);
 			} else {
 				const perfilesMenosSeleccionado = perfiles.value.filter((perfil) => {
 					return perfil.idProfile !== selectedPerfil.value.idProfile;
@@ -541,7 +541,7 @@
 					);
 
 					if (!seccionesValidas) {
-						alert("Cada sección debe tener un nombre y al menos un campo seleccionado.");
+						showToast("Cada sección debe tener un nombre y al menos un campo seleccionado.", "warning", alertCircleOutline);
 						return;
 					}
 
@@ -675,17 +675,17 @@
 			(unidadNuevoRef.value && !nombreUnidadNueva.value.value) ||
 			(unidadExistenteRef.value && nombreUnidadExistente.value.value === "default")
 		) {
-			alert("Por Favor Completar Datos Del Campo");
+			showToast("Por Favor Completar Datos Del Campo", "warning", alertCircleOutline);
 		} else {
 			if (!isNaN(nombreCampo.value.value)) {
-				alert("Por Favor Introduce Un Nombre De Campo Valido");
+				showToast("Por Favor Introduce Un Nombre De Campo Valido", "warning", alertCircleOutline);
 			} else {
 				if (
 					camposExistentes.value.some((campo) => {
 						return campo.nombre.trim() === nombreCampo.value.value.trim();
 					})
 				) {
-					alert("Ya Existe Un Campo Con Ese Nombre");
+					showToast("Ya Existe Un Campo Con Ese Nombre", "warning", alertCircleOutline);
 				} else {
 					dataCampoNuevo.nombre = nombreCampo.value.value;
 					if (valorReferencial.value.value) {
@@ -726,11 +726,11 @@
 		};
 
 		if (!formulaRestriccion.value) {
-			alert("Por Favor Completar Datos De La Restricción");
+			showToast("Por Favor Completar Datos De La Restricción", "warning", alertCircleOutline);
 		} else {
 			const regexValidacion = /=\s*\d+/;
 			if (!regexValidacion.test(formulaRestriccion.value)) {
-				alert("No se puede guardar una restricción sin un '=' y un número.");
+				showToast("No se puede guardar una restricción sin un '=' y un número.", "warning", alertCircleOutline);
 			} else {
 				if (restriction.value) {
 					if (
@@ -738,7 +738,7 @@
 							return campo.restriction.trim() === formulaRestriccion.value.trim();
 						})
 					) {
-						alert("Ya Existe Una Restricción Con Esa Fórmula");
+						showToast("Ya Existe Una Restricción Con Esa Fórmula", "warning", alertCircleOutline);
 					} else {
 						dataCampoNuevo.restriction = formulaRestriccion.value;
 						restricciones.value.push(dataCampoNuevo);
@@ -758,21 +758,21 @@
 
 	async function crearPerfil() {
 		if (!nombrePerfilNuevo.value.value || !costoBsPerfilNuevo.value.value || !costoDolaresPerfilNuevo.value.value) {
-			alert("Por favor completa los datos del perfil.");
+			showToast("Por favor completa los datos del perfil.", "warning", alertCircleOutline);
 		} else {
 			if (
 				isNaN(costoDolaresPerfilNuevo.value.value.replace(",", ".")) ||
 				isNaN(costoBsPerfilNuevo.value.value.replace(",", ".")) ||
 				!isNaN(nombrePerfilNuevo.value.value)
 			) {
-				alert("Por favor ingresa datos válidos.");
+				showToast("Por favor ingresa datos válidos.", "warning", alertCircleOutline);
 			} else {
 				dataPerfilNuevo.name = nombrePerfilNuevo.value.value;
 				dataPerfilNuevo.cost_usd = costoDolaresPerfilNuevo.value.value;
 				dataPerfilNuevo.cost_bs = costoBsPerfilNuevo.value.value;
 				dataPerfilNuevo.externo = externoNuevo.value;
 				if (secciones.value.length === 0) {
-					alert("El perfil debe contener al menos una sección.");
+					showToast("El perfil debe contener al menos una sección.", "warning", alertCircleOutline);
 					return;
 				}
 
@@ -801,7 +801,7 @@
 					const seccionesValidas = secciones.value.every((seccion) => seccion.nombre.trim() !== "" && seccion.campos.length > 0);
 
 					if (!seccionesValidas) {
-						alert("Cada sección debe tener un nombre y al menos un campo.");
+						showToast("Cada sección debe tener un nombre y al menos un campo.", "warning", alertCircleOutline);
 						return;
 					}
 					const camposNuevos = secciones.value.flatMap((seccion) =>
@@ -863,7 +863,7 @@
 		const todosCamposLlenos = secciones.value.every((seccion) => seccion.nombre.trim() !== "" && seccion.campos.length > 0);
 
 		if (!todosCamposLlenos) {
-			alert("Por favor, completa todos los campos y selecciona al menos un campo en cada sección.");
+			showToast("Por favor, completa todos los campos y selecciona al menos un campo en cada sección.", "warning", alertCircleOutline);
 			return;
 		}
 

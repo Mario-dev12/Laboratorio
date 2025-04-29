@@ -234,7 +234,7 @@
 	import { orderStore } from "@/stores/orderStore";
 	import { paymentStore } from "@/stores/paymentStore";
 	import { useRoute, useRouter } from "vue-router";
-	import { checkboxOutline } from "ionicons/icons";
+	import { checkboxOutline, alertCircleOutline } from "ionicons/icons";
 	import eventBus from "../eventBus";
 	import { boxStore } from "@/stores/boxStore";
 	
@@ -406,7 +406,7 @@
 	const cambiarPrecioDolar = (nuevoPrecio: any) => {
 		const newPrice = Number(nuevoPrecio);
 		if (isNaN(nuevoPrecio) || nuevoPrecio === "") {
-			alert("Ingrese un valor válido");
+			showToast("Ingrese un valor válido", "warning", alertCircleOutline);
 		} else {
 			precioDolar.value = newPrice;
 			cambioDolar.value = newPrice;

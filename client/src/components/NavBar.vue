@@ -163,6 +163,15 @@
 			</ion-header>
 		</div>
 	</div>
+	<ion-toast
+				:class="toast.class"
+				:icon="toast.icon"
+				:is-open="isOpen"
+				:message="toast.message"
+				duration="2000"
+				@didDismiss="setOpen(false)"
+				position="top">
+			</ion-toast>
 </template>
 
 <script setup lang="ts">
@@ -178,17 +187,38 @@
 		IonMenuButton,
 		IonMenuToggle,
 		IonRow,
+		IonToast
 	} from "@ionic/vue";
 	import { flask, home, document, closeOutline, calculator, create, copy, pencilSharp, addCircleSharp } from "ionicons/icons";
 	import { useRouter } from "vue-router";
 	import { onMounted, ref, watch } from "vue";
 	import eventBus from "../eventBus";
+	import { alertCircleOutline } from "ionicons/icons";
 
 	const router = useRouter();
 	const showChangeDolar = ref(false);
 	const precioDolar = ref(Number(localStorage.getItem("tasaDolar")));
 	const cambioDolar = ref(precioDolar.value);
 	const nuevoMontoDolar = ref<number | null>(null);
+	const isOpen = ref(false);
+	const toast = ref({
+		isOpen: false,
+		message: "",
+		class: "",
+		icon: null,
+	});
+
+	const setOpen = (state: boolean) => {
+		isOpen.value = state;
+	};
+
+	const showToast = (message: string, style: string, icon: any) => {
+		toast.value.message = message;
+		toast.value.isOpen = true;
+		toast.value.class = style;
+		toast.value.icon = icon;
+		setOpen(true);
+	};
 
 	onMounted(() => {
 		eventBus.on("precioActualizado", handlePrecioActualizado);
@@ -206,7 +236,7 @@
 	const cambiarPrecioDolar = (nuevoPrecio: any) => {
 		const newPrice = Number(nuevoPrecio);
 		if (isNaN(nuevoPrecio) || nuevoPrecio === "") {
-			alert("Ingrese un valor válido");
+			showToast("Ingrese un valor válido", "warning", alertCircleOutline);
 		} else {
 			precioDolar.value = newPrice;
 			cambioDolar.value = newPrice;

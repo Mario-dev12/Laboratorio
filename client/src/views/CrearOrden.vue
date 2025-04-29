@@ -402,14 +402,14 @@
 				showToast("No Se Encontro Cliente Con Ese Documento De Identidad", "warning", alertCircleOutline);
 			}
 		} else {
-			alert("Ingrese documento de identidad");
+			showToast("Ingrese documento de identidad", "warning", alertCircleOutline);
 		}
 	};
 
 	const cambiarPrecioDolar = (nuevoPrecio: any) => {
 		const newPrice = Number(nuevoPrecio);
 		if (isNaN(nuevoPrecio) || nuevoPrecio === "") {
-			alert("Ingrese un valor válido");
+			showToast("Ingrese un valor válido", "warning", alertCircleOutline);
 		} else {
 			precioDolar.value = newPrice;
 			cambioDolar.value = newPrice;
@@ -468,7 +468,7 @@
 			!user.value.edad ||
 			!user.value.procedencia
 		) {
-			alert("Por Favor Completar Datos Del Paciente");
+			showToast("Por Favor Completar Datos Del Cliente", "warning", alertCircleOutline);
 		} else {
 			if (!examenesSeleccionados.value.length) {
 				showToast("Por Favor Agregar Examenes A Realizar", "warning", checkboxOutline);

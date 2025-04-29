@@ -141,7 +141,7 @@
 	import { orderStore } from "@/stores/orderStore";
 	import { useRouter } from "vue-router";
 	import { Parser } from "expr-eval";
-	import { checkboxOutline } from "ionicons/icons";
+	import { checkboxOutline, alertCircleOutline } from "ionicons/icons";
 
 	interface Item {
 		nombre: string;
@@ -1022,7 +1022,7 @@
 
 				if (resultadoIzquierda !== resultadoDerecha && !alertShown.value) {
 					alertShown.value = true;
-					alert(`Error: la suma debe ser igual a ${resultadoDerecha}. Revise las entradas de los campos.`);
+					showToast(`Error: la suma debe ser igual a ${resultadoDerecha}. Revise las entradas de los campos.`, "warning", alertCircleOutline);
 					return null;
 				}
 
