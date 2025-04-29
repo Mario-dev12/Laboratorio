@@ -107,40 +107,45 @@
 					</div>
 				</div>
 				<div class="row w-100 m-auto">
-				<div class="col-12">
-					<div class="row w-100 m-auto">
-						<label class="col align-content-center p-0" for="filterInput">Tipo de Examen:</label>
-						<div class="col p-1" style="position: relative;">
-							<input
-								id="filterInput"
-								type="text"
-								class="form-control"
-								v-model="filterText"
-								@focus="showDropdown = true"
-								@input="showDropdown = true"
-								placeholder="Seleccionar"
-								autocomplete="off" >
-							<button v-if="tipoDeExamen" @click="clearSelection" class="clear-button">x</button>
+					<div class="col-12">
+						<div class="row w-100 m-auto">
+							<label class="col align-content-center p-0" for="filterInput">Tipo de Examen:</label>
+							<div class="col p-1" style="position: relative">
+								<input
+									id="filterInput"
+									type="text"
+									class="form-control"
+									v-model="filterText"
+									@focus="showDropdown = true"
+									@input="showDropdown = true"
+									placeholder="Seleccionar"
+									autocomplete="off" />
+								<button v-if="tipoDeExamen" @click="clearSelection" class="clear-button">x</button>
 
-
-							<ul v-if="showDropdown && (filteredProfiles.length > 0 || filterText)" class="dropdown-list">
-								<li
-									v-for="profile in filteredProfiles"
-									:key="profile.idProfile"
-									@click="selectProfile(profile)"
-									@mousedown.prevent >
-									{{ profile.name }}
-								</li>
-								<li v-if="filterText && filteredProfiles.length === 0" class="no-results">No hay perfiles con ese nombre</li>
-								<li v-if="tipoDeExamen && filteredProfiles.length === 0 && !filterText" @click="clearSelection" @mousedown.prevent class="clear-option">Clear Selection</li>
-							</ul>
-							<ul v-else-if="showDropdown && !filterText && profiles.length === 0" class="dropdown-list">
-								<li class="no-results">No hay perfiles con ese nombre</li>
-							</ul>
+								<ul v-if="showDropdown && (filteredProfiles.length > 0 || filterText)" class="dropdown-list">
+									<li
+										v-for="profile in filteredProfiles"
+										:key="profile.idProfile"
+										@click="selectProfile(profile)"
+										@mousedown.prevent>
+										{{ profile.name }}
+									</li>
+									<li v-if="filterText && filteredProfiles.length === 0" class="no-results">No hay perfiles con ese nombre</li>
+									<li
+										v-if="tipoDeExamen && filteredProfiles.length === 0 && !filterText"
+										@click="clearSelection"
+										@mousedown.prevent
+										class="clear-option">
+										Clear Selection
+									</li>
+								</ul>
+								<ul v-else-if="showDropdown && !filterText && profiles.length === 0" class="dropdown-list">
+									<li class="no-results">No hay perfiles con ese nombre</li>
+								</ul>
+							</div>
 						</div>
 					</div>
 				</div>
-			</div>
 				<div class="row w-100 m-auto">
 					<div class="col-12">
 						<div class="mt-2 table-responsive">
@@ -190,7 +195,7 @@
 				</div>
 				<div class="row w-100 m-auto mb-1">
 					<div class="col">Total En Bs</div>
-					<div class="col">Bs: {{ (totales.totalBs).toFixed(2) }}</div>
+					<div class="col">Bs: {{ totales.totalBs.toFixed(2) }}</div>
 				</div>
 				<div class="row w-100 m-auto mb-1">
 					<div class="col">Total En $</div>
@@ -239,7 +244,7 @@
 	import { paymentStore } from "@/stores/paymentStore";
 	import { useRouter } from "vue-router";
 	import { checkboxOutline, alertCircleOutline } from "ionicons/icons";
-	import eventBus from '../eventBus';
+	import eventBus from "../eventBus";
 
 	const tipoDeExamen = ref();
 	const examenesSeleccionados = ref<Examen[]>([]);
@@ -266,7 +271,7 @@
 	const totalPagadoDolares = ref();
 	const totalPagadoBs = ref();
 	const nuevoMontoDolar = ref<number | null>(null);
-	const filterText = ref('');
+	const filterText = ref("");
 	const showDropdown = ref(false);
 
 	const filteredProfiles = computed(() => {
@@ -274,9 +279,7 @@
 			return profiles.value;
 		}
 		const lowerFilter = filterText.value.toLowerCase();
-		return profiles.value.filter((profile: { name: string; }) =>
-			profile.name.toLowerCase().includes(lowerFilter)
-		);
+		return profiles.value.filter((profile: { name: string }) => profile.name.toLowerCase().includes(lowerFilter));
 	});
 
 	function selectProfile(profile: Profile) {
@@ -284,16 +287,16 @@
 		filterText.value = profile.name;
 		showDropdown.value = false;
 		agregarExamen();
-		const inputElement = document.getElementById('filterInput') as HTMLInputElement;
+		const inputElement = document.getElementById("filterInput") as HTMLInputElement;
 		if (inputElement) {
-		inputElement.blur();
+			inputElement.blur();
 		}
-		filterText.value = ''
+		filterText.value = "";
 	}
 
 	function clearSelection() {
-		tipoDeExamen.value = '';
-		filterText.value = '';
+		tipoDeExamen.value = "";
+		filterText.value = "";
 		agregarExamen();
 	}
 
@@ -315,7 +318,7 @@
 		diagnostico: "",
 		email: "",
 		phone: "",
-		doctor: ""
+		doctor: "",
 	});
 
 	const totales = ref({
@@ -340,9 +343,9 @@
 		setOpen(true);
 	};
 
-	function handlePrecioActualizado(nuevoPrecio: number) {  
+	function handlePrecioActualizado(nuevoPrecio: number) {
 		precioDolar.value = nuevoPrecio;
-	}  
+	}
 
 	onMounted(async () => {
 		profiles.value = await profilesStore.fecthAllProfiles();
@@ -352,13 +355,13 @@
 			cost_usd: parseFloat(exam.cost_usd),
 		}));
 		precioDolar.value = Number(localStorage.getItem("tasaDolar")) || 50;
-		eventBus.on("precioActualizado", handlePrecioActualizado); 
+		eventBus.on("precioActualizado", handlePrecioActualizado);
 		crearOrden();
 	});
 
-	watch(precioDolar, (newVal) => {  
-		localStorage.setItem("tasaDolar", newVal.toString());  
-	});  
+	watch(precioDolar, (newVal) => {
+		localStorage.setItem("tasaDolar", newVal.toString());
+	});
 
 	const crearOrden = async () => {
 		order.value = await ordersStore.fecthOrders();
@@ -418,7 +421,7 @@
 				totales.value.total$ += item.cost_usd;
 			}
 			showChangeDolar.value = false;
-			eventBus.emit("precioActualizado", precioDolar.value)
+			eventBus.emit("precioActualizado", precioDolar.value);
 		}
 	};
 
@@ -428,7 +431,7 @@
 			if (item.name === tipoDeExamen.value && !itemInArray) {
 				examenesSeleccionados.value.push(item);
 				examenesSeleccionados.value = [...examenesSeleccionados.value];
-				totales.value.totalBs += parseFloat((item.cost_usd * precioDolar.value).toFixed(2));;
+				totales.value.totalBs += parseFloat((item.cost_usd * precioDolar.value).toFixed(2));
 				totales.value.total$ += item.cost_usd;
 			}
 		}
@@ -465,7 +468,7 @@
 			!user.value.edad ||
 			!user.value.procedencia
 		) {
-			alert("Por Favor Completar Datos Del Cliente");
+			alert("Por Favor Completar Datos Del Paciente");
 		} else {
 			if (!examenesSeleccionados.value.length) {
 				showToast("Por Favor Agregar Examenes A Realizar", "warning", checkboxOutline);
@@ -487,7 +490,7 @@
 							address: user.value.procedencia,
 							email: user.value.email,
 							phone: user.value.phone,
-							doctor: user.value.doctor
+							doctor: user.value.doctor,
 						};
 						const resp = await users.createUser(body);
 						respUser = resp[0].id;
@@ -521,15 +524,14 @@
 									await paymentsStore.createPayment(paymentBody);
 								}
 
-								if (totalesRestantes.value.total$ !== 0 && totalesRestantes.value.totalBs !== 0){
-
+								if (totalesRestantes.value.total$ !== 0 && totalesRestantes.value.totalBs !== 0) {
 									const data = {
 										idExam: respExam,
 										deuda_bs: totalesRestantes.value.totalBs,
 										deuda_dolar: totalesRestantes.value.total$,
-										tasa: precioDolar.value
-									}
-									await boxsStore.createDebt(data)
+										tasa: precioDolar.value,
+									};
+									await boxsStore.createDebt(data);
 								}
 							}
 						}
@@ -568,14 +570,14 @@
 								await paymentsStore.createPayment(paymentBody);
 							}
 
-							if (totalesRestantes.value.total$ !== 0 && totalesRestantes.value.totalBs !== 0){
-									const data = {
-										idExam: respExam,
-										deuda_bs: totalesRestantes.value.totalBs,
-										deuda_dolar: totalesRestantes.value.total$,
-										tasa: precioDolar
-									}
-									await boxsStore.createDebt(data)
+							if (totalesRestantes.value.total$ !== 0 && totalesRestantes.value.totalBs !== 0) {
+								const data = {
+									idExam: respExam,
+									deuda_bs: totalesRestantes.value.totalBs,
+									deuda_dolar: totalesRestantes.value.total$,
+									tasa: precioDolar,
+								};
+								await boxsStore.createDebt(data);
 							}
 						}
 						showToast("Orden Creada Exitosamente!!", "creado", checkboxOutline);
@@ -604,9 +606,9 @@
 			totalPagadoDolares.value += Number(payment.montoDolares);
 			totalPagadoBs.value += Number(payment.montoBolivares);
 		}
-		if (!(totales.value.total$ === totalPagadoDolares.value) && !(totales.value.totalBs === totalPagadoBs.value)){
-			totalesRestantes.value.total$ = (totales.value.total$ - totalPagadoDolares.value)
-			totalesRestantes.value.totalBs = (totales.value.totalBs - totalPagadoBs.value)
+		if (!(totales.value.total$ === totalPagadoDolares.value) && !(totales.value.totalBs === totalPagadoBs.value)) {
+			totalesRestantes.value.total$ = totales.value.total$ - totalPagadoDolares.value;
+			totalesRestantes.value.totalBs = totales.value.totalBs - totalPagadoBs.value;
 		}
 
 		closeModal();
@@ -624,7 +626,7 @@
 			diagnostico: "",
 			email: "",
 			phone: "",
-			doctor: ""
+			doctor: "",
 		};
 		examenesSeleccionados.value = [];
 		metodoPagos.value = [];
@@ -637,7 +639,7 @@
 
 	const cancelarEdicion = () => {
 		showChangeDolar.value = false;
-		precioDolar.value = Number(localStorage.getItem("tasaDolar"))
+		precioDolar.value = Number(localStorage.getItem("tasaDolar"));
 		nuevoMontoDolar.value = null;
 	};
 </script>
@@ -678,7 +680,7 @@
 		margin: 0;
 		max-height: 300px;
 		overflow-y: auto;
-		box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+		box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
 		border-radius: 4px;
 	}
 
@@ -691,7 +693,8 @@
 		background-color: #f0f0f0;
 	}
 
-	.no-results, .clear-option {
+	.no-results,
+	.clear-option {
 		font-style: italic;
 		color: #666;
 		padding: 8px 12px;
@@ -700,7 +703,6 @@
 		cursor: pointer;
 		text-decoration: underline;
 	}
-
 
 	.form-control {
 		display: block;

@@ -186,7 +186,7 @@
 	import { onMounted, ref, computed } from "vue";
 	import { orderStore } from "@/stores/orderStore";
 	import { useRouter } from "vue-router";
-	import { checkboxOutline, alertCircleOutline } from "ionicons/icons";
+	import { checkboxOutline } from "ionicons/icons";
 
 	const orders = ref();
 	const cultive = ref();
@@ -243,18 +243,19 @@
 		/*const profileNamesArray = profileName.orders.flatMap((order: { profiles: any[] }) =>
 			order.profiles.map((profile: { profileName: any }) => profile.profileName)
 		);*/
-		const profileNamesArray2 = computed(() =>  
-			profileName.orders.flatMap((order: { profiles: any[]; }) =>  
-				order.profiles  
-				.filter((profile: { externo: any; }) => !profile.externo) 
-				.map((profile: { profileName: any; }) => profile.profileName)
-			)  
-		);  
-		const filteredProfiles = profileNamesArray2.value.filter((profileName: string | string[]) =>   
-			!profileName.includes('(Externo)') && !profileName.includes('(externo)') && !profileName.includes('(EXTERNO)')
-		);   
+		const profileNamesArray2 = computed(() =>
+			profileName.orders.flatMap((order: { profiles: any[] }) =>
+				order.profiles
+					.filter((profile: { externo: any }) => !profile.externo)
+					.map((profile: { profileName: any }) => profile.profileName)
+			)
+		);
+		const filteredProfiles = profileNamesArray2.value.filter(
+			(profileName: string | string[]) =>
+				!profileName.includes("(Externo)") && !profileName.includes("(externo)") && !profileName.includes("(EXTERNO)")
+		);
 
-		if (filteredProfiles.length === 0){
+		if (filteredProfiles.length === 0) {
 			showToast("Los examenes son externos", "warning", checkboxOutline);
 		} else {
 			router.push({
