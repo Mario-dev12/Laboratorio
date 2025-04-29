@@ -212,14 +212,24 @@
                     <ion-button expand="full" type="submit">Añadir Métodos de Pago</ion-button>  
                 </ion-footer>  
             </form>  
+            <ion-toast
+				:class="toast.class"
+				:icon="toast.icon"
+				:is-open="isOpen2"
+				:message="toast.message"
+				duration="2000"
+				@didDismiss="setOpen(false)"
+				position="top">
+			</ion-toast>
         </ion-content>  
     </ion-modal>  
 </template>  
 
 <script setup lang="ts">  
 import { ref, defineEmits, defineProps, computed, watch } from "vue";  
-import { IonButton, IonContent, IonHeader, IonModal, IonTitle, IonFooter, IonToolbar, IonButtons, IonItemDivider } from "@ionic/vue";
+import { IonButton, IonContent, IonHeader, IonModal, IonTitle, IonFooter, IonToolbar, IonButtons, IonItemDivider, IonToast } from "@ionic/vue";
 import { payment_MethodStore } from "@/stores/payment_MethodStore"
+import { alertCircleOutline } from "ionicons/icons";
 
 const props = defineProps<{  
     isOpen: boolean;  
@@ -234,6 +244,25 @@ const props = defineProps<{
 const montoRestanteBolivares = ref(0);  
 const montoRestanteDolares = ref(0); 
 const paymentsStore = payment_MethodStore();
+const isOpen2 = ref(false);
+const toast = ref({
+    isOpen: false,
+    message: "",
+    class: "",
+    icon: null,
+});
+
+const setOpen = (state: boolean) => {
+    isOpen2.value = state;
+};
+
+const showToast = (message: string, style: string, icon: any) => {
+    toast.value.message = message;
+    toast.value.isOpen = true;
+    toast.value.class = style;
+    toast.value.icon = icon;
+    setOpen(true);
+};
 
 const method = ref(false);
 
@@ -371,7 +400,7 @@ const submit = async () => {
     }  
 
     if (paymentDetails.length === 0) {  
-        alert("Por favor, seleccione al menos un método de pago.");  
+        showToast("Por favor, seleccione al menos un método de pago.", "warning", alertCircleOutline);
         return;  
     }  
 

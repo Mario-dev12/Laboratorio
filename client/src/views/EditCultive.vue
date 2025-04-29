@@ -374,14 +374,14 @@
 
 	const updatePerfil = async () => {
 		if (!nombrePerfilNuevo.value.value && !costoDolaresPerfilNuevo.value.value && !costoBsPerfilNuevo.value.value) {
-			alert("Por favor completa los datos del cultivo.");
+			showToast("Por favor completa los datos del cultivo.", "warning", alertCircleOutline); 
 		} else {
 			if (
 				isNaN(costoDolaresPerfilNuevo.value.value.replace(",", ".")) ||
 				isNaN(costoBsPerfilNuevo.value.value.replace(",", ".")) ||
 				!isNaN(nombrePerfilNuevo.value.value)
 			) {
-				alert("Por favor ingresa datos válidos.");
+				showToast("Por favor ingresa datos válidos.", "warning", alertCircleOutline); 
 			} else {
 				const perfilesMenosSeleccionado = perfiles.value.filter((perfil) => {
 					return perfil.idProfile !== selectedPerfil.value.idProfile;
@@ -449,14 +449,14 @@
 
 	async function crearPerfil() {
 		if (!nombrePerfilNuevo.value.value || !costoBsPerfilNuevo.value.value || !costoDolaresPerfilNuevo.value.value) {
-			alert("Por favor completa los datos del cultivo.");
+			showToast("Por favor completa los datos del cultivo.", "warning", alertCircleOutline);
 		} else {
 			if (
 				isNaN(costoDolaresPerfilNuevo.value.value.replace(",", ".")) ||
 				isNaN(costoBsPerfilNuevo.value.value.replace(",", ".")) ||
 				!isNaN(nombrePerfilNuevo.value.value)
 			) {
-				alert("Por favor ingresa datos válidos.");
+				showToast("Por favor ingresa datos válidos.", "warning", alertCircleOutline);
 			} else {
 				dataPerfilNuevo.name = nombrePerfilNuevo.value.value;
 				dataPerfilNuevo.cost_usd = costoDolaresPerfilNuevo.value.value;
