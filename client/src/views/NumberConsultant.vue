@@ -325,7 +325,7 @@
 
 	async function handleSearch() {  
 		if (new Date(startDate.value) > new Date(endDate.value)) {  
-			alert("La fecha de inicio no puede ser posterior a la fecha de fin.");  
+			showToast("La fecha de inicio no puede ser posterior a la fecha de fin.", "warning", alertCircleOutline); 
 			return;  
 		}  
 		try {  
@@ -340,15 +340,15 @@
 			await totalAmountIncome();  
 			await totalAmountBills();  
 		} catch (error) {  
-			console.error("Error al buscar datos:", error);  
-			alert("Ocurrió un error al buscar los datos.");  
+			console.error("Error al buscar datos:", error); 
+			showToast("Ocurrió un error al buscar los datos.", "warning", alertCircleOutline);  
 		}  
 	}  
 
 	const cambiarPrecioDolar = (nuevoPrecio: any) => {
 		const newPrice = Number(nuevoPrecio);
 		if (isNaN(nuevoPrecio) || nuevoPrecio === "") {
-			alert("Ingrese un valor válido");
+			showToast("Ingrese un valor válido", "warning", alertCircleOutline); 
 		} else {
 			precioDolar.value = newPrice;
 			cambioDolar.value = newPrice;
