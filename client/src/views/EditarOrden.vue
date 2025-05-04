@@ -613,11 +613,13 @@
 		let bs: number = 0;
 		let dolar: number = 0;
 
-		for (let i = 0; i < paymentData.value.length; i++) {
-			bs += Number(paymentData.value[i].amount_bs)
-			dolar += Number(paymentData.value[i].amount_usd)
+		if (paymentData.value != undefined || paymentData.value != null){
+			for (let i = 0; i < paymentData.value.length; i++) {
+				bs += Number(paymentData.value[i].amount_bs)
+				dolar += Number(paymentData.value[i].amount_usd)
+			}
 		}
-
+		
 		if ((totales.value.total$ - dolar) !== 0 && (totales.value.totalBs - bs) !== 0){
 			const data = {
 				idExam: examenesSeleccionados.value[0].idExam,
@@ -626,6 +628,8 @@
 				tasa: precioDolar.value
 			}
 			await boxsStore.createDebt(data)
+		} else {
+			await boxsStore.deleteDebtExam(examenesSeleccionados.value[0].idExam)
 		}
 
 		showToast("Cambios Guardados Con Éxito", "creado", checkboxOutline);

@@ -32,5 +32,8 @@ export const boxStore = defineStore("box", {
 		async deleteDebt(id: string | number) {
 			await axiosRepository.delete("box", id);
 		},
+		async deleteDebtExam(id: string | number) {
+			await axiosRepository.deleteDebtExam("box", id);
+		},
 	},
 });

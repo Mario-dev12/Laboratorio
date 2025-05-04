@@ -470,77 +470,27 @@
 			if (!examenesSeleccionados.value.length) {
 				showToast("Por Favor Agregar Examenes A Realizar", "warning", checkboxOutline);
 			} else {
-				if (!metodoPagos.value || !metodoPagos.value.length) {
-					showToast("Por Favor Ingresar Metodos De Pago", "warning", checkboxOutline);
-				} else {
-					if (user.value.id === 0) {
-						let respUser: number | undefined = 0;
-						let respExam: number | undefined = 0;
-						const body: User = {
-							idUser: user.value.id,
-							passport: null,
-							ci: user.value.documento.trim(),
-							firstName: user.value.nombre,
-							lastName: user.value.apellido,
-							genre: user.value.genero === "masculino" ? "M" : user.value.genero === "femenino" ? "F" : "",
-							age: user.value.edad,
-							address: user.value.procedencia,
-							email: user.value.email,
-							phone: user.value.phone,
-							doctor: user.value.doctor
-						};
-						const resp = await users.createUser(body);
-						respUser = resp[0].id;
-						if (respUser) {
-							const examsBody: Exam = {
-								idUser: respUser,
-								total_cost_bs: totales.value.totalBs.toFixed(2),
-								total_cost_usd: totales.value.total$.toString(),
-							};
-							const examResp = await examsStore.createExam(examsBody);
-							respExam = examResp.id;
-							if (respExam) {
-								for (let i = 0; i < examenesSeleccionados.value.length; i++) {
-									const orderBody: Partial<Order> = {
-										idExam: respExam,
-										idProfile: examenesSeleccionados.value[i].idProfile,
-										status: "Pendiente por pasar",
-									};
-									await ordersStore.createOrder(orderBody);
-								}
-								for (let i = 0; i < metodoPagos.value.length; i++) {
-									const paymentBody: Payment = {
-										idPayment_method: metodoPagos.value[i].idPayment_method,
-										amount_bs: metodoPagos.value[i].montoBolivares,
-										amount_usd: metodoPagos.value[i].montoDolares,
-										type: metodoPagos.value[i].tipo,
-										bank: metodoPagos.value[i].banco,
-										idExam: respExam,
-										phone: metodoPagos.value[i].telefono,
-									};
-									await paymentsStore.createPayment(paymentBody);
-								}
-
-								if (totalesRestantes.value.total$ !== 0 && totalesRestantes.value.totalBs !== 0){
-
-									const data = {
-										idExam: respExam,
-										deuda_bs: totalesRestantes.value.totalBs,
-										deuda_dolar: totalesRestantes.value.total$,
-										tasa: precioDolar.value
-									}
-									await boxsStore.createDebt(data)
-								}
-							}
-						}
-						showToast("Orden Creada Exitosamente!!", "creado", checkboxOutline);
-						crearOrden();
-						await resetOrderData();
-						router.push({ name: "CrearOrden" });
-					} else {
-						let respExam: number | undefined = 0;
+				if (user.value.id === 0) {
+					let respUser: number | undefined = 0;
+					let respExam: number | undefined = 0;
+					const body: User = {
+						idUser: user.value.id,
+						passport: null,
+						ci: user.value.documento.trim(),
+						firstName: user.value.nombre,
+						lastName: user.value.apellido,
+						genre: user.value.genero === "masculino" ? "M" : user.value.genero === "femenino" ? "F" : "",
+						age: user.value.edad,
+						address: user.value.procedencia,
+						email: user.value.email,
+						phone: user.value.phone,
+						doctor: user.value.doctor
+					};
+					const resp = await users.createUser(body);
+					respUser = resp[0].id;
+					if (respUser) {
 						const examsBody: Exam = {
-							idUser: user.value.id,
+							idUser: respUser,
 							total_cost_bs: totales.value.totalBs.toFixed(2),
 							total_cost_usd: totales.value.total$.toString(),
 						};
@@ -555,6 +505,59 @@
 								};
 								await ordersStore.createOrder(orderBody);
 							}
+							if (metodoPagos.value != undefined || metodoPagos.value != null){
+								for (let i = 0; i < metodoPagos.value.length; i++) {
+									const paymentBody: Payment = {
+										idPayment_method: metodoPagos.value[i].idPayment_method,
+										amount_bs: metodoPagos.value[i].montoBolivares,
+										amount_usd: metodoPagos.value[i].montoDolares,
+										type: metodoPagos.value[i].tipo,
+										bank: metodoPagos.value[i].banco,
+										idExam: respExam,
+										phone: metodoPagos.value[i].telefono,
+									};
+									await paymentsStore.createPayment(paymentBody);
+								}
+							} else {
+								totalesRestantes.value.total$ = totales.value.total$
+								totalesRestantes.value.totalBs = totales.value.totalBs
+							}
+
+							if (totalesRestantes.value.total$ !== 0 && totalesRestantes.value.totalBs !== 0){
+
+								const data = {
+									idExam: respExam,
+									deuda_bs: totalesRestantes.value.totalBs,
+									deuda_dolar: totalesRestantes.value.total$,
+									tasa: precioDolar.value
+								}
+								await boxsStore.createDebt(data)
+							}
+						}
+					}
+					showToast("Orden Creada Exitosamente!!", "creado", checkboxOutline);
+					crearOrden();
+					await resetOrderData();
+					router.push({ name: "CrearOrden" });
+				} else {
+					let respExam: number | undefined = 0;
+					const examsBody: Exam = {
+						idUser: user.value.id,
+						total_cost_bs: totales.value.totalBs.toFixed(2),
+						total_cost_usd: totales.value.total$.toString(),
+					};
+					const examResp = await examsStore.createExam(examsBody);
+					respExam = examResp.id;
+					if (respExam) {
+						for (let i = 0; i < examenesSeleccionados.value.length; i++) {
+							const orderBody: Partial<Order> = {
+								idExam: respExam,
+								idProfile: examenesSeleccionados.value[i].idProfile,
+								status: "Pendiente por pasar",
+							};
+							await ordersStore.createOrder(orderBody);
+						}
+						if (metodoPagos.value != undefined || metodoPagos.value != null){
 							for (let i = 0; i < metodoPagos.value.length; i++) {
 								const paymentBody: Payment = {
 									idPayment_method: metodoPagos.value[i].idPayment_method,
@@ -567,22 +570,25 @@
 								};
 								await paymentsStore.createPayment(paymentBody);
 							}
-
-							if (totalesRestantes.value.total$ !== 0 && totalesRestantes.value.totalBs !== 0){
-									const data = {
-										idExam: respExam,
-										deuda_bs: totalesRestantes.value.totalBs,
-										deuda_dolar: totalesRestantes.value.total$,
-										tasa: precioDolar
-									}
-									await boxsStore.createDebt(data)
-							}
+						} else {
+							totalesRestantes.value.total$ = totales.value.total$
+							totalesRestantes.value.totalBs = totales.value.totalBs
 						}
-						showToast("Orden Creada Exitosamente!!", "creado", checkboxOutline);
-						crearOrden();
-						await resetOrderData();
-						router.push({ name: "CrearOrden" });
+
+						if (totalesRestantes.value.total$ !== 0 && totalesRestantes.value.totalBs !== 0){
+							const data = {
+								idExam: respExam,
+								deuda_bs: totalesRestantes.value.totalBs,
+								deuda_dolar: totalesRestantes.value.total$,
+								tasa: precioDolar
+							}
+							await boxsStore.createDebt(data)
+						}
 					}
+					showToast("Orden Creada Exitosamente!!", "creado", checkboxOutline);
+					crearOrden();
+					await resetOrderData();
+					router.push({ name: "CrearOrden" });
 				}
 			}
 		}
