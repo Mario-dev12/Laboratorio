@@ -456,6 +456,15 @@
 		actualizarCostosEnBs();
 	});
 
+	watch(examenesSeleccionados, async () => {
+		profiles.value = await profilesStore.fecthAllProfiles();
+		profiles.value = profiles.value.map((exam: { cost_bs: string; cost_usd: string }) => ({
+			...exam,
+			cost_bs: parseFloat(exam.cost_bs.replace(",", ".")),
+			cost_usd: parseFloat(exam.cost_usd),
+		}));
+	});
+
 	const saveOrder = async () => {
 		if (
 			!user.value.documento ||
