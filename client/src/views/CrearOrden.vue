@@ -344,6 +344,11 @@
 		precioDolar.value = nuevoPrecio;
 	}  
 
+	router.beforeEach(async (to, from, next) => {
+		examenesSeleccionados.value = [];  
+    	next();  
+	})
+
 	onMounted(async () => {
 		profiles.value = await profilesStore.fecthAllProfiles();
 		profiles.value = profiles.value.map((exam: { cost_bs: string; cost_usd: string }) => ({
