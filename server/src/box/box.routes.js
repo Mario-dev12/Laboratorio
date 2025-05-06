@@ -8,6 +8,7 @@ boxRouter.get('/egreso', boxController.readBills)
 boxRouter.get('/deuda', boxController.readDebt)
 boxRouter.post('/', boxController.createDebt)
 boxRouter.delete('/:id', boxController.deleteDebt)
+boxRouter.delete('/exam/:id', boxController.deleteDebtExam)
 
 
 export default boxRouter

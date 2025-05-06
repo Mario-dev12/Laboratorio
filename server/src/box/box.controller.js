@@ -64,4 +64,15 @@ boxController.deleteDebt = async (req, res) => {
 	}
 };
 
+boxController.deleteDebtExam = async (req, res) => {
+	const { id } = req.params;
+
+	try {
+		const answer = await boxServices.deleteDebtExam(id);
+		res.send(answer);
+	} catch (error) {
+		return res.status(400).send(error.stack);
+	}
+};
+
 export default boxController

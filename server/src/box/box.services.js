@@ -22,4 +22,8 @@ boxServices.deleteDebt = async id => {
     return await boxRepository.deleteDebt(id)
 }
 
+boxServices.deleteDebtExam = async id => {
+    return await boxRepository.deleteDebtExam(id)
+}
+
 export default boxServices

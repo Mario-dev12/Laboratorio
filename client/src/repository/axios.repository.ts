@@ -317,6 +317,10 @@ class AxiosRepository {
 		await axios.delete(`${import.meta.env.VITE_API_URL}/${domain}/${id}`);
 	}
 
+	async deleteDebtExam(domain: string, id: string | number): Promise<void> {
+		await axios.delete(`${import.meta.env.VITE_API_URL}/${domain}/exam/${id}`);
+	}
+
 	async deleteAntibiotics(domain: string, id: string | number): Promise<void> {
 		await axios.delete(`${import.meta.env.VITE_API_URL}/${domain}/antibiotics/${id}`);
 	}

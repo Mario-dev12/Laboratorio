@@ -50,4 +50,13 @@ boxRepository.deleteDebt = async (id) => {
 	}
 };
 
+boxRepository.deleteDebtExam = async (id) => {
+	try {
+		const resp = await pool.query(`SELECT * FROM sp_delete_debt_for_exam(${id})`);
+		return resp.rows[0].sp_delete_debt_for_exam;
+	} catch (error) {
+		throw error;
+	}
+};
+
 export default boxRepository
