@@ -3838,27 +3838,54 @@ begin
 end;
 $BODY$;
 
-CREATE OR REPLACE FUNCTION sp_create_debt(
-	p_idexam integer,
-	p_deuda_bs character varying,
-    p_deuda_dolar character varying,
-    p_tasa character varying)
-    RETURNS json
-    LANGUAGE 'plpgsql'
-    COST 100
-    VOLATILE PARALLEL UNSAFE
-AS $BODY$
-declare
-	v_id                                    integer;
-	v_returning_id                                 integer;
-begin
-		Insert into deuda(idExam, deuda_bs, deuda_dolar, tasa) 
-		VALUES (p_idexam, p_deuda_bs, p_deuda_dolar, p_tasa)
-		RETURNING idDeuda INTO v_returning_id;
-		return json_build_object('message', 'Inserción exitosa.', 
-								 'id', v_returning_id);
-end;
+CREATE OR REPLACE FUNCTION sp_delete_debt_for_exam(  
+    p_id INTEGER)  
+RETURNS CHARACTER VARYING  
+LANGUAGE 'plpgsql'  
+COST 100  
+VOLATILE PARALLEL UNSAFE  
+AS $BODY$  
+DECLARE  
+    registros_eliminados INTEGER;  
+BEGIN    
+    DELETE FROM deuda  
+    WHERE idExam = p_id;  
+
+    GET DIAGNOSTICS registros_eliminados = ROW_COUNT;  
+
+    IF registros_eliminados > 0 THEN  
+        RETURN 'Se ha borrado la deuda correctamente';  
+    ELSE  
+        RETURN 'true'; 
+    END IF;  
+END;  
 $BODY$;
+
+CREATE OR REPLACE FUNCTION sp_create_debt(  
+    p_idexam integer,  
+    p_deuda_bs character varying,  
+    p_deuda_dolar character varying,  
+    p_tasa character varying  
+)  
+RETURNS json  
+LANGUAGE 'plpgsql'  
+COST 100  
+VOLATILE PARALLEL UNSAFE  
+AS $BODY$  
+DECLARE  
+    v_returning_id integer;  
+BEGIN   
+    DELETE FROM deuda   
+    WHERE idExam = p_idexam;  
+
+    INSERT INTO deuda(idExam, deuda_bs, deuda_dolar, tasa)   
+    VALUES (p_idexam, p_deuda_bs, p_deuda_dolar, p_tasa)  
+    RETURNING idDeuda INTO v_returning_id;  
+
+    RETURN json_build_object('message', 'Inserción exitosa.',   
+                             'id', v_returning_id);  
+END;  
+$BODY$;  
 
 CREATE OR REPLACE FUNCTION insertar_bacteria(nombre_bacteria character varying)  
 RETURNS INTEGER AS $$  

@@ -484,6 +484,15 @@
 		actualizarCostosEnBs();
 	});
 
+	watch(examenesSeleccionados, async () => {
+		profiles.value = await profilesStore.fecthAllProfiles();
+		profiles.value = profiles.value.map((exam: { cost_bs: string; cost_usd: string }) => ({
+			...exam,
+			cost_bs: parseFloat(exam.cost_bs.replace(",", ".")),
+			cost_usd: parseFloat(exam.cost_usd),
+		}));
+	});
+
 	const saveOrder = async () => {
 		const userHasChanged = JSON.stringify(user.value) !== JSON.stringify(originalUserData.value);
 		const examHasChanged =
@@ -613,11 +622,13 @@
 		let bs: number = 0;
 		let dolar: number = 0;
 
-		for (let i = 0; i < paymentData.value.length; i++) {
-			bs += Number(paymentData.value[i].amount_bs)
-			dolar += Number(paymentData.value[i].amount_usd)
+		if (paymentData.value != undefined || paymentData.value != null){
+			for (let i = 0; i < paymentData.value.length; i++) {
+				bs += Number(paymentData.value[i].amount_bs)
+				dolar += Number(paymentData.value[i].amount_usd)
+			}
 		}
-
+		
 		if ((totales.value.total$ - dolar) !== 0 && (totales.value.totalBs - bs) !== 0){
 			const data = {
 				idExam: examenesSeleccionados.value[0].idExam,
@@ -626,6 +637,8 @@
 				tasa: precioDolar.value
 			}
 			await boxsStore.createDebt(data)
+		} else {
+			await boxsStore.deleteDebtExam(examenesSeleccionados.value[0].idExam)
 		}
 
 		showToast("Cambios Guardados Con Éxito", "creado", checkboxOutline);

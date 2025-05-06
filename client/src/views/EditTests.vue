@@ -328,7 +328,7 @@
 	const valorReferencial = ref();
 	const nombrePerfilNuevo = ref();
 	const costoBsPerfilNuevo = ref();
-	const externoNuevo = ref();
+	const externoNuevo = ref(false);
 	const costoDolaresPerfilNuevo = ref();
 	const crearCampo = ref(false);
 	const crearRestriccion = ref(false);
