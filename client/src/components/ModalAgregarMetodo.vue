@@ -108,6 +108,17 @@
                                 <option value="Mercantil">Mercantil</option>  
                                 <option value="Venezuela">Venezuela</option>  
                                 <option value="Bancaribe">Bancaribe</option>  
+                                <option value="Banesco">Banesco</option>  
+                                <option value="Provincial">Provincial</option>  
+                                <option value="Caroní">Caroní</option>
+                                <option value="Exterior">Exterior</option>
+                                <option value="Fondo Común">Fondo Común</option>
+                                <option value="Nacional de Crédito">Nacional de Crédito</option>
+                                <option value="Universal">Universal</option>
+                                <option value="Venezolano de Credito">Venezolano de Credito</option>
+                                <option value="Activo">Activo</option>
+                                <option value="Tesoro">Tesoro</option>
+                                <option value="Bancamiga">Bancamiga</option> 
                             </select>  
                         </div> 
                         <div class="form-group mx-2">  
@@ -146,6 +157,17 @@
                                 <option value="Mercantil">Mercantil</option>  
                                 <option value="Venezuela">Venezuela</option>  
                                 <option value="Bancaribe">Bancaribe</option>  
+                                <option value="Banesco">Banesco</option>  
+                                <option value="Provincial">Provincial</option>  
+                                <option value="Caroní">Caroní</option>
+                                <option value="Exterior">Exterior</option>
+                                <option value="Fondo Común">Fondo Común</option>
+                                <option value="Nacional de Crédito">Nacional de Crédito</option>
+                                <option value="Universal">Universal</option>
+                                <option value="Venezolano de Credito">Venezolano de Credito</option>
+                                <option value="Activo">Activo</option>
+                                <option value="Tesoro">Tesoro</option>
+                                <option value="Bancamiga">Bancamiga</option>
                             </select>  
                         </div>  
                         <div class="form-group mx-2">  
