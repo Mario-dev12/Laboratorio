@@ -1706,197 +1706,198 @@ begin
 end;
 $BODY$;
 
-CREATE OR REPLACE FUNCTION sp_find_all_bills(  
-    p_all boolean,  
-    p_startDate character varying,  
-    p_endDate character varying   
-)  
-RETURNS json[]  
-LANGUAGE 'plpgsql'  
-COST 100  
-VOLATILE PARALLEL UNSAFE  
-AS $BODY$  
-DECLARE   
-    v_json_resp json[];  
-BEGIN  
-    IF p_all THEN  
-        SELECT array(   
-            SELECT jsonb_build_object(  
-                'idAlliance', a.idalliance,  
-                'quantity', a.quantity,  
-                'cost_bs', a.cost_bs,  
-                'cost_usd', a.cost_usd,  
-                'pay_done', a.pay_done,  
-                'pay_amount', a.pay_amount,  
-                'createdDate', a.createddate,  
-                'idProvider', p.idprovider,  
-                'providerName', p.name,  
-                'idReactive', r.idreactive,  
-                'reactiveName', r.name  
-            )  
-            FROM alliance a  
-            JOIN provider p ON a.idprovider = p.idprovider  
-            JOIN reactive r ON a.idreactive = r.idreactive  
-        )::json[] INTO v_json_resp;  
-    ELSE  
-        SELECT array(   
-            SELECT jsonb_build_object(  
-                'idAlliance', a.idalliance,  
-                'quantity', a.quantity,  
-                'cost_bs', a.cost_bs,  
-                'cost_usd', a.cost_usd,  
-                'pay_done', a.pay_done,  
-                'pay_amount', a.pay_amount,  
-                'createdDate', a.createddate,  
-                'idProvider', p.idprovider,  
-                'providerName', p.name,  
-                'idReactive', r.idreactive,  
-                'reactiveName', r.name  
-            )  
-            FROM alliance a  
-            JOIN provider p ON a.idprovider = p.idprovider  
-            JOIN reactive r ON a.idreactive = r.idreactive  
-            WHERE   
-                (p_startDate IS NULL OR p_startDate = '' OR a.createddate >= p_startDate::timestamp with time zone) AND  
-                (p_endDate IS NULL OR p_endDate = '' OR a.createddate <= p_endDate::timestamp with time zone)  
-        )::json[] INTO v_json_resp;  
-    END IF;  
+CREATE OR REPLACE FUNCTION sp_find_all_bills(
+    p_all boolean,
+    p_startDate character varying,
+    p_endDate character varying
+)
+RETURNS json[]
+LANGUAGE 'plpgsql'
+COST 100
+VOLATILE PARALLEL UNSAFE
+AS $BODY$
+DECLARE
+    v_json_resp json[];
+BEGIN
+    IF p_all THEN
+        SELECT array(
+            SELECT jsonb_build_object(
+                'idAlliance', a.idalliance,
+                'quantity', a.quantity,
+                'cost_bs', a.cost_bs,
+                'cost_usd', a.cost_usd,
+                'pay_done', a.pay_done,
+                'pay_amount', a.pay_amount,
+                'createdDate', a.createddate,
+                'idProvider', p.idprovider,
+                'providerName', p.name,
+                'idReactive', r.idreactive,
+                'reactiveName', r.name
+            )
+            FROM alliance a
+            JOIN provider p ON a.idprovider = p.idprovider
+            JOIN reactive r ON a.idreactive = r.idreactive
+        )::json[] INTO v_json_resp;
+    ELSE
+        SELECT array(
+            SELECT jsonb_build_object(
+                'idAlliance', a.idalliance,
+                'quantity', a.quantity,
+                'cost_bs', a.cost_bs,
+                'cost_usd', a.cost_usd,
+                'pay_done', a.pay_done,
+                'pay_amount', a.pay_amount,
+                'createdDate', a.createddate,
+                'idProvider', p.idprovider,
+                'providerName', p.name,
+                'idReactive', r.idreactive,
+                'reactiveName', r.name
+            )
+            FROM alliance a
+            JOIN provider p ON a.idprovider = p.idprovider
+            JOIN reactive r ON a.idreactive = r.idreactive
+            WHERE
+                (p_startDate IS NULL OR p_startDate = '' OR a.createddate >= p_startDate::timestamp with time zone) AND
+                (p_endDate IS NULL OR p_endDate = '' OR a.createddate < (p_endDate::timestamp with time zone + INTERVAL '1 day'))
+        )::json[] INTO v_json_resp;
+    END IF;
 
-    IF v_json_resp IS NULL THEN  
-        RETURN '{}'::json[];  
-    END IF;  
+    IF v_json_resp IS NULL THEN
+        RETURN '{}'::json[];
+    END IF;
 
-    RETURN v_json_resp;  
-END;  
+    RETURN v_json_resp;
+END;
 $BODY$;
 
 
-CREATE OR REPLACE FUNCTION sp_find_all_income(  
-    p_all boolean,  
-    p_startdate character varying,  
-    p_enddate character varying)  
-RETURNS json[]  
-LANGUAGE 'plpgsql'  
-COST 100  
-VOLATILE PARALLEL UNSAFE  
-AS $BODY$  
 
-DECLARE   
-    v_json_resp json[];  
-BEGIN  
-    IF p_all THEN   
-        SELECT array(  
-            SELECT jsonb_build_object(  
-                'idUser', s.idUser,  
-                'ci', s.ci,  
-                'passport', s.passport,  
-                'firstName', s.firstName,  
-                'lastName', s.lastName,  
-                'genre', s.genre,  
-                'age', s.age,  
-                'exams', jsonb_agg(  
-                    jsonb_build_object(  
-                        'idProfile', o.idProfile,  
-                        'examName', p.name,  
-                        'cost_bs', p.cost_bs,  
-                        'cost_usd', p.cost_usd,  
-                        'createdDate', e.createdDate,  
-                        'payments', (  
-                            SELECT jsonb_agg(  
-                                jsonb_build_object(  
-                                    'idPaymentMethod', m.idPayment_method,  
-                                    'PaymentMethodName', m.name,  
-                                    'amount_bs', pa.amount_bs,  
-                                    'amount_usd', pa.amount_usd,  
-                                    'bank', pa.bank,  
-                                    'phone', pa.phone,  
-                                    'type', pa.type  
-                                )  
-                            )  
-                            FROM payment pa  
-                            LEFT JOIN payment_method m ON pa.idPayment_method = m.idPayment_method  
-                            WHERE pa.idExam = e.idExam   
-                        )  
-                    )  
-                ),  
-                'totalCost_bs', SUM(CAST(replace(p.cost_bs, ',', '.') AS numeric)),  
-                'totalCost_usd', SUM(CAST(replace(p.cost_usd, ',', '.') AS numeric)),  
-                'payments', (  
-                    SELECT jsonb_agg(  
-                        jsonb_build_object(  
-                            'idPaymentMethod', m.idPayment_method,  
-                            'PaymentMethodName', m.name,  
-                            'amount_bs', pa.amount_bs,  
-                            'amount_usd', pa.amount_usd,  
-                            'bank', pa.bank,  
-                            'phone', pa.phone,  
-                            'type', pa.type  
-                        )  
-                    )  
-                    FROM payment pa  
-                    LEFT JOIN payment_method m ON pa.idPayment_method = m.idPayment_method  
-                    JOIN exam ex ON pa.idExam = ex.idExam   
-                    WHERE ex.idUser = s.idUser  
-                )  
-            )  
-            FROM orders o  
-            JOIN exam e ON o.idExam = e.idExam  
-            JOIN profile p ON o.idProfile = p.idProfile  
-            JOIN users s ON e.idUser = s.idUser  
-            GROUP BY s.idUser, s.ci, s.passport, s.firstName, s.lastName, s.genre, s.age  
-        ) ::json[] INTO v_json_resp;  
-      
-    ELSE    
-        SELECT array(  
-            SELECT jsonb_build_object(  
-                'idUser', s.idUser,  
-                'ci', s.ci,  
-                'passport', s.passport,  
-                'firstName', s.firstName,  
-                'lastName', s.lastName,  
-                'genre', s.genre,  
-                'age', s.age,  
-                'exams', jsonb_agg(  
-                    jsonb_build_object(  
-                        'idProfile', o.idProfile,  
-                        'examName', p.name,  
-                        'cost_bs', p.cost_bs,  
-                        'cost_usd', p.cost_usd,  
-                        'createdDate', e.createdDate,  
-                        'payments', (  
-                            SELECT jsonb_agg(  
-                                jsonb_build_object(  
-                                    'idPaymentMethod', m.idPayment_method,  
-                                    'PaymentMethodName', m.name,  
-                                    'amount_bs', pa.amount_bs,  
-                                    'amount_usd', pa.amount_usd,  
-                                    'bank', pa.bank,  
-                                    'phone', pa.phone,  
-                                    'type', pa.type  
-                                )  
-                            )  
-                            FROM payment pa  
-                            LEFT JOIN payment_method m ON pa.idPayment_method = m.idPayment_method  
-                            WHERE pa.idExam = e.idExam   
-                        )  
-                    )  
-                ),  
-                'totalCost_bs', SUM(CAST(replace(p.cost_bs, ',', '.') AS numeric)),  
-                'totalCost_usd', SUM(CAST(replace(p.cost_usd, ',', '.') AS numeric))  
-            )  
-            FROM orders o  
-            JOIN exam e ON o.idExam = e.idExam  
-            JOIN profile p ON o.idProfile = p.idProfile  
-            JOIN users s ON e.idUser = s.idUser  
-            WHERE (p_startDate = '' OR e.createdDate >= p_startDate::timestamp with time zone)  
-            AND (p_endDate = '' OR e.createdDate <= p_endDate::timestamp with time zone)  
-            GROUP BY s.idUser, s.ci, s.passport, s.firstName, s.lastName, s.genre, s.age  
-        ) ::json[] INTO v_json_resp;  
-    END IF;  
+CREATE OR REPLACE FUNCTION sp_find_all_income(
+    p_all boolean,
+    p_startdate character varying,
+    p_enddate character varying)
+RETURNS json[]
+LANGUAGE 'plpgsql'
+COST 100
+VOLATILE PARALLEL UNSAFE
+AS $BODY$
 
-    RETURN v_json_resp;  
-END;  
-$BODY$;  
+DECLARE
+    v_json_resp json[];
+BEGIN
+    IF p_all THEN
+        SELECT array(
+            SELECT jsonb_build_object(
+                'idUser', s.idUser,
+                'ci', s.ci,
+                'passport', s.passport,
+                'firstName', s.firstName,
+                'lastName', s.lastName,
+                'genre', s.genre,
+                'age', s.age,
+                'exams', jsonb_agg(
+                    jsonb_build_object(
+                        'idProfile', o.idProfile,
+                        'examName', p.name,
+                        'cost_bs', p.cost_bs,
+                        'cost_usd', p.cost_usd,
+                        'createdDate', e.createdDate,
+                        'payments', (
+                            SELECT jsonb_agg(
+                                jsonb_build_object(
+                                    'idPaymentMethod', m.idPayment_method,
+                                    'PaymentMethodName', m.name,
+                                    'amount_bs', pa.amount_bs,
+                                    'amount_usd', pa.amount_usd,
+                                    'bank', pa.bank,
+                                    'phone', pa.phone,
+                                    'type', pa.type
+                                )
+                            )
+                            FROM payment pa
+                            LEFT JOIN payment_method m ON pa.idPayment_method = m.idPayment_method
+                            WHERE pa.idExam = e.idExam
+                        )
+                    )
+                ),
+                'totalCost_bs', SUM(CAST(replace(p.cost_bs, ',', '.') AS numeric)),
+                'totalCost_usd', SUM(CAST(replace(p.cost_usd, ',', '.') AS numeric)),
+                 'payments', (
+                    SELECT jsonb_agg(
+                        jsonb_build_object(
+                            'idPaymentMethod', m.idPayment_method,
+                            'PaymentMethodName', m.name,
+                            'amount_bs', pa.amount_bs,
+                            'amount_usd', pa.amount_usd,
+                            'bank', pa.bank,
+                            'phone', pa.phone,
+                            'type', pa.type
+                        )
+                    )
+                    FROM payment pa
+                    LEFT JOIN payment_method m ON pa.idPayment_method = m.idPayment_method
+                    JOIN exam ex ON pa.idExam = ex.idExam
+                    WHERE ex.idUser = s.idUser
+                )
+            )
+            FROM orders o
+            JOIN exam e ON o.idExam = e.idExam
+            JOIN profile p ON o.idProfile = p.idProfile
+            JOIN users s ON e.idUser = s.idUser
+            GROUP BY s.idUser, s.ci, s.passport, s.firstName, s.lastName, s.genre, s.age
+        ) ::json[] INTO v_json_resp;
+    ELSE
+        SELECT array(
+            SELECT jsonb_build_object(
+                'idUser', s.idUser,
+                'ci', s.ci,
+                'passport', s.passport,
+                'firstName', s.firstName,
+                'lastName', s.lastName,
+                'genre', s.genre,
+                'age', s.age,
+                'exams', jsonb_agg(
+                    jsonb_build_object(
+                        'idProfile', o.idProfile,
+                        'examName', p.name,
+                        'cost_bs', p.cost_bs,
+                        'cost_usd', p.cost_usd,
+                        'createdDate', e.createdDate,
+                        'payments', (
+                            SELECT jsonb_agg(
+                                jsonb_build_object(
+                                    'idPaymentMethod', m.idPayment_method,
+                                    'PaymentMethodName', m.name,
+                                    'amount_bs', pa.amount_bs,
+                                    'amount_usd', pa.amount_usd,
+                                    'bank', pa.bank,
+                                    'phone', pa.phone,
+                                    'type', pa.type
+                                )
+                            )
+                            FROM payment pa
+                            LEFT JOIN payment_method m ON pa.idPayment_method = m.idPayment_method
+                            WHERE pa.idExam = e.idExam
+                        )
+                    )
+                ),
+                'totalCost_bs', SUM(CAST(replace(p.cost_bs, ',', '.') AS numeric)),
+                'totalCost_usd', SUM(CAST(replace(p.cost_usd, ',', '.') AS numeric))
+            )
+            FROM orders o
+            JOIN exam e ON o.idExam = e.idExam
+            JOIN profile p ON o.idProfile = p.idProfile
+            JOIN users s ON e.idUser = s.idUser
+            WHERE (p_startDate = '' OR e.createdDate >= p_startDate::timestamp with time zone)
+            AND (p_endDate = '' OR e.createdDate < (p_endDate::timestamp with time zone + INTERVAL '1 day'))
+            GROUP BY s.idUser, s.ci, s.passport, s.firstName, s.lastName, s.genre, s.age
+        ) ::json[] INTO v_json_resp;
+    END IF;
+
+    RETURN v_json_resp;
+END;
+$BODY$;
+
 
 CREATE OR REPLACE FUNCTION sp_find_all_profile_unrepeated(
 	)
