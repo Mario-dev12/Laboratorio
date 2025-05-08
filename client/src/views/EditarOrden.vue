@@ -192,6 +192,14 @@
 					<div class="col">Total En $</div>
 					<div class="col">$: {{ totales.total$.toFixed(2) }}</div>
 				</div>
+				<div v-if="debeTotal.total$ > 0" class="row w-100 m-auto mb-1">
+					<div class="col">Debe En $</div>
+					<div class="col">$: {{ (debeTotal.total$).toFixed(2) }}</div>
+				</div>
+				<div v-if="debeTotal.totalBs > 0" class="row w-100 m-auto mb-1">
+					<div class="col">Debe En Bs</div>
+					<div class="col">Bs: {{ (debeTotal.totalBs).toFixed(2) }}</div>
+				</div>
 				<div v-if="paymentData && paymentData.length > 0" class="mt-3">
 					<div class="row w-100 m-auto mt-3">
 						<div class="col">Métodos de Pago</div>
@@ -270,6 +278,15 @@
 	const totalPagadoDolares = ref();
 	const totalPagadoBs = ref();
 	const boxsStore = boxStore();
+	const debe = ref({
+		totalBs: 0,
+		total$: 0,
+	});
+
+	const debeTotal = ref({
+		totalBs: 0,
+		total$: 0,
+	});
 
 	const filteredProfiles = computed(() => {
 		if (!filterText.value) {
@@ -288,7 +305,7 @@
 		agregarExamen();
 		const inputElement = document.getElementById('filterInput') as HTMLInputElement;
 		if (inputElement) {
-		inputElement.blur();
+			inputElement.blur();
 		}
 		filterText.value = ''
 	}
@@ -373,6 +390,12 @@
 			totales.value.totalBs += parseFloat((Number(item.cost_usd) * precioDolar.value).toFixed(2));
 			totales.value.total$ += Number(item.cost_usd);
 		}
+		for (const item of paymentData.value){
+			debe.value.total$ += Number(item.amount_usd)
+			debe.value.totalBs += Number(item.amount_bs)
+		}
+		debeTotal.value.total$ = Math.floor((totales.value.total$ - debe.value.total$) * 100) / 100
+		debeTotal.value.totalBs = Math.floor((totales.value.totalBs - debe.value.totalBs) * 100) / 100
 		user.value.apellido = userData.value[0].lastName;
 		user.value.documento = userData.value[0].ci;
 		user.value.edad = userData.value[0].age;
@@ -702,6 +725,14 @@
 			total$: 0,
 		};
 		precioDolar.value = Number(localStorage.getItem("tasaDolar")) || 50;
+		debeTotal.value = {
+			totalBs: 0,
+			total$: 0,
+		}
+		debe.value = {
+			totalBs: 0,
+			total$: 0,
+		}
 	}
 
 	const cancelarEdicion = () => {
