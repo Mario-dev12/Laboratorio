@@ -219,11 +219,11 @@
                 </div>  
 
                 <div v-if="method && !esMontoEquivalente" class="total-container pt-3"> 
-                    <label>Total Restante Bs: {{ montoRestanteBolivares }}</label>
+                    <label>Total Restante Bs: {{ montoRestanteBolivares.toFixed(2) }}</label>
                 </div>
 
                 <div v-if="method && !esMontoEquivalente" class="total-container pt-3"> 
-                    <label>Total Restante $: {{ montoRestanteDolares }}</label>
+                    <label>Total Restante $: {{ montoRestanteDolares.toFixed(2) }}</label>
                 </div>
 
                 <ion-item-divider v-if="method && !esMontoEquivalente"></ion-item-divider> 
@@ -450,30 +450,36 @@ const cancelarEdicion = () => {
 
 const esMontoEquivalente = computed(() => {  
     let totalBolivares = 0;  
-    let totalDolares = 0; 
+    let totalDolares = 0;  
 
-    metodos.value.forEach(metodo => { 
+    metodos.value.forEach(metodo => {  
         if (metodo.metodo === 'Efectivo') {  
             if (metodo.divisaEfectivo === 'Bolivares') {  
                 totalBolivares += metodo.montoEfectivo;  
-                metodo.montoUSD = metodo.montoEfectivo / props.precioDolar;
-                totalDolares += metodo.montoUSD;
+                metodo.montoUSD = metodo.montoEfectivo / props.precioDolar;  
+                totalDolares += metodo.montoUSD;  
             } else if (metodo.divisaEfectivo === 'Dolares') {  
-                totalBolivares += metodo.montoUSD * props.precioDolar; 
-                totalDolares += metodo.montoUSD; 
+                totalBolivares += metodo.montoEfectivo * props.precioDolar;   
+                totalDolares += metodo.montoEfectivo;   
             }  
         } else if (metodo.metodo === 'Debito') {  
-            totalBolivares += metodo.montoDebito;
-            metodo.montoUSD = metodo.montoDebito / props.precioDolar;
-            totalDolares += metodo.montoUSD;
+            totalBolivares += metodo.montoDebito;  
+            metodo.montoUSD = metodo.montoDebito / props.precioDolar;  
+            totalDolares += metodo.montoUSD;  
         } else if (metodo.metodo === 'Pago Movil') {  
-            totalBolivares += metodo.montoPagoMovil;
-            metodo.montoUSD = metodo.montoPagoMovil / props.precioDolar;
-            totalDolares += metodo.montoUSD;
+            totalBolivares += metodo.montoPagoMovil;  
+            metodo.montoUSD = metodo.montoPagoMovil / props.precioDolar;  
+            totalDolares += metodo.montoUSD;  
         }  
-    }); 
+    });  
 
-    return parseFloat((totalBolivares).toFixed(2)) === parseFloat((props.totales.totalBs).toFixed(2)) && parseFloat((totalDolares).toFixed(2)) === parseFloat((props.totales.total$).toFixed(2)); 
+    const bolivaresCumple = parseFloat((totalBolivares).toFixed(2)) === parseFloat((props.totales.totalBs).toFixed(2)) ||  
+                            parseFloat((totalBolivares).toFixed(2)) <= parseFloat((props.totales.totalBs).toFixed(2)) + 1;  
+
+    const dolaresCumple = parseFloat((totalDolares).toFixed(2)) === parseFloat((props.totales.total$).toFixed(2)) ||  
+                            parseFloat((totalDolares).toFixed(2)) <= parseFloat((props.totales.total$).toFixed(2)) + 0.5;  
+
+    return bolivaresCumple || dolaresCumple;  
 });  
 
 async function calcularMontosRestantes() {  

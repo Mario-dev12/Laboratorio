@@ -201,6 +201,14 @@
 					<div class="col">Total En $</div>
 					<div class="col">$: {{ totales.total$ }}</div>
 				</div>
+				<div v-if="debe.total$ > 0" class="row w-100 m-auto mb-1">
+					<div class="col">Debe En $</div>
+					<div class="col">$: {{ debe.total$.toFixed(2) }}</div>
+				</div>
+				<div v-if="debe.totalBs > 0" class="row w-100 m-auto mb-1">
+					<div class="col">Debe En Bs</div>
+					<div class="col">Bs: {{ debe.totalBs.toFixed(2) }}</div>
+				</div>
 				<div v-if="metodoPagos && metodoPagos.length > 0" class="mt-3">
 					<div class="row w-100 m-auto mt-4">
 						<h5 class="col">Métodos de Pago</h5>
@@ -273,6 +281,10 @@
 	const nuevoMontoDolar = ref<number | null>(null);
 	const filterText = ref("");
 	const showDropdown = ref(false);
+	const debe = ref({
+		totalBs: 0,
+		total$: 0,
+	});
 
 	const filteredProfiles = computed(() => {
 		if (!filterText.value) {
@@ -349,6 +361,17 @@
 
 	router.beforeEach(async (to, from, next) => {
 		examenesSeleccionados.value = [];
+		profiles.value = await profilesStore.fecthAllProfiles();
+		profiles.value = profiles.value.map((exam: { cost_bs: string; cost_usd: string }) => ({
+			...exam,
+			cost_bs: parseFloat(exam.cost_bs.replace(",", ".")),
+			cost_usd: parseFloat(exam.cost_usd),
+		}));
+		precioDolar.value = Number(localStorage.getItem("tasaDolar")) || 50;
+		eventBus.on("precioActualizado", handlePrecioActualizado);
+		crearOrden();
+		await resetOrderData();
+		user.value.phone = "+58";
 		next();
 	});
 
@@ -362,6 +385,8 @@
 		precioDolar.value = Number(localStorage.getItem("tasaDolar")) || 50;
 		eventBus.on("precioActualizado", handlePrecioActualizado);
 		crearOrden();
+		await resetOrderData();
+		user.value.phone = "+58";
 	});
 
 	watch(precioDolar, (newVal) => {
@@ -506,7 +531,7 @@
 						doctor: user.value.doctor,
 					};
 					const resp = await users.createUser(body);
-					respUser = resp[0].id;
+					respUser = resp[resp.length - 1].id;
 					if (respUser) {
 						const examsBody: Exam = {
 							idUser: respUser,
@@ -556,6 +581,7 @@
 					showToast("Orden Creada Exitosamente!!", "creado", checkboxOutline);
 					crearOrden();
 					await resetOrderData();
+					resp.length = 0;
 					router.push({ name: "CrearOrden" });
 				} else {
 					let respExam: number | undefined = 0;
@@ -631,6 +657,8 @@
 		if (!(totales.value.total$ === totalPagadoDolares.value) && !(totales.value.totalBs === totalPagadoBs.value)) {
 			totalesRestantes.value.total$ = totales.value.total$ - totalPagadoDolares.value;
 			totalesRestantes.value.totalBs = totales.value.totalBs - totalPagadoBs.value;
+			debe.value.total$ = totales.value.total$ - totalPagadoDolares.value;
+			debe.value.totalBs = totales.value.totalBs - totalPagadoBs.value;
 		}
 
 		closeModal();
@@ -657,6 +685,10 @@
 			total$: 0,
 		};
 		precioDolar.value = Number(localStorage.getItem("tasaDolar")) || 50;
+		debe.value = {
+			totalBs: 0,
+			total$: 0,
+		};
 	}
 
 	const cancelarEdicion = () => {
