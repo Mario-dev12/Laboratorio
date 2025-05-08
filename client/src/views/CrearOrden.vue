@@ -196,11 +196,11 @@
 					<div class="col">Total En $</div>
 					<div class="col">$: {{ totales.total$ }}</div>
 				</div>
-				<div v-if="debe.total$ !== 0" class="row w-100 m-auto mb-1">
+				<div v-if="debe.total$ > 0" class="row w-100 m-auto mb-1">
 					<div class="col">Debe En $</div>
 					<div class="col">$: {{ (debe.total$).toFixed(2) }}</div>
 				</div>
-				<div v-if="debe.totalBs !== 0" class="row w-100 m-auto mb-1">
+				<div v-if="debe.totalBs > 0" class="row w-100 m-auto mb-1">
 					<div class="col">Debe En Bs</div>
 					<div class="col">Bs: {{ (debe.totalBs).toFixed(2) }}</div>
 				</div>
@@ -368,6 +368,7 @@
 		eventBus.on("precioActualizado", handlePrecioActualizado); 
 		crearOrden();
 		await resetOrderData();
+		user.value.phone = '+58'
     	next();  
 	})
 
@@ -382,6 +383,7 @@
 		eventBus.on("precioActualizado", handlePrecioActualizado); 
 		crearOrden();
 		await resetOrderData();
+		user.value.phone = '+58'
 	});
 
 	watch(precioDolar, (newVal) => {  
@@ -679,6 +681,11 @@
 			total$: 0,
 		};
 		precioDolar.value = Number(localStorage.getItem("tasaDolar")) || 50;
+		debe.value = {
+			totalBs: 0,
+			total$: 0,
+		}
+
 	}
 
 	const cancelarEdicion = () => {

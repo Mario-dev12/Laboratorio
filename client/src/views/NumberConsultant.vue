@@ -368,7 +368,10 @@
 			totalPagadoDolares.value += Number(payment.montoDolares);
 			totalPagadoBs.value += Number(payment.montoBolivares);
 		}
-		if (catchDebt.value.deuda_bs.replace('.', ',') !== totalPagadoBs.value.toString().replace('.', ',') && catchDebt.value.deuda_dolar.replace('.', ',') !== totalPagadoDolares.value.toString().replace('.', ',')){
+		if ((Math.abs(parseFloat(catchDebt.value.deuda_bs.replace('.', ',')) - parseFloat(totalPagadoBs.value.toString().replace('.', ','))) >= 3 &&   
+			parseFloat(catchDebt.value.deuda_bs.replace('.', ',')) !== parseFloat(totalPagadoBs.value.toString().replace('.', ','))) ||   
+			(Math.abs(parseFloat(catchDebt.value.deuda_dolar.replace('.', ',')) - parseFloat(totalPagadoDolares.value.toString().replace('.', ','))) >= 0.2 &&   
+			parseFloat(catchDebt.value.deuda_dolar.replace('.', ',')) !== parseFloat(totalPagadoDolares.value.toString().replace('.', ',')))){
 			showToast("El monto ingresado es diferente al monto pendiente. Revise el monto", "warning", alertCircleOutline);
 			closeModal();
 		} else {
@@ -393,8 +396,8 @@
 	};
 
 	const abrirModal = (income: any) => {
-		totales.value.total$ = parseFloat(income.deuda_dolar.replace(",", "."))
-		totales.value.totalBs = parseFloat(income.deuda_bs.replace(",", "."))
+		totales.value.total$ = Number(parseFloat(income.deuda_dolar.replace(",", ".")).toFixed(2));  
+		totales.value.totalBs = Number(parseFloat(income.deuda_bs.replace(",", ".")).toFixed(2));  
 		precioDolar.value = parseFloat(income.tasa.replace(",", "."))
 		catchDebt.value = income
 		mostrarModal.value = true;

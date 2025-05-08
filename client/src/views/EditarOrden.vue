@@ -192,11 +192,11 @@
 					<div class="col">Total En $</div>
 					<div class="col">$: {{ totales.total$.toFixed(2) }}</div>
 				</div>
-				<div v-if="debeTotal.total$ !== 0" class="row w-100 m-auto mb-1">
+				<div v-if="debeTotal.total$ > 0" class="row w-100 m-auto mb-1">
 					<div class="col">Debe En $</div>
 					<div class="col">$: {{ (debeTotal.total$).toFixed(2) }}</div>
 				</div>
-				<div v-if="debeTotal.totalBs !== 0" class="row w-100 m-auto mb-1">
+				<div v-if="debeTotal.totalBs > 0" class="row w-100 m-auto mb-1">
 					<div class="col">Debe En Bs</div>
 					<div class="col">Bs: {{ (debeTotal.totalBs).toFixed(2) }}</div>
 				</div>
@@ -305,7 +305,7 @@
 		agregarExamen();
 		const inputElement = document.getElementById('filterInput') as HTMLInputElement;
 		if (inputElement) {
-		inputElement.blur();
+			inputElement.blur();
 		}
 		filterText.value = ''
 	}
@@ -725,6 +725,14 @@
 			total$: 0,
 		};
 		precioDolar.value = Number(localStorage.getItem("tasaDolar")) || 50;
+		debeTotal.value = {
+			totalBs: 0,
+			total$: 0,
+		}
+		debe.value = {
+			totalBs: 0,
+			total$: 0,
+		}
 	}
 
 	const cancelarEdicion = () => {
