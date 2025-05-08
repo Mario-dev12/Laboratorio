@@ -156,7 +156,7 @@
 					<table class="table table-striped">
 						<thead>
 							<tr>
-								<th>Nombre del Paciente</th>
+								<th>Paciente</th>
 								<th>Documento Identidad</th>
 								<th>Género</th>
 								<th>Edad</th>
@@ -174,8 +174,8 @@
 								<td>{{ income.ci ? income.ci : income.passport ? income.passport : "N/A" }}</td>
 								<td>{{ income.genre }}</td>
 								<td>{{ income.age }}</td>
-								<td>{{ income.deuda_bs }}</td>
-								<td>{{ income.deuda_dolar }}</td>
+								<td>{{ Math.floor(parseFloat(income.deuda_bs.toString().replace(',', '.')) * 100) / 100 }}</td>
+								<td>{{ Math.floor(parseFloat(income.deuda_dolar.toString().replace(',', '.')) * 100) / 100 }}</td>
 								<td>{{ income.tasa }}</td>
 								<td>
 									<div v-for="exam in income.exams" :key="exam.idProfile">  
