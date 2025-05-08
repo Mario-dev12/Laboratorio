@@ -480,7 +480,9 @@
 			!user.value.apellido ||
 			!user.value.genero ||
 			!user.value.edad ||
-			!user.value.procedencia
+			!user.value.procedencia ||
+			!user.value.email ||
+			!user.value.phone
 		) {
 			showToast("Por Favor Completar Datos Del Cliente", "warning", alertCircleOutline);
 		} else {
