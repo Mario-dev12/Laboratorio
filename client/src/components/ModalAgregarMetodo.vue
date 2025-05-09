@@ -385,6 +385,9 @@ const submit = async () => {
 
 const resetForm = () => {  
     metodos.value = [{ metodo: '', divisaEfectivo: '', montoEfectivo: 0, divisaDebito: 'Bolivares', montoDebito: 0, montoUSD: 0, banco: '', divisaPagoMovil: 'Bolivares', bancoPagoMovil: '', montoPagoMovil: 0, telefonoPagoMovil: '' }];  
+    montoRestanteBolivares.value = 0  
+    montoRestanteDolares.value = 0; 
+    method.value = false;
 };  
 
 const isEditingTasa = ref(false);  

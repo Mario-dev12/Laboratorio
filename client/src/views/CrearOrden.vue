@@ -578,6 +578,7 @@
 					crearOrden();
 					await resetOrderData();
 					resp.length = 0
+					user.value.phone = '+58'
 					router.push({ name: "CrearOrden" });
 				} else {
 					let respExam: number | undefined = 0;
