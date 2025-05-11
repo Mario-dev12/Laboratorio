@@ -233,7 +233,7 @@
 
 <script setup lang="ts">
 	import { IonPage, IonContent, IonToast } from "@ionic/vue";
-	import html2pdf from "html2pdf.js";
+	//import html2pdf from "html2pdf.js";
 	import { ref, onMounted } from "vue";
 	import { useRoute } from "vue-router";
 	import { profileStore } from "@/stores/profileStore";
@@ -423,6 +423,8 @@
 
 		const element = html;
 
+		const html2pdf = (await import('html2pdf.js')).default;
+
 		if (!print.value) {
 			html2pdf().from(element).set(options).save();
 			html = "";
@@ -527,6 +529,8 @@
 		pdfFileName.value = options.filename;
 
 		const element = html;
+
+		const html2pdf = (await import('html2pdf.js')).default;
 
 		if (!print.value) {
 			html2pdf().from(element).set(options).save();
@@ -677,6 +681,8 @@
 			html2canvas: { scale: 2 },
 			jsPDF: { unit: "mm", format: "letter", orientation: "portrait" },
 		};
+
+		const html2pdf = (await import('html2pdf.js')).default;
 
 		html2pdf().from(element).set(options).save();
 	};

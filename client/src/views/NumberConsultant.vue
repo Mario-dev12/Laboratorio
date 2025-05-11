@@ -29,10 +29,10 @@
 						</thead>
 						<tbody>
 							<tr>
-								<td class="ingresos">+{{ totalBs }} bs (+{{ totalDolares }} $)</td>
-								<td class="egresos">-{{ billsTotalBs }} bs (-{{ billsTotalDolares }} $)</td>
+								<td class="ingresos">+{{ totalBs.toFixed(2) }} bs (+{{ totalDolares }} $)</td>
+								<td class="egresos">-{{ billsTotalBs.toFixed(2) }} bs (-{{ billsTotalDolares }} $)</td>
 								<td :class="{ 'balance-positivo': totalBs >= billsTotalBs, 'balance-negativo': totalBs < billsTotalBs }">
-									{{ totalBs - billsTotalBs }} bs ({{ totalDolares - billsTotalDolares }}) $
+									{{ (totalBs - billsTotalBs).toFixed(2) }} bs ({{ totalDolares - billsTotalDolares }}) $
 								</td>
 							</tr>
 						</tbody>
@@ -288,18 +288,30 @@
 	};
 
 	onMounted(async () => {
-		incomes.value = await boxsStore.fecthIncome(true, "", "");
-		bills.value = await boxsStore.fecthBills(true, "", "");
-		debt.value = await boxsStore.fecthDebt(true, "", "");
+		const [incomesData, billsData, debtData] = await Promise.all([  
+            boxsStore.fecthIncome(true, "", ""),  
+            boxsStore.fecthBills(true, "", ""),  
+            boxsStore.fecthDebt(true, "", "")  
+        ]);  
+        
+        incomes.value = incomesData;  
+        bills.value = billsData;  
+        debt.value = debtData; 
 		await totalAmountIncome();
 		await totalAmountBills();
 	});
 
 	const loadData = async () => {  
 		try {  
-			incomes.value = await boxsStore.fecthIncome(true, "", "");  
-			bills.value = await boxsStore.fecthBills(true, "", ""); 
-			debt.value = await boxsStore.fecthDebt(true, "", ""); 
+			const [incomesData, billsData, debtData] = await Promise.all([  
+				boxsStore.fecthIncome(true, "", ""),  
+				boxsStore.fecthBills(true, "", ""),  
+				boxsStore.fecthDebt(true, "", "")  
+			]);  
+			
+			incomes.value = incomesData;  
+			bills.value = billsData;  
+			debt.value = debtData; 
 			await totalAmountIncome();  
 			await totalAmountBills();  
 		} catch (error) {  

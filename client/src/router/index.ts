@@ -8,8 +8,6 @@ import EditUserExam from "@/views/EditTests.vue";
 import OrdersView from "@/views/OrdersView.vue";
 import OrdersHistoryView from "@/views/OrdersHistoryView.vue";
 import EditarOrden from "@/views/EditarOrden.vue";
-import TemplatePDF from "@/views/TemplatePDF.vue";
-import AddResults from "@/views/AddResults.vue";
 import AddResults2 from "@/views/AddResults2.vue";
 import UrocultivoResults from "@/views/UrocultivoResults.vue";
 import EditCultive from "@/views/EditCultive.vue";
@@ -65,16 +63,6 @@ const routes: Array<RouteRecordRaw> = [
 		path: "/historico",
 		name: "Historico",
 		component: OrdersHistoryView,
-	},
-	{
-		path: "/reporte",
-		name: "Reporte",
-		component: TemplatePDF,
-	},
-	{
-		path: "/result",
-		name: "Results",
-		component: AddResults,
 	},
 	{
 		path: "/result2",

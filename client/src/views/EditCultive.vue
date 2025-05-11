@@ -294,8 +294,10 @@
 	onMounted(async () => {
 		eventBus.on("precioActualizado", handlePrecioActualizado);
 		tasa.value = Number(localStorage.getItem("tasaDolar")) || 50;
-		perfiles.value = await tests.fecthCultives();
-		spermiogram.value = await tests.fecthSpermiogram();
+		[perfiles.value, spermiogram.value] = await Promise.all([  
+			tests.fecthCultives(),  
+			tests.fecthSpermiogram(),  
+		]); 
 		perfiles.value.forEach((perfil) => {
 			const costUsd = parseFloat(perfil.cost_usd);
 			const costBs = (costUsd * tasa.value).toFixed(2);
