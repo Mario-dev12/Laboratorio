@@ -114,6 +114,21 @@
 									ref="costoBsPerfilNuevo" />
 							</div>
 						</div>
+
+						<div class="w-100 m-auto row px-2 mb-3 mt-3">  
+							<label v-if="!update" class="col-12 p-0">  
+							  <input   
+								type="checkbox" 
+								v-model="externoNuevo"  
+								 /> Examen Externo  
+							</label>  
+							<label v-else class="col-12 p-0">  
+								<input   
+								  type="checkbox"   
+								  v-model="selectedPerfil.externo"
+								  ref="externoNuevo" /> Examen Externo  
+							  </label>  
+						</div>  
 	
 						<div class="d-flex justify-content-center mt-3 mb-3">
 							<button class="btn btn-primary mb-4" @click="crearPerfil" v-if="!update">Crear Cultivo</button>
@@ -221,6 +236,21 @@
 									ref="costoBsPerfilNuevo" />
 							</div>
 						</div>
+
+						<div class="w-100 m-auto row px-2 mb-3 mt-3">  
+							<label v-if="!update" class="col-12 p-0">  
+							  <input   
+								type="checkbox" 
+								v-model="externoNuevo"  
+								 /> Examen Externo  
+							</label>  
+							<label v-else class="col-12 p-0">  
+								<input   
+								  type="checkbox"   
+								  v-model="selectedPerfil.externo"
+								  ref="externoNuevo" /> Examen Externo  
+							  </label>  
+						</div> 
 	
 						<div class="d-flex justify-content-center mt-3 mb-3">
 							<button class="btn btn-primary mb-4" @click="crearPerfil" v-if="!update">Crear Espermatograma</button>
@@ -268,6 +298,7 @@
 	const profileNamesOrdered = ref(["Cultivos", "Espermatograma"])
 	const activeIndex = ref<number>(0);
 	const showProfile = ref<boolean>(true);
+	const externoNuevo = ref(false);
 	const toast = ref({
 		isOpen: false,
 		message: "",
@@ -279,6 +310,7 @@
 		name: "",
 		cost_bs: "",
 		cost_usd: "",
+		externo: false,
 	};
 
 	interface Seccion {
@@ -463,6 +495,7 @@
 				dataPerfilNuevo.name = nombrePerfilNuevo.value.value;
 				dataPerfilNuevo.cost_usd = costoDolaresPerfilNuevo.value.value;
 				dataPerfilNuevo.cost_bs = costoBsPerfilNuevo.value.value;
+				dataPerfilNuevo.externo = externoNuevo.value;
 
 				if (
 					perfiles.value.some((item) => {
