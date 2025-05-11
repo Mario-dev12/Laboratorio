@@ -98,11 +98,11 @@
 					<tfoot>
 						<tr>
 							<td colspan="10" style="text-align: right; font-weight: bold">Total $:</td>
-							<td style="text-align: right; font-weight: bold">{{ totalDolares }} $</td>
+							<td style="text-align: right; font-weight: bold">{{ totalDolares.toFixed(2) }} $</td>
 						</tr>
 						<tr>
 							<td colspan="10" style="text-align: right; font-weight: bold">Total Bs:</td>
-							<td style="text-align: right; font-weight: bold">{{ totalBs }} Bs</td>
+							<td style="text-align: right; font-weight: bold">{{ totalBs.toFixed(2) }} Bs</td>
 						</tr>
 					</tfoot>
 				</table>
@@ -140,11 +140,11 @@
 					<tfoot>
 						<tr>
 							<td colspan="6" style="text-align: right; font-weight: bold">Total $:</td>
-							<td style="text-align: right; font-weight: bold">{{ billsTotalDolares }} $</td>
+							<td style="text-align: right; font-weight: bold">{{ billsTotalDolares.toFixed(2) }} $</td>
 						</tr>
 						<tr>
 							<td colspan="6" style="text-align: right; font-weight: bold">Total Bs:</td>
-							<td style="text-align: right; font-weight: bold">{{ billsTotalBs }} Bs</td>
+							<td style="text-align: right; font-weight: bold">{{ billsTotalBs.toFixed(2) }} Bs</td>
 						</tr>
 					</tfoot>
 				</table>
