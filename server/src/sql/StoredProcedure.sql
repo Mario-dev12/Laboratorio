@@ -170,6 +170,7 @@ BEGIN
 			'name', a.name,  
 			'cost_bs', a.cost_bs,  
 			'cost_usd', a.cost_usd,  
+            'externo', a.externo,
 			'createdDate', a.createdDate,  
 			'modifiedDate', a.modifiedDate  
 		)  
@@ -197,6 +198,7 @@ BEGIN
 			'name', a.name,  
 			'cost_bs', a.cost_bs,  
 			'cost_usd', a.cost_usd,  
+            'externo', a.externo,
 			'createdDate', a.createdDate,  
 			'modifiedDate', a.modifiedDate  
 		)  
