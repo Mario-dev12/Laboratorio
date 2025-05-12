@@ -281,14 +281,22 @@
 		total$: 0,
 	});
 
+	const removeAccents = (str: string): string => {
+		if (!str) return "";
+		return str.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+	}
+
 	const filteredProfiles = computed(() => {
 		if (!filterText.value) {
 			return profiles.value;
 		}
-		const lowerFilter = filterText.value.toLowerCase();
-		return profiles.value.filter((profile: { name: string; }) =>
-			profile.name.toLowerCase().includes(lowerFilter)
-		);
+
+		const normalizedFilter = removeAccents(filterText.value.toLowerCase());
+
+		return profiles.value.filter((profile: { name: string; }) => {
+			const normalizedProfileName = removeAccents(profile.name.toLowerCase());
+			return normalizedProfileName.includes(normalizedFilter);
+		});
 	});
 
 	function selectProfile(profile: Profile) {
