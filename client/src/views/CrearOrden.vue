@@ -107,57 +107,43 @@
 					</div>
 				</div>
 				<div class="row w-100 m-auto">
-				<div class="col-12">
-					<div class="row w-100 m-auto">
-						<label class="col align-content-center p-0" for="filterInput">Tipo de Examen:</label>
-						<div class="col p-1" style="position: relative;">
-							<input
-							id="filterInput"
-							type="text"
-							class="form-control"
-							v-model="filterText"
-							@focus="showDropdown = true"
-							@input="showDropdown = true"
-							placeholder="Seleccionar"
-							autocomplete="off"
-							/>
-							<button v-if="tipoDeExamen" @click="clearSelection" class="clear-button">x</button>
+					<div class="col-12">
+						<div class="row w-100 m-auto">
+							<label class="col align-content-center p-0" for="filterInput">Tipo de Examen:</label>
+							<div class="col p-1" style="position: relative">
+								<input
+									id="filterInput"
+									type="text"
+									class="form-control"
+									v-model="filterText"
+									@focus="showDropdown = true"
+									@input="showDropdown = true"
+									placeholder="Seleccionar"
+									autocomplete="off" />
+								<button v-if="tipoDeExamen" @click="clearSelection" class="clear-button">x</button>
 
-							<ul
-							v-if="showDropdown && (filteredProfiles.length > 0 || filterText)"
-							class="dropdown-list"
-							ref="dropdown"
-							>
-							<li
-								v-for="profile in filteredProfiles"
-								:key="profile.idProfile"
-								@click="selectProfile(profile)"
-								@mousedown.prevent
-							>
-								{{ profile.name }}
-							</li>
-							<li
-								v-if="filterText && filteredProfiles.length === 0"
-								class="no-results"
-							>
-								No hay perfiles con ese nombre
-							</li>
-							<li
-								v-if="tipoDeExamen && filteredProfiles.length === 0 && !filterText"
-								@click="clearSelection"
-								@mousedown.prevent
-								class="clear-option"
-							>
-								Clear Selection
-							</li>
-							</ul>
+								<ul v-if="showDropdown && (filteredProfiles.length > 0 || filterText)" class="dropdown-list" ref="dropdown">
+									<li
+										v-for="profile in filteredProfiles"
+										:key="profile.idProfile"
+										@click="selectProfile(profile)"
+										@mousedown.prevent>
+										{{ profile.name }}
+									</li>
+									<li v-if="filterText && filteredProfiles.length === 0" class="no-results">No hay perfiles con ese nombre</li>
+									<li
+										v-if="tipoDeExamen && filteredProfiles.length === 0 && !filterText"
+										@click="clearSelection"
+										@mousedown.prevent
+										class="clear-option">
+										Clear Selection
+									</li>
+								</ul>
 
-							<ul
-							v-else-if="showDropdown && !filterText && profiles.length === 0"
-							class="dropdown-list"
-							>
-							<li class="no-results">No hay perfiles con ese nombre</li>
-							</ul>
+								<ul v-else-if="showDropdown && !filterText && profiles.length === 0" class="dropdown-list">
+									<li class="no-results">No hay perfiles con ese nombre</li>
+								</ul>
+							</div>
 						</div>
 					</div>
 				</div>
@@ -304,7 +290,7 @@
 	const removeAccents = (str: string): string => {
 		if (!str) return "";
 		return str.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
-	}
+	};
 
 	const filteredProfiles = computed(() => {
 		if (!filterText.value) {
@@ -313,7 +299,7 @@
 
 		const normalizedFilter = removeAccents(filterText.value.toLowerCase());
 
-		return profiles.value.filter((profile: { name: string; }) => {
+		return profiles.value.filter((profile: { name: string }) => {
 			const normalizedProfileName = removeAccents(profile.name.toLowerCase());
 			return normalizedProfileName.includes(normalizedFilter);
 		});
@@ -338,7 +324,7 @@
 	}
 
 	const closeDropdown = (event: MouseEvent) => {
-		const dropdown = document.querySelector('.dropdown-list');
+		const dropdown = document.querySelector(".dropdown-list");
 		if (showDropdown.value && dropdown && !dropdown.contains(event.target as Node)) {
 			showDropdown.value = false;
 		}
@@ -403,10 +389,10 @@
 		eventBus.on("precioActualizado", handlePrecioActualizado);
 		crearOrden();
 		await resetOrderData();
-		user.value.phone = '+58'
-		window.addEventListener('mousedown', closeDropdown);
+		user.value.phone = "+58";
+		window.addEventListener("mousedown", closeDropdown);
 		next();
-	})
+	});
 
 	onMounted(async () => {
 		profiles.value = await profilesStore.fecthAllProfiles();
@@ -419,12 +405,12 @@
 		eventBus.on("precioActualizado", handlePrecioActualizado);
 		crearOrden();
 		await resetOrderData();
-		user.value.phone = '+58'
-		window.addEventListener('mousedown', closeDropdown);
+		user.value.phone = "+58";
+		window.addEventListener("mousedown", closeDropdown);
 	});
 
 	onBeforeUnmount(() => {
-		window.removeEventListener('mousedown', closeDropdown);
+		window.removeEventListener("mousedown", closeDropdown);
 	});
 
 	watch(precioDolar, (newVal) => {
@@ -619,8 +605,8 @@
 					showToast("Orden Creada Exitosamente!!", "creado", checkboxOutline);
 					crearOrden();
 					await resetOrderData();
-					resp.length = 0
-					user.value.phone = '+58'
+					resp.length = 0;
+					user.value.phone = "+58";
 					router.push({ name: "CrearOrden" });
 				} else {
 					let respExam: number | undefined = 0;
