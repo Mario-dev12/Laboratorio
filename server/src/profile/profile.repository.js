@@ -386,6 +386,7 @@ profileRepository.updateCultive = async (id, answer) => {
 		const resp = await pool.query(
 			`SELECT * FROM sp_update_profile(${id}, '${answer.name}', '${answer.cost_bs}', '${answer.cost_usd}', ${answer.externo})`
 		);
+		await createProfileResults(answer.name)
 		return resp.rows[0].sp_update_profile;
 	} catch (error) {
 		throw error;

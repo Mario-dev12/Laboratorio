@@ -179,12 +179,14 @@
 		duration: 2000,
 	});
 
-	onMounted(async () => {
-		reactives.value = await reactivesStore.fetchReactiveByProvider();
-		providers.value = await providersStore.fecthProviders();
-		allReactives.value = await reactivesStore.fecthReactives();
-		exams.value = await examsStore.fecthExams();
-	});
+	onMounted(async () => {  
+		[reactives.value, providers.value, allReactives.value, exams.value] = await Promise.all([  
+			reactivesStore.fetchReactiveByProvider(),  
+			providersStore.fecthProviders(),  
+			reactivesStore.fecthReactives(),  
+			examsStore.fecthExams()  
+		]);  
+	});  
 
 	const showToast = (message: string) => {
 		toast.value.message = message;

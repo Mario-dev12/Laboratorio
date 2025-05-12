@@ -170,6 +170,7 @@ BEGIN
 			'name', a.name,  
 			'cost_bs', a.cost_bs,  
 			'cost_usd', a.cost_usd,  
+            'externo', a.externo,
 			'createdDate', a.createdDate,  
 			'modifiedDate', a.modifiedDate  
 		)  
@@ -197,6 +198,7 @@ BEGIN
 			'name', a.name,  
 			'cost_bs', a.cost_bs,  
 			'cost_usd', a.cost_usd,  
+            'externo', a.externo,
 			'createdDate', a.createdDate,  
 			'modifiedDate', a.modifiedDate  
 		)  
@@ -1344,19 +1346,19 @@ declare
 begin
 	update users
 	set ci = p_ci, passport = p_passport, firstName = p_firstName, lastName = p_lastName, genre = p_genre, age = p_age, address = p_address, phone = p_phone, email = p_email, doctor = p_doctor, modifiedDate = now()
-	where idusers = p_id;
-	select u.ci into v_ci from users u where idusers = p_id;
-	select u.passport into v_passport from users u where idusers = p_id;
-	select u.firstName into v_firstName from users u where idusers = p_id;
-	select u.lastName into v_lastName from users u where idusers = p_id;
-	select u.genre into v_genre from users u where idusers = p_id;
-	select u.age into v_age from users u where idusers = p_id;
-	select u.address into v_address from users u where idusers = p_id;
-	select u.phone into v_phone from users u where idusers = p_id;
-	select u.email into v_email from users u where idusers = p_id;
-    select u.doctor into v_doctor from users u where idusers = p_id;
-	select u.createdDate into v_createdDate from users u where idusers = p_id;
-	select u.modifiedDate into v_modifiedDate from users u where idusers = p_id;
+	where idUser = p_id;
+	select u.ci into v_ci from users u where idUser = p_id;
+	select u.passport into v_passport from users u where idUser = p_id;
+	select u.firstName into v_firstName from users u where idUser = p_id;
+	select u.lastName into v_lastName from users u where idUser = p_id;
+	select u.genre into v_genre from users u where idUser = p_id;
+	select u.age into v_age from users u where idUser = p_id;
+	select u.address into v_address from users u where idUser = p_id;
+	select u.phone into v_phone from users u where idUser = p_id;
+	select u.email into v_email from users u where idUser = p_id;
+    select u.doctor into v_doctor from users u where idUser = p_id;
+	select u.createdDate into v_createdDate from users u where idUser = p_id;
+	select u.modifiedDate into v_modifiedDate from users u where idUser = p_id;
 	return json_build_object(
 		'idUser', p_id,
 		'ci', v_ci,

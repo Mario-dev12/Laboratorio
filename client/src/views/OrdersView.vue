@@ -186,7 +186,7 @@
 	import { onMounted, ref, computed } from "vue";
 	import { orderStore } from "@/stores/orderStore";
 	import { useRouter } from "vue-router";
-	import { checkboxOutline, alertCircleOutline } from "ionicons/icons";
+	import { checkboxOutline } from "ionicons/icons";
 
 	const orders = ref();
 	const cultive = ref();
@@ -284,38 +284,19 @@
 		});
 	};
 
-	const filteredOrders = computed(() => {
-		if (!orders.value) return [];
+	const filteredOrders = computed(() => filterOrders(orders.value));  
+	const filteredCultiveOrders = computed(() => filterOrders(cultive.value));  
+	const filteredSpermiogramOrders = computed(() => filterOrders(spermiogram.value));  
 
-		const query = searchQuery.value ? searchQuery.value.toLowerCase() : "";
-		return orders.value.filter((order: { firstName: any; lastName: any; ci: string }) => {
-			if (!order.firstName || !order.lastName || !order.ci) return false;
-			const fullName = `${order.firstName} ${order.lastName}`.toLowerCase();
-			return order.ci.toLowerCase().includes(query) || fullName.includes(query);
-		});
-	});
+	function filterOrders(ordersArray: any[]) {  
+		if (!ordersArray) return [];  
 
-	const filteredCultiveOrders = computed(() => {
-		if (!cultive.value) return [];
-
-		const query = searchQuery.value ? searchQuery.value.toLowerCase() : "";
-		return cultive.value.filter((order: { firstName: any; lastName: any; ci: string }) => {
-			if (!order.firstName || !order.lastName || !order.ci) return false;
-			const fullName = `${order.firstName} ${order.lastName}`.toLowerCase();
-			return order.ci.toLowerCase().includes(query) || fullName.includes(query);
-		});
-	});
-
-	const filteredSpermiogramOrders = computed(() => {
-		if (!spermiogram.value) return [];
-
-		const query = searchQuery.value ? searchQuery.value.toLowerCase() : "";
-		return spermiogram.value.filter((order: { firstName: any; lastName: any; ci: string }) => {
-			if (!order.firstName || !order.lastName || !order.ci) return false;
-			const fullName = `${order.firstName} ${order.lastName}`.toLowerCase();
-			return order.ci.toLowerCase().includes(query) || fullName.includes(query);
-		});
-	});
+		const query = searchQuery.value ? searchQuery.value.toLowerCase() : "";  
+		return ordersArray.filter((order: { firstName: any; lastName: any; ci: string; }) => {  
+			const fullName = `${order.firstName} ${order.lastName}`.toLowerCase();  
+			return order.ci.toLowerCase().includes(query) || fullName.includes(query);  
+		});  
+	}  
 
 	const setOpen = (state: boolean) => {
 		isOpen.value = state;
