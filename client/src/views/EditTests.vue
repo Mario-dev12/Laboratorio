@@ -380,18 +380,32 @@
 		nueva?: boolean;
 	}
 
-	onMounted(async () => {
-		eventBus.on("precioActualizado", handlePrecioActualizado);
-		tasa.value = Number(localStorage.getItem("tasaDolar")) || 50;
-		perfiles.value = await tests.fecthProfiles();
-		perfiles.value.forEach((perfil) => {
-			const costUsd = parseFloat(perfil.cost_usd);
-			const costBs = (costUsd * tasa.value).toFixed(2);
-			perfil.cost_bs = costBs.toString().replace(",", ".");
-		});
-		camposExistentes.value = await tests.fecthProfilesInputs();
-		unidadesDeCampos.value = await tests.fecthProfilesInputUnits();
-	});
+	onMounted(async () => {  
+		eventBus.on("precioActualizado", handlePrecioActualizado);  
+		tasa.value = Number(localStorage.getItem("tasaDolar")) || 50;  
+
+		try {   
+			const [fetchedProfiles, fetchedInputs, fetchedInputUnits] = await Promise.all([  
+				tests.fecthProfiles(),  
+				tests.fecthProfilesInputs(),  
+				tests.fecthProfilesInputUnits()  
+			]);  
+
+			perfiles.value = fetchedProfiles;  
+ 
+			perfiles.value.forEach((perfil) => {  
+				const costUsd = parseFloat(perfil.cost_usd);  
+				const costBs = (costUsd * tasa.value).toFixed(2);  
+				perfil.cost_bs = costBs.toString().replace(",", ".");  
+			});  
+  
+			camposExistentes.value = fetchedInputs;  
+			unidadesDeCampos.value = fetchedInputUnits;  
+
+		} catch (error) {  
+			console.error("Error al obtener datos:", error);  
+		}  
+	});  
 
 	const perfilesFiltrados = computed(() => {
 		return perfiles.value.filter((perfil) => {

@@ -8,7 +8,7 @@
 					<ion-button @click="showAntibioticsModal" color="primary">+ Antibiotico</ion-button>
 				</div>
 
-				<div class="table-responsive" style="max-height: 400px; overflow-y: auto">
+				<div class="table-responsive div-table">
 					<table class="table table-striped">
 						<thead>
 							<tr>
@@ -125,14 +125,28 @@
 		duration: 2000,
 	});
 
-	onMounted(async () => {
-		reactives.value = await reactivesStore.fetchReactiveByProvider();
-		providers.value = await providersStore.fecthProviders();
-		allReactives.value = await reactivesStore.fecthReactives();
-		exams.value = await examsStore.fecthExams();
-        antibiotics.value = await profilesStore.fecthAntibiotics();
-        bacterias.value = await profilesStore.fecthBacterium();
-	});
+	onMounted(async () => {  
+		try {   
+			const [reactivesData, providersData, allReactivesData, examsData, antibioticsData, bacteriasData,] = await Promise.all([  
+				reactivesStore.fetchReactiveByProvider(),  
+				providersStore.fecthProviders(),  
+				reactivesStore.fecthReactives(),  
+				examsStore.fecthExams(),  
+				profilesStore.fecthAntibiotics(),  
+				profilesStore.fecthBacterium(),  
+			]);  
+
+			reactives.value = reactivesData;  
+			providers.value = providersData;  
+			allReactives.value = allReactivesData;  
+			exams.value = examsData;  
+			antibiotics.value = antibioticsData;  
+			bacterias.value = bacteriasData;  
+		} catch (error) {  
+			console.error("Error al cargar datos:", error);  
+			showToast("Hubo un problema al cargar los datos.");  
+		}  
+	});  
 
 	const showToast = (message: string) => {
 		toast.value.message = message;
@@ -236,4 +250,9 @@
 		justify-content: flex-end;
 		margin-bottom: 1rem;
 	}
+
+	.div-table {  
+		max-height: 400px;  
+		overflow-y: auto;  
+	}  
 </style>

@@ -134,7 +134,7 @@
 	import { IonPage, IonContent, IonToast } from "@ionic/vue";
 	import { profileStore } from "@/stores/profileStore";
 	import { ref, onMounted } from "vue";
-	import html2pdf from "html2pdf.js";
+	//import html2pdf from "html2pdf.js";
 	import { useRoute } from "vue-router";
 	import { mailStore } from "@/stores/mailStore";
 	import { examStore } from "@/stores/examStore";
@@ -771,6 +771,8 @@
 			await ordersStore.updateStatusOrder(orders.idOrder, data);
 		}
 
+		const html2pdf = (await import('html2pdf.js')).default;
+
 		html2pdf().from(element).set(options).save();
 		html = "";
 	};
@@ -793,6 +795,8 @@
 			html2canvas: { scale: 2 },
 			jsPDF: { unit: "mm", format: "letter", orientation: "portrait" },
 		};
+
+		const html2pdf = (await import('html2pdf.js')).default;
 
 		html2pdf().from(element).set(options).save();
 	};
@@ -842,6 +846,8 @@
 			await ordersStore.updateStatusOrder(orders.idOrder, data);
 		}
 
+		const html2pdf = (await import('html2pdf.js')).default;
+
 		html2pdf().from(element).set(options).save();
 		html = "";
 	};
@@ -889,6 +895,8 @@
 			};
 			await ordersStore.updateStatusOrder(orders.idOrder, data);
 		}
+
+		const html2pdf = (await import('html2pdf.js')).default;
 
 		return new Promise((resolve, reject) => {
 			html2pdf()

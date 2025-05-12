@@ -193,6 +193,7 @@
 	import { orderStore } from "@/stores/orderStore"; 
 	import { useRouter } from "vue-router"; 
 	import { checkboxOutline, alertCircleOutline } from "ionicons/icons";
+	import { Ref } from "vue";
 	  
 	const orders = ref(); 
 	const cultive = ref();   
@@ -227,10 +228,10 @@
 	});  
 
 	router.beforeEach(async (to, from, next) => {
-		if (to.name === "OrdersView") {
-			orders.value = await ordersStore.fecthOrdersDay(true, "");
-			cultive.value = await ordersStore.fecthCultiveOrdersDay(true, "");
-			spermiogram.value = await ordersStore.fecthSpermiogramOrdersDay(true, "");
+		if (to.name === "Historico") {
+			orders.value = await ordersStore.fecthHistOrdersDay();  
+			cultive.value = await ordersStore.fecthCultiveHistOrdersDay(); 
+			spermiogram.value = await ordersStore.fecthSpermiogramHistOrdersDay(); 
 			showProfile.value = 'Pruebas de Sangre';
 		}
 		next();
@@ -244,23 +245,9 @@
 		return `${day}-${month}-${year}`;  
 	} 
 
-	const filteredOrders = computed(() => {  
+	const createFilteredOrders = (sourceOrders: Ref<any, any>) => computed(() => {  
 		const query = searchQuery.value.toLowerCase();  
-		return orders.value.filter((order: { firstName: string; lastName: string; ci: string; createdDate: string; modifiedDate: string; }) => {  
-			const fullName = `${order.firstName} ${order.lastName}`.toLowerCase();  
-			const formattedCreatedDate = formatDate(order.createdDate);  
-			const formattedModifiedDate = formatDate(order.modifiedDate);  
-			
-			return order.ci.toLowerCase().includes(query) ||  
-				fullName.includes(query) ||  
-				formattedCreatedDate.includes(query) ||  
-				formattedModifiedDate.includes(query);  
-		});  
-	});   
-
-	const filteredCultiveOrders = computed(() => {  
-		const query = searchQuery.value.toLowerCase();  
-		return cultive.value.filter((order: { firstName: string; lastName: string; ci: string; createdDate: string; modifiedDate: string; }) => {  
+		return sourceOrders.value.filter((order: { firstName: string; lastName: string; ci: string; createdDate: string; modifiedDate: string; }) => {  
 			const fullName = `${order.firstName} ${order.lastName}`.toLowerCase();  
 			const formattedCreatedDate = formatDate(order.createdDate);  
 			const formattedModifiedDate = formatDate(order.modifiedDate);  
@@ -271,20 +258,10 @@
 				formattedModifiedDate.includes(query);  
 		});  
 	});  
-	
-	const filteredSpermiogramOrders = computed(() => {  
-		const query = searchQuery.value.toLowerCase();  
-		return spermiogram.value.filter((order: { firstName: string; lastName: string; ci: string; createdDate: string; modifiedDate: string; }) => {  
-			const fullName = `${order.firstName} ${order.lastName}`.toLowerCase();  
-			const formattedCreatedDate = formatDate(order.createdDate);  
-			const formattedModifiedDate = formatDate(order.modifiedDate);  
-			
-			return order.ci.toLowerCase().includes(query) ||  
-				fullName.includes(query) ||  
-				formattedCreatedDate.includes(query) ||  
-				formattedModifiedDate.includes(query);  
-		});  
-	});   
+
+	const filteredOrders = createFilteredOrders(orders);  
+	const filteredCultiveOrders = createFilteredOrders(cultive);  
+	const filteredSpermiogramOrders = createFilteredOrders(spermiogram);  
 
 	const setOpen = (state: boolean) => {
 		isOpen.value = state;
