@@ -109,34 +109,55 @@
 					<div class="col-12">
 						<div class="row w-100 m-auto">
 							<label class="col align-content-center p-0" for="filterInput">Tipo de Examen:</label>
-							<div class="col p-1" style="position: relative;">
-								<input
-									id="filterInput"
-									type="text"
-									class="form-control"
-									v-model="filterText"
-									@focus="showDropdown = true"
-									@input="showDropdown = true"
-									placeholder="Seleccionar"
-									autocomplete="off" >
-								<button v-if="tipoDeExamen" @click="clearSelection" class="clear-button">x</button>
-
-
-								<ul v-if="showDropdown && (filteredProfiles.length > 0 || filterText)" class="dropdown-list">
-									<li
-										v-for="profile in filteredProfiles"
-										:key="profile.idProfile"
-										@click="selectProfile(profile)"
-										@mousedown.prevent >
-										{{ profile.name }}
-									</li>
-									<li v-if="filterText && filteredProfiles.length === 0" class="no-results">No hay perfiles con ese nombre</li>
-									<li v-if="tipoDeExamen && filteredProfiles.length === 0 && !filterText" @click="clearSelection" @mousedown.prevent class="clear-option">Clear Selection</li>
-								</ul>
-								<ul v-else-if="showDropdown && !filterText && profiles.length === 0" class="dropdown-list">
-									<li class="no-results">No hay perfiles con ese nombre</li>
-								</ul>
-							</div>
+							<div class="col p-1" style="position: relative;">  
+								<input  
+								  id="filterInput"  
+								  type="text"  
+								  class="form-control"  
+								  v-model="filterText"  
+								  @focus="showDropdown = true"  
+								  @input="showDropdown = true"  
+								  placeholder="Seleccionar"  
+								  autocomplete="off"  
+								/>  
+								<button v-if="tipoDeExamen" @click="clearSelection" class="clear-button">x</button>  
+							
+								<ul  
+								  v-if="showDropdown && (filteredProfiles.length > 0 || filterText)"  
+								  class="dropdown-list"  
+								  ref="dropdown"  
+								>  
+								  <li  
+									v-for="profile in filteredProfiles"  
+									:key="profile.idProfile"  
+									@click="selectProfile(profile)"  
+									@mousedown.prevent  
+								  >  
+									{{ profile.name }}  
+								  </li>  
+								  <li  
+									v-if="filterText && filteredProfiles.length === 0"  
+									class="no-results"  
+								  >  
+									No hay perfiles con ese nombre  
+								  </li>  
+								  <li  
+									v-if="tipoDeExamen && filteredProfiles.length === 0 && !filterText"  
+									@click="clearSelection"  
+									@mousedown.prevent  
+									class="clear-option"  
+								  >  
+									Clear Selection  
+								  </li>  
+								</ul>  
+							
+								<ul  
+								  v-else-if="showDropdown && !filterText && profiles.length === 0"  
+								  class="dropdown-list"  
+								>  
+								  <li class="no-results">No hay perfiles con ese nombre</li>  
+								</ul>  
+							</div>  
 						</div>
 					</div>
 				</div>
@@ -324,6 +345,13 @@
 		agregarExamen();
 	}
 
+	const closeDropdown = (event: MouseEvent) => {  
+		const dropdown = document.querySelector('.dropdown-list');  
+		if (showDropdown.value && dropdown && !dropdown.contains(event.target as Node)) {  
+			showDropdown.value = false;  
+		}  
+	};  
+
 	const user = ref({
 		id: 0,
 		documento: "",
@@ -424,6 +452,7 @@
 		originalOrdersData.value = examenesSeleccionados.value;
 		originalPaymentData.value = paymentData.value;
 		eventBus.on("precioActualizado", handlePrecioActualizado);
+		window.addEventListener('mousedown', closeDropdown);
 	});
 
 	router.beforeEach(async (to, from, next) => {
@@ -472,6 +501,7 @@
 			originalOrdersData.value = examenesSeleccionados.value;
 			originalPaymentData.value = paymentData.value;
 			eventBus.on("precioActualizado", handlePrecioActualizado);
+			window.addEventListener('mousedown', closeDropdown);
 		}
 		next();
 	});
