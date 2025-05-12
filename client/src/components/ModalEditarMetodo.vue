@@ -321,7 +321,7 @@ const initializeMetodos = () => {
 }; 
  
 watch(() => props.paymentData, (newValue) => {
-    if (newValue){
+    if (newValue && props.paymentData.length > 0){
         initializeMetodos(); 
     } else {
         metodos.value = [];

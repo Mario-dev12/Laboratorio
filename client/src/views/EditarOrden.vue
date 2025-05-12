@@ -394,8 +394,8 @@
 			debe.value.total$ += Number(item.amount_usd)
 			debe.value.totalBs += Number(item.amount_bs)
 		}
-		debeTotal.value.total$ = Math.floor((totales.value.total$ - debe.value.total$) * 100) / 100
-		debeTotal.value.totalBs = Math.floor((totales.value.totalBs - debe.value.totalBs) * 100) / 100
+		debeTotal.value.total$ = parseFloat((totales.value.total$ - debe.value.total$).toFixed(2));  
+		debeTotal.value.totalBs = parseFloat((totales.value.totalBs - debe.value.totalBs).toFixed(2));  
 		user.value.apellido = userData.value[0].lastName;
 		user.value.documento = userData.value[0].ci;
 		user.value.edad = userData.value[0].age;
@@ -416,6 +416,56 @@
 		originalOrdersData.value = examenesSeleccionados.value;
 		originalPaymentData.value = paymentData.value;
 		eventBus.on("precioActualizado", handlePrecioActualizado);
+	});
+
+	router.beforeEach(async (to, from, next) => {
+		if (to.name === "EditarOrden") {
+			userData.value = await usersStore.fecthUserById(Number(idUser.value));
+			orderData.value = await ordersStore.fecthOrderByExamId(Number(idExam.value));
+			paymentData.value = await paymentsStore.fecthPaymentByExamId(Number(idExam.value));
+			if (!Array.isArray(cost_bs.value) && !Array.isArray(cost_usd.value)) {
+				totalDolar.value = Number(cost_bs.value.replace(",", ".")) / Number(cost_usd.value.replace(",", "."));
+			}
+			precioDolar.value = totalDolar.value;
+			for (const item of orderData.value) {
+				examenesSeleccionados.value.push({
+					idExam: item.idExam,
+					idProfile: item.idProfile,
+					cost_bs: item.cost_bs,
+					cost_usd: Number(item.cost_usd),
+					name: item.name,
+				});
+				totales.value.totalBs += parseFloat((Number(item.cost_usd) * precioDolar.value).toFixed(2));
+				totales.value.total$ += Number(item.cost_usd);
+			}
+			for (const item of paymentData.value){
+				debe.value.total$ += Number(item.amount_usd)
+				debe.value.totalBs += Number(item.amount_bs)
+			}
+			debeTotal.value.total$ = parseFloat((totales.value.total$ - debe.value.total$).toFixed(2));  
+			debeTotal.value.totalBs = parseFloat((totales.value.totalBs - debe.value.totalBs).toFixed(2)); 
+			user.value.apellido = userData.value[0].lastName;
+			user.value.documento = userData.value[0].ci;
+			user.value.edad = userData.value[0].age;
+			user.value.genero = userData.value[0].genre === "M" ? "masculino" : "femenino";
+			user.value.nombre = userData.value[0].firstName;
+			user.value.procedencia = userData.value[0].address;
+			user.value.id = userData.value[0].idUser;
+			user.value.email = userData.value[0].email;
+			user.value.phone = userData.value[0].phone;
+			user.value.doctor = userData.value[0].doctor;
+			profiles.value = await profilesStore.fecthAllProfiles();
+			profiles.value = profiles.value.map((exam: { cost_bs: string; cost_usd: string }) => ({
+				...exam,
+				cost_bs: parseFloat(exam.cost_bs.replace(",", ".")),
+				cost_usd: parseFloat(exam.cost_usd),
+			}));
+			originalUserData.value = { ...user.value };
+			originalOrdersData.value = examenesSeleccionados.value;
+			originalPaymentData.value = paymentData.value;
+			eventBus.on("precioActualizado", handlePrecioActualizado);
+		}
+		next();
 	});
 
 	interface Examen {
