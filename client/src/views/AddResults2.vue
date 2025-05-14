@@ -1223,6 +1223,59 @@
 								}
 							}
 						}
+						if (parsedNumbers.length === 6) {
+							let minRange = Infinity;
+							let maxRange = -Infinity;
+
+							try {
+								const matches = valorReferencialString.match(/(-?\d+(\.\d+)?)\s*x10\^([-+]?\d+)|(-?\d+(\.\d+)?)/g);
+
+								const exponentMatches = valorReferencialString.match(/x10\^([-+]?\d+)/g);
+
+								let exponentFactor = 1;
+
+								if (exponentMatches) {
+									for (const exp of exponentMatches) {
+										const exponent = parseInt(exp.replace("x10^", ""), 10);
+										exponentFactor *= Math.pow(10, exponent);
+									}
+								}
+
+								if (matches) {
+									for (const match of matches) {
+										const matchScience = /(-?\d+(\.\d+)?)\s*x10\^([-+]?\d+)/.exec(match);
+										if (matchScience) {
+											const base = parseFloat(matchScience[1]);
+											const exponent = parseInt(matchScience[3], 10);
+											const value = base * Math.pow(10, exponent);
+											minRange = Math.min(minRange, value);
+											maxRange = Math.max(maxRange, value);
+										} else {
+											const value = parseFloat(match) * exponentFactor;
+											minRange = Math.min(minRange, value);
+											maxRange = Math.max(maxRange, value);
+										}
+									}
+								}
+
+								if (!isNaN(Number(inputValue))) {
+									if (Number(inputValue) < minRange || Number(inputValue) > maxRange) {
+										inputElement.style.color = "red";
+										inputElement.style.borderColor = "red";
+									} else {
+										inputElement.style.color = "green";
+										inputElement.style.borderColor = "lightgreen";
+									}
+								} else {
+									inputElement.style.color = "red";
+									inputElement.style.borderColor = "red";
+								}
+							} catch (error) {
+								console.error("Error al evaluar la fórmula:", error);
+								inputElement.style.color = "red";
+								inputElement.style.borderColor = "red";
+							}
+						}
 
 						if (!inputValue) {
 							inputElement.style.color = "black";
