@@ -299,7 +299,6 @@
 		germs.value = await store.fecthBacterium();
 		antibioticos.value = await store.fecthAntibiotics();
 		result.value = await store.fetchCultiveResult(profile.value.orders[0].idOrder, profileNames.value);
-		console.log(result.value);
 		resultData.value = result.value.resultado;
 		resultSensibles.value = result.value.sensibles;
 		resultResistentes.value = result.value.resistentes;
