@@ -212,6 +212,7 @@
 		cultive.value = await ordersStore.fecthCultiveOrdersDay(true, "");
 		spermiogram.value = await ordersStore.fecthSpermiogramOrdersDay(true, "");
 		showProfile.value = "Pruebas de Sangre";
+		activeIndex.value = 0;
 	});
 
 	router.beforeEach(async (to, from, next) => {
@@ -231,6 +232,7 @@
 				spermiogram.value = await ordersStore.fecthSpermiogramOrdersDay(true, "");
 				showProfile.value = "Pruebas de Sangre";
 			}
+			activeIndex.value = 0;
 		}
 		next();
 	});
@@ -285,19 +287,19 @@
 		});
 	};
 
-	const filteredOrders = computed(() => filterOrders(orders.value));  
-	const filteredCultiveOrders = computed(() => filterOrders(cultive.value));  
-	const filteredSpermiogramOrders = computed(() => filterOrders(spermiogram.value));  
+	const filteredOrders = computed(() => filterOrders(orders.value));
+	const filteredCultiveOrders = computed(() => filterOrders(cultive.value));
+	const filteredSpermiogramOrders = computed(() => filterOrders(spermiogram.value));
 
-	function filterOrders(ordersArray: any[]) {  
-		if (!ordersArray) return [];  
+	function filterOrders(ordersArray: any[]) {
+		if (!ordersArray) return [];
 
-		const query = searchQuery.value ? searchQuery.value.toLowerCase() : "";  
-		return ordersArray.filter((order: { firstName: any; lastName: any; ci: string; }) => {  
-			const fullName = `${order.firstName} ${order.lastName}`.toLowerCase();  
-			return order.ci.toLowerCase().includes(query) || fullName.includes(query);  
-		});  
-	}  
+		const query = searchQuery.value ? searchQuery.value.toLowerCase() : "";
+		return ordersArray.filter((order: { firstName: any; lastName: any; ci: string }) => {
+			const fullName = `${order.firstName} ${order.lastName}`.toLowerCase();
+			return order.ci.toLowerCase().includes(query) || fullName.includes(query);
+		});
+	}
 
 	const setOpen = (state: boolean) => {
 		isOpen.value = state;

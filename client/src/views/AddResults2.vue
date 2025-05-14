@@ -18,10 +18,10 @@
 					<div class="patient-info">
 						<div class="row">
 							<div class="col">
-								<img src="/images/laboratorio.png" alt="" style="width: 55%;" />
+								<img src="/images/laboratorio.png" alt="" style="width: 55%" />
 							</div>
 							<div class="col">
-								<img src="/images/direccion.png" alt="" style="width: 80%;" />
+								<img src="/images/direccion.png" alt="" style="width: 80%" />
 							</div>
 						</div>
 						<div class="border-bottom border-black mt-2"></div>
@@ -134,7 +134,6 @@
 	import { IonPage, IonContent, IonToast } from "@ionic/vue";
 	import { profileStore } from "@/stores/profileStore";
 	import { ref, onMounted } from "vue";
-	//import html2pdf from "html2pdf.js";
 	import { useRoute } from "vue-router";
 	import { mailStore } from "@/stores/mailStore";
 	import { examStore } from "@/stores/examStore";
@@ -416,147 +415,256 @@
 
 	const checkInputValue = async (event: Event, index: number, section: any, sectionIndex: number) => {
 		const inputElement = event.target as HTMLInputElement;
+		const inputValue = inputElement.value.replace(",", ".");
 		const personAge = order.value.age;
 		const personGenre = order.value.genre;
-		const valorReferencialString = section.resultado[index].valor_referencial;
-		const valorReferencialNumber = valorReferencialString.match(/(\d+(?:,\d+)?)/g);
-		const parsedNumbers = valorReferencialNumber?.map((numStr: any) => parseFloat(numStr.replace(",", ".")));
-		let inputValue = inputElement.value;
 
-		if (!isNaN(Number(inputValue.replace(",", ".")))) {
-			inputValue = inputValue.replace(",", ".");
+		const numericInput = parseFloat(inputValue);
+
+		const setInputColor = (isValid: boolean) => {
+			inputElement.style.color = isValid ? "green" : "red";
+			inputElement.style.borderColor = isValid ? "lightgreen" : "red";
+		};
+
+		const parseScientific = (str: string) => {
+			const match = /(-?\d+(\.\d+)?)\s*x10\^([-+]?\d+)/.exec(str);
+			if (match) {
+				return parseFloat(match[1]) * Math.pow(10, parseInt(match[3], 10));
+			}
+			return parseFloat(str);
+		};
+
+		if (isNaN(numericInput)) {
+			setInputColor(false);
+			inputElement.style.color = "black";
+			inputElement.style.borderColor = "black";
+			section.resultado[index].valor = null;
+			return;
+		} else {
+			setInputColor(true);
 		}
+
+		const valorReferencialString = section.resultado[index].valor_referencial;
+		const parsedNumbers = (() => {
+			const matches = valorReferencialString.match(/(\d+(?:,\d+)?)/g);
+			return matches?.map((numStr: string) => parseFloat(numStr.replace(",", ".")));
+		})();
+
+		const validateRange = (min: number, max: number): boolean => {
+			return numericInput >= min && numericInput <= max;
+		};
+
+		let isValid = true;
 
 		if (parsedNumbers) {
-			if (parsedNumbers.length === 2) {
-				if (Number(inputValue) < parsedNumbers[0] || Number(inputValue) > parsedNumbers[1]) {
-					inputElement.style.color = "red";
-					inputElement.style.borderColor = "red";
-				} else {
-					inputElement.style.color = "green";
-					inputElement.style.borderColor = "lightgreen";
+			switch (parsedNumbers.length) {
+				case 1: {
+					if (valorReferencialString.includes("menor")) {
+						isValid = numericInput < parsedNumbers[0];
+					} else if (valorReferencialString.includes("Hasta")) {
+						isValid = numericInput <= parsedNumbers[0];
+					}
+					break;
 				}
-				if (valorReferencialString.includes("Hasta")) {
-					if (Number(inputValue) > parsedNumbers[0]) {
-						inputElement.style.color = "red";
-						inputElement.style.borderColor = "red";
-					} else {
-						inputElement.style.color = "green";
-						inputElement.style.borderColor = "lightgreen";
+
+				case 2: {
+					isValid = validateRange(parsedNumbers[0], parsedNumbers[1]);
+					if (valorReferencialString.includes("Hasta")) {
+						isValid = numericInput <= parsedNumbers[1];
 					}
+					break;
 				}
-			}
 
-			if (parsedNumbers.length === 1) {
-				if (valorReferencialString.includes("menor")) {
-					if (Number(inputValue) < parsedNumbers[0]) {
-						inputElement.style.color = "green";
-						inputElement.style.borderColor = "lightgreen";
+				case 4: {
+					let range: [number, number];
+					if (valorReferencialString.includes("Hombre")) {
+						range = personGenre === "M" ? [parsedNumbers[0], parsedNumbers[1]] : [parsedNumbers[2], parsedNumbers[3]];
+					} else if (valorReferencialString.includes("Adulto")) {
+						range = personAge > 17 ? [parsedNumbers[0], parsedNumbers[1]] : [parsedNumbers[2], parsedNumbers[3]];
 					} else {
-						inputElement.style.color = "red";
-						inputElement.style.borderColor = "red";
+						range = [parsedNumbers[0], parsedNumbers[1]];
 					}
-				} else if (valorReferencialString.includes("Hasta")) {
-					if (Number(inputValue) > parsedNumbers[0]) {
-						inputElement.style.color = "red";
-						inputElement.style.borderColor = "red";
-					} else {
-						inputElement.style.color = "green";
-						inputElement.style.borderColor = "lightgreen";
-					}
+					isValid = validateRange(range[0], range[1]);
+					break;
 				}
-			}
 
-			if (parsedNumbers.length === 4) {
-				if (valorReferencialString.includes("Hombre")) {
-					const validRange = personGenre === "M" ? [parsedNumbers[0], parsedNumbers[1]] : [parsedNumbers[2], parsedNumbers[3]];
-					if (Number(inputValue) < validRange[0] || Number(inputValue) > validRange[1]) {
-						inputElement.style.color = "red";
-						inputElement.style.borderColor = "red";
-					} else {
-						inputElement.style.color = "green";
-						inputElement.style.borderColor = "lightgreen";
-					}
-				} else if (valorReferencialString.includes("Adulto")) {
-					const validRange = personAge > 17 ? [parsedNumbers[0], parsedNumbers[1]] : [parsedNumbers[2], parsedNumbers[3]];
-					if (Number(inputValue) < validRange[0] || Number(inputValue) > validRange[1]) {
-						inputElement.style.color = "red";
-						inputElement.style.borderColor = "red";
-					} else {
-						inputElement.style.color = "green";
-						inputElement.style.borderColor = "lightgreen";
-					}
-				}
-			}
+				case 6: {
+					let minRange = Infinity;
+					let maxRange = -Infinity;
 
-			if (parsedNumbers.length === 6) {
-				let minRange = Infinity;
-				let maxRange = -Infinity;
+					const matches = valorReferencialString.match(/(-?\d+(\.\d+)?\s*x10\^[-+]?\d+)|(-?\d+(\.\d+)?)/g);
 
-				try {
-					const matches = valorReferencialString.match(/(-?\d+(\.\d+)?)\s*x10\^([-+]?\d+)|(-?\d+(\.\d+)?)/g);
-
-					const exponentMatches = valorReferencialString.match(/x10\^([-+]?\d+)/g);
-
-					let exponentFactor = 1;
-
-					if (exponentMatches) {
-						for (const exp of exponentMatches) {
-							const exponent = parseInt(exp.replace("x10^", ""), 10);
-							exponentFactor *= Math.pow(10, exponent);
+					matches?.forEach((matchStr: any) => {
+						const val = parseScientific(matchStr);
+						if (val !== undefined) {
+							minRange = Math.min(minRange, val);
+							maxRange = Math.max(maxRange, val);
 						}
-					}
+					});
 
-					if (matches) {
-						for (const match of matches) {
-							const matchScience = /(-?\d+(\.\d+)?)\s*x10\^([-+]?\d+)/.exec(match);
-							if (matchScience) {
-								const base = parseFloat(matchScience[1]);
-								const exponent = parseInt(matchScience[3], 10);
-								const value = base * Math.pow(10, exponent);
-								minRange = Math.min(minRange, value);
-								maxRange = Math.max(maxRange, value);
-							} else {
-								const value = parseFloat(match) * exponentFactor;
-								minRange = Math.min(minRange, value);
-								maxRange = Math.max(maxRange, value);
-							}
-						}
-					}
-
-					if (!isNaN(Number(inputValue))) {
-						if (Number(inputValue) < minRange || Number(inputValue) > maxRange) {
-							inputElement.style.color = "red";
-							inputElement.style.borderColor = "red";
-						} else {
-							inputElement.style.color = "green";
-							inputElement.style.borderColor = "lightgreen";
-						}
-					} else {
-						inputElement.style.color = "red";
-						inputElement.style.borderColor = "red";
-					}
-				} catch (error) {
-					console.error("Error al evaluar la fórmula:", error);
-					inputElement.style.color = "red";
-					inputElement.style.borderColor = "red";
+					isValid = validateRange(minRange, maxRange);
+					break;
 				}
-			}
 
-			if (!inputValue) {
-				inputElement.style.color = "black";
-				inputElement.style.borderColor = "black";
-			}
-
-			section.resultado[index].valor = Number(inputValue);
-
-			await calcularResultados(section, sectionIndex);
-
-			if (section.resultado.length - 1) {
-				await calcularResultados(section, sectionIndex);
+				default: {
+					break;
+				}
 			}
 		}
+
+		setInputColor(isValid);
+
+		section.resultado[index].valor = numericInput;
+
+		await calcularResultados(section, sectionIndex);
+		if (section.resultado.length > 1) {
+			await calcularResultados(section, sectionIndex);
+		}
 	};
+
+	// const checkInputValue = async (event: Event, index: number, section: any, sectionIndex: number) => {
+	// 	const inputElement = event.target as HTMLInputElement;
+	// 	const personAge = order.value.age;
+	// 	const personGenre = order.value.genre;
+	// 	const valorReferencialString = section.resultado[index].valor_referencial;
+	// 	const valorReferencialNumber = valorReferencialString.match(/(\d+(?:,\d+)?)/g);
+	// 	const parsedNumbers = valorReferencialNumber?.map((numStr: any) => parseFloat(numStr.replace(",", ".")));
+	// 	let inputValue = inputElement.value;
+
+	// 	if (!isNaN(Number(inputValue.replace(",", ".")))) {
+	// 		inputValue = inputValue.replace(",", ".");
+	// 	}
+
+	// 	if (parsedNumbers) {
+	// 		if (parsedNumbers.length === 2) {
+	// 			if (Number(inputValue) < parsedNumbers[0] || Number(inputValue) > parsedNumbers[1]) {
+	// 				inputElement.style.color = "red";
+	// 				inputElement.style.borderColor = "red";
+	// 			} else {
+	// 				inputElement.style.color = "green";
+	// 				inputElement.style.borderColor = "lightgreen";
+	// 			}
+	// 			if (valorReferencialString.includes("Hasta")) {
+	// 				if (Number(inputValue) > parsedNumbers[0]) {
+	// 					inputElement.style.color = "red";
+	// 					inputElement.style.borderColor = "red";
+	// 				} else {
+	// 					inputElement.style.color = "green";
+	// 					inputElement.style.borderColor = "lightgreen";
+	// 				}
+	// 			}
+	// 		}
+
+	// 		if (parsedNumbers.length === 1) {
+	// 			if (valorReferencialString.includes("menor")) {
+	// 				if (Number(inputValue) < parsedNumbers[0]) {
+	// 					inputElement.style.color = "green";
+	// 					inputElement.style.borderColor = "lightgreen";
+	// 				} else {
+	// 					inputElement.style.color = "red";
+	// 					inputElement.style.borderColor = "red";
+	// 				}
+	// 			} else if (valorReferencialString.includes("Hasta")) {
+	// 				if (Number(inputValue) > parsedNumbers[0]) {
+	// 					inputElement.style.color = "red";
+	// 					inputElement.style.borderColor = "red";
+	// 				} else {
+	// 					inputElement.style.color = "green";
+	// 					inputElement.style.borderColor = "lightgreen";
+	// 				}
+	// 			}
+	// 		}
+
+	// 		if (parsedNumbers.length === 4) {
+	// 			if (valorReferencialString.includes("Hombre")) {
+	// 				const validRange = personGenre === "M" ? [parsedNumbers[0], parsedNumbers[1]] : [parsedNumbers[2], parsedNumbers[3]];
+	// 				if (Number(inputValue) < validRange[0] || Number(inputValue) > validRange[1]) {
+	// 					inputElement.style.color = "red";
+	// 					inputElement.style.borderColor = "red";
+	// 				} else {
+	// 					inputElement.style.color = "green";
+	// 					inputElement.style.borderColor = "lightgreen";
+	// 				}
+	// 			} else if (valorReferencialString.includes("Adulto")) {
+	// 				const validRange = personAge > 17 ? [parsedNumbers[0], parsedNumbers[1]] : [parsedNumbers[2], parsedNumbers[3]];
+	// 				if (Number(inputValue) < validRange[0] || Number(inputValue) > validRange[1]) {
+	// 					inputElement.style.color = "red";
+	// 					inputElement.style.borderColor = "red";
+	// 				} else {
+	// 					inputElement.style.color = "green";
+	// 					inputElement.style.borderColor = "lightgreen";
+	// 				}
+	// 			}
+	// 		}
+
+	// 		if (parsedNumbers.length === 6) {
+	// 			let minRange = Infinity;
+	// 			let maxRange = -Infinity;
+
+	// 			try {
+	// 				const matches = valorReferencialString.match(/(-?\d+(\.\d+)?)\s*x10\^([-+]?\d+)|(-?\d+(\.\d+)?)/g);
+
+	// 				const exponentMatches = valorReferencialString.match(/x10\^([-+]?\d+)/g);
+
+	// 				let exponentFactor = 1;
+
+	// 				if (exponentMatches) {
+	// 					for (const exp of exponentMatches) {
+	// 						const exponent = parseInt(exp.replace("x10^", ""), 10);
+	// 						exponentFactor *= Math.pow(10, exponent);
+	// 					}
+	// 				}
+
+	// 				if (matches) {
+	// 					for (const match of matches) {
+	// 						const matchScience = /(-?\d+(\.\d+)?)\s*x10\^([-+]?\d+)/.exec(match);
+	// 						if (matchScience) {
+	// 							const base = parseFloat(matchScience[1]);
+	// 							const exponent = parseInt(matchScience[3], 10);
+	// 							const value = base * Math.pow(10, exponent);
+	// 							minRange = Math.min(minRange, value);
+	// 							maxRange = Math.max(maxRange, value);
+	// 						} else {
+	// 							const value = parseFloat(match) * exponentFactor;
+	// 							minRange = Math.min(minRange, value);
+	// 							maxRange = Math.max(maxRange, value);
+	// 						}
+	// 					}
+	// 				}
+
+	// 				if (!isNaN(Number(inputValue))) {
+	// 					if (Number(inputValue) < minRange || Number(inputValue) > maxRange) {
+	// 						inputElement.style.color = "red";
+	// 						inputElement.style.borderColor = "red";
+	// 					} else {
+	// 						inputElement.style.color = "green";
+	// 						inputElement.style.borderColor = "lightgreen";
+	// 					}
+	// 				} else {
+	// 					inputElement.style.color = "red";
+	// 					inputElement.style.borderColor = "red";
+	// 				}
+	// 			} catch (error) {
+	// 				console.error("Error al evaluar la fórmula:", error);
+	// 				inputElement.style.color = "red";
+	// 				inputElement.style.borderColor = "red";
+	// 			}
+	// 		}
+
+	// 		if (!inputValue) {
+	// 			inputElement.style.color = "black";
+	// 			inputElement.style.borderColor = "black";
+	// 		}
+
+	// 		section.resultado[index].valor = Number(inputValue);
+
+	// 		await calcularResultados(section, sectionIndex);
+
+	// 		if (section.resultado.length - 1) {
+	// 			await calcularResultados(section, sectionIndex);
+	// 		}
+	// 	}
+	// };
 
 	function handleSection(index: number) {
 		sectionData.value = profilesData.value[index];
@@ -569,17 +677,6 @@
 			}
 		});
 	}
-
-	/*const getHtmlWithInputValues = (element: any) => {
-		const inputs = element.querySelectorAll("input, textarea");
-
-		inputs.forEach((input: any) => {
-			const value = input.value;
-			input.outerHTML = `<span>${value}</span>`;
-		});
-
-		return element.innerHTML;
-	};*/
 
 	const getHtmlWithInputValues = (element: HTMLElement): string => {
 		const perfilHeading = element.querySelector("h3");
@@ -734,7 +831,6 @@
 
 		profileContentDivs.forEach((item: any) => {
 			const childrenCopy = item.children[0].cloneNode(true);
-			// childrenCopy.style.display = "block";
 
 			html += getHtmlWithInputValues(childrenCopy);
 		});
@@ -771,7 +867,7 @@
 			await ordersStore.updateStatusOrder(orders.idOrder, data);
 		}
 
-		const html2pdf = (await import('html2pdf.js')).default;
+		const html2pdf = (await import("html2pdf.js")).default;
 
 		html2pdf().from(element).set(options).save();
 		html = "";
@@ -796,7 +892,7 @@
 			jsPDF: { unit: "mm", format: "letter", orientation: "portrait" },
 		};
 
-		const html2pdf = (await import('html2pdf.js')).default;
+		const html2pdf = (await import("html2pdf.js")).default;
 
 		html2pdf().from(element).set(options).save();
 	};
@@ -846,7 +942,7 @@
 			await ordersStore.updateStatusOrder(orders.idOrder, data);
 		}
 
-		const html2pdf = (await import('html2pdf.js')).default;
+		const html2pdf = (await import("html2pdf.js")).default;
 
 		html2pdf().from(element).set(options).save();
 		html = "";
@@ -896,7 +992,7 @@
 			await ordersStore.updateStatusOrder(orders.idOrder, data);
 		}
 
-		const html2pdf = (await import('html2pdf.js')).default;
+		const html2pdf = (await import("html2pdf.js")).default;
 
 		return new Promise((resolve, reject) => {
 			html2pdf()
@@ -925,7 +1021,7 @@
 		}
 		await generatePDF();
 		const message = `Adjuntos resultados del laboratorio`;
-		if (!order.value.phone || order.value.phone === "" || order.value.phone === undefined || order.value.phone === null){
+		if (!order.value.phone || order.value.phone === "" || order.value.phone === undefined || order.value.phone === null) {
 			const whatsappUrl = `https://web.whatsapp.com/send`;
 			window.open(whatsappUrl, "_blank");
 		} else {
@@ -994,7 +1090,7 @@
 	const aplicarFormula = (formula: string, valores: { [x: string]: any }) => {
 		const parser = new Parser();
 		const evaluableFormula = formula.replace(/(\w+)/g, (match) => {
-			if (valores.hasOwnProperty(match)) {
+			if (Object.prototype.hasOwnProperty.call(valores, match)) {
 				return valores[match];
 			}
 			return match;
@@ -1013,7 +1109,7 @@
 	const aplicarRestriccion = (formula: string, valores: { [x: string]: any }) => {
 		const parser = new Parser();
 		const evaluableFormula = formula.replace(/(\w+)/g, (match) => {
-			if (valores.hasOwnProperty(match)) {
+			if (Object.prototype.hasOwnProperty.call(valores, match)) {
 				return valores[match];
 			}
 			return match;
@@ -1030,7 +1126,11 @@
 
 				if (resultadoIzquierda !== resultadoDerecha && !alertShown.value) {
 					alertShown.value = true;
-					showToast(`Error: la suma debe ser igual a ${resultadoDerecha}. Revise las entradas de los campos.`, "warning", alertCircleOutline);
+					showToast(
+						`Error: la suma debe ser igual a ${resultadoDerecha}. Revise las entradas de los campos.`,
+						"warning",
+						alertCircleOutline
+					);
 					return null;
 				}
 
