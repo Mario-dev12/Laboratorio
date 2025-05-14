@@ -24,7 +24,7 @@
 								<div class="d-inline fw-bold">CI:</div>
 								{{ profile?.ci }}
 							</div>
-							<div v-if="profile?.doctor" class="col">
+							<div v-show="profile?.doctor" class="col">
 								<div class="d-inline fw-bold">Dr:</div>
 								{{ profile?.doctor }}
 							</div>
@@ -413,7 +413,7 @@
 
 		pdfFileName.value = options.filename;
 
-		const html2pdf = (await import('html2pdf.js')).default;
+		const html2pdf = (await import("html2pdf.js")).default;
 
 		if (!print.value) {
 			html2pdf().from(element).set(options).save();
@@ -475,7 +475,7 @@
 
 		pdfFileName.value = options.filename;
 
-		const html2pdf = (await import('html2pdf.js')).default;
+		const html2pdf = (await import("html2pdf.js")).default;
 
 		if (!print.value) {
 			html2pdf().from(element).set(options).save();
@@ -501,8 +501,22 @@
 
 	const guardarCambios = async () => {
 		const espermatogramaCopy = espermatograma.value.cloneNode("true");
-		const espermatogramaInputs = espermatogramaCopy.querySelectorAll("input");
-		const inputValues: string[] = [];
+		// const espermatogramaInputs = espermatogramaCopy.querySelectorAll("input");
+		// const inputValues: string[] = [];
+		// espermatogramaInputs.forEach((item: any) => {
+		// 	if (item.value) {
+		// 		inputValues.push(item.value);
+		// 	} else {
+		// 		inputValues.push("");
+		// 	}
+		// });
+		const inputValues: string[] = Array.from(espermatogramaCopy.querySelectorAll("input")).map((input: any) => {
+			if (input.value) {
+				return input.value;
+			} else {
+				return "";
+			}
+		});
 		const data: { [key: string]: any } = {
 			volumen: "",
 			recoleccion: "",
@@ -531,14 +545,6 @@
 			vivosInmobiles: "",
 			muertos: "",
 		};
-
-		espermatogramaInputs.forEach((item: any) => {
-			if (item.value) {
-				inputValues.push(item.value);
-			} else {
-				inputValues.push("");
-			}
-		});
 
 		Object.keys(data).forEach((key, index) => {
 			data[key as keyof typeof data] = inputValues[index];
@@ -575,7 +581,7 @@
 		};
 		await ordersStore.updateStatusOrder(profileId, data);
 		await generatePDFWithoutSignature();
-		const message = `Adjuntos resultados del laboratorio`
+		const message = `Adjuntos resultados del laboratorio`;
 		if (!profile.value.phone || profile.value.phone === "" || profile.value.phone === undefined || profile.value.phone === null) {
 			const whatsappUrl = `https://web.whatsapp.com/send`;
 			window.open(whatsappUrl, "_blank");
@@ -642,7 +648,7 @@
 			jsPDF: { unit: "mm", format: "letter", orientation: "portrait" },
 		};
 
-		const html2pdf = (await import('html2pdf.js')).default;
+		const html2pdf = (await import("html2pdf.js")).default;
 
 		html2pdf().from(element).set(options).save();
 	};

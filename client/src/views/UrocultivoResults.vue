@@ -24,7 +24,7 @@
 								<div class="d-inline fw-bold">CI:</div>
 								{{ profile?.ci }}
 							</div>
-							<div v-if="profile?.doctor" class="col">
+							<div v-show="profile?.doctor" class="col">
 								<div class="d-inline fw-bold">Dr:</div>
 								{{ profile?.doctor }}
 							</div>
@@ -423,7 +423,7 @@
 
 		const element = html;
 
-		const html2pdf = (await import('html2pdf.js')).default;
+		const html2pdf = (await import("html2pdf.js")).default;
 
 		if (!print.value) {
 			html2pdf().from(element).set(options).save();
@@ -446,7 +446,6 @@
 			});
 		}
 	};
-
 	const generatePDF: any = async () => {
 		html = headerPatientInfo.value.innerHTML;
 		const bacteriologicoCopy = bacteriologico.value.cloneNode(true);
@@ -530,7 +529,7 @@
 
 		const element = html;
 
-		const html2pdf = (await import('html2pdf.js')).default;
+		const html2pdf = (await import("html2pdf.js")).default;
 
 		if (!print.value) {
 			html2pdf().from(element).set(options).save();
@@ -560,22 +559,28 @@
 		const bacteriologicoInputs = bacteriologicoCopy.querySelectorAll("input");
 		const contaje = bacteriologicoInputs[0].value;
 		const observaciones = bacteriologicoInputs[1].value;
-		const sensiblesValues: string[] = [];
-		const resistentesValues: string[] = [];
-		const sensiblesSelects = sensibles.value.querySelectorAll("select");
-		const resistentesSelects = resistentes.value.querySelectorAll("select");
+		const sensiblesValues: string[] = Array.from(sensibles.value.querySelectorAll("select"))
+			.map((sel: any) => sel.value)
+			.filter((val) => val);
+		const resistentesValues: string[] = Array.from(resistentes.value.querySelectorAll("select"))
+			.map((sel: any) => sel.value)
+			.filter((val) => val);
+		// const sensiblesValues: string[] = [];
+		// const resistentesValues: string[] = [];
+		// const sensiblesSelects = sensibles.value.querySelectorAll("select");
+		// const resistentesSelects = resistentes.value.querySelectorAll("select");
 
-		sensiblesSelects.forEach((item: any) => {
-			if (item.value) {
-				sensiblesValues.push(item.value);
-			}
-		});
+		// sensiblesSelects.forEach((item: any) => {
+		// 	if (item.value) {
+		// 		sensiblesValues.push(item.value);
+		// 	}
+		// });
 
-		resistentesSelects.forEach((item: any) => {
-			if (item.value) {
-				resistentesValues.push(item.value);
-			}
-		});
+		// resistentesSelects.forEach((item: any) => {
+		// 	if (item.value) {
+		// 		resistentesValues.push(item.value);
+		// 	}
+		// });
 
 		const data = {
 			idOrder: profile.value.orders[0].idOrder,
@@ -615,7 +620,7 @@
 		};
 		await ordersStore.updateStatusOrder(profileId, data);
 		await generatePDFWithoutSignature();
-		const message = `Adjuntos resultados del laboratorio`
+		const message = `Adjuntos resultados del laboratorio`;
 		if (!profile.value.phone || profile.value.phone === "" || profile.value.phone === undefined || profile.value.phone === null) {
 			const whatsappUrl = `https://web.whatsapp.com/send`;
 			window.open(whatsappUrl, "_blank");
@@ -682,7 +687,7 @@
 			jsPDF: { unit: "mm", format: "letter", orientation: "portrait" },
 		};
 
-		const html2pdf = (await import('html2pdf.js')).default;
+		const html2pdf = (await import("html2pdf.js")).default;
 
 		html2pdf().from(element).set(options).save();
 	};

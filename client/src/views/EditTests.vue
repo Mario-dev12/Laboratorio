@@ -9,12 +9,7 @@
 					<ion-button @click="createPerfil" color="primary">+ Perfil</ion-button>
 				</div>
 				<div class="perfiles">
-					<input  
-						type="text"  
-						v-model="filtroNombre"  
-						placeholder="Filtrar por nombre"  
-						class="form-control"  
-					/>  
+					<input type="text" v-model="filtroNombre" placeholder="Filtrar por nombre" class="form-control" />
 					<table class="table table-striped text-center">
 						<thead>
 							<tr>
@@ -100,20 +95,12 @@
 								ref="costoBsPerfilNuevo" />
 						</div>
 					</div>
-					<div class="w-100 m-auto row px-2 mb-3 mt-3">  
-						<label v-if="!update" class="col-12 p-0">  
-						  <input   
-							type="checkbox" 
-							v-model="externoNuevo"  
-							 /> Examen Externo  
-						</label>  
-						<label v-else class="col-12 p-0">  
-							<input   
-							  type="checkbox"   
-							  v-model="selectedPerfil.externo"
-							  ref="externoNuevo" /> Examen Externo  
-						  </label>  
-					  </div>  
+					<div class="w-100 m-auto row px-2 mb-3 mt-3">
+						<label v-if="!update" class="col-12 p-0"> <input type="checkbox" v-model="externoNuevo" /> Examen Externo </label>
+						<label v-else class="col-12 p-0">
+							<input type="checkbox" v-model="selectedPerfil.externo" ref="externoNuevo" /> Examen Externo
+						</label>
+					</div>
 					<h1 class="mt-4 text-center">Secciones Del Perfil</h1>
 					<div class="secciones mt-4">
 						<div v-if="secciones.length === 0" class="text-center mt-3">No hay secciones para este perfil.</div>
@@ -358,7 +345,7 @@
 	const formulaRestriccion = ref("");
 	const tasa = ref<number>(parseFloat(localStorage.getItem("tasaDolar") || "1"));
 	const completarHematologia = ref();
-	const filtroNombre = ref(''); 
+	const filtroNombre = ref("");
 	const examenExterno = ref(false);
 	const toast = ref({
 		isOpen: false,
@@ -371,7 +358,7 @@
 		name: "",
 		cost_bs: "",
 		cost_usd: "",
-		externo: false
+		externo: false,
 	};
 
 	interface CampoNuevo {
@@ -420,11 +407,11 @@
 		}  
 	});  
 
-	const perfilesFiltrados = computed(() => {  
-		return perfiles.value.filter(perfil => {  
-			return perfil.name.toLowerCase().includes(filtroNombre.value.toLowerCase());  
-		});  
-	}); 
+	const perfilesFiltrados = computed(() => {
+		return perfiles.value.filter((perfil) => {
+			return perfil.name.toLowerCase().includes(filtroNombre.value.toLowerCase());
+		});
+	});
 
 	const completarSeccion = async (event: any, seccion: any) => {
 		if (event.target.checked) {
@@ -798,7 +785,6 @@
 				dataPerfilNuevo.cost_usd = costoDolaresPerfilNuevo.value.value;
 				dataPerfilNuevo.cost_bs = costoBsPerfilNuevo.value.value;
 				dataPerfilNuevo.externo = externoNuevo.value;
-
 				if (secciones.value.length === 0) {
 					showToast("El perfil debe contener al menos una sección.", "warning", alertCircleOutline);
 					return;
