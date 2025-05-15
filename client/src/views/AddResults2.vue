@@ -435,13 +435,8 @@
 		};
 
 		if (isNaN(numericInput)) {
-			setInputColor(false);
-			inputElement.style.color = "black";
-			inputElement.style.borderColor = "black";
 			section.resultado[index].valor = null;
 			return;
-		} else {
-			setInputColor(true);
 		}
 
 		const valorReferencialString = section.resultado[index].valor_referencial;
@@ -780,26 +775,46 @@
 					const tableData = table.querySelectorAll("tbody tr");
 					testSections[tableName.innerHTML] = [];
 
+					// tableData.forEach((tr: any) => {
+					// 	const dataRow = {
+					// 		fieldName: "",
+					// 		inputValue: 0,
+					// 		Unit: "",
+					// 	};
+					// 	tr.children.forEach((td: any, i: number) => {
+					// 		if (i === 0) {
+					// 			dataRow.fieldName = td.innerHTML;
+					// 		}
+					// 		if (i === 1) {
+					// 			const inputElement = td.querySelector("input");
+					// 			dataRow.inputValue = inputElement.value;
+					// 		}
+					// 		if (i === 2) {
+					// 			dataRow.Unit = td.innerHTML;
+					// 		}
+					// 	});
+					// 	testSections[tableName.innerHTML].push(dataRow);
+					// 	profileFields.push(dataRow);
+					// });
+
 					tableData.forEach((tr: any) => {
 						const dataRow = {
 							fieldName: "",
-							inputValue: 0,
+							inputValue: "",
 							Unit: "",
 						};
-						tr.children.forEach((td: any, i: number) => {
-							if (i === 0) {
-								dataRow.fieldName = td.innerHTML;
-							}
-							if (i === 1) {
-								const inputElement = td.querySelector("input");
-								dataRow.inputValue = inputElement.value;
-							}
-							if (i === 2) {
-								dataRow.Unit = td.innerHTML;
-							}
-						});
-						testSections[tableName.innerHTML].push(dataRow);
-						profileFields.push(dataRow);
+
+						const tds = tr.children;
+
+						dataRow.fieldName = tds[0]?.innerHTML || "";
+						const inputElement = tds[1]?.querySelector("input");
+						dataRow.inputValue = inputElement ? inputElement.value : "";
+						dataRow.Unit = tds[2]?.innerHTML || "";
+
+						if (profileFields) profileFields.push(dataRow);
+						if (testSections[tableName.innerHTML]) {
+							testSections[tableName.innerHTML].push(dataRow);
+						}
 					});
 				});
 				Object.values(testsResults)[index].push(testSections);
@@ -1170,118 +1185,89 @@
 					const valorReferencialNumber = valorReferencialString.match(/(\d+(?:,\d+)?)/g);
 					const parsedNumbers = valorReferencialNumber?.map((numStr: any) => parseFloat(numStr.replace(",", ".")));
 
+					const numericInput = parseFloat(inputValue);
+
+					const setInputColor = (isValid: boolean) => {
+						inputElement.style.color = isValid ? "green" : "red";
+						inputElement.style.borderColor = isValid ? "lightgreen" : "red";
+					};
+
+					const parseScientific = (str: string) => {
+						const match = /(-?\d+(\.\d+)?)\s*x10\^([-+]?\d+)/.exec(str);
+						if (match) {
+							return parseFloat(match[1]) * Math.pow(10, parseInt(match[3], 10));
+						}
+						return parseFloat(str);
+					};
+
+					if (isNaN(numericInput)) {
+						seccion.resultado[index].valor = null;
+						return;
+					}
+
+					const validateRange = (min: number, max: number): boolean => {
+						return numericInput >= min && numericInput <= max;
+					};
+
+					let isValid = true;
+
 					if (parsedNumbers) {
-						if (parsedNumbers.length === 2) {
-							if (Number(inputValue) < parsedNumbers[0] || Number(inputValue) > parsedNumbers[1]) {
-								inputElement.style.color = "red";
-								inputElement.style.borderColor = "red";
-							} else {
-								inputElement.style.color = "green";
-								inputElement.style.borderColor = "lightgreen";
+						switch (parsedNumbers.length) {
+							case 1: {
+								if (valorReferencialString.includes("menor")) {
+									isValid = numericInput < parsedNumbers[0];
+								} else if (valorReferencialString.includes("Hasta")) {
+									isValid = numericInput <= parsedNumbers[0];
+								}
+								break;
 							}
-						}
 
-						if (parsedNumbers.length === 1) {
-							if (valorReferencialString.includes("menor")) {
-								if (Number(inputValue) < parsedNumbers[0]) {
-									inputElement.style.color = "green";
-									inputElement.style.borderColor = "lightgreen";
-								} else {
-									inputElement.style.color = "red";
-									inputElement.style.borderColor = "red";
+							case 2: {
+								isValid = validateRange(parsedNumbers[0], parsedNumbers[1]);
+								if (valorReferencialString.includes("Hasta")) {
+									isValid = numericInput <= parsedNumbers[1];
 								}
-							} else if (valorReferencialString.includes("Hasta")) {
-								if (Number(inputValue) > parsedNumbers[0]) {
-									inputElement.style.color = "red";
-									inputElement.style.borderColor = "red";
-								} else {
-									inputElement.style.color = "green";
-									inputElement.style.borderColor = "lightgreen";
-								}
+								break;
 							}
-						}
 
-						if (parsedNumbers.length === 4) {
-							if (valorReferencialString.includes("Hombre")) {
-								const validRange =
-									personGenre === "M" ? [parsedNumbers[0], parsedNumbers[1]] : [parsedNumbers[2], parsedNumbers[3]];
-								if (Number(inputValue) < validRange[0] || Number(inputValue) > validRange[1]) {
-									inputElement.style.color = "red";
-									inputElement.style.borderColor = "red";
+							case 4: {
+								let range: [number, number];
+								if (valorReferencialString.includes("Hombre")) {
+									range = personGenre === "M" ? [parsedNumbers[0], parsedNumbers[1]] : [parsedNumbers[2], parsedNumbers[3]];
+								} else if (valorReferencialString.includes("Adulto")) {
+									range = personAge > 17 ? [parsedNumbers[0], parsedNumbers[1]] : [parsedNumbers[2], parsedNumbers[3]];
 								} else {
-									inputElement.style.color = "green";
-									inputElement.style.borderColor = "lightgreen";
+									range = [parsedNumbers[0], parsedNumbers[1]];
 								}
-							} else if (valorReferencialString.includes("Adulto")) {
-								const validRange = personAge > 17 ? [parsedNumbers[0], parsedNumbers[1]] : [parsedNumbers[2], parsedNumbers[3]];
-								if (Number(inputValue) < validRange[0] || Number(inputValue) > validRange[1]) {
-									inputElement.style.color = "red";
-									inputElement.style.borderColor = "red";
-								} else {
-									inputElement.style.color = "green";
-									inputElement.style.borderColor = "lightgreen";
-								}
+								isValid = validateRange(range[0], range[1]);
+								break;
 							}
-						}
-						if (parsedNumbers.length === 6) {
-							let minRange = Infinity;
-							let maxRange = -Infinity;
 
-							try {
-								const matches = valorReferencialString.match(/(-?\d+(\.\d+)?)\s*x10\^([-+]?\d+)|(-?\d+(\.\d+)?)/g);
+							case 6: {
+								let minRange = Infinity;
+								let maxRange = -Infinity;
 
-								const exponentMatches = valorReferencialString.match(/x10\^([-+]?\d+)/g);
+								const matches = valorReferencialString.match(/(-?\d+(\.\d+)?\s*x10\^[-+]?\d+)|(-?\d+(\.\d+)?)/g);
 
-								let exponentFactor = 1;
-
-								if (exponentMatches) {
-									for (const exp of exponentMatches) {
-										const exponent = parseInt(exp.replace("x10^", ""), 10);
-										exponentFactor *= Math.pow(10, exponent);
+								matches?.forEach((matchStr: any) => {
+									const val = parseScientific(matchStr);
+									if (val !== undefined) {
+										minRange = Math.min(minRange, val);
+										maxRange = Math.max(maxRange, val);
 									}
-								}
+								});
 
-								if (matches) {
-									for (const match of matches) {
-										const matchScience = /(-?\d+(\.\d+)?)\s*x10\^([-+]?\d+)/.exec(match);
-										if (matchScience) {
-											const base = parseFloat(matchScience[1]);
-											const exponent = parseInt(matchScience[3], 10);
-											const value = base * Math.pow(10, exponent);
-											minRange = Math.min(minRange, value);
-											maxRange = Math.max(maxRange, value);
-										} else {
-											const value = parseFloat(match) * exponentFactor;
-											minRange = Math.min(minRange, value);
-											maxRange = Math.max(maxRange, value);
-										}
-									}
-								}
-
-								if (!isNaN(Number(inputValue))) {
-									if (Number(inputValue) < minRange || Number(inputValue) > maxRange) {
-										inputElement.style.color = "red";
-										inputElement.style.borderColor = "red";
-									} else {
-										inputElement.style.color = "green";
-										inputElement.style.borderColor = "lightgreen";
-									}
-								} else {
-									inputElement.style.color = "red";
-									inputElement.style.borderColor = "red";
-								}
-							} catch (error) {
-								console.error("Error al evaluar la fórmula:", error);
-								inputElement.style.color = "red";
-								inputElement.style.borderColor = "red";
+								isValid = validateRange(minRange, maxRange);
+								break;
 							}
-						}
 
-						if (!inputValue) {
-							inputElement.style.color = "black";
-							inputElement.style.borderColor = "black";
+							default: {
+								break;
+							}
 						}
 					}
+					setInputColor(isValid);
+					seccion.resultado[index].valor = numericInput;
 				}
 			}
 		});
