@@ -74,7 +74,7 @@
 							<div class="text-end">
 								<h4>Tasa del Dolar</h4>
 								<div class="d-flex align-items-center pb-2">
-									<h4 v-if="!showChangeDolar" class="text-success mb-0 fw-bold">Bs: {{ precioDolar }}</h4>
+									<h4 v-if="!showChangeDolar" class="text-success mb-0 fw-bold">Bs: {{ precioDolar.toFixed(2) }}</h4>
 									<input
 										v-if="showChangeDolar"
 										v-model.number="precioDolar"
@@ -404,10 +404,11 @@
 	const originalPaymentData = ref();
 
 	function handlePrecioActualizado(nuevoPrecio: number) {
-		precioDolar.value = nuevoPrecio;
+		precioDolar.value = parseFloat(nuevoPrecio.toFixed(2));
 	}
 
 	onMounted(async () => {
+		examenesSeleccionados.value = []
 		userData.value = await usersStore.fecthUserById(Number(idUser.value));
 		orderData.value = await ordersStore.fecthOrderByExamId(Number(idExam.value));
 		paymentData.value = await paymentsStore.fecthPaymentByExamId(Number(idExam.value));
@@ -457,6 +458,7 @@
 
 	router.beforeEach(async (to, from, next) => {
 		if (to.name === "EditarOrden") {
+			examenesSeleccionados.value = []
 			userData.value = await usersStore.fecthUserById(Number(idUser.value));
 			orderData.value = await ordersStore.fecthOrderByExamId(Number(idExam.value));
 			paymentData.value = await paymentsStore.fecthPaymentByExamId(Number(idExam.value));
@@ -540,10 +542,6 @@
 			if (item.name === tipoDeExamen.value && !itemInArray) {
 				examenesSeleccionados.value = [...examenesSeleccionados.value, { ...item }];
 
-				originalOrdersData.value = originalOrdersData.value.filter(
-					(originalItem: { name: string }) => originalItem.name !== item.name
-				);
-
 				totales.value.totalBs += parseFloat((item.cost_usd * precioDolar.value).toFixed(2));
 				totales.value.total$ += item.cost_usd;
 
@@ -609,7 +607,7 @@
 		const examHasChanged =
 			JSON.stringify(cost_bs.value) !== JSON.stringify(totales.value.totalBs.toString()) &&
 			JSON.stringify(cost_usd.value) !== JSON.stringify(totales.value.total$.toString());
-		const orderHasChanged = JSON.stringify(examenesSeleccionados.value) !== JSON.stringify(originalOrdersData.value);
+		const orderHasChanged = !(examenesSeleccionados.value.map(examen => examen.name).sort().join(',') === originalOrdersData.value.map((order: { name: any; }) => order.name).sort().join(',')); 
 		const paymentsHasChanged = JSON.stringify(paymentData.value) !== JSON.stringify(originalPaymentData.value);
 
 		if (userHasChanged) {
@@ -651,25 +649,26 @@
 				);
 				orders.push(orderData);
 			}
-			const resultadosIguales = originalOrdersData.value.filter((originalOrder: { idExam: number; idProfile: number }) =>
+			const resultadosIguales = orderData.value.filter((originalOrder: { idExam: number; idProfile: number }) =>
 				examenesSeleccionados.value.some(
-					(examenSeleccionado) =>
+					(examenSeleccionado: { idExam: number; idProfile: number; }) =>
 						examenSeleccionado.idExam === originalOrder.idExam && examenSeleccionado.idProfile === originalOrder.idProfile
 				)
 			);
-			const resultadosDiferentes = originalOrdersData.value.filter(
+			const resultadosDiferentes = orderData.value.filter(
 				(originalOrder: { idExam: number; idProfile: number }) =>
 					!examenesSeleccionados.value.some(
-						(examenSeleccionado) =>
+						(examenSeleccionado: { idExam: number; idProfile: number; }) =>
 							examenSeleccionado.idExam === originalOrder.idExam && examenSeleccionado.idProfile === originalOrder.idProfile
 					)
 			);
 			const resultadosUnicosExamenes = examenesSeleccionados.value.filter(
 				(examenSeleccionado) =>
-					!originalOrdersData.value.some(
+					!orderData.value.some(
 						(originalOrder: { idExam: number; idProfile: number }) => originalOrder.idProfile === examenSeleccionado.idProfile
 					)
 			);
+			console.log('ffffff', resultadosDiferentes, resultadosUnicosExamenes)
 			for (let i = 0; i < resultadosIguales.length; i++) {
 				const orderData = await ordersStore.fecthOrderByExamIdAndProfileId(
 					resultadosIguales[i].idExam,
@@ -679,8 +678,8 @@
 			}
 			for (let i = 0; i < resultadosDiferentes.length; i++) {
 				const orderData = await ordersStore.fecthOrderByExamIdAndProfileId(
-					resultadosIguales[i].idExam,
-					resultadosIguales[i].idProfile
+					resultadosDiferentes[i].idExam,
+					resultadosDiferentes[i].idProfile
 				);
 				respDif.push(orderData);
 			}
@@ -706,7 +705,7 @@
 			}
 
 			for (let i = 0; i < respDif.length; i++) {
-				await ordersStore.deleteOrder(respIguales[i][0].idOrder);
+				await ordersStore.deleteOrder(respDif[i][0].idOrder);
 			}
 		}
 

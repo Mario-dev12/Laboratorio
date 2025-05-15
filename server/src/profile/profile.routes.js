@@ -30,6 +30,7 @@ profileRouter.delete("/profileinputs/:id", profileController.deleteInputsProfile
 
 //Sections
 profileRouter.post("/section", profileController.createProfileSection);
+profileRouter.put("/section/:id", profileController.updateProfileSection);
 profileRouter.delete("/section/:idProfile/:nombre", profileController.deleteProfileSection);
 
 //SectionsInputs

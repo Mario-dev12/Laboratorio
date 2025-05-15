@@ -283,6 +283,11 @@ class AxiosRepository {
 		return response.data;
 	}
 
+	async updateProfileSection<T>(domain: string, id: string | number | undefined, data: T): Promise<T> {
+		const response = await axios.put<T>(`${import.meta.env.VITE_API_URL}/${domain}/section/${id}`, data);
+		return response.data;
+	}
+
 	async updateAntibiotics<T>(domain: string, id: string | number | undefined, data: T): Promise<T> {
 		const response = await axios.put<T>(`${import.meta.env.VITE_API_URL}/${domain}/antibiotics/${id}`, data);
 		return response.data;
