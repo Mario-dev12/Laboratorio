@@ -2757,7 +2757,8 @@ DECLARE
     v_division_resp json[];  
 BEGIN  
     SELECT array(  
-        SELECT jsonb_build_object(  
+        SELECT jsonb_build_object( 
+            'idDivision', pd.idDivision, 
             'nombre', pd.nombre,  
             'expandida', false,  
             'orden', pd.orden,  
@@ -3999,5 +4000,38 @@ begin
 	delete from bacteria
 	where idBacteria = p_id;
 	return 'Se ha borrado la bacteria correctamente';
+end;
+$BODY$;
+
+CREATE OR REPLACE FUNCTION sp_update_perfil_division(
+	p_id integer,
+	p_nombre character varying,
+	p_orden integer)
+    RETURNS json
+    LANGUAGE 'plpgsql'
+    COST 100
+    VOLATILE PARALLEL UNSAFE
+AS $BODY$
+declare
+	v_nombre                              character varying;
+	v_orden                                    integer;
+	v_createdDate                       TIMESTAMP;
+	v_modifiedDate                      TIMESTAMP;
+	v_id                                    integer;
+begin
+	update perfil_division
+	set nombre = p_nombre, orden = p_orden, modifiedDate = now()
+	where idDivision = p_id;
+	select u.nombre into v_nombre from perfil_division u where idDivision = p_id;
+	select u.orden into v_orden from perfil_division u where idDivision = p_id;
+	select u.createdDate into v_createdDate from perfil_division u where idDivision = p_id;
+	select u.modifiedDate into v_modifiedDate from perfil_division u where idDivision = p_id;
+	return json_build_object(
+		'idDivision', p_id,
+		'nombre', v_nombre,
+		'orden', v_orden,
+		'createdDate', v_createdDate,
+		'modifiedDate', v_modifiedDate
+	);
 end;
 $BODY$;

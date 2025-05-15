@@ -293,6 +293,17 @@ profileController.createProfileSection = async (req, res) => {
 	}
 };
 
+profileController.updateProfileSection = async (req, res) => {
+	const { id } = req.params;
+
+	try {
+		const answer = await profileServices.updateProfileSection(id, req.body);
+		res.send(answer);
+	} catch (error) {
+		return res.status(400).send(error.message);
+	}
+};
+
 profileController.createProfileSectionInputs = async (req, res) => {
 	try {
 		const answer = await profileServices.createProfileSectionInputs(

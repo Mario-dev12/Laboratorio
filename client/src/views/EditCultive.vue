@@ -372,6 +372,11 @@
 			const costBs = (costUsd * tasa.value).toFixed(2);
 			perfil.cost_bs = costBs.toString().replace(",", ".");
 		});
+		spermiogram.value.forEach((perfil) => {
+			const costUsd = parseFloat(perfil.cost_usd);
+			const costBs = (costUsd * tasa.value).toFixed(2);
+			perfil.cost_bs = costBs.toString().replace(",", ".");
+		});
 	});
 
 	function handlePrecioActualizado(nuevoPrecio: number) {
@@ -451,7 +456,13 @@
 					showToast("Cultivo actualizado exitosamente!", "creado", checkboxOutline);
 					update.value = false;
 					perfiles.value = await tests.fecthCultives();
+					spermiogram.value = await tests.fecthSpermiogram(),
 					perfiles.value.forEach((perfil) => {
+						const costUsd = parseFloat(perfil.cost_usd);
+						const costBs = (costUsd * tasa.value).toFixed(2);
+						perfil.cost_bs = costBs.toString().replace(",", ".");
+					});
+					spermiogram.value.forEach((perfil) => {
 						const costUsd = parseFloat(perfil.cost_usd);
 						const costBs = (costUsd * tasa.value).toFixed(2);
 						perfil.cost_bs = costBs.toString().replace(",", ".");
@@ -522,6 +533,7 @@
 					await tests.createCultive(dataPerfilNuevo);
 
 					perfiles.value = await tests.fecthCultives();
+					spermiogram.value = await tests.fecthSpermiogram(),
 					showToast("Cultivo creado exitosamente!", "creado", checkboxOutline);
 					create.value = false;
 					crearCampo.value = false;

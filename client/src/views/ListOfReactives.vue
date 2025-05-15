@@ -212,7 +212,7 @@
 	};
 
 	const updateReactiveInList = async (updatedReactive: Reactive) => {
-		const id = updatedReactive.idReactive;
+		const id = updatedReactive.idreactive;
 		await reactivesStore.updateReactive(id, updatedReactive);
 		showToast("Reactivo actualizado correctamente");
 		reactives.value = await reactivesStore.fetchReactiveByProvider();
@@ -221,7 +221,7 @@
 	};
 
 	const updateAllianceInList = async (updatedAlliance: Alliance) => {
-		const id = updatedAlliance.idAlliance;
+		const id = updatedAlliance.idalliance;
 		await alliancesStore.updateAlliance(id, updatedAlliance);
 		showToast("Alianza actualizada correctamente");
 		reactives.value = await reactivesStore.fetchReactiveByProvider();

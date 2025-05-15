@@ -371,6 +371,7 @@
 	}
 
 	interface Seccion {
+		idDivision: number,
 		nombre: string;
 		campos: Array<{ idCampo: number; nombre: string; unidad: string; valor_referencial?: any; calculado: string }>;
 		expandida: boolean;
@@ -543,15 +544,21 @@
 
 					const profilesSections: any = await tests.fetchInputsByProfileId(selectedPerfil.value.idProfile);
 
-					const seccionesActualizadas = secciones.value.map((seccion) => ({
-						nombre: seccion.nombre,
-						campos: seccion.campos,
-						camposAgregados: seccion.camposAgregados,
-						camposEliminados: seccion.camposEliminados,
-					}));
+					const getSectionName = (idDivision: number) => profilesSections.section.find((sec: { idDivision: number; }) => sec.idDivision === idDivision)?.nombre || 'Sección no encontrada';
+
+					const seccionesActualizadas = secciones.value.map((seccion) => ({  
+						nombre: seccion.nombre,  
+						idDivision: seccion.idDivision,  
+						orden: seccion.orden,  
+						campos: seccion.campos,  
+						camposAgregados: seccion.camposAgregados,  
+						camposEliminados: seccion.camposEliminados,  
+						nombreAntiguo: getSectionName(seccion.idDivision), 
+					})); 
 
 					const seccionesValidas = seccionesActualizadas.every(
 						(seccion) => seccion.nombre.trim() !== "" && seccion.campos.length > 0
+						&& seccion.nombreAntiguo.trim() !== ""
 					);
 
 					if (!seccionesValidas) {
@@ -599,7 +606,7 @@
 						if (seccion.camposAgregados && seccion.camposAgregados.length > 0) {
 							const data = {
 								idProfile: selectedPerfil.value.idProfile,
-								nombre: seccion.nombre.trim(),
+								nombre: seccion.nombreAntiguo.trim(),
 							};
 							const camposNuevos = seccion.campos.filter((campo) => campo.idCampo === 0);
 
@@ -617,8 +624,15 @@
 						}
 
 						if (seccion.camposEliminados && seccion.camposEliminados.length > 0) {
-							await tests.deleteProfileSectionInputs(selectedPerfil.value.idProfile, seccion.nombre, seccion.camposEliminados);
+							await tests.deleteProfileSectionInputs(selectedPerfil.value.idProfile, seccion.nombreAntiguo, seccion.camposEliminados);
 						}
+
+						const data = {
+							nombre: seccion.nombre,
+							orden: seccion.orden
+						}
+
+						await tests.updateProfileSection(seccion.idDivision, data)
 					}
 
 					await tests.updateProfile(selectedPerfil.value.idProfile, selectedPerfil.value);
@@ -885,6 +899,7 @@
 
 		const nuevaSeccion: Seccion = {
 			nombre: "",
+			idDivision: 0,
 			campos: [],
 			expandida: true,
 			orden: secciones.value.length === 0 ? 1 : secciones.value.length + 1,

@@ -529,9 +529,7 @@
 			!user.value.apellido ||
 			!user.value.genero ||
 			!user.value.edad ||
-			!user.value.procedencia ||
-			!user.value.email ||
-			!user.value.phone
+			!user.value.procedencia
 		) {
 			showToast("Por Favor Completar Datos Del Cliente", "warning", alertCircleOutline);
 		} else {
