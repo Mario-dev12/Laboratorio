@@ -668,7 +668,6 @@
 						(originalOrder: { idExam: number; idProfile: number }) => originalOrder.idProfile === examenSeleccionado.idProfile
 					)
 			);
-			console.log('ffffff', resultadosDiferentes, resultadosUnicosExamenes)
 			for (let i = 0; i < resultadosIguales.length; i++) {
 				const orderData = await ordersStore.fecthOrderByExamIdAndProfileId(
 					resultadosIguales[i].idExam,
