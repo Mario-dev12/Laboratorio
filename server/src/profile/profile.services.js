@@ -111,6 +111,10 @@ profileServices.createProfileSection = async (idProfile, section) => {
     return await profileRepository.createProfileSection(idProfile, sectionArray)
 }
 
+profileServices.updateProfileSection = async (id, answer) => {
+    return await profileRepository.updateProfileSection(id, answer)
+}
+
 profileServices.createProfileSectionInputs = async (idProfile, nombre, inputs) => {
     return await profileRepository.createProfileSectionInputs(idProfile, nombre, inputs)
 }

@@ -336,6 +336,17 @@ profileRepository.createProfileSection = async (idProfile, section) => {
 	}
 };
 
+profileRepository.updateProfileSection = async (id, answer) => {
+	try {
+		const resp = await pool.query(
+			`SELECT * FROM sp_update_perfil_division(${id}, '${answer.nombre}', '${answer.orden}')`
+		);
+		return resp.rows[0].sp_update_perfil_division;
+	} catch (error) {
+		throw error;
+	}
+};
+
 profileRepository.createProfileSectionInputs = async (idProfile, nombre, inputs) => {
 	try {
 		const formattedInputs = `{${inputs.join(",")}}`;
