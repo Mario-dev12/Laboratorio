@@ -185,7 +185,7 @@
 	import { IonContent, IonPage, IonToast } from "@ionic/vue";
 	import { onMounted, ref, computed } from "vue";
 	import { orderStore } from "@/stores/orderStore";
-	import { useRouter } from "vue-router";
+	import { useRouter, onBeforeRouteLeave } from "vue-router";
 	import { checkboxOutline } from "ionicons/icons";
 
 	const orders = ref();
@@ -237,8 +237,14 @@
 		next();
 	});
 
+	onBeforeRouteLeave((to, from, next) => {
+		expandedOrder.value = 0;
+		next();
+	});
+
 	const toggleDetails = (order: any) => {
 		expandedOrder.value = expandedOrder.value === order.idUser ? null : order.idUser;
+		console.log(expandedOrder.value);
 	};
 
 	const openTabsView = (profileName: any) => {
