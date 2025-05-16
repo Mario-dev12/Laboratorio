@@ -439,6 +439,7 @@
 
 	onBeforeRouteLeave((to, from, next) => {
 		update.value = false;
+		create.value = false;
 		crearCampo.value = false;
 		next();
 	});
