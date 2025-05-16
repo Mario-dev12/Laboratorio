@@ -530,6 +530,12 @@
 				totales.value.totalBs += item.cost_usd * precioDolar.value;
 				totales.value.total$ += item.cost_usd;
 			}
+			for (const item of paymentData.value){
+				debe.value.total$ += Number(item.amount_usd)
+				debe.value.totalBs += Number(item.amount_bs)
+			}
+			debeTotal.value.total$ = parseFloat((totales.value.total$ - debe.value.total$).toFixed(2));  
+			debeTotal.value.totalBs = parseFloat((totales.value.totalBs - debe.value.totalBs).toFixed(2)); 
 			showChangeDolar.value = false;
 			eventBus.emit("precioActualizado", precioDolar.value);
 		}
@@ -558,6 +564,9 @@
 			}
 		}
 
+		debeTotal.value.total$ = totales.value.total$;  
+		debeTotal.value.totalBs = totales.value.totalBs; 
+
 		originalPaymentData.value = null;
 		tipoDeExamen.value = "";
 	};
@@ -585,6 +594,9 @@
 				await paymentsStore.deletePayment(originalPaymentData.value[i].idPayment);
 			}
 		}
+
+		debeTotal.value.total$ = totales.value.total$;  
+		debeTotal.value.totalBs = totales.value.totalBs; 
 
 		originalPaymentData.value = null;
 	}

@@ -474,6 +474,8 @@
 				totales.value.totalBs += parseFloat((item.cost_usd * precioDolar.value).toFixed(2));
 				totales.value.total$ += item.cost_usd;
 			}
+			debe.value.total$ = totales.value.total$
+			debe.value.totalBs = totales.value.totalBs
 			showChangeDolar.value = false;
 			eventBus.emit("precioActualizado", precioDolar.value);
 		}
@@ -489,6 +491,9 @@
 				totales.value.total$ += item.cost_usd;
 			}
 		}
+
+		debe.value.total$ = totales.value.total$
+		debe.value.totalBs = totales.value.totalBs
 
 		tipoDeExamen.value = "";
 	};
@@ -507,6 +512,9 @@
 			}
 			return item.name !== examen;
 		});
+
+		debe.value.total$ = totales.value.total$
+		debe.value.totalBs = totales.value.totalBs
 	}
 
 	watch(precioDolar, () => {
@@ -589,14 +597,24 @@
 								totalesRestantes.value.totalBs = totales.value.totalBs;
 							}
 
-							if (totalesRestantes.value.total$ !== 0 && totalesRestantes.value.totalBs !== 0) {
-								const data = {
-									idExam: respExam,
-									deuda_bs: totalesRestantes.value.totalBs,
-									deuda_dolar: totalesRestantes.value.total$,
-									tasa: precioDolar.value,
-								};
-								await boxsStore.createDebt(data);
+							if ((totalesRestantes.value.total$ !== 0 && totalesRestantes.value.totalBs !== 0) || (debe.value.total$ !== 0 && debe.value.totalBs !== 0)) {
+								if (totalesRestantes.value.total$ === 0 && totalesRestantes.value.totalBs === 0){
+									const data = {
+										idExam: respExam,
+										deuda_bs: debe.value.totalBs,
+										deuda_dolar: debe.value.total$,
+										tasa: precioDolar.value,
+									};
+									await boxsStore.createDebt(data);
+								} else {
+									const data = {
+										idExam: respExam,
+										deuda_bs: totalesRestantes.value.totalBs,
+										deuda_dolar: totalesRestantes.value.total$,
+										tasa: precioDolar.value,
+									};
+									await boxsStore.createDebt(data);
+								}
 							}
 						}
 					}
