@@ -47,6 +47,8 @@ function startServer(serverRoute) {
 		console.log("connecting to my server");
 		serverProcess = spawn(nodePathPc, [serverRoute], {
 			stdio: "inherit",
+			detached: true,
+			windowsHide: true,
 			env: {
 				PORT: 3000,
 				PG_DB_NAME: "Laboratorio",

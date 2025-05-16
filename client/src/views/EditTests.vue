@@ -292,6 +292,8 @@
 				duration="2000"
 				@didDismiss="setOpen(false)"
 				position="top"></ion-toast>
+
+			<CustomConfirm ref="customConfirm"></CustomConfirm>
 		</ion-content>
 	</ion-page>
 </template>
@@ -305,6 +307,7 @@
 	import { checkboxOutline, closeCircleOutline, alertCircleOutline } from "ionicons/icons";
 	import eventBus from "../eventBus";
 	import { useRouter, onBeforeRouteLeave } from "vue-router";
+	import CustomConfirm from "@/components/CustomConfirm.vue";
 
 	const perfilName = ref();
 	const selectedPerfil = ref();
@@ -348,6 +351,7 @@
 	const completarHematologia = ref();
 	const filtroNombre = ref("");
 	const router = useRouter();
+	const customConfirm = ref();
 	const toast = ref({
 		isOpen: false,
 		message: "",
@@ -1014,8 +1018,18 @@
 		return seccion.campos.some((c) => c.idCampo === campo.idCampo);
 	};
 
-	const deleteSeccion = (index: number) => {
-		if (confirm("¿Estás seguro de que deseas eliminar esta sección?")) {
+	const deleteSeccion = async (index: number) => {
+		// if (confirm("¿Estás seguro de que deseas eliminar esta sección?")) {
+		// 	const seccionAEliminar = secciones.value[index];
+
+		// 	if (!seccionesEliminadas.value.includes(seccionAEliminar)) {
+		// 		seccionesEliminadas.value.push(seccionAEliminar);
+		// 	}
+
+		// 	secciones.value.splice(index, 1);
+		// }
+
+		if (await customConfirm.value.open("Seguro quieres eliminar esto?")) {
 			const seccionAEliminar = secciones.value[index];
 
 			if (!seccionesEliminadas.value.includes(seccionAEliminar)) {

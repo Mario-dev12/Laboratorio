@@ -446,6 +446,7 @@
 			});
 		}
 	};
+
 	const generatePDF: any = async () => {
 		html = headerPatientInfo.value.innerHTML;
 		const bacteriologicoCopy = bacteriologico.value.cloneNode(true);
