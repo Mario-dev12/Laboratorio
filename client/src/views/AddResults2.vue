@@ -470,18 +470,36 @@
 					break;
 				}
 
-				case 4: {
-					let range: [number, number];
-					if (valorReferencialString.includes("Hombre")) {
-						range = personGenre === "M" ? [parsedNumbers[0], parsedNumbers[1]] : [parsedNumbers[2], parsedNumbers[3]];
-					} else if (valorReferencialString.includes("Adulto")) {
-						range = personAge > 17 ? [parsedNumbers[0], parsedNumbers[1]] : [parsedNumbers[2], parsedNumbers[3]];
-					} else {
-						range = [parsedNumbers[0], parsedNumbers[1]];
-					}
-					isValid = validateRange(range[0], range[1]);
-					break;
-				}
+				case 4: {  
+					let range: [number, number];  
+					const hasScientificNotation = valorReferencialString.match(/(-?\d+(\.\d+)?\s*x10\^[-+]?\d+)/);  
+					if (hasScientificNotation) {    
+						let minRange = Infinity;  
+						let maxRange = -Infinity;  
+
+						const matches = valorReferencialString.match(/(-?\d+(\.\d+)?\s*x10\^[-+]?\d+)|(-?\d+(\.\d+)?)/g);  
+
+						matches?.forEach((matchStr: any) => {  
+							const val = parseScientific(matchStr);  
+							if (val !== undefined) {  
+								minRange = Math.min(minRange, val);  
+								maxRange = Math.max(maxRange, val);  
+							}  
+						});  
+
+						isValid = validateRange(minRange, maxRange);  
+					} else {  
+						if (valorReferencialString.includes("Hombre")) {  
+							range = personGenre === "M" ? [parsedNumbers[0], parsedNumbers[1]] : [parsedNumbers[2], parsedNumbers[3]];  
+						} else if (valorReferencialString.includes("Adulto")) {  
+							range = personAge > 17 ? [parsedNumbers[0], parsedNumbers[1]] : [parsedNumbers[2], parsedNumbers[3]];  
+						} else {  
+							range = [parsedNumbers[0], parsedNumbers[1]];  
+						}  
+						isValid = validateRange(range[0], range[1]);  
+					}  
+					break;  
+				}  
 
 				case 6: {
 					let minRange = Infinity;
@@ -865,7 +883,7 @@
 		profileName.value = `${lastName}_${firstName}_${formattedDate}.pdf`;
 
 		const options = {
-			margin: 14,
+			margin: 6,
 			filename: filename,
 			image: { type: "jpeg", quality: 0.98 },
 			html2canvas: { scale: 2 },
