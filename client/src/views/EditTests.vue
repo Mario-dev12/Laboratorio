@@ -304,6 +304,7 @@
 	import { Profile, Campo, Unit } from "@/interfaces/interfaces";
 	import { checkboxOutline, closeCircleOutline, alertCircleOutline } from "ionicons/icons";
 	import eventBus from "../eventBus";
+	import { useRouter, onBeforeRouteLeave } from "vue-router";
 
 	const perfilName = ref();
 	const selectedPerfil = ref();
@@ -346,7 +347,7 @@
 	const tasa = ref<number>(parseFloat(localStorage.getItem("tasaDolar") || "1"));
 	const completarHematologia = ref();
 	const filtroNombre = ref("");
-	const examenExterno = ref(false);
+	const router = useRouter();
 	const toast = ref({
 		isOpen: false,
 		message: "",
@@ -371,7 +372,7 @@
 	}
 
 	interface Seccion {
-		idDivision: number,
+		idDivision: number;
 		nombre: string;
 		campos: Array<{ idCampo: number; nombre: string; unidad: string; valor_referencial?: any; calculado: string }>;
 		expandida: boolean;
@@ -381,32 +382,66 @@
 		nueva?: boolean;
 	}
 
-	onMounted(async () => {  
-		eventBus.on("precioActualizado", handlePrecioActualizado);  
-		tasa.value = Number(localStorage.getItem("tasaDolar")) || 50;  
+	onMounted(async () => {
+		eventBus.on("precioActualizado", handlePrecioActualizado);
+		tasa.value = Number(localStorage.getItem("tasaDolar")) || 50;
 
-		try {   
-			const [fetchedProfiles, fetchedInputs, fetchedInputUnits] = await Promise.all([  
-				tests.fecthProfiles(),  
-				tests.fecthProfilesInputs(),  
-				tests.fecthProfilesInputUnits()  
-			]);  
+		try {
+			const [fetchedProfiles, fetchedInputs, fetchedInputUnits] = await Promise.all([
+				tests.fecthProfiles(),
+				tests.fecthProfilesInputs(),
+				tests.fecthProfilesInputUnits(),
+			]);
 
-			perfiles.value = fetchedProfiles;  
- 
-			perfiles.value.forEach((perfil) => {  
-				const costUsd = parseFloat(perfil.cost_usd);  
-				const costBs = (costUsd * tasa.value).toFixed(2);  
-				perfil.cost_bs = costBs.toString().replace(",", ".");  
-			});  
-  
-			camposExistentes.value = fetchedInputs;  
-			unidadesDeCampos.value = fetchedInputUnits;  
+			perfiles.value = fetchedProfiles;
 
-		} catch (error) {  
-			console.error("Error al obtener datos:", error);  
-		}  
-	});  
+			perfiles.value.forEach((perfil) => {
+				const costUsd = parseFloat(perfil.cost_usd);
+				const costBs = (costUsd * tasa.value).toFixed(2);
+				perfil.cost_bs = costBs.toString().replace(",", ".");
+			});
+
+			camposExistentes.value = fetchedInputs;
+			unidadesDeCampos.value = fetchedInputUnits;
+		} catch (error) {
+			console.error("Error al obtener datos:", error);
+		}
+	});
+
+	router.beforeEach(async (to, from, next) => {
+		if (to.name === "EditarPerfil") {
+			eventBus.on("precioActualizado", handlePrecioActualizado);
+			tasa.value = Number(localStorage.getItem("tasaDolar")) || 50;
+
+			try {
+				const [fetchedProfiles, fetchedInputs, fetchedInputUnits] = await Promise.all([
+					tests.fecthProfiles(),
+					tests.fecthProfilesInputs(),
+					tests.fecthProfilesInputUnits(),
+				]);
+
+				perfiles.value = fetchedProfiles;
+
+				perfiles.value.forEach((perfil) => {
+					const costUsd = parseFloat(perfil.cost_usd);
+					const costBs = (costUsd * tasa.value).toFixed(2);
+					perfil.cost_bs = costBs.toString().replace(",", ".");
+				});
+
+				camposExistentes.value = fetchedInputs;
+				unidadesDeCampos.value = fetchedInputUnits;
+			} catch (error) {
+				console.error("Error al obtener datos:", error);
+			}
+		}
+		next();
+	});
+
+	onBeforeRouteLeave((to, from, next) => {
+		update.value = false;
+		crearCampo.value = false;
+		next();
+	});
 
 	const perfilesFiltrados = computed(() => {
 		return perfiles.value.filter((perfil) => {
@@ -544,21 +579,22 @@
 
 					const profilesSections: any = await tests.fetchInputsByProfileId(selectedPerfil.value.idProfile);
 
-					const getSectionName = (idDivision: number) => profilesSections.section.find((sec: { idDivision: number; }) => sec.idDivision === idDivision)?.nombre || 'Sección no encontrada';
+					const getSectionName = (idDivision: number) =>
+						profilesSections.section.find((sec: { idDivision: number }) => sec.idDivision === idDivision)?.nombre ||
+						"Sección no encontrada";
 
-					const seccionesActualizadas = secciones.value.map((seccion) => ({  
-						nombre: seccion.nombre,  
-						idDivision: seccion.idDivision,  
-						orden: seccion.orden,  
-						campos: seccion.campos,  
-						camposAgregados: seccion.camposAgregados,  
-						camposEliminados: seccion.camposEliminados,  
-						nombreAntiguo: getSectionName(seccion.idDivision), 
-					})); 
+					const seccionesActualizadas = secciones.value.map((seccion) => ({
+						nombre: seccion.nombre,
+						idDivision: seccion.idDivision,
+						orden: seccion.orden,
+						campos: seccion.campos,
+						camposAgregados: seccion.camposAgregados,
+						camposEliminados: seccion.camposEliminados,
+						nombreAntiguo: getSectionName(seccion.idDivision),
+					}));
 
 					const seccionesValidas = seccionesActualizadas.every(
-						(seccion) => seccion.nombre.trim() !== "" && seccion.campos.length > 0
-						&& seccion.nombreAntiguo.trim() !== ""
+						(seccion) => seccion.nombre.trim() !== "" && seccion.campos.length > 0 && seccion.nombreAntiguo.trim() !== ""
 					);
 
 					if (!seccionesValidas) {
@@ -624,15 +660,19 @@
 						}
 
 						if (seccion.camposEliminados && seccion.camposEliminados.length > 0) {
-							await tests.deleteProfileSectionInputs(selectedPerfil.value.idProfile, seccion.nombreAntiguo, seccion.camposEliminados);
+							await tests.deleteProfileSectionInputs(
+								selectedPerfil.value.idProfile,
+								seccion.nombreAntiguo,
+								seccion.camposEliminados
+							);
 						}
 
 						const data = {
 							nombre: seccion.nombre,
-							orden: seccion.orden
-						}
+							orden: seccion.orden,
+						};
 
-						await tests.updateProfileSection(seccion.idDivision, data)
+						await tests.updateProfileSection(seccion.idDivision, data);
 					}
 
 					await tests.updateProfile(selectedPerfil.value.idProfile, selectedPerfil.value);
@@ -891,7 +931,11 @@
 		const todosCamposLlenos = secciones.value.every((seccion) => seccion.nombre.trim() !== "" && seccion.campos.length > 0);
 
 		if (!todosCamposLlenos) {
-			showToast("Por favor, completa todos los campos y selecciona al menos un campo en cada sección.", "warning", alertCircleOutline);
+			showToast(
+				"Por favor, completa todos los campos y selecciona al menos un campo en cada sección.",
+				"warning",
+				alertCircleOutline
+			);
 			return;
 		}
 

@@ -2,18 +2,18 @@
 	<ion-page>
 		<ion-content>
 			<div class="container mt-3">
-				<div class="perfiles mt-3 mb-3">  
-					<div class="row w-100 m-auto gap-2">  
-					  <div  
-						class="col btn"  
-						:class="{'btn-light': index !== activeIndex, 'bg-gray': index === activeIndex}" 
-						v-for="(profileName, index) in profileNamesOrdered"  
-						:key="index"  
-						@click="handleTap(index)">  
-						  {{ profileName }}  
-					  </div>  
-					</div>  
-				</div> 
+				<div class="perfiles mt-3 mb-3">
+					<div class="row w-100 m-auto gap-2">
+						<div
+							class="col btn"
+							:class="{ 'btn-light': index !== activeIndex, 'bg-gray': index === activeIndex }"
+							v-for="(profileName, index) in profileNamesOrdered"
+							:key="index"
+							@click="handleTap(index)">
+							{{ profileName }}
+						</div>
+					</div>
+				</div>
 
 				<div v-if="showProfile">
 					<div>
@@ -23,12 +23,7 @@
 						<ion-button @click="createPerfil" color="primary">+ Cultivo</ion-button>
 					</div>
 					<div class="perfiles">
-						<input  
-							type="text"  
-							v-model="filtroNombre"  
-							placeholder="Filtrar por nombre"  
-							class="form-control"  
-						/>  
+						<input type="text" v-model="filtroNombre" placeholder="Filtrar por nombre" class="form-control" />
 						<table class="table table-striped text-center">
 							<thead>
 								<tr>
@@ -45,11 +40,11 @@
 									<td>
 										{{ perfil.name }}
 									</td>
-	
+
 									<td>$ {{ perfil.cost_usd }}</td>
-	
+
 									<td>Bs {{ perfil.cost_bs }}</td>
-	
+
 									<td class="align-middle">
 										<i class="fas fa-edit" style="cursor: pointer; margin-right: 10px" @click="editPerfil(perfil)"></i>
 										<i class="fas fa-trash" style="cursor: pointer" @click="deletePerfil(perfil.idProfile)"></i>
@@ -58,7 +53,7 @@
 							</tbody>
 						</table>
 					</div>
-	
+
 					<div class="editar-perfil mt-4" v-if="create || update" ref="edicionPerfil">
 						<h1 class="text-center" v-if="!update">Cultivo Nuevo</h1>
 						<h1 class="text-center" v-if="update">{{ perfilName }}</h1>
@@ -115,21 +110,13 @@
 							</div>
 						</div>
 
-						<div class="w-100 m-auto row px-2 mb-3 mt-3">  
-							<label v-if="!update" class="col-12 p-0">  
-							  <input   
-								type="checkbox" 
-								v-model="externoNuevo"  
-								 /> Examen Externo  
-							</label>  
-							<label v-else class="col-12 p-0">  
-								<input   
-								  type="checkbox"   
-								  v-model="selectedPerfil.externo"
-								  ref="externoNuevo" /> Examen Externo  
-							  </label>  
-						</div>  
-	
+						<div class="w-100 m-auto row px-2 mb-3 mt-3">
+							<label v-if="!update" class="col-12 p-0"> <input type="checkbox" v-model="externoNuevo" /> Examen Externo </label>
+							<label v-else class="col-12 p-0">
+								<input type="checkbox" v-model="selectedPerfil.externo" ref="externoNuevo" /> Examen Externo
+							</label>
+						</div>
+
 						<div class="d-flex justify-content-center mt-3 mb-3">
 							<button class="btn btn-primary mb-4" @click="crearPerfil" v-if="!update">Crear Cultivo</button>
 							<button class="btn btn-primary mb-4" v-if="update" @click="updatePerfil">Guardar Cambios</button>
@@ -145,12 +132,7 @@
 						<ion-button @click="createPerfil" color="primary">+ Espermatograma</ion-button>
 					</div>
 					<div class="perfiles">
-						<input  
-							type="text"  
-							v-model="filtroNombre"  
-							placeholder="Filtrar por nombre"  
-							class="form-control"  
-						/>  
+						<input type="text" v-model="filtroNombre" placeholder="Filtrar por nombre" class="form-control" />
 						<table class="table table-striped text-center">
 							<thead>
 								<tr>
@@ -167,11 +149,11 @@
 									<td>
 										{{ perfil.name }}
 									</td>
-	
+
 									<td>$ {{ perfil.cost_usd }}</td>
-	
+
 									<td>Bs {{ perfil.cost_bs }}</td>
-	
+
 									<td class="align-middle">
 										<i class="fas fa-edit" style="cursor: pointer; margin-right: 10px" @click="editPerfil(perfil)"></i>
 										<i class="fas fa-trash" style="cursor: pointer" @click="deletePerfil(perfil.idProfile)"></i>
@@ -180,7 +162,7 @@
 							</tbody>
 						</table>
 					</div>
-	
+
 					<div class="editar-perfil mt-4" v-if="create || update" ref="edicionPerfil">
 						<h1 class="text-center" v-if="!update">Espermatograma Nuevo</h1>
 						<h1 class="text-center" v-if="update">{{ perfilName }}</h1>
@@ -237,21 +219,13 @@
 							</div>
 						</div>
 
-						<div class="w-100 m-auto row px-2 mb-3 mt-3">  
-							<label v-if="!update" class="col-12 p-0">  
-							  <input   
-								type="checkbox" 
-								v-model="externoNuevo"  
-								 /> Examen Externo  
-							</label>  
-							<label v-else class="col-12 p-0">  
-								<input   
-								  type="checkbox"   
-								  v-model="selectedPerfil.externo"
-								  ref="externoNuevo" /> Examen Externo  
-							  </label>  
-						</div> 
-	
+						<div class="w-100 m-auto row px-2 mb-3 mt-3">
+							<label v-if="!update" class="col-12 p-0"> <input type="checkbox" v-model="externoNuevo" /> Examen Externo </label>
+							<label v-else class="col-12 p-0">
+								<input type="checkbox" v-model="selectedPerfil.externo" ref="externoNuevo" /> Examen Externo
+							</label>
+						</div>
+
 						<div class="d-flex justify-content-center mt-3 mb-3">
 							<button class="btn btn-primary mb-4" @click="crearPerfil" v-if="!update">Crear Espermatograma</button>
 							<button class="btn btn-primary mb-4" v-if="update" @click="updatePerfil">Guardar Cambios</button>
@@ -278,6 +252,7 @@
 	import { Profile } from "@/interfaces/interfaces";
 	import { checkboxOutline, closeCircleOutline, alertCircleOutline } from "ionicons/icons";
 	import eventBus from "../eventBus";
+	import { onBeforeRouteLeave } from "vue-router";
 
 	const perfilName = ref();
 	const selectedPerfil = ref();
@@ -294,8 +269,8 @@
 	const edicionPerfil = ref();
 	const isOpen = ref(false);
 	const tasa = ref<number>(parseFloat(localStorage.getItem("tasaDolar") || "1"));
-	const filtroNombre = ref(''); 
-	const profileNamesOrdered = ref(["Cultivos", "Espermatograma"])
+	const filtroNombre = ref("");
+	const profileNamesOrdered = ref(["Cultivos", "Espermatograma"]);
 	const activeIndex = ref<number>(0);
 	const showProfile = ref<boolean>(true);
 	const externoNuevo = ref(false);
@@ -326,10 +301,7 @@
 	onMounted(async () => {
 		eventBus.on("precioActualizado", handlePrecioActualizado);
 		tasa.value = Number(localStorage.getItem("tasaDolar")) || 50;
-		[perfiles.value, spermiogram.value] = await Promise.all([  
-			tests.fecthCultives(),  
-			tests.fecthSpermiogram(),  
-		]); 
+		[perfiles.value, spermiogram.value] = await Promise.all([tests.fecthCultives(), tests.fecthSpermiogram()]);
 		perfiles.value.forEach((perfil) => {
 			const costUsd = parseFloat(perfil.cost_usd);
 			const costBs = (costUsd * tasa.value).toFixed(2);
@@ -342,17 +314,23 @@
 		});
 	});
 
-	const perfilesFiltrados = computed(() => {  
-		return perfiles.value.filter(perfil => {  
-			return perfil.name.toLowerCase().includes(filtroNombre.value.toLowerCase());  
-		});  
-	}); 
+	onBeforeRouteLeave((to, from, next) => {
+		create.value = false;
+		update.value = false;
+		next();
+	});
 
-	const espermatogramaFiltrados = computed(() => {  
-		return spermiogram.value.filter(perfil => {  
-			return perfil.name.toLowerCase().includes(filtroNombre.value.toLowerCase());  
-		});  
-	}); 
+	const perfilesFiltrados = computed(() => {
+		return perfiles.value.filter((perfil) => {
+			return perfil.name.toLowerCase().includes(filtroNombre.value.toLowerCase());
+		});
+	});
+
+	const espermatogramaFiltrados = computed(() => {
+		return spermiogram.value.filter((perfil) => {
+			return perfil.name.toLowerCase().includes(filtroNombre.value.toLowerCase());
+		});
+	});
 
 	const updateCostBs = () => {
 		if (create.value) {
@@ -413,14 +391,14 @@
 
 	const updatePerfil = async () => {
 		if (!nombrePerfilNuevo.value.value && !costoDolaresPerfilNuevo.value.value && !costoBsPerfilNuevo.value.value) {
-			showToast("Por favor completa los datos del cultivo.", "warning", alertCircleOutline); 
+			showToast("Por favor completa los datos del cultivo.", "warning", alertCircleOutline);
 		} else {
 			if (
 				isNaN(costoDolaresPerfilNuevo.value.value.replace(",", ".")) ||
 				isNaN(costoBsPerfilNuevo.value.value.replace(",", ".")) ||
 				!isNaN(nombrePerfilNuevo.value.value)
 			) {
-				showToast("Por favor ingresa datos válidos.", "warning", alertCircleOutline); 
+				showToast("Por favor ingresa datos válidos.", "warning", alertCircleOutline);
 			} else {
 				const perfilesMenosSeleccionado = perfiles.value.filter((perfil) => {
 					return perfil.idProfile !== selectedPerfil.value.idProfile;
@@ -456,12 +434,12 @@
 					showToast("Cultivo actualizado exitosamente!", "creado", checkboxOutline);
 					update.value = false;
 					perfiles.value = await tests.fecthCultives();
-					spermiogram.value = await tests.fecthSpermiogram(),
-					perfiles.value.forEach((perfil) => {
-						const costUsd = parseFloat(perfil.cost_usd);
-						const costBs = (costUsd * tasa.value).toFixed(2);
-						perfil.cost_bs = costBs.toString().replace(",", ".");
-					});
+					(spermiogram.value = await tests.fecthSpermiogram()),
+						perfiles.value.forEach((perfil) => {
+							const costUsd = parseFloat(perfil.cost_usd);
+							const costBs = (costUsd * tasa.value).toFixed(2);
+							perfil.cost_bs = costBs.toString().replace(",", ".");
+						});
 					spermiogram.value.forEach((perfil) => {
 						const costUsd = parseFloat(perfil.cost_usd);
 						const costBs = (costUsd * tasa.value).toFixed(2);
@@ -533,8 +511,8 @@
 					await tests.createCultive(dataPerfilNuevo);
 
 					perfiles.value = await tests.fecthCultives();
-					spermiogram.value = await tests.fecthSpermiogram(),
-					showToast("Cultivo creado exitosamente!", "creado", checkboxOutline);
+					(spermiogram.value = await tests.fecthSpermiogram()),
+						showToast("Cultivo creado exitosamente!", "creado", checkboxOutline);
 					create.value = false;
 					crearCampo.value = false;
 					secciones.value = [];
@@ -544,15 +522,14 @@
 	}
 
 	function handleTap(index: number) {
-		if (index !== activeIndex.value){
-			showProfile.value = !showProfile.value
+		if (index !== activeIndex.value) {
+			showProfile.value = !showProfile.value;
 		}
 		activeIndex.value = index;
 	}
 </script>
 
 <style scoped>
-
 	.container {
 		padding: 16px;
 	}
@@ -581,7 +558,7 @@
 		--color: #323232;
 	}
 
-	.bg-gray {  
-		background-color: #DCD7C9; 
+	.bg-gray {
+		background-color: #dcd7c9;
 	}
 </style>
