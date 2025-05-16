@@ -700,6 +700,9 @@
 			totalesRestantes.value.totalBs = totales.value.totalBs - totalPagadoBs.value;
 			debe.value.total$ = totales.value.total$ - totalPagadoDolares.value;
 			debe.value.totalBs = totales.value.totalBs - totalPagadoBs.value;
+		} else {
+			debe.value.total$ = totales.value.total$ - totalPagadoDolares.value;
+			debe.value.totalBs = totales.value.totalBs - totalPagadoBs.value;
 		}
 
 		closeModal();
