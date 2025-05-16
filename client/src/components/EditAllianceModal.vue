@@ -88,11 +88,15 @@
 		pay_amount: "",
 		idReactive: 0,
 		idProvider: 0,
+		name: "",
+		providerName: ""
 	});
 
 	watch(
 		() => props.alliance,
 		async (newUser) => {
+			provider.value = await providersStore.fecthProviders();
+			reactive.value = await reactivesStore.fecthReactives();
 			if (newUser) {
 				alliance.value = newUser;
 				form.value.idReactive = newUser.idReactive;
@@ -103,6 +107,8 @@
 				form.value.cost_usd = newUser.cost_usd;
 				form.value.pay_amount = newUser.pay_amount;
 				form.value.pay_done = newUser.pay_done;
+				form.value.name = newUser.name;
+				form.value.providerName = newUser.providerName;
 			}
 		}
 	);

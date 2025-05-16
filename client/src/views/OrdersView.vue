@@ -244,7 +244,6 @@
 
 	const toggleDetails = (order: any) => {
 		expandedOrder.value = expandedOrder.value === order.idUser ? null : order.idUser;
-		console.log(expandedOrder.value);
 	};
 
 	const openTabsView = (profileName: any) => {
