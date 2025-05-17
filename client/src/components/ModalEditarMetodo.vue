@@ -462,25 +462,23 @@ const esMontoEquivalente = computed(() => {
                 metodo.montoUSD = metodo.montoEfectivo / props.precioDolar;  
                 totalDolares += metodo.montoUSD;  
             } else if (metodo.divisaEfectivo === 'Dolares') {  
-                totalBolivares += metodo.montoEfectivo * props.precioDolar;   
-                totalDolares += metodo.montoEfectivo;   
+                totalBolivares += metodo.montoEfectivo;   
+                totalDolares += metodo.montoUSD;   
             }  
         } else if (metodo.metodo === 'Debito') {  
-            totalBolivares += metodo.montoDebito;  
-            metodo.montoUSD = metodo.montoDebito / props.precioDolar;  
+            totalBolivares += metodo.montoDebito;
             totalDolares += metodo.montoUSD;  
         } else if (metodo.metodo === 'Pago Movil') {  
-            totalBolivares += metodo.montoPagoMovil;  
-            metodo.montoUSD = metodo.montoPagoMovil / props.precioDolar;  
+            totalBolivares += metodo.montoPagoMovil;   
             totalDolares += metodo.montoUSD;  
         }  
     });  
 
-    const bolivaresCumple = parseFloat((totalBolivares).toFixed(2)) === parseFloat((props.totales.totalBs).toFixed(2)) ||  
+    const bolivaresCumple = parseFloat((totalBolivares).toFixed(2)) === parseFloat((props.totales.totalBs).toFixed(2)) &&  
                             parseFloat((totalBolivares).toFixed(2)) <= parseFloat((props.totales.totalBs).toFixed(2)) + 1;  
 
-    const dolaresCumple = parseFloat((totalDolares).toFixed(2)) === parseFloat((props.totales.total$).toFixed(2)) ||  
-                            parseFloat((totalDolares).toFixed(2)) <= parseFloat((props.totales.total$).toFixed(2)) + 0.5;  
+    const dolaresCumple = parseFloat((totalDolares).toFixed(2)) === parseFloat((props.totales.total$).toFixed(2)) &&   
+                            parseFloat((totalDolares).toFixed(2)) <= parseFloat((props.totales.total$).toFixed(2)) + 0.5; 
 
     return bolivaresCumple || dolaresCumple;  
 });  

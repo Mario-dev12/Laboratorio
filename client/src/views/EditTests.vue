@@ -694,6 +694,9 @@
 					});
 					camposExistentes.value = await tests.fecthProfilesInputs();
 					unidadesDeCampos.value = await tests.fecthProfilesInputUnits();
+					seccionesActualizadas.length = 0
+					seccionesAgregadas.value = []
+					seccionesEliminadas.value = []
 				}
 			}
 		}
