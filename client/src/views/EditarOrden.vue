@@ -797,6 +797,11 @@
 		if (!(totales.value.total$ === totalPagadoDolares.value) && !(totales.value.totalBs === totalPagadoBs.value)){
 			totalesRestantes.value.total$ = (totales.value.total$ - totalPagadoDolares.value)
 			totalesRestantes.value.totalBs = (totales.value.totalBs - totalPagadoBs.value)
+			debeTotal.value.total$ = (totales.value.total$ - totalPagadoDolares.value);  
+			debeTotal.value.totalBs = (totales.value.totalBs - totalPagadoBs.value); 
+		} else {
+			debeTotal.value.total$ = (totales.value.total$ - totalPagadoDolares.value);  
+			debeTotal.value.totalBs = (totales.value.totalBs - totalPagadoBs.value); 
 		}
 		closeModal();
 	};

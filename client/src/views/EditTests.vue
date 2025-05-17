@@ -661,7 +661,9 @@
 							seccion.camposAgregados.push(...idsCorrespondientes);
 							seccion.camposAgregados = seccion.camposAgregados.filter((id) => id !== 0);
 
-							await tests.createProfileSectionInputs(data, seccion.camposAgregados);
+							if (seccion.idDivision !== 0){
+								await tests.createProfileSectionInputs(data, seccion.camposAgregados);
+							}
 						}
 
 						if (seccion.camposEliminados && seccion.camposEliminados.length > 0) {
