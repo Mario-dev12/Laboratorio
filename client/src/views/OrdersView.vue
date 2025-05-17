@@ -256,7 +256,16 @@
 					.filter((profile: { externo: any }) => !profile.externo)
 					.map((profile: { profileName: any }) => profile.profileName)
 			)
-		);
+		);  
+		const filteredProfileName = {  
+			...profileName,  
+			orders: profileName.orders  
+				.map((order: { profiles: any[]; }) => ({  
+					...order,  
+					profiles: order.profiles.filter((profile: { externo: any; }) => !profile.externo) // Filtrar perfiles donde externo sea true  
+				}))  
+				.filter((order: { profiles: string | any[]; }) => order.profiles.length > 0) // Eliminar orders sin perfiles válidos  
+		};   
 		const filteredProfiles = profileNamesArray2.value.filter(
 			(profileName: string | string[]) =>
 				!profileName.includes("(Externo)") && !profileName.includes("(externo)") && !profileName.includes("(EXTERNO)")
@@ -267,7 +276,7 @@
 		} else {
 			router.push({
 				name: "Results2",
-				query: { profile: JSON.stringify(profileName), profileNames: JSON.stringify(filteredProfiles) },
+				query: { profile: JSON.stringify(filteredProfileName), profileNames: JSON.stringify(filteredProfiles) },
 			});
 		}
 	};
