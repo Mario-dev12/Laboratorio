@@ -12,7 +12,7 @@ import AddResults2 from "@/views/AddResults2.vue";
 import UrocultivoResults from "@/views/UrocultivoResults.vue";
 import EditCultive from "@/views/EditCultive.vue";
 import EspermatogramaView from "@/views/EspermatogramaView.vue";
-import Antibiotics from "@/views/Antibiotics.vue";
+import Antibiotics from "@/views/AntibioticsView.vue";
 
 const routes: Array<RouteRecordRaw> = [
 	{

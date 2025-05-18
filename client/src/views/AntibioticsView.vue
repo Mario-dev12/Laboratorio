@@ -101,11 +101,12 @@
 	import { providerStore } from "@/stores/providerStore";
 	import { examStore } from "@/stores/examStore";
 	import { IonToast } from "@ionic/vue";
-    import { profileStore } from "@/stores/profileStore"
+	import { profileStore } from "@/stores/profileStore";
+	import { useRouter } from "vue-router";
 
 	const reactives = ref();
-    const antibiotics = ref();
-    const bacterias = ref();
+	const antibiotics = ref();
+	const bacterias = ref();
 	const providers = ref();
 	const allReactives = ref();
 	const exams = ref();
@@ -118,35 +119,62 @@
 	const selectedAntibiotics = ref();
 	const isEditBacteriaModalOpen = ref(false);
 	const isEditAntibioticsModalOpen = ref(false);
-    const profilesStore = profileStore();
+	const profilesStore = profileStore();
+	const router = useRouter();
 	const toast = ref({
 		isOpen: false,
 		message: "",
 		duration: 2000,
 	});
 
-	onMounted(async () => {  
-		try {   
-			const [reactivesData, providersData, allReactivesData, examsData, antibioticsData, bacteriasData,] = await Promise.all([  
-				reactivesStore.fetchReactiveByProvider(),  
-				providersStore.fecthProviders(),  
-				reactivesStore.fecthReactives(),  
-				examsStore.fecthExams(),  
-				profilesStore.fecthAntibiotics(),  
-				profilesStore.fecthBacterium(),  
-			]);  
+	onMounted(async () => {
+		try {
+			const [reactivesData, providersData, allReactivesData, examsData, antibioticsData, bacteriasData] = await Promise.all([
+				reactivesStore.fetchReactiveByProvider(),
+				providersStore.fecthProviders(),
+				reactivesStore.fecthReactives(),
+				examsStore.fecthExams(),
+				profilesStore.fecthAntibiotics(),
+				profilesStore.fecthBacterium(),
+			]);
 
-			reactives.value = reactivesData;  
-			providers.value = providersData;  
-			allReactives.value = allReactivesData;  
-			exams.value = examsData;  
-			antibiotics.value = antibioticsData;  
-			bacterias.value = bacteriasData;  
-		} catch (error) {  
-			console.error("Error al cargar datos:", error);  
-			showToast("Hubo un problema al cargar los datos.");  
-		}  
-	});  
+			reactives.value = reactivesData;
+			providers.value = providersData;
+			allReactives.value = allReactivesData;
+			exams.value = examsData;
+			antibiotics.value = antibioticsData;
+			bacterias.value = bacteriasData;
+		} catch (error) {
+			console.error("Error al cargar datos:", error);
+			showToast("Hubo un problema al cargar los datos.");
+		}
+	});
+
+	router.beforeEach(async (to, from, next) => {
+		if (to.name === "Antibioticos") {
+			try {
+				const [reactivesData, providersData, allReactivesData, examsData, antibioticsData, bacteriasData] = await Promise.all([
+					reactivesStore.fetchReactiveByProvider(),
+					providersStore.fecthProviders(),
+					reactivesStore.fecthReactives(),
+					examsStore.fecthExams(),
+					profilesStore.fecthAntibiotics(),
+					profilesStore.fecthBacterium(),
+				]);
+
+				reactives.value = reactivesData;
+				providers.value = providersData;
+				allReactives.value = allReactivesData;
+				exams.value = examsData;
+				antibiotics.value = antibioticsData;
+				bacterias.value = bacteriasData;
+			} catch (error) {
+				console.error("Error al cargar datos:", error);
+				showToast("Hubo un problema al cargar los datos.");
+			}
+		}
+		next();
+	});
 
 	const showToast = (message: string) => {
 		toast.value.message = message;
@@ -162,7 +190,7 @@
 	const editAntibiotics = (antibiotics: any) => {
 		selectedAntibiotics.value = { ...antibiotics };
 		selectedAntibiotics.value = antibiotics;
-		isEditAntibioticsModalOpen.value = true
+		isEditAntibioticsModalOpen.value = true;
 	};
 
 	const updateBacteriaInList = async (updatedBacteria: any) => {
@@ -170,7 +198,7 @@
 		await profilesStore.updateBacterium(id, updatedBacteria);
 		showToast("Bacteria actualizada correctamente");
 		antibiotics.value = await profilesStore.fecthAntibiotics();
-        bacterias.value = await profilesStore.fecthBacterium();
+		bacterias.value = await profilesStore.fecthBacterium();
 	};
 
 	const updateAntibioticsInList = async (updatedAntibiotics: any) => {
@@ -178,35 +206,35 @@
 		await profilesStore.updateAntibiotics(id, updatedAntibiotics);
 		showToast("Antibiotico actualizado correctamente");
 		antibiotics.value = await profilesStore.fecthAntibiotics();
-        bacterias.value = await profilesStore.fecthBacterium();
+		bacterias.value = await profilesStore.fecthBacterium();
 	};
 
 	const deleteBacteria = async (id: number | string) => {
 		await profilesStore.deleteBacterium(id);
 		showToast("Bacteria borrado correctamente");
 		antibiotics.value = await profilesStore.fecthAntibiotics();
-        bacterias.value = await profilesStore.fecthBacterium();
+		bacterias.value = await profilesStore.fecthBacterium();
 	};
 
 	const deleteAntibiotics = async (id: number | string) => {
 		await profilesStore.deleteAntibiotics(id);
 		showToast("Antibiotico borrada correctamente");
 		antibiotics.value = await profilesStore.fecthAntibiotics();
-        bacterias.value = await profilesStore.fecthBacterium();
+		bacterias.value = await profilesStore.fecthBacterium();
 	};
 
 	const addBacteriaToList = async (newBacteria: Bacteria) => {
 		await profilesStore.createBacteria(newBacteria);
 		showToast("Bacteria creado correctamente");
 		antibiotics.value = await profilesStore.fecthAntibiotics();
-        bacterias.value = await profilesStore.fecthBacterium();
+		bacterias.value = await profilesStore.fecthBacterium();
 	};
 
 	const addAntibioticsToList = async (newAntibiotics: Antibiotics) => {
 		const resp = await profilesStore.createAntibiotics(newAntibiotics);
 		showToast("Antibiotico creado correctamente");
 		antibiotics.value = await profilesStore.fecthAntibiotics();
-        bacterias.value = await profilesStore.fecthBacterium();
+		bacterias.value = await profilesStore.fecthBacterium();
 	};
 
 	const showAntibioticsModal = async () => {
@@ -251,8 +279,8 @@
 		margin-bottom: 1rem;
 	}
 
-	.div-table {  
-		max-height: 400px;  
-		overflow-y: auto;  
-	}  
+	.div-table {
+		max-height: 400px;
+		overflow-y: auto;
+	}
 </style>

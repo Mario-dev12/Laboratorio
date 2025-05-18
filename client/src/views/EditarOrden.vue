@@ -109,55 +109,40 @@
 					<div class="col-12">
 						<div class="row w-100 m-auto">
 							<label class="col align-content-center p-0" for="filterInput">Tipo de Examen:</label>
-							<div class="col p-1" style="position: relative;">  
-								<input  
-								  id="filterInput"  
-								  type="text"  
-								  class="form-control"  
-								  v-model="filterText"  
-								  @focus="showDropdown = true"  
-								  @input="showDropdown = true"  
-								  placeholder="Seleccionar"  
-								  autocomplete="off"  
-								/>  
-								<button v-if="tipoDeExamen" @click="clearSelection" class="clear-button">x</button>  
-							
-								<ul  
-								  v-if="showDropdown && (filteredProfiles.length > 0 || filterText)"  
-								  class="dropdown-list"  
-								  ref="dropdown"  
-								>  
-								  <li  
-									v-for="profile in filteredProfiles"  
-									:key="profile.idProfile"  
-									@click="selectProfile(profile)"  
-									@mousedown.prevent  
-								  >  
-									{{ profile.name }}  
-								  </li>  
-								  <li  
-									v-if="filterText && filteredProfiles.length === 0"  
-									class="no-results"  
-								  >  
-									No hay perfiles con ese nombre  
-								  </li>  
-								  <li  
-									v-if="tipoDeExamen && filteredProfiles.length === 0 && !filterText"  
-									@click="clearSelection"  
-									@mousedown.prevent  
-									class="clear-option"  
-								  >  
-									Clear Selection  
-								  </li>  
-								</ul>  
-							
-								<ul  
-								  v-else-if="showDropdown && !filterText && profiles.length === 0"  
-								  class="dropdown-list"  
-								>  
-								  <li class="no-results">No hay perfiles con ese nombre</li>  
-								</ul>  
-							</div>  
+							<div class="col p-1" style="position: relative">
+								<input
+									id="filterInput"
+									type="text"
+									class="form-control"
+									v-model="filterText"
+									@focus="showDropdown = true"
+									@input="showDropdown = true"
+									placeholder="Seleccionar"
+									autocomplete="off" />
+								<button v-if="tipoDeExamen" @click="clearSelection" class="clear-button">x</button>
+
+								<ul v-if="showDropdown && (filteredProfiles.length > 0 || filterText)" class="dropdown-list" ref="dropdown">
+									<li
+										v-for="profile in filteredProfiles"
+										:key="profile.idProfile"
+										@click="selectProfile(profile)"
+										@mousedown.prevent>
+										{{ profile.name }}
+									</li>
+									<li v-if="filterText && filteredProfiles.length === 0" class="no-results">No hay perfiles con ese nombre</li>
+									<li
+										v-if="tipoDeExamen && filteredProfiles.length === 0 && !filterText"
+										@click="clearSelection"
+										@mousedown.prevent
+										class="clear-option">
+										Clear Selection
+									</li>
+								</ul>
+
+								<ul v-else-if="showDropdown && !filterText && profiles.length === 0" class="dropdown-list">
+									<li class="no-results">No hay perfiles con ese nombre</li>
+								</ul>
+							</div>
 						</div>
 					</div>
 				</div>
@@ -216,11 +201,11 @@
 				</div>
 				<div v-if="debeTotal.total$ > 0" class="row w-100 m-auto mb-1">
 					<div class="col">Debe En $</div>
-					<div class="col">$: {{ (debeTotal.total$).toFixed(2) }}</div>
+					<div class="col">$: {{ debeTotal.total$.toFixed(2) }}</div>
 				</div>
 				<div v-if="debeTotal.totalBs > 0" class="row w-100 m-auto mb-1">
 					<div class="col">Debe En Bs</div>
-					<div class="col">Bs: {{ (debeTotal.totalBs).toFixed(2) }}</div>
+					<div class="col">Bs: {{ debeTotal.totalBs.toFixed(2) }}</div>
 				</div>
 				<div v-if="paymentData && paymentData.length > 0" class="mt-3">
 					<div class="row w-100 m-auto mt-3">
@@ -267,7 +252,6 @@
 	import { checkboxOutline, alertCircleOutline } from "ionicons/icons";
 	import eventBus from "../eventBus";
 	import { boxStore } from "@/stores/boxStore";
-	
 
 	const tipoDeExamen = ref();
 	const pagoEnDivisas = ref();
@@ -295,7 +279,7 @@
 	const paymentData = ref();
 	const isOpen = ref(false);
 	const nuevoMontoDolar = ref<number | null>(null);
-	const filterText = ref('');
+	const filterText = ref("");
 	const showDropdown = ref(false);
 	const totalPagadoDolares = ref();
 	const totalPagadoBs = ref();
@@ -313,7 +297,7 @@
 	const removeAccents = (str: string): string => {
 		if (!str) return "";
 		return str.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
-	}
+	};
 
 	const filteredProfiles = computed(() => {
 		if (!filterText.value) {
@@ -322,7 +306,7 @@
 
 		const normalizedFilter = removeAccents(filterText.value.toLowerCase());
 
-		return profiles.value.filter((profile: { name: string; }) => {
+		return profiles.value.filter((profile: { name: string }) => {
 			const normalizedProfileName = removeAccents(profile.name.toLowerCase());
 			return normalizedProfileName.includes(normalizedFilter);
 		});
@@ -333,25 +317,25 @@
 		filterText.value = profile.name;
 		showDropdown.value = false;
 		agregarExamen();
-		const inputElement = document.getElementById('filterInput') as HTMLInputElement;
+		const inputElement = document.getElementById("filterInput") as HTMLInputElement;
 		if (inputElement) {
 			inputElement.blur();
 		}
-		filterText.value = ''
+		filterText.value = "";
 	}
 
 	function clearSelection() {
-		tipoDeExamen.value = '';
-		filterText.value = '';
+		tipoDeExamen.value = "";
+		filterText.value = "";
 		agregarExamen();
 	}
 
-	const closeDropdown = (event: MouseEvent) => {  
-		const dropdown = document.querySelector('.dropdown-list');  
-		if (showDropdown.value && dropdown && !dropdown.contains(event.target as Node)) {  
-			showDropdown.value = false;  
-		}  
-	};  
+	const closeDropdown = (event: MouseEvent) => {
+		const dropdown = document.querySelector(".dropdown-list");
+		if (showDropdown.value && dropdown && !dropdown.contains(event.target as Node)) {
+			showDropdown.value = false;
+		}
+	};
 
 	const user = ref({
 		id: 0,
@@ -363,7 +347,7 @@
 		procedencia: "",
 		email: "",
 		phone: "",
-		doctor: ""
+		doctor: "",
 	});
 
 	const toast = ref({
@@ -434,12 +418,12 @@
 			totales.value.totalBs += parseFloat((Number(item.cost_usd) * precioDolar.value).toFixed(2));
 			totales.value.total$ += Number(item.cost_usd);
 		}
-		for (const item of paymentData.value){
-			debe.value.total$ += Number(item.amount_usd)
-			debe.value.totalBs += Number(item.amount_bs)
+		for (const item of paymentData.value) {
+			debe.value.total$ += Number(item.amount_usd);
+			debe.value.totalBs += Number(item.amount_bs);
 		}
-		debeTotal.value.total$ = parseFloat((totales.value.total$ - debe.value.total$).toFixed(2));  
-		debeTotal.value.totalBs = parseFloat((totales.value.totalBs - debe.value.totalBs).toFixed(2));  
+		debeTotal.value.total$ = parseFloat((totales.value.total$ - debe.value.total$).toFixed(2));
+		debeTotal.value.totalBs = parseFloat((totales.value.totalBs - debe.value.totalBs).toFixed(2));
 		user.value.apellido = userData.value[0].lastName;
 		user.value.documento = userData.value[0].ci;
 		user.value.edad = userData.value[0].age;
@@ -460,11 +444,12 @@
 		originalOrdersData.value = examenesSeleccionados.value;
 		originalPaymentData.value = paymentData.value;
 		eventBus.on("precioActualizado", handlePrecioActualizado);
-		window.addEventListener('mousedown', closeDropdown);
+		window.addEventListener("mousedown", closeDropdown);
 	});
 
 	router.beforeEach(async (to, from, next) => {
 		if (to.name === "EditarOrden") {
+			examenesSeleccionados.value = [];
 			totales.value.totalBs = 0;
 			totales.value.total$ = 0;
 			debe.value.total$ = 0;
@@ -490,12 +475,12 @@
 				totales.value.totalBs += parseFloat((Number(item.cost_usd) * precioDolar.value).toFixed(2));
 				totales.value.total$ += Number(item.cost_usd);
 			}
-			for (const item of paymentData.value){
-				debe.value.total$ += Number(item.amount_usd)
-				debe.value.totalBs += Number(item.amount_bs)
+			for (const item of paymentData.value) {
+				debe.value.total$ += Number(item.amount_usd);
+				debe.value.totalBs += Number(item.amount_bs);
 			}
-			debeTotal.value.total$ = parseFloat((totales.value.total$ - debe.value.total$).toFixed(2));  
-			debeTotal.value.totalBs = parseFloat((totales.value.totalBs - debe.value.totalBs).toFixed(2)); 
+			debeTotal.value.total$ = parseFloat((totales.value.total$ - debe.value.total$).toFixed(2));
+			debeTotal.value.totalBs = parseFloat((totales.value.totalBs - debe.value.totalBs).toFixed(2));
 			user.value.apellido = userData.value[0].lastName;
 			user.value.documento = userData.value[0].ci;
 			user.value.edad = userData.value[0].age;
@@ -516,7 +501,7 @@
 			originalOrdersData.value = examenesSeleccionados.value;
 			originalPaymentData.value = paymentData.value;
 			eventBus.on("precioActualizado", handlePrecioActualizado);
-			window.addEventListener('mousedown', closeDropdown);
+			window.addEventListener("mousedown", closeDropdown);
 		}
 		next();
 	});
@@ -543,12 +528,12 @@
 				totales.value.totalBs += item.cost_usd * precioDolar.value;
 				totales.value.total$ += item.cost_usd;
 			}
-			for (const item of paymentData.value){
-				debe.value.total$ += Number(item.amount_usd)
-				debe.value.totalBs += Number(item.amount_bs)
+			for (const item of paymentData.value) {
+				debe.value.total$ += Number(item.amount_usd);
+				debe.value.totalBs += Number(item.amount_bs);
 			}
-			debeTotal.value.total$ = parseFloat((totales.value.total$ - debe.value.total$).toFixed(2));  
-			debeTotal.value.totalBs = parseFloat((totales.value.totalBs - debe.value.totalBs).toFixed(2)); 
+			debeTotal.value.total$ = parseFloat((totales.value.total$ - debe.value.total$).toFixed(2));
+			debeTotal.value.totalBs = parseFloat((totales.value.totalBs - debe.value.totalBs).toFixed(2));
 			showChangeDolar.value = false;
 			eventBus.emit("precioActualizado", precioDolar.value);
 		}
@@ -577,8 +562,8 @@
 			}
 		}
 
-		debeTotal.value.total$ = totales.value.total$;  
-		debeTotal.value.totalBs = totales.value.totalBs; 
+		debeTotal.value.total$ = totales.value.total$;
+		debeTotal.value.totalBs = totales.value.totalBs;
 
 		originalPaymentData.value = null;
 		tipoDeExamen.value = "";
@@ -608,8 +593,8 @@
 			}
 		}
 
-		debeTotal.value.total$ = totales.value.total$;  
-		debeTotal.value.totalBs = totales.value.totalBs; 
+		debeTotal.value.total$ = totales.value.total$;
+		debeTotal.value.totalBs = totales.value.totalBs;
 
 		originalPaymentData.value = null;
 	}
@@ -632,7 +617,16 @@
 		const examHasChanged =
 			JSON.stringify(cost_bs.value) !== JSON.stringify(totales.value.totalBs.toString()) &&
 			JSON.stringify(cost_usd.value) !== JSON.stringify(totales.value.total$.toString());
-		const orderHasChanged = !(examenesSeleccionados.value.map(examen => examen.name).sort().join(',') === originalOrdersData.value.map((order: { name: any; }) => order.name).sort().join(',')); 
+		const orderHasChanged = !(
+			examenesSeleccionados.value
+				.map((examen) => examen.name)
+				.sort()
+				.join(",") ===
+			originalOrdersData.value
+				.map((order: { name: any }) => order.name)
+				.sort()
+				.join(",")
+		);
 		const paymentsHasChanged = JSON.stringify(paymentData.value) !== JSON.stringify(originalPaymentData.value);
 
 		if (userHasChanged) {
@@ -647,7 +641,7 @@
 				passport: 0,
 				email: user.value.email,
 				phone: user.value.phone,
-				doctor: user.value.doctor
+				doctor: user.value.doctor,
 			};
 			await usersStore.updateUser(user.value.id, userBody);
 		}
@@ -656,7 +650,7 @@
 			const examsBody: Exam = {
 				idUser: user.value.id,
 				idExam: examenesSeleccionados.value[0].idExam,
-				total_cost_bs: (totales.value.totalBs).toFixed(2),
+				total_cost_bs: totales.value.totalBs.toFixed(2),
 				total_cost_usd: totales.value.total$.toString(),
 			};
 			await examsStore.updateExam(examenesSeleccionados.value[0].idExam, examsBody);
@@ -675,14 +669,14 @@
 			}
 			const resultadosIguales = orderData.value.filter((originalOrder: { idExam: number; idProfile: number }) =>
 				examenesSeleccionados.value.some(
-					(examenSeleccionado: { idExam: number; idProfile: number; }) =>
+					(examenSeleccionado: { idExam: number; idProfile: number }) =>
 						examenSeleccionado.idExam === originalOrder.idExam && examenSeleccionado.idProfile === originalOrder.idProfile
 				)
 			);
 			const resultadosDiferentes = orderData.value.filter(
 				(originalOrder: { idExam: number; idProfile: number }) =>
 					!examenesSeleccionados.value.some(
-						(examenSeleccionado: { idExam: number; idProfile: number; }) =>
+						(examenSeleccionado: { idExam: number; idProfile: number }) =>
 							examenSeleccionado.idExam === originalOrder.idExam && examenSeleccionado.idProfile === originalOrder.idProfile
 					)
 			);
@@ -768,22 +762,23 @@
 		let bs: number = 0;
 		let dolar: number = 0;
 
-		if (paymentData.value != undefined || paymentData.value != null){
+		if (paymentData.value != undefined || paymentData.value != null) {
 			for (let i = 0; i < paymentData.value.length; i++) {
-				bs += Number(paymentData.value[i].amount_bs)
-				dolar += Number(paymentData.value[i].amount_usd)
+				bs += Number(paymentData.value[i].amount_bs);
+				dolar += Number(paymentData.value[i].amount_usd);
 			}
 		}
-		
-		if ((totales.value.total$ - dolar) !== 0 && (totales.value.totalBs - bs) !== 0){
+
+		if (totales.value.total$ - dolar !== 0 && totales.value.totalBs - bs !== 0) {
 			const data = {
 				idExam: examenesSeleccionados.value[0].idExam,
 				deuda_bs: (totales.value.totalBs - bs).toFixed(2),
 				deuda_dolar: (totales.value.total$ - dolar).toFixed(2),
-				tasa: precioDolar.value
-			}
-			await boxsStore.createDebt(data)
+				tasa: precioDolar.value,
+			};
+			await boxsStore.createDebt(data);
 		} else {
+			await boxsStore.deleteDebtExam(examenesSeleccionados.value[0].idExam);
 			if (examenesSeleccionados.value[0].idExam){
 				await boxsStore.deleteDebtExam(examenesSeleccionados.value[0].idExam)
 			} else {
@@ -823,14 +818,14 @@
 		}
 		paymentData.value = resp;
 
-		if (!(totales.value.total$ === totalPagadoDolares.value) && !(totales.value.totalBs === totalPagadoBs.value)){
-			totalesRestantes.value.total$ = (totales.value.total$ - totalPagadoDolares.value)
-			totalesRestantes.value.totalBs = (totales.value.totalBs - totalPagadoBs.value)
-			debeTotal.value.total$ = (totales.value.total$ - totalPagadoDolares.value);  
-			debeTotal.value.totalBs = (totales.value.totalBs - totalPagadoBs.value); 
+		if (!(totales.value.total$ === totalPagadoDolares.value) && !(totales.value.totalBs === totalPagadoBs.value)) {
+			totalesRestantes.value.total$ = totales.value.total$ - totalPagadoDolares.value;
+			totalesRestantes.value.totalBs = totales.value.totalBs - totalPagadoBs.value;
+			debeTotal.value.total$ = totales.value.total$ - totalPagadoDolares.value;
+			debeTotal.value.totalBs = totales.value.totalBs - totalPagadoBs.value;
 		} else {
-			debeTotal.value.total$ = (totales.value.total$ - totalPagadoDolares.value);  
-			debeTotal.value.totalBs = (totales.value.totalBs - totalPagadoBs.value); 
+			debeTotal.value.total$ = totales.value.total$ - totalPagadoDolares.value;
+			debeTotal.value.totalBs = totales.value.totalBs - totalPagadoBs.value;
 		}
 		closeModal();
 	};
@@ -863,7 +858,7 @@
 			procedencia: "",
 			email: "",
 			phone: "",
-			doctor: ""
+			doctor: "",
 		};
 		examenesSeleccionados.value = [];
 		metodoPagos.value = [];
@@ -877,11 +872,11 @@
 		debeTotal.value = {
 			totalBs: 0,
 			total$: 0,
-		}
+		};
 		debe.value = {
 			totalBs: 0,
 			total$: 0,
-		}
+		};
 	}
 
 	const cancelarEdicion = () => {
@@ -927,7 +922,7 @@
 		margin: 0;
 		max-height: 300px;
 		overflow-y: auto;
-		box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+		box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
 		border-radius: 4px;
 	}
 
@@ -940,7 +935,8 @@
 		background-color: #f0f0f0;
 	}
 
-	.no-results, .clear-option {
+	.no-results,
+	.clear-option {
 		font-style: italic;
 		color: #666;
 		padding: 8px 12px;
@@ -949,7 +945,6 @@
 		cursor: pointer;
 		text-decoration: underline;
 	}
-
 
 	.form-control {
 		display: block;

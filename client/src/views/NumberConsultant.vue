@@ -65,30 +65,24 @@
 								<td>{{ income.totalCost_bs }}</td>
 								<td>{{ income.totalCost_usd }}</td>
 								<td>
-									<div v-for="exam in income.exams" :key="exam.idProfile">  
+									<div v-for="exam in income.exams" :key="exam.idProfile">
 										{{ exam.examName }}
-										<div>
-											{{ exam.cost_bs }} bs -
-											{{ exam.cost_usd }} $
-										</div>
-									</div> 
+										<div>{{ exam.cost_bs }} bs - {{ exam.cost_usd }} $</div>
+									</div>
 								</td>
 								<td>
-									<div v-for="payment in income.payments" :key="payment.idPaymentMethod">  
+									<div v-for="payment in income.payments" :key="payment.idPaymentMethod">
 										{{ payment.PaymentMethodName }}
 										<div>
 											{{ payment.type }}
 										</div>
-										<div v-if="payment.bank">
-											Banco {{ payment.bank }}
-										</div>
+										<div v-if="payment.bank">Banco {{ payment.bank }}</div>
 										<div v-if="payment.phone">
 											{{ payment.phone }}
 										</div>
-										{{ payment.amount_bs }} bs -
-										{{ payment.amount_usd }} $
-										<hr>
-									</div> 
+										{{ payment.amount_bs }} bs - {{ payment.amount_usd }} $
+										<hr />
+									</div>
 								</td>
 							</tr>
 						</tbody>
@@ -174,34 +168,28 @@
 								<td>{{ income.ci ? income.ci : income.passport ? income.passport : "N/A" }}</td>
 								<td>{{ income.genre }}</td>
 								<td>{{ income.age }}</td>
-								<td>{{ Math.floor(parseFloat(income.deuda_bs.toString().replace(',', '.')) * 100) / 100 }}</td>
-								<td>{{ Math.floor(parseFloat(income.deuda_dolar.toString().replace(',', '.')) * 100) / 100 }}</td>
+								<td>{{ Math.floor(parseFloat(income.deuda_bs.toString().replace(",", ".")) * 100) / 100 }}</td>
+								<td>{{ Math.floor(parseFloat(income.deuda_dolar.toString().replace(",", ".")) * 100) / 100 }}</td>
 								<td>{{ income.tasa }}</td>
 								<td>
-									<div v-for="exam in income.exams" :key="exam.idProfile">  
+									<div v-for="exam in income.exams" :key="exam.idProfile">
 										{{ exam.examName }}
-										<div>
-											{{ exam.cost_bs }} bs -
-											{{ exam.cost_usd }} $
-										</div>
-									</div> 
+										<div>{{ exam.cost_bs }} bs - {{ exam.cost_usd }} $</div>
+									</div>
 								</td>
 								<td>
-									<div v-for="payment in income.payments" :key="payment.idPaymentMethod">  
+									<div v-for="payment in income.payments" :key="payment.idPaymentMethod">
 										{{ payment.PaymentMethodName }}
 										<div>
 											{{ payment.type }}
 										</div>
-										<div v-if="payment.bank">
-											Banco {{ payment.bank }}
-										</div>
+										<div v-if="payment.bank">Banco {{ payment.bank }}</div>
 										<div v-if="payment.phone">
 											{{ payment.phone }}
 										</div>
-										{{ payment.amount_bs }} bs -
-										{{ payment.amount_usd }} $
-										<hr>
-									</div> 
+										{{ payment.amount_bs }} bs - {{ payment.amount_usd }} $
+										<hr />
+									</div>
 								</td>
 								<td>
 									<i class="fas fa-edit" style="cursor: pointer; margin-right: 10px" @click="abrirModal(income)"></i>
@@ -212,12 +200,12 @@
 				</div>
 			</div>
 			<ModalAgregarMetodo
-					:isOpen="mostrarModal"
-					:totales="totales"
-					:precioDolar="precioDolar"
-					@update-precio-dolar="cambiarPrecioDolar($event)"
-					@close="closeModal"
-					@add="guardarMetodoPago" />
+				:isOpen="mostrarModal"
+				:totales="totales"
+				:precioDolar="precioDolar"
+				@update-precio-dolar="cambiarPrecioDolar($event)"
+				@close="closeModal"
+				@add="guardarMetodoPago" />
 
 			<ion-toast
 				:class="toast.class"
@@ -236,24 +224,25 @@
 	import { IonContent, IonPage, IonToast } from "@ionic/vue";
 	import { boxStore } from "@/stores/boxStore";
 	import { onMounted, ref, watch } from "vue";
-	import { useRoute } from "vue-router";
+	import { useRoute, useRouter } from "vue-router";
 	import ModalAgregarMetodo from "@/components/ModalAgregarMetodo.vue";
-	import eventBus from '../eventBus';
+	import eventBus from "../eventBus";
 	import { Payment } from "@/interfaces/interfaces";
 	import { paymentStore } from "@/stores/paymentStore";
 	import { checkboxOutline, alertCircleOutline } from "ionicons/icons";
 
 	const incomes = ref();
 	const bills = ref();
-	const debt = ref(); 
+	const debt = ref();
 	const totalBs = ref(0);
 	const totalDolares = ref(0);
 	const billsTotalBs = ref(0);
 	const billsTotalDolares = ref(0);
 	const boxsStore = boxStore();
 	const startDate = ref("");
-	const endDate = ref(""); 
-	const route = useRoute();  
+	const endDate = ref("");
+	const route = useRoute();
+	const router = useRouter();
 	const mostrarModal = ref(false);
 	const totales = ref({
 		totalBs: 0,
@@ -288,79 +277,108 @@
 	};
 
 	onMounted(async () => {
-		const [incomesData, billsData, debtData] = await Promise.all([  
-            boxsStore.fecthIncome(true, "", ""),  
-            boxsStore.fecthBills(true, "", ""),  
-            boxsStore.fecthDebt(true, "", "")  
-        ]);  
-        
-        incomes.value = incomesData;  
-        bills.value = billsData;  
-        debt.value = debtData; 
+		const [incomesData, billsData, debtData] = await Promise.all([
+			boxsStore.fecthIncome(true, "", ""),
+			boxsStore.fecthBills(true, "", ""),
+			boxsStore.fecthDebt(true, "", ""),
+		]);
+
+		incomes.value = incomesData;
+		bills.value = billsData;
+		debt.value = debtData;
 		await totalAmountIncome();
 		await totalAmountBills();
 	});
 
-	const loadData = async () => {  
-		try {  
-			const [incomesData, billsData, debtData] = await Promise.all([  
-				boxsStore.fecthIncome(true, "", ""),  
-				boxsStore.fecthBills(true, "", ""),  
-				boxsStore.fecthDebt(true, "", "")  
-			]);  
-			
-			incomes.value = incomesData;  
-			bills.value = billsData;  
-			debt.value = debtData; 
-			await totalAmountIncome();  
-			await totalAmountBills();  
-		} catch (error) {  
-			console.error("Error al cargar los datos:", error);  
-		}  
+	router.beforeEach(async (to, from, next) => {
+		if (to.name === "Caja") {
+			const [incomesData, billsData, debtData] = await Promise.all([
+				boxsStore.fecthIncome(true, "", ""),
+				boxsStore.fecthBills(true, "", ""),
+				boxsStore.fecthDebt(true, "", ""),
+			]);
+
+			incomes.value = incomesData;
+			bills.value = billsData;
+			debt.value = debtData;
+			await totalAmountIncome();
+			await totalAmountBills();
+		}
+		next();
+	});
+
+	const loadData = async () => {
+		try {
+			const [incomesData, billsData, debtData] = await Promise.all([
+				boxsStore.fecthIncome(true, "", ""),
+				boxsStore.fecthBills(true, "", ""),
+				boxsStore.fecthDebt(true, "", ""),
+			]);
+
+			incomes.value = incomesData;
+			bills.value = billsData;
+			debt.value = debtData;
+			await totalAmountIncome();
+			await totalAmountBills();
+		} catch (error) {
+			console.error("Error al cargar los datos:", error);
+		}
 	};
 
-	watch(route, (to) => {  
-		if (to.name === "Caja") {  
-			loadData(); 
-		}  
-	}); 
+	watch(route, (to) => {
+		if (to.name === "Caja") {
+			loadData();
+		}
+	});
 
-	async function totalAmountIncome() {  
-		totalBs.value = incomes.value.reduce((acc: number, income: { totalCost_bs: string; }) => acc + parseFloat(income.totalCost_bs), 0);  
-		totalDolares.value = incomes.value.reduce((acc: number, income: { totalCost_usd: string; }) => acc + parseFloat(income.totalCost_usd), 0);  
-	}  
+	async function totalAmountIncome() {
+		totalBs.value = incomes.value.reduce(
+			(acc: number, income: { totalCost_bs: string }) => acc + parseFloat(income.totalCost_bs),
+			0
+		);
+		totalDolares.value = incomes.value.reduce(
+			(acc: number, income: { totalCost_usd: string }) => acc + parseFloat(income.totalCost_usd),
+			0
+		);
+	}
 
-	async function totalAmountBills() {  
-		billsTotalBs.value = bills.value.reduce((acc: number, bill: { cost_bs: string; }) => acc + parseFloat(bill.cost_bs.replace(",", ".")), 0);  
-		billsTotalDolares.value = bills.value.reduce((acc: number, bill: { cost_usd: string; }) => acc + parseFloat(bill.cost_usd.replace(",", ".")), 0);  
-	}  
+	async function totalAmountBills() {
+		billsTotalBs.value = bills.value.reduce(
+			(acc: number, bill: { cost_bs: string }) => acc + parseFloat(bill.cost_bs.replace(",", ".")),
+			0
+		);
+		billsTotalDolares.value = bills.value.reduce(
+			(acc: number, bill: { cost_usd: string }) => acc + parseFloat(bill.cost_usd.replace(",", ".")),
+			0
+		);
+	}
 
-	async function handleSearch() {  
-		if (new Date(startDate.value) > new Date(endDate.value)) {  
-			showToast("La fecha de inicio no puede ser posterior a la fecha de fin.", "warning", alertCircleOutline); 
-			return;  
-		}  
-		try {  
-			totalBs.value = 0;  
-			totalDolares.value = 0;  
-			billsTotalBs.value = 0;  
-			billsTotalDolares.value = 0;  
+	async function handleSearch() {
+		if (new Date(startDate.value) > new Date(endDate.value)) {
+			showToast("La fecha de inicio no puede ser posterior a la fecha de fin.", "warning", alertCircleOutline);
+			return;
+		}
+		try {
+			totalBs.value = 0;
+			totalDolares.value = 0;
+			billsTotalBs.value = 0;
+			billsTotalDolares.value = 0;
 
-			incomes.value = await boxsStore.fecthIncome(false, startDate.value, endDate.value);  
-			bills.value = await boxsStore.fecthBills(false, startDate.value, endDate.value);  
+			incomes.value = await boxsStore.fecthIncome(false, startDate.value, endDate.value);
+			bills.value = await boxsStore.fecthBills(false, startDate.value, endDate.value);
 
-			await totalAmountIncome();  
-			await totalAmountBills();  
-		} catch (error) {  
-			console.error("Error al buscar datos:", error); 
-			showToast("Ocurrió un error al buscar los datos.", "warning", alertCircleOutline);  
-		}  
-	}  
+			await totalAmountIncome();
+			await totalAmountBills();
+		} catch (error) {
+			console.error("Error al buscar datos:", error);
+			showToast("Ocurrió un error al buscar los datos.", "warning", alertCircleOutline);
+		}
+	}
 
 	const cambiarPrecioDolar = (nuevoPrecio: any) => {
 		const newPrice = Number(nuevoPrecio);
 		if (isNaN(nuevoPrecio) || nuevoPrecio === "") {
-			showToast("Ingrese un valor válido", "warning", alertCircleOutline); 
+			showToast("Ingrese un valor válido", "warning", alertCircleOutline);
 		} else {
 			precioDolar.value = newPrice;
 			cambioDolar.value = newPrice;
@@ -368,7 +386,7 @@
 			totales.value.total$ = 0;
 			totales.value.totalBs = 0;
 			showChangeDolar.value = false;
-			eventBus.emit("precioActualizado", precioDolar.value)
+			eventBus.emit("precioActualizado", precioDolar.value);
 		}
 	};
 
@@ -380,10 +398,19 @@
 			totalPagadoDolares.value += Number(payment.montoDolares);
 			totalPagadoBs.value += Number(payment.montoBolivares);
 		}
-		if ((Math.abs(parseFloat(catchDebt.value.deuda_bs.replace('.', ',')) - parseFloat(totalPagadoBs.value.toString().replace('.', ','))) >= 3 &&   
-			parseFloat(catchDebt.value.deuda_bs.replace('.', ',')) !== parseFloat(totalPagadoBs.value.toString().replace('.', ','))) ||   
-			(Math.abs(parseFloat(catchDebt.value.deuda_dolar.replace('.', ',')) - parseFloat(totalPagadoDolares.value.toString().replace('.', ','))) >= 0.2 &&   
-			parseFloat(catchDebt.value.deuda_dolar.replace('.', ',')) !== parseFloat(totalPagadoDolares.value.toString().replace('.', ',')))){
+		if (
+			(Math.abs(
+				parseFloat(catchDebt.value.deuda_bs.replace(".", ",")) - parseFloat(totalPagadoBs.value.toString().replace(".", ","))
+			) >= 3 &&
+				parseFloat(catchDebt.value.deuda_bs.replace(".", ",")) !==
+					parseFloat(totalPagadoBs.value.toString().replace(".", ","))) ||
+			(Math.abs(
+				parseFloat(catchDebt.value.deuda_dolar.replace(".", ",")) -
+					parseFloat(totalPagadoDolares.value.toString().replace(".", ","))
+			) >= 0.2 &&
+				parseFloat(catchDebt.value.deuda_dolar.replace(".", ",")) !==
+					parseFloat(totalPagadoDolares.value.toString().replace(".", ",")))
+		) {
 			showToast("El monto ingresado es diferente al monto pendiente. Revise el monto", "warning", alertCircleOutline);
 			closeModal();
 		} else {
@@ -400,7 +427,7 @@
 				await paymentsStore.createPayment(paymentBody);
 			}
 
-			await boxsStore.deleteDebt(catchDebt.value.idDeuda)
+			await boxsStore.deleteDebt(catchDebt.value.idDeuda);
 			await loadData();
 			showToast("Deuda pagada Exitosamente!!", "creado", checkboxOutline);
 			closeModal();
@@ -408,10 +435,10 @@
 	};
 
 	const abrirModal = (income: any) => {
-		totales.value.total$ = Number(parseFloat(income.deuda_dolar.replace(",", ".")).toFixed(2));  
-		totales.value.totalBs = Number(parseFloat(income.deuda_bs.replace(",", ".")).toFixed(2));  
-		precioDolar.value = parseFloat(income.tasa.replace(",", "."))
-		catchDebt.value = income
+		totales.value.total$ = Number(parseFloat(income.deuda_dolar.replace(",", ".")).toFixed(2));
+		totales.value.totalBs = Number(parseFloat(income.deuda_bs.replace(",", ".")).toFixed(2));
+		precioDolar.value = parseFloat(income.tasa.replace(",", "."));
+		catchDebt.value = income;
 		mostrarModal.value = true;
 	};
 
