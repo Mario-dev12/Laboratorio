@@ -301,6 +301,10 @@
 	}
 
 	onMounted(async () => {
+		create.value = false;
+		crearCampo.value = false;
+		secciones.value = [];
+		update.value = false;
 		eventBus.on("precioActualizado", handlePrecioActualizado);
 		tasa.value = Number(localStorage.getItem("tasaDolar")) || 50;
 		[perfiles.value, spermiogram.value] = await Promise.all([tests.fecthCultives(), tests.fecthSpermiogram()]);
@@ -318,6 +322,10 @@
 
 	router.beforeEach(async (to, from, next) => {
 		if (to.name === "EditarCultivo") {
+			create.value = false;
+			crearCampo.value = false;
+			secciones.value = [];
+			update.value = false;
 			eventBus.on("precioActualizado", handlePrecioActualizado);
 			tasa.value = Number(localStorage.getItem("tasaDolar")) || 50;
 			[perfiles.value, spermiogram.value] = await Promise.all([tests.fecthCultives(), tests.fecthSpermiogram()]);
