@@ -197,7 +197,8 @@
 					:paymentData="paymentData"
 					@update-precio-dolar="cambiarPrecioDolar($event)"
 					@close="closeModal"
-					@add="guardarMetodoPago" />
+					@add="guardarMetodoPago"
+					@delete="deleteMetodo" />
 			</div>
 			<div class="factura container mt-3 mb-4 bg-dark-subtle rounded p-3">
 				<h3 class="mb-3">Factura</h3>
@@ -821,6 +822,23 @@
 		}
 		closeModal();
 	};
+
+	const deleteMetodo = async (metodo: any) => {
+		paymentData.value = null;
+
+		if (originalPaymentData.value) {
+			for (let i = 0; i < originalPaymentData.value.length; i++) {
+				await paymentsStore.deletePayment(originalPaymentData.value[i].idPayment);
+			}
+		}
+
+		debeTotal.value.total$ = totales.value.total$;  
+		debeTotal.value.totalBs = totales.value.totalBs; 
+
+		originalPaymentData.value = null;
+
+		closeModal();
+	}
 
 	async function resetOrderData() {
 		user.value = {

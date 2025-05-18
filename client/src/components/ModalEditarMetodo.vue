@@ -44,15 +44,26 @@
                 </div>   
 
                 <div v-for="(metodo, index) in metodos" :key="index" class="metodo-pago">  
-                    <div class="form-group">  
-                        <label for="metodoPago">Método de Pago</label>  
-                        <select v-model="metodo.metodo" class="form-control" id="metodoPago" required>  
+                    <label for="metodoPago" class="mr-2">Método de Pago</label>  
+                    <div class="form-group d-flex align-items-center">  
+                        <select   
+                            v-model="metodo.metodo"   
+                            class="form-control"   
+                            id="metodoPago"   
+                            required  
+                            style="flex: 1;"  
+                        >  
                             <option value="" disabled>Seleccionar...</option>  
                             <option value="Debito">Débito</option>  
                             <option value="Efectivo">Efectivo</option>  
                             <option value="Pago Movil">Pago Móvil</option>  
                         </select>  
-                    </div>  
+                        
+                        <i class="fas fa-times"   
+                           @click="eliminarMetodo(metodo)"   
+                           style="cursor: pointer; color: red; margin-left: 10px;">  
+                        </i>  
+                    </div>       
 
                     <div v-if="metodo.metodo === 'Efectivo'" class="form-inline">  
                         <div class="form-group mx-2">  
@@ -288,7 +299,7 @@ const showToast = (message: string, style: string, icon: any) => {
 
 const method = ref(false);
 
-const emit = defineEmits(["close", "add", "update-precio-dolar"]);  
+const emit = defineEmits(["close", "add", "update-precio-dolar", "delete"]);  
 
 const metodos = ref([{ metodo: '', divisaEfectivo: '', montoEfectivo: 0, divisaDebito: 'Bolivares', montoDebito: 0, montoUSD: 0, banco: '', divisaPagoMovil: 'Bolivares', bancoPagoMovil: '', montoPagoMovil: 0, telefonoPagoMovil: '' }]);  
 
@@ -482,6 +493,12 @@ const esMontoEquivalente = computed(() => {
 
     return bolivaresCumple || dolaresCumple;  
 });  
+
+async function eliminarMetodo(metodo: { metodo: any; }) {  
+    emit("delete", metodo); 
+    metodos.value = [];
+    metodos.value.push({ metodo: '', divisaEfectivo: '', montoEfectivo: 0, divisaDebito: 'Bolivares', montoDebito: 0, montoUSD: 0, banco: '', divisaPagoMovil: 'Bolivares', bancoPagoMovil: '', montoPagoMovil: 0, telefonoPagoMovil: '' })
+}
 
 async function calcularMontosRestantes() {  
     const totalBolivares = metodos.value.reduce((acc, metodo) => {  
