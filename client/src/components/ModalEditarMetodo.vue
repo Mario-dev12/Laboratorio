@@ -44,15 +44,26 @@
                 </div>   
 
                 <div v-for="(metodo, index) in metodos" :key="index" class="metodo-pago">  
-                    <div class="form-group">  
-                        <label for="metodoPago">Método de Pago</label>  
-                        <select v-model="metodo.metodo" class="form-control" id="metodoPago" required>  
+                    <label for="metodoPago" class="mr-2">Método de Pago</label>  
+                    <div class="form-group d-flex align-items-center">  
+                        <select   
+                            v-model="metodo.metodo"   
+                            class="form-control"   
+                            id="metodoPago"   
+                            required  
+                            style="flex: 1;"  
+                        >  
                             <option value="" disabled>Seleccionar...</option>  
                             <option value="Debito">Débito</option>  
                             <option value="Efectivo">Efectivo</option>  
                             <option value="Pago Movil">Pago Móvil</option>  
                         </select>  
-                    </div>  
+                        
+                        <i class="fas fa-times"   
+                           @click="eliminarMetodo(metodo)"   
+                           style="cursor: pointer; color: red; margin-left: 10px;">  
+                        </i>  
+                    </div>       
 
                     <div v-if="metodo.metodo === 'Efectivo'" class="form-inline">  
                         <div class="form-group mx-2">  
@@ -288,7 +299,7 @@ const showToast = (message: string, style: string, icon: any) => {
 
 const method = ref(false);
 
-const emit = defineEmits(["close", "add", "update-precio-dolar"]);  
+const emit = defineEmits(["close", "add", "update-precio-dolar", "delete"]);  
 
 const metodos = ref([{ metodo: '', divisaEfectivo: '', montoEfectivo: 0, divisaDebito: 'Bolivares', montoDebito: 0, montoUSD: 0, banco: '', divisaPagoMovil: 'Bolivares', bancoPagoMovil: '', montoPagoMovil: 0, telefonoPagoMovil: '' }]);  
 
@@ -462,28 +473,33 @@ const esMontoEquivalente = computed(() => {
                 metodo.montoUSD = metodo.montoEfectivo / props.precioDolar;  
                 totalDolares += metodo.montoUSD;  
             } else if (metodo.divisaEfectivo === 'Dolares') {  
-                totalBolivares += metodo.montoEfectivo * props.precioDolar;   
-                totalDolares += metodo.montoEfectivo;   
+                totalBolivares += metodo.montoEfectivo;   
+                totalDolares += metodo.montoUSD;   
             }  
         } else if (metodo.metodo === 'Debito') {  
-            totalBolivares += metodo.montoDebito;  
-            metodo.montoUSD = metodo.montoDebito / props.precioDolar;  
+            totalBolivares += metodo.montoDebito;
             totalDolares += metodo.montoUSD;  
         } else if (metodo.metodo === 'Pago Movil') {  
-            totalBolivares += metodo.montoPagoMovil;  
-            metodo.montoUSD = metodo.montoPagoMovil / props.precioDolar;  
+            totalBolivares += metodo.montoPagoMovil;   
             totalDolares += metodo.montoUSD;  
         }  
     });  
 
-    const bolivaresCumple = parseFloat((totalBolivares).toFixed(2)) === parseFloat((props.totales.totalBs).toFixed(2)) ||  
+    const bolivaresCumple = parseFloat((totalBolivares).toFixed(2)) === parseFloat((props.totales.totalBs).toFixed(2)) &&  
                             parseFloat((totalBolivares).toFixed(2)) <= parseFloat((props.totales.totalBs).toFixed(2)) + 1;  
 
-    const dolaresCumple = parseFloat((totalDolares).toFixed(2)) === parseFloat((props.totales.total$).toFixed(2)) ||  
-                            parseFloat((totalDolares).toFixed(2)) <= parseFloat((props.totales.total$).toFixed(2)) + 0.5;  
+    const dolaresCumple = parseFloat((totalDolares).toFixed(2)) === parseFloat((props.totales.total$).toFixed(2)) &&   
+                            parseFloat((totalDolares).toFixed(2)) <= parseFloat((props.totales.total$).toFixed(2)) + 0.5; 
 
     return bolivaresCumple || dolaresCumple;  
 });  
+
+async function eliminarMetodo(metodo: { metodo: any; }) {  
+    emit("delete", metodo); 
+    resetForm(); 
+    metodos.value = [];
+    metodos.value.push({ metodo: '', divisaEfectivo: '', montoEfectivo: 0, divisaDebito: 'Bolivares', montoDebito: 0, montoUSD: 0, banco: '', divisaPagoMovil: 'Bolivares', bancoPagoMovil: '', montoPagoMovil: 0, telefonoPagoMovil: '' })
+}
 
 async function calcularMontosRestantes() {  
     const totalBolivares = metodos.value.reduce((acc, metodo) => {  

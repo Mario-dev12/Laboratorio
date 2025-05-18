@@ -197,7 +197,8 @@
 					:paymentData="paymentData"
 					@update-precio-dolar="cambiarPrecioDolar($event)"
 					@close="closeModal"
-					@add="guardarMetodoPago" />
+					@add="guardarMetodoPago"
+					@delete="deleteMetodo" />
 			</div>
 			<div class="factura container mt-3 mb-4 bg-dark-subtle rounded p-3">
 				<h3 class="mb-3">Factura</h3>
@@ -408,7 +409,13 @@
 	}
 
 	onMounted(async () => {
-		examenesSeleccionados.value = []
+		totales.value.totalBs = 0;
+		totales.value.total$ = 0;
+		debe.value.total$ = 0;
+		debe.value.totalBs = 0;
+		debeTotal.value.total$ = 0;
+		debeTotal.value.totalBs = 0;
+		examenesSeleccionados.value = [];
 		userData.value = await usersStore.fecthUserById(Number(idUser.value));
 		orderData.value = await ordersStore.fecthOrderByExamId(Number(idExam.value));
 		paymentData.value = await paymentsStore.fecthPaymentByExamId(Number(idExam.value));
@@ -458,6 +465,12 @@
 
 	router.beforeEach(async (to, from, next) => {
 		if (to.name === "EditarOrden") {
+			totales.value.totalBs = 0;
+			totales.value.total$ = 0;
+			debe.value.total$ = 0;
+			debe.value.totalBs = 0;
+			debeTotal.value.total$ = 0;
+			debeTotal.value.totalBs = 0;
 			examenesSeleccionados.value = []
 			userData.value = await usersStore.fecthUserById(Number(idUser.value));
 			orderData.value = await ordersStore.fecthOrderByExamId(Number(idExam.value));
@@ -648,7 +661,6 @@
 			};
 			await examsStore.updateExam(examenesSeleccionados.value[0].idExam, examsBody);
 		}
-
 		if (orderHasChanged) {
 			const orders = [];
 			const respIguales = [];
@@ -727,16 +739,29 @@
 				}
 			}
 			for (let i = 0; i < metodoPagos.value.length; i++) {
-				const paymentBody: Payment = {
-					idPayment_method: metodoPagos.value[i].idPayment_method,
-					amount_bs: metodoPagos.value[i].montoBolivares,
-					amount_usd: metodoPagos.value[i].montoDolares,
-					type: metodoPagos.value[i].tipo,
-					bank: metodoPagos.value[i].banco,
-					idExam: examenesSeleccionados.value[0].idExam,
-					phone: metodoPagos.value[i].telefono,
-				};
-				await paymentsStore.createPayment(paymentBody);
+				if (examenesSeleccionados.value[0].idExam) {
+					const paymentBody: Payment = {
+						idPayment_method: metodoPagos.value[i].idPayment_method,
+						amount_bs: metodoPagos.value[i].montoBolivares,
+						amount_usd: metodoPagos.value[i].montoDolares,
+						type: metodoPagos.value[i].tipo,
+						bank: metodoPagos.value[i].banco,
+						idExam: examenesSeleccionados.value[0].idExam,
+						phone: metodoPagos.value[i].telefono,
+					};
+					await paymentsStore.createPayment(paymentBody);
+				} else {
+					const paymentBody: Payment = {
+						idPayment_method: metodoPagos.value[i].idPayment_method,
+						amount_bs: metodoPagos.value[i].montoBolivares,
+						amount_usd: metodoPagos.value[i].montoDolares,
+						type: metodoPagos.value[i].tipo,
+						bank: metodoPagos.value[i].banco,
+						idExam: orderData.value[0].idExam,
+						phone: metodoPagos.value[i].telefono,
+					};
+					await paymentsStore.createPayment(paymentBody);
+				}
 			}
 		}
 
@@ -759,7 +784,11 @@
 			}
 			await boxsStore.createDebt(data)
 		} else {
-			await boxsStore.deleteDebtExam(examenesSeleccionados.value[0].idExam)
+			if (examenesSeleccionados.value[0].idExam){
+				await boxsStore.deleteDebtExam(examenesSeleccionados.value[0].idExam)
+			} else {
+				await boxsStore.deleteDebtExam(orderData.value[0].idExam)
+			}
 		}
 
 		showToast("Cambios Guardados Con Éxito", "creado", checkboxOutline);
@@ -805,6 +834,23 @@
 		}
 		closeModal();
 	};
+
+	const deleteMetodo = async (metodo: any) => {
+		paymentData.value = null;
+
+		if (originalPaymentData.value) {
+			for (let i = 0; i < originalPaymentData.value.length; i++) {
+				await paymentsStore.deletePayment(originalPaymentData.value[i].idPayment);
+			}
+		}
+
+		debeTotal.value.total$ = totales.value.total$;  
+		debeTotal.value.totalBs = totales.value.totalBs; 
+
+		originalPaymentData.value = null;
+
+		closeModal();
+	}
 
 	async function resetOrderData() {
 		user.value = {
