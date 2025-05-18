@@ -393,6 +393,7 @@
 	}
 
 	onMounted(async () => {
+		await resetOrderData();
 		totales.value.totalBs = 0;
 		totales.value.total$ = 0;
 		debe.value.total$ = 0;
@@ -449,6 +450,7 @@
 
 	router.beforeEach(async (to, from, next) => {
 		if (to.name === "EditarOrden") {
+			await resetOrderData();
 			examenesSeleccionados.value = [];
 			totales.value.totalBs = 0;
 			totales.value.total$ = 0;
