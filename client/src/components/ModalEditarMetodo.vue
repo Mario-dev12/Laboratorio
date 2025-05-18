@@ -496,6 +496,7 @@ const esMontoEquivalente = computed(() => {
 
 async function eliminarMetodo(metodo: { metodo: any; }) {  
     emit("delete", metodo); 
+    resetForm(); 
     metodos.value = [];
     metodos.value.push({ metodo: '', divisaEfectivo: '', montoEfectivo: 0, divisaDebito: 'Bolivares', montoDebito: 0, montoUSD: 0, banco: '', divisaPagoMovil: 'Bolivares', bancoPagoMovil: '', montoPagoMovil: 0, telefonoPagoMovil: '' })
 }

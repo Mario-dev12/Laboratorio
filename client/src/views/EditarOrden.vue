@@ -409,7 +409,13 @@
 	}
 
 	onMounted(async () => {
-		examenesSeleccionados.value = []
+		totales.value.totalBs = 0;
+		totales.value.total$ = 0;
+		debe.value.total$ = 0;
+		debe.value.totalBs = 0;
+		debeTotal.value.total$ = 0;
+		debeTotal.value.totalBs = 0;
+		examenesSeleccionados.value = [];
 		userData.value = await usersStore.fecthUserById(Number(idUser.value));
 		orderData.value = await ordersStore.fecthOrderByExamId(Number(idExam.value));
 		paymentData.value = await paymentsStore.fecthPaymentByExamId(Number(idExam.value));
@@ -459,6 +465,12 @@
 
 	router.beforeEach(async (to, from, next) => {
 		if (to.name === "EditarOrden") {
+			totales.value.totalBs = 0;
+			totales.value.total$ = 0;
+			debe.value.total$ = 0;
+			debe.value.totalBs = 0;
+			debeTotal.value.total$ = 0;
+			debeTotal.value.totalBs = 0;
 			examenesSeleccionados.value = []
 			userData.value = await usersStore.fecthUserById(Number(idUser.value));
 			orderData.value = await ordersStore.fecthOrderByExamId(Number(idExam.value));
