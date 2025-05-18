@@ -253,6 +253,7 @@
 	import { checkboxOutline, closeCircleOutline, alertCircleOutline } from "ionicons/icons";
 	import eventBus from "../eventBus";
 	import { onBeforeRouteLeave } from "vue-router";
+	import { useRouter } from "vue-router";
 
 	const perfilName = ref();
 	const selectedPerfil = ref();
@@ -274,6 +275,7 @@
 	const activeIndex = ref<number>(0);
 	const showProfile = ref<boolean>(true);
 	const externoNuevo = ref(false);
+	const router = useRouter();
 	const toast = ref({
 		isOpen: false,
 		message: "",
@@ -312,6 +314,25 @@
 			const costBs = (costUsd * tasa.value).toFixed(2);
 			perfil.cost_bs = costBs.toString().replace(",", ".");
 		});
+	});
+
+	router.beforeEach(async (to, from, next) => {
+		if (to.name === "EditarCultivo") {
+			eventBus.on("precioActualizado", handlePrecioActualizado);
+			tasa.value = Number(localStorage.getItem("tasaDolar")) || 50;
+			[perfiles.value, spermiogram.value] = await Promise.all([tests.fecthCultives(), tests.fecthSpermiogram()]);
+			perfiles.value.forEach((perfil) => {
+				const costUsd = parseFloat(perfil.cost_usd);
+				const costBs = (costUsd * tasa.value).toFixed(2);
+				perfil.cost_bs = costBs.toString().replace(",", ".");
+			});
+			spermiogram.value.forEach((perfil) => {
+				const costUsd = parseFloat(perfil.cost_usd);
+				const costBs = (costUsd * tasa.value).toFixed(2);
+				perfil.cost_bs = costBs.toString().replace(",", ".");
+			});
+		}
+		next();
 	});
 
 	onBeforeRouteLeave((to, from, next) => {

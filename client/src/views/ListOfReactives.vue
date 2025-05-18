@@ -155,6 +155,7 @@
 	import { allianceStore } from "@/stores/allianceStore";
 	import { examStore } from "@/stores/examStore";
 	import { IonToast } from "@ionic/vue";
+	import { useRouter } from "vue-router";
 
 	const reactives = ref();
 	const providers = ref();
@@ -173,20 +174,33 @@
 	const isEditModalOpen = ref(false);
 	const isEditAllianceModalOpen = ref(false);
 	const isEditProviderModalOpen = ref(false);
+	const router = useRouter();
 	const toast = ref({
 		isOpen: false,
 		message: "",
 		duration: 2000,
 	});
 
-	onMounted(async () => {  
-		[reactives.value, providers.value, allReactives.value, exams.value] = await Promise.all([  
-			reactivesStore.fetchReactiveByProvider(),  
-			providersStore.fecthProviders(),  
-			reactivesStore.fecthReactives(),  
-			examsStore.fecthExams()  
-		]);  
-	});  
+	onMounted(async () => {
+		[reactives.value, providers.value, allReactives.value, exams.value] = await Promise.all([
+			reactivesStore.fetchReactiveByProvider(),
+			providersStore.fecthProviders(),
+			reactivesStore.fecthReactives(),
+			examsStore.fecthExams(),
+		]);
+	});
+
+	router.beforeEach(async (to, from, next) => {
+		if (to.name === "Reactivos") {
+			[reactives.value, providers.value, allReactives.value, exams.value] = await Promise.all([
+				reactivesStore.fetchReactiveByProvider(),
+				providersStore.fecthProviders(),
+				reactivesStore.fecthReactives(),
+				examsStore.fecthExams(),
+			]);
+		}
+		next();
+	});
 
 	const showToast = (message: string) => {
 		toast.value.message = message;

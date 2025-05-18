@@ -378,19 +378,21 @@
 	}
 
 	router.beforeEach(async (to, from, next) => {
-		examenesSeleccionados.value = [];
-		profiles.value = await profilesStore.fecthAllProfiles();
-		profiles.value = profiles.value.map((exam: { cost_bs: string; cost_usd: string }) => ({
-			...exam,
-			cost_bs: parseFloat(exam.cost_bs.replace(",", ".")),
-			cost_usd: parseFloat(exam.cost_usd),
-		}));
-		precioDolar.value = Number(localStorage.getItem("tasaDolar")) || 50;
-		eventBus.on("precioActualizado", handlePrecioActualizado);
-		crearOrden();
-		await resetOrderData();
-		user.value.phone = "+58";
-		window.addEventListener("mousedown", closeDropdown);
+		if (to.name === "CrearOrden") {
+			examenesSeleccionados.value = [];
+			profiles.value = await profilesStore.fecthAllProfiles();
+			profiles.value = profiles.value.map((exam: { cost_bs: string; cost_usd: string }) => ({
+				...exam,
+				cost_bs: parseFloat(exam.cost_bs.replace(",", ".")),
+				cost_usd: parseFloat(exam.cost_usd),
+			}));
+			precioDolar.value = Number(localStorage.getItem("tasaDolar")) || 50;
+			eventBus.on("precioActualizado", handlePrecioActualizado);
+			crearOrden();
+			await resetOrderData();
+			user.value.phone = "+58";
+			window.addEventListener("mousedown", closeDropdown);
+		}
 		next();
 	});
 
@@ -474,8 +476,8 @@
 				totales.value.totalBs += parseFloat((item.cost_usd * precioDolar.value).toFixed(2));
 				totales.value.total$ += item.cost_usd;
 			}
-			debe.value.total$ = totales.value.total$
-			debe.value.totalBs = totales.value.totalBs
+			debe.value.total$ = totales.value.total$;
+			debe.value.totalBs = totales.value.totalBs;
 			showChangeDolar.value = false;
 			eventBus.emit("precioActualizado", precioDolar.value);
 		}
@@ -492,8 +494,8 @@
 			}
 		}
 
-		debe.value.total$ = totales.value.total$
-		debe.value.totalBs = totales.value.totalBs
+		debe.value.total$ = totales.value.total$;
+		debe.value.totalBs = totales.value.totalBs;
 
 		tipoDeExamen.value = "";
 	};
@@ -513,8 +515,8 @@
 			return item.name !== examen;
 		});
 
-		debe.value.total$ = totales.value.total$
-		debe.value.totalBs = totales.value.totalBs
+		debe.value.total$ = totales.value.total$;
+		debe.value.totalBs = totales.value.totalBs;
 	}
 
 	watch(precioDolar, () => {
@@ -597,8 +599,11 @@
 								totalesRestantes.value.totalBs = totales.value.totalBs;
 							}
 
-							if ((totalesRestantes.value.total$ !== 0 && totalesRestantes.value.totalBs !== 0) || (debe.value.total$ !== 0 && debe.value.totalBs !== 0)) {
-								if (totalesRestantes.value.total$ === 0 && totalesRestantes.value.totalBs === 0){
+							if (
+								(totalesRestantes.value.total$ !== 0 && totalesRestantes.value.totalBs !== 0) ||
+								(debe.value.total$ !== 0 && debe.value.totalBs !== 0)
+							) {
+								if (totalesRestantes.value.total$ === 0 && totalesRestantes.value.totalBs === 0) {
 									const data = {
 										idExam: respExam,
 										deuda_bs: debe.value.totalBs,
