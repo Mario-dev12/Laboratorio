@@ -387,6 +387,9 @@
 	}
 
 	onMounted(async () => {
+		update.value = false;
+		create.value = false;
+		crearCampo.value = false;
 		eventBus.on("precioActualizado", handlePrecioActualizado);
 		tasa.value = Number(localStorage.getItem("tasaDolar")) || 50;
 
@@ -414,6 +417,9 @@
 
 	router.beforeEach(async (to, from, next) => {
 		if (to.name === "EditarPerfil") {
+			update.value = false;
+			create.value = false;
+			crearCampo.value = false;
 			eventBus.on("precioActualizado", handlePrecioActualizado);
 			tasa.value = Number(localStorage.getItem("tasaDolar")) || 50;
 

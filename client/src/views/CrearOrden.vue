@@ -379,6 +379,7 @@
 
 	router.beforeEach(async (to, from, next) => {
 		if (to.name === "CrearOrden") {
+			await resetOrderData();
 			examenesSeleccionados.value = [];
 			profiles.value = await profilesStore.fecthAllProfiles();
 			profiles.value = profiles.value.map((exam: { cost_bs: string; cost_usd: string }) => ({
@@ -397,6 +398,8 @@
 	});
 
 	onMounted(async () => {
+		await resetOrderData();
+		examenesSeleccionados.value = [];
 		profiles.value = await profilesStore.fecthAllProfiles();
 		profiles.value = profiles.value.map((exam: { cost_bs: string; cost_usd: string }) => ({
 			...exam,

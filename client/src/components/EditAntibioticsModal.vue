@@ -30,7 +30,7 @@
 
 <script setup lang="ts">
 	import { IonModal, IonButton, IonContent, IonFooter, IonHeader, IonToolbar, IonTitle, IonButtons } from "@ionic/vue";
-	import { ref, defineEmits, watch, onMounted } from "vue";
+	import { ref, defineEmits, watch } from "vue";
 
 	const props = defineProps<{
 		isOpen: boolean;
