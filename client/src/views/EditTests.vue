@@ -667,7 +667,7 @@
 							seccion.camposAgregados.push(...idsCorrespondientes);
 							seccion.camposAgregados = seccion.camposAgregados.filter((id) => id !== 0);
 
-							if (seccion.idDivision !== 0){
+							if (seccion.idDivision !== 0) {
 								await tests.createProfileSectionInputs(data, seccion.camposAgregados);
 							}
 						}
@@ -700,9 +700,9 @@
 					});
 					camposExistentes.value = await tests.fecthProfilesInputs();
 					unidadesDeCampos.value = await tests.fecthProfilesInputUnits();
-					seccionesActualizadas.length = 0
-					seccionesAgregadas.value = []
-					seccionesEliminadas.value = []
+					seccionesActualizadas.length = 0;
+					seccionesAgregadas.value = [];
+					seccionesEliminadas.value = [];
 				}
 			}
 		}
@@ -970,7 +970,9 @@
 
 		secciones.value.push(nuevaSeccion);
 
-		if (!seccionesAgregadas.value.includes(nuevaSeccion)) {
+		const seccionRepetida = seccionesAgregadas.value.find((item) => item.nombre.trim() === nuevaSeccion.nombre.trim());
+
+		if (!seccionRepetida && nuevaSeccion.nombre && nuevaSeccion.camposAgregados.length > 0) {
 			seccionesAgregadas.value.push(nuevaSeccion);
 		}
 	};

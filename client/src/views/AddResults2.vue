@@ -24,8 +24,8 @@
 								<img src="/images/direccion.png" alt="" style="width: 80%" />
 							</div>
 						</div>
-						<div class="border-bottom border-black mt-2"></div>
-						<div class="row mt-3">
+						<div class="border-bottom border-black"></div>
+						<div class="row mt-1">
 							<div class="col">
 								<div class="d-inline fw-bold">Paciente:</div>
 								{{ order?.firstName }} {{ order?.lastName }}
@@ -53,39 +53,39 @@
 						</div>
 					</div>
 
-					<div class="profile-content mt-5" v-for="(profile, indx) in profilesData" :key="indx">
-						<div class="profile-sections mt-4" v-show="showProfile[indx]" ref="profileRef2">
+					<div class="profile-content" v-for="(profile, indx) in profilesData" :key="indx">
+						<div class="profile-sections mt-1" v-show="showProfile[indx]" ref="profileRef2">
 							<div class="text-center">
-								<h3>{{ profileNamesOrdered[indx] }}</h3>
+								<h4 class="m-0 fw-bold">{{ profileNamesOrdered[indx] }}</h4>
 							</div>
 							<div
-								class="profile-tables mb-5"
+								class="profile-tables"
 								v-for="([key, section], i) in profile ? Object.entries(profile) : null"
 								:key="i"
 								ref="sectionRef">
-								<h4>{{ key }}</h4>
+								<h5>{{ key }}</h5>
 								<div class="table-responsive">
 									<table class="table table-hover table-striped">
-										<thead>
+										<thead class="">
 											<tr>
-												<th scope="col" class="col-3">Nombre</th>
-												<th scope="col" class="col-3">Resultados</th>
-												<th scope="col" class="col-3">Unidad</th>
-												<th scope="col" class="col-3">Valor Referencial</th>
+												<th scope="col" class="col-3 p-0">Nombre</th>
+												<th scope="col" class="col-3 p-0">Resultados</th>
+												<th scope="col" class="col-3 p-0">Unidad</th>
+												<th scope="col" class="col-3 p-0">Valor Referencial</th>
 											</tr>
 										</thead>
-										<tbody>
-											<tr v-for="(item, index) in (section as Section).resultado" :key="index">
-												<td ref="campoNames" class="align-middle">{{ item.nombre }}</td>
-												<td class="align-middle inputElement">
+										<tbody class="">
+											<tr class="p-1" v-for="(item, index) in (section as Section).resultado" :key="index">
+												<td ref="campoNames" class="align-middle p-0">{{ item.nombre }}</td>
+												<td class="align-middle inputElement p-0">
 													<input
 														type="text"
 														ref="campoResult"
 														v-model="item.valor"
 														@change="checkInputValue($event, index, section, i)" />
 												</td>
-												<td class="unidad align-middle">{{ item.unidad }}</td>
-												<td class="valor-referencial align-middle" ref="valorReferencial">
+												<td class="unidad align-middle p-0">{{ item.unidad }}</td>
+												<td class="valor-referencial align-middle p-0" ref="valorReferencial">
 													<span v-html="formatValorReferencial(item.valor_referencial)"></span>
 												</td>
 											</tr>
@@ -305,6 +305,7 @@
 		//
 
 		profilesData.value = filteredSections;
+		console.log(profilesData.value);
 
 		sectionData.value = profilesData.value[0];
 		showProfile.value = new Array(profileNames.length).fill(false);
@@ -418,7 +419,6 @@
 		const inputValue = inputElement.value.replace(",", ".");
 		const personAge = order.value.age;
 		const personGenre = order.value.genre;
-
 		const numericInput = parseFloat(inputValue);
 
 		const setInputColor = (isValid: boolean) => {
@@ -434,8 +434,9 @@
 			return parseFloat(str);
 		};
 
-		if (isNaN(numericInput)) {
-			section.resultado[index].valor = null;
+		if (Number.isNaN(numericInput)) {
+			console.log("not a number");
+			setInputColor(true);
 			return;
 		}
 
@@ -692,10 +693,10 @@
 	}
 
 	const getHtmlWithInputValues = (element: HTMLElement): string => {
-		const perfilHeading = element.querySelector("h3");
+		const perfilHeading = element.querySelector("h4");
 		const perfilName = perfilHeading ? perfilHeading.textContent?.trim() : "Perfil sin nombre";
 
-		const sections = element.querySelectorAll("h4");
+		const sections = element.querySelectorAll("h5");
 		const rows: { section: string; data: string[] }[] = [];
 
 		sections.forEach((section) => {
@@ -720,11 +721,11 @@
 							const valorReferencial = valorReferencialCell ? valorReferencialCell.innerHTML.trim() : "N/A";
 
 							sectionRows.push(`
-								<tr>
-									<td class="align-middle">${nombre}</td>
-									<td class="align-middle">${value}</td>
-									<td class="align-middle">${unidad}</td>
-									<td class="valor-referencial align-middle">${valorReferencial}</td>
+								<tr class="p-1">
+									<td class="align-middle py-0">${nombre}</td>
+									<td class="align-middle py-0">${value}</td>
+									<td class="align-middle py-0">${unidad}</td>
+									<td class="valor-referencial align-middle py-0">${valorReferencial}</td>
 								</tr>
 							`);
 						}
@@ -743,11 +744,11 @@
 
 		const htmlOutput = `
 			<div>
-				<h2 class="text-center">${perfilName}</h2>
+				<h4 class="text-center">${perfilName}</h4>
 				${rows
 					.map(
 						({ section, data }) => `
-					<h4 class="text-center">${section}</h4>
+					<h5 class="text-center">${section}</h5>
 					<table class="table table-hover table-striped">
 						<thead>
 							<tr>
@@ -789,7 +790,7 @@
 				const sections = item.querySelectorAll(".profile-tables");
 
 				sections.forEach((table: any) => {
-					const tableName = table.querySelector("h4");
+					const tableName = table.querySelector("h5");
 					const tableData = table.querySelectorAll("tbody tr");
 					testSections[tableName.innerHTML] = [];
 
@@ -939,6 +940,7 @@
 		html = patientInfoDivCopy.innerHTML;
 
 		profileContentDivs.forEach((item: any) => {
+			console.log(item.children[0]);
 			const childrenCopy = item.children[0].cloneNode(true);
 
 			html += getHtmlWithInputValues(childrenCopy);
