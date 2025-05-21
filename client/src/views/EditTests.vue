@@ -634,7 +634,8 @@
 							const existe = profilesSections.section.some(
 								(existingSeccion: { nombre: string }) => existingSeccion.nombre.trim() === seccion.nombre.trim()
 							);
-							if (!existe) {
+							if (!existe && seccion.nombre && seccion.camposAgregados.length > 0) {
+								console.log("crear seccion");
 								seccion.nombre = seccion.nombre.trim();
 								await tests.createProfileSection(selectedPerfil.value.idProfile, seccion);
 							}
@@ -972,8 +973,9 @@
 
 		const seccionRepetida = seccionesAgregadas.value.find((item) => item.nombre.trim() === nuevaSeccion.nombre.trim());
 
-		if (!seccionRepetida && nuevaSeccion.nombre && nuevaSeccion.camposAgregados.length > 0) {
+		if (!seccionRepetida) {
 			seccionesAgregadas.value.push(nuevaSeccion);
+			console.log(seccionesAgregadas.value);
 		}
 	};
 
