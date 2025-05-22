@@ -2,7 +2,7 @@
 	<ion-page>
 		<ion-content>
 			<div class="home-page text-center">
-				<img fetchpriority="high" class="background-image" src="/images/icono.png" alt="" />
+				<img fetchpriority="high" class="background-image" src="/images/logoHome.png" alt="" />
 			</div>
 		</ion-content>
 	</ion-page>
