@@ -5,11 +5,8 @@
 				<div class="info" ref="headerPatientInfo">
 					<div class="header">
 						<div class="row">
-							<div class="col text-center">
-								<img src="/images/laboratorio.png" alt="" style="width: 55%" />
-							</div>
-							<div class="col text-center">
-								<img src="/images/direccion.png" alt="" style="width: 80%" />
+							<div class="col">
+								<img src="/images/logoDemo.png" alt="" style="width: 10%; padding-bottom: 3px; padding-top: 3px;" />
 							</div>
 						</div>
 					</div>
@@ -198,16 +195,6 @@
 						</div>
 					</div>
 				</div>
-				<div class="firma-sello" ref="firmaSello">
-					<div class="row justify-content-end">
-						<div class="sello-img col-4"><img class="h-100 w-100" src="/images/selloLab3.png" alt="" /></div>
-					</div>
-					<div class="row justify-content-end">
-						<div class="firma-img col-4">
-							<img class="h-100 w-100" style="margin-left: 25px" src="/images/firmaLab3-sinfondo.png" alt="" />
-						</div>
-					</div>
-				</div>
 				<div class="row mb-3">
 					<button class="col btn btn-primary me-1" @click="guardarCambios">Guardar Cambios</button>
 					<button class="col btn btn-primary me-1" @click="generatePDF">Generar PDF</button>
@@ -343,7 +330,6 @@
 		const germen = bacteriologico.value.querySelector("#germen").value;
 		const bacteriologicoSelect = bacteriologicoCopy.querySelector("select");
 		const bacteriologicoInputs = bacteriologicoCopy.querySelectorAll("input");
-		const divFirmaSelloCopy = firmaSello.value.cloneNode(true);
 
 		bacteriologicoInputs.forEach((input: any) => {
 			const inputValue = input.value;
@@ -399,8 +385,6 @@
 		});
 
 		html += antibiogramaCopy.innerHTML;
-
-		html += divFirmaSelloCopy.innerHTML;
 
 		const firstName = profile.value.firstName;
 		const lastName = profile.value.lastName;
@@ -703,16 +687,6 @@
 
 	.col-8 {
 		position: relative;
-	}
-
-	.firma-img {
-		height: 65px;
-		width: 180px;
-	}
-
-	.sello-img {
-		height: 50px;
-		width: 150px;
 	}
 
 	ion-toast.creado {

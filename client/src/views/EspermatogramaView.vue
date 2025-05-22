@@ -5,11 +5,8 @@
 				<div class="info" ref="headerPatientInfo">
 					<div class="header">
 						<div class="row">
-							<div class="col text-center">
-								<img src="/images/laboratorio.png" alt="" style="width: 55%" />
-							</div>
-							<div class="col text-center">
-								<img src="/images/direccion.png" alt="" style="width: 80%" />
+							<div class="col">
+								<img src="/images/logoDemo.png" alt="" style="width: 10%; padding-bottom: 3px; padding-top: 3px;" />
 							</div>
 						</div>
 					</div>
@@ -261,16 +258,6 @@
 						<div v-else class="col-4 border border-black text-center"><input class="w-100 border-0" type="text" /></div>
 					</div>
 				</div>
-				<div class="firma-sello" ref="firmaSello">
-					<div class="row justify-content-end">
-						<div class="sello-img col-4"><img class="h-100 w-100" src="/images/selloLab3.png" alt="" /></div>
-					</div>
-					<div class="row justify-content-end">
-						<div class="firma-img col-4">
-							<img class="h-100 w-100" style="margin-left: 25px" src="/images/firmaLab3-sinfondo.png" alt="" />
-						</div>
-					</div>
-				</div>
 				<div class="row mb-3 pdfButton">
 					<button class="col btn btn-primary me-1" @click="guardarCambios">Guardar Cambios</button>
 					<button class="col btn btn-primary me-1" @click="generatePDF">Generar PDF</button>
@@ -378,8 +365,6 @@
 		const espermatogramaCopy = espermatograma.value.cloneNode("true");
 		const espermatogramaInputs = espermatogramaCopy.querySelectorAll("input");
 		const button = espermatogramaCopy.querySelector(".pdfButton");
-		const formaDiv = espermatogramaCopy.querySelector(".firma-sello");
-		formaDiv.remove();
 		button.remove();
 		espermatogramaInputs.forEach((input: any) => {
 			const inputValue = input.value;
@@ -655,16 +640,6 @@
 </script>
 
 <style scoped>
-	.firma-img {
-		height: 65px;
-		width: 180px;
-	}
-
-	.sello-img {
-		height: 50px;
-		width: 150px;
-	}
-
 	ion-toast.creado {
 		--background: rgb(0, 204, 0);
 		--color: #323232;
