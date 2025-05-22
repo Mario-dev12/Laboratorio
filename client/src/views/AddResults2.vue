@@ -18,10 +18,10 @@
 					<div class="patient-info">
 						<div class="row">
 							<div class="col">
-								<img src="/images/laboratorio.png" alt="" style="width: 55%" />
+								<img src="/images/laboratorio.png" alt="" style="width: 40%" />
 							</div>
 							<div class="col">
-								<img src="/images/direccion.png" alt="" style="width: 80%" />
+								<img src="/images/direccion.png" alt="" style="width: 60%" />
 							</div>
 						</div>
 						<div class="border-bottom border-black"></div>
