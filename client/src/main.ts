@@ -1,51 +1,50 @@
-import { createApp } from "vue";
-import App from "./App.vue";
-import router from "./router";
-import { createPinia } from "pinia";
+import { createApp } from "vue";  
+import App from "./App.vue";  
+import router from "./router";  
+import { createPinia } from "pinia";  
 
-import { IonicVue } from "@ionic/vue";
+import { IonicVue } from "@ionic/vue";  
 
-/* Core CSS required for Ionic components to work properly */
-import "@ionic/vue/css/core.css";
+/* Core CSS required for Ionic components to work properly */  
+import "@ionic/vue/css/core.css";  
+/* Basic CSS for apps built with Ionic */  
+import "@ionic/vue/css/normalize.css";  
+import "@ionic/vue/css/structure.css";  
+import "@ionic/vue/css/typography.css";  
+/* Optional CSS utils that can be commented out */  
+import "@ionic/vue/css/padding.css";  
+import "@ionic/vue/css/float-elements.css";  
+import "@ionic/vue/css/text-alignment.css";  
+import "@ionic/vue/css/text-transformation.css";  
+import "@ionic/vue/css/flex-utils.css";  
+import "@ionic/vue/css/display.css";  
+import "@fortawesome/fontawesome-free/css/all.min.css";  
 
-/* Basic CSS for apps built with Ionic */
-import "@ionic/vue/css/normalize.css";
-import "@ionic/vue/css/structure.css";
-import "@ionic/vue/css/typography.css";
+/**  
+ * Ionic Dark Mode  
+ * -----------------------------------------------------  
+ * For more info, please see:  
+ * https://ionicframework.com/docs/theming/dark-mode  
+ */  
+// import '@ionic/vue/css/palettes/dark.always.css';   
+// import '@ionic/vue/css/palettes/dark.class.css';   
+// import '@ionic/vue/css/palettes/dark.system.css'; // Eliminar o comentar esta línea  
 
-/* Optional CSS utils that can be commented out */
-import "@ionic/vue/css/padding.css";
-import "@ionic/vue/css/float-elements.css";
-import "@ionic/vue/css/text-alignment.css";
-import "@ionic/vue/css/text-transformation.css";
-import "@ionic/vue/css/flex-utils.css";
-import "@ionic/vue/css/display.css";
-import "@fortawesome/fontawesome-free/css/all.min.css";
+/* Theme variables */  
+import "./theme/variables.css";  
+import "bootstrap"; // Para importar Bootstrap JS  
+import "bootstrap/dist/css/bootstrap.min.css";  
+import "bootstrap/dist/js/bootstrap.bundle.min.js";  
 
-/**
- * Ionic Dark Mode
- * -----------------------------------------------------
- * For more info, please see:
- * https://ionicframework.com/docs/theming/dark-mode
- */
+const pinia = createPinia();  
 
-/* @import '@ionic/vue/css/palettes/dark.always.css'; */
-/* @import '@ionic/vue/css/palettes/dark.class.css'; */
-import "@ionic/vue/css/palettes/dark.system.css";
+const app = createApp(App).use(IonicVue).use(router).use(pinia);  
 
-/* Theme variables */
-import "./theme/variables.css";
-
-import "bootstrap"; // Para importar Bootstrap JS
-import "bootstrap/dist/css/bootstrap.min.css";
-import "bootstrap/dist/js/bootstrap.bundle.min.js";
-
-const pinia = createPinia();
-
-const app = createApp(App).use(IonicVue).use(router).use(pinia);
+// Forzar el modo claro  
+document.body.setAttribute('color-theme', 'light');  
 
 router.isReady().then(() => {  
     // Redirige a /home al iniciar la aplicación  
     router.push({ name: 'Home' });  
     app.mount('#app');  
-}); 
+});
