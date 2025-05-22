@@ -65,7 +65,7 @@ async function startServer(serverRoute) {
     });  
 }  
 
-function stopServer() {  
+async function stopServer() {  
     if (serverProcess) {  
         serverProcess.kill();  
         serverProcess = null;  
@@ -98,6 +98,6 @@ app.on("activate", () => {
     }  
 });  
 
-app.on("before-quit", () => {  
-    stopServer();  
+app.on("before-quit", async () => {  
+    await stopServer();  
 });
