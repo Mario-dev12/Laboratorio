@@ -42,7 +42,7 @@ function createWindow() {
 	}
 }
 
-function startServer(serverRoute) {
+async function startServer(serverRoute) {
 	try {
 		console.log("connecting to my server");
 		serverProcess = spawn(nodePathPc, [serverRoute], {
@@ -74,7 +74,7 @@ function stopServer() {
 	}
 }
 
-app.whenReady().then(() => {
+app.whenReady().then(async () => {
 	const appPath = app.getAppPath();
 	const rootDir = path.join(appPath, "..", "..", "..", "..", "..");
 	const serverDir = path.join(rootDir, "server", "app.js");
@@ -84,9 +84,9 @@ app.whenReady().then(() => {
 		return;
 	}
 
-	createWindow();
+	await startServer(serverDir);
 
-	startServer(serverDir);
+	createWindow();
 });
 
 app.on("window-all-closed", () => {
