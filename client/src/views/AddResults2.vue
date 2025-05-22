@@ -93,16 +93,6 @@
 						</div>
 					</div>
 				</div>
-				<div class="firma-sello" ref="firmaSello">
-					<div class="row justify-content-end">
-						<div class="sello-img col-4"><img class="h-100 w-100" src="/images/selloLab3.png" alt="" /></div>
-					</div>
-					<div class="row justify-content-end">
-						<div class="firma-img col-4">
-							<img class="h-100 w-100" style="margin-left: 25px" src="/images/firmaLab3-sinfondo.png" alt="" />
-						</div>
-					</div>
-				</div>
 
 				<div class="row mb-3">
 					<button class="col btn btn-primary me-1" @click="guardarCambios">Guardar Cambios</button>
@@ -854,7 +844,6 @@
 	const generatePDF = async () => {
 		const profileRefCopy = profileRef.value.cloneNode(true);
 		const patientInfoDivCopy = profileRefCopy.querySelector(".patient-info");
-		const divFirmaSelloCopy = firmaSello.value.cloneNode(true);
 
 		const profileContentDivs = profileRefCopy.querySelectorAll(".profile-content");
 
@@ -865,7 +854,6 @@
 
 			html += getHtmlWithInputValues(childrenCopy);
 		});
-		html += divFirmaSelloCopy.innerHTML;
 		const element = html;
 
 		const firstName = order.value.firstName;
@@ -1305,15 +1293,5 @@
 	ion-toast.warning {
 		--background: rgb(219, 248, 0);
 		--color: #323232;
-	}
-
-	.firma-img {
-		height: 65px;
-		width: 180px;
-	}
-
-	.sello-img {
-		height: 50px;
-		width: 150px;
 	}
 </style>
