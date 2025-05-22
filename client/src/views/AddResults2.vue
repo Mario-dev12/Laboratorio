@@ -17,36 +17,36 @@
 				<div ref="profileRef" id="profile">
 					<div class="patient-info">
 						<div class="row">
-							<div class="col">
-								<img src="/images/laboratorio.png" alt="" style="width: 40%" />
+							<div class="col text-center">
+								<img src="/images/iconoPDF.png" alt="" style="height: 70px" />
 							</div>
-							<div class="col">
-								<img src="/images/direccion.png" alt="" style="width: 60%" />
+							<div class="col text-center">
+								<img src="/images/direccionPDF.png" alt="" style="height: 70px" />
 							</div>
 						</div>
 						<div class="border-bottom border-black"></div>
-						<div class="row mt-1">
-							<div class="col">
+						<div class="mt-1 text-center d-flex">
+							<div class="me-4">
 								<div class="d-inline fw-bold">Paciente:</div>
 								{{ order?.firstName }} {{ order?.lastName }}
 							</div>
-							<div class="col">
+							<div class="me-4">
 								<div class="d-inline fw-bold">CI:</div>
 								{{ order?.ci }}
 							</div>
-							<div v-if="order?.doctor" class="col">
+							<div v-if="order?.doctor" class="me-4">
 								<div class="d-inline fw-bold">Dr:</div>
 								{{ order?.doctor }}
 							</div>
-							<div class="col">
+							<div class="me-4">
 								<div class="d-inline fw-bold">Edad:</div>
 								{{ order?.age }}
 							</div>
-							<div class="col">
+							<div class="me-4">
 								<div class="d-inline fw-bold">Sexo:</div>
 								{{ order?.genre === "M" ? "Masculino" : "Femenino" }}
 							</div>
-							<div class="col">
+							<div class="me-4">
 								<div class="d-inline fw-bold">Fecha:</div>
 								{{ day }}/{{ month }}/{{ year }}
 							</div>
@@ -63,10 +63,10 @@
 								v-for="([key, section], i) in profile ? Object.entries(profile) : null"
 								:key="i"
 								ref="sectionRef">
-								<h5>{{ key }}</h5>
+								<h5 class="m-0">{{ key }}</h5>
 								<div class="table-responsive">
-									<table class="table table-hover table-striped">
-										<thead class="">
+									<table class="table table-hover table-striped m-0">
+										<thead>
 											<tr>
 												<th scope="col" class="col-3 p-0">Nombre</th>
 												<th scope="col" class="col-3 p-0">Resultados</th>
@@ -74,11 +74,12 @@
 												<th scope="col" class="col-3 p-0">Valor Referencial</th>
 											</tr>
 										</thead>
-										<tbody class="">
-											<tr class="p-1" v-for="(item, index) in (section as Section).resultado" :key="index">
+										<tbody>
+											<tr class="p-0" v-for="(item, index) in (section as Section).resultado" :key="index">
 												<td ref="campoNames" class="align-middle p-0">{{ item.nombre }}</td>
 												<td class="align-middle inputElement p-0">
 													<input
+														class="p-0"
 														type="text"
 														ref="campoResult"
 														v-model="item.valor"
@@ -86,7 +87,7 @@
 												</td>
 												<td class="unidad align-middle p-0">{{ item.unidad }}</td>
 												<td class="valor-referencial align-middle p-0" ref="valorReferencial">
-													<span v-html="formatValorReferencial(item.valor_referencial)"></span>
+													<span v-html="item.valor_referencial"></span>
 												</td>
 											</tr>
 										</tbody>
@@ -201,9 +202,9 @@
 		isOpen.value = state;
 	};
 
-	function formatValorReferencial(valor: string): string {
-		return valor.replace(/;/g, ";<br/>");
-	}
+	// function formatValorReferencial(valor: string): string {
+	// 	return valor.replace(/;/g, ";<br/>");
+	// }
 
 	const showToast = (message: string, style: string, icon: any) => {
 		toast.value.message = message;
@@ -721,11 +722,11 @@
 							const valorReferencial = valorReferencialCell ? valorReferencialCell.innerHTML.trim() : "N/A";
 
 							sectionRows.push(`
-								<tr class="p-1">
+								<tr class="p-0">
 									<td class="align-middle py-0">${nombre}</td>
 									<td class="align-middle py-0">${value}</td>
 									<td class="align-middle py-0">${unidad}</td>
-									<td class="valor-referencial align-middle py-0">${valorReferencial}</td>
+									<td class="valor-referencial align-middle py-0 text-nowrap">${valorReferencial}</td>
 								</tr>
 							`);
 						}
@@ -744,12 +745,12 @@
 
 		const htmlOutput = `
 			<div>
-				<h4 class="text-center">${perfilName}</h4>
+				<h4 class="text-center m-0">${perfilName}</h4>
 				${rows
 					.map(
 						({ section, data }) => `
-					<h5 class="text-center">${section}</h5>
-					<table class="table table-hover table-striped">
+					<h5 class="text-center m-0">${section}</h5>
+					<table class="table table-hover table-striped m-0">
 						<thead>
 							<tr>
 								<th scope="col" class="col-3">Nombre</th>
@@ -960,7 +961,7 @@
 		profileName.value = `${lastName}_${firstName}_${formattedDate}.pdf`;
 
 		const options = {
-			margin: 6,
+			margin: 8,
 			filename: filename,
 			image: { type: "jpeg", quality: 0.98 },
 			html2canvas: { scale: 2 },
