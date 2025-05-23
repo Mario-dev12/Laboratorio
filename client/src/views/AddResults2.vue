@@ -53,8 +53,8 @@
 						</div>
 					</div>
 
-					<div class="profile-content" v-for="(profile, indx) in profilesData" :key="indx">
-						<div class="profile-sections mt-1" v-show="showProfile[indx]" ref="profileRef2">
+					<div class="profile-content" v-for="(profile, indx) in profilesData" :key="indx" ref="profileRef2">
+						<div class="profile-sections mt-1" v-show="showProfile[indx]">
 							<div class="testTitle text-center">
 								<h4 class="m-0 fw-bold">{{ profileNamesOrdered[indx] }}</h4>
 							</div>
@@ -306,7 +306,6 @@
 		//
 
 		profilesData.value = filteredSections;
-		console.log(profilesData.value);
 
 		sectionData.value = profilesData.value[0];
 		showProfile.value = new Array(profileNames.length).fill(false);
@@ -703,7 +702,6 @@
 		sections.forEach((section) => {
 			const sectionName = section.textContent?.trim();
 			const table = section.nextElementSibling;
-			console.log(table);
 
 			if (table && table instanceof HTMLElement) {
 				const inputs = table.querySelectorAll<HTMLInputElement>("input");
@@ -871,7 +869,6 @@
 		});
 		html += divFirmaSelloCopy.innerHTML;
 		const element = html;
-		console.log(element);
 
 		const firstName = order.value.firstName;
 		const lastName = order.value.lastName;
@@ -933,8 +930,27 @@
 		html2pdf().from(element).set(options).save();
 	};
 
+	function mergeTables(element: HTMLElement) {
+		const tables = element.querySelectorAll("table");
+		const firstTable = tables[0];
+
+		for (let i = 1; i < tables.length; i++) {
+			const currentTable = tables[i];
+			const tbodies = currentTable.querySelectorAll("tbody");
+
+			// If the current table has a tbody, append it to the first table
+			if (tbodies) {
+				tbodies.forEach((tbody) => {
+					firstTable.appendChild(tbody);
+				});
+			}
+		}
+
+		return firstTable;
+	}
+
 	const inputToSpan = (parentElement: HTMLElement) => {
-		//Agarrar input de cada fila y cambiarlo por un span o eliminarlo si no contiene un valor
+		//Agarrar inputs y cambiarlos por span o eliminarlos si no contienen valor
 		const rows = parentElement.querySelectorAll(".rowData");
 		rows.forEach((row: Element) => {
 			const input = row.querySelector("input");
@@ -944,14 +960,6 @@
 				input.parentNode?.replaceChild(span, input);
 			} else {
 				row.parentNode?.removeChild(row);
-			}
-		});
-
-		//Agarrar encabezado de las tablas, dejar el primero y eliminar el resto
-		const tableHeads = parentElement.querySelectorAll("thead");
-		tableHeads.forEach((th, i) => {
-			if (i > 0) {
-				th.parentNode?.removeChild(th);
 			}
 		});
 
@@ -966,17 +974,20 @@
 	// generar pdf sin firma y sello
 	const pdfWithoutSignature = async () => {
 		const profileRefCopy = profileRef.value.cloneNode(true);
+		mergeTables(profileRefCopy);
+
 		const patientInfoDivCopy = profileRefCopy.querySelector(".patient-info");
 		const profileContentDivs = profileRefCopy.querySelectorAll(".profile-content");
+		const firstProfileContent = profileContentDivs[0];
 
 		html = patientInfoDivCopy.innerHTML;
 
-		profileContentDivs.forEach((item: any) => {
-			console.log(item.children[0]);
-			const childrenCopy = item.children[0].cloneNode(true);
-			console.log(childrenCopy);
-			html += inputToSpan(childrenCopy);
-		});
+		const profileContentChildren = firstProfileContent.children;
+		html += inputToSpan(profileContentChildren[0]);
+		// profileContentDivs.forEach((item: any) => {
+		// 	const childrenCopy = item.children[0].cloneNode(true);
+		// 	html += inputToSpan(childrenCopy);
+		// });
 		const element = html;
 
 		const firstName = order.value.firstName;
