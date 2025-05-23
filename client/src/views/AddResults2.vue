@@ -18,10 +18,10 @@
 					<div class="patient-info">
 						<div class="row">
 							<div class="col text-center">
-								<img src="/images/iconoPDF.png" alt="" style="height: 70px" />
+								<img src="/images/iconoPDF.png" alt="" style="height: 60px" />
 							</div>
 							<div class="col text-center">
-								<img src="/images/direccionPDF.png" alt="" style="height: 70px" />
+								<img src="/images/direccionPDF.png" alt="" style="height: 60px" />
 							</div>
 						</div>
 						<div class="border-bottom border-black"></div>
@@ -53,17 +53,12 @@
 						</div>
 					</div>
 
-					<div class="profile-content" v-for="(profile, indx) in profilesData" :key="indx">
-						<div class="profile-sections mt-1" v-show="showProfile[indx]" ref="profileRef2">
-							<div class="text-center">
+					<div class="profile-content" v-for="(profile, indx) in profilesData" :key="indx" ref="profileRef2">
+						<div class="profile-sections mt-1" v-show="showProfile[indx]">
+							<div class="testTitle text-center">
 								<h4 class="m-0 fw-bold">{{ profileNamesOrdered[indx] }}</h4>
 							</div>
-							<div
-								class="profile-tables"
-								v-for="([key, section], i) in profile ? Object.entries(profile) : null"
-								:key="i"
-								ref="sectionRef">
-								<h5 class="m-0">{{ key }}</h5>
+							<div class="profile-tables" ref="sectionRef">
 								<div class="table-responsive">
 									<table class="table table-hover table-striped m-0">
 										<thead>
@@ -74,8 +69,13 @@
 												<th scope="col" class="col-3 p-0">Valor Referencial</th>
 											</tr>
 										</thead>
-										<tbody>
-											<tr class="p-0" v-for="(item, index) in (section as Section).resultado" :key="index">
+										<tbody v-for="([key, section], i) in profile ? Object.entries(profile) : null" :key="i">
+											<tr class="text-center">
+												<td class="p-0" colspan="4">
+													<h5 class="m-0 text-nowrap">{{ key }}</h5>
+												</td>
+											</tr>
+											<tr class="rowData p-0" v-for="(item, index) in (section as Section).resultado" :key="index">
 												<td ref="campoNames" class="align-middle p-0">{{ item.nombre }}</td>
 												<td class="align-middle inputElement p-0">
 													<input
@@ -87,7 +87,7 @@
 												</td>
 												<td class="unidad align-middle p-0">{{ item.unidad }}</td>
 												<td class="valor-referencial align-middle p-0" ref="valorReferencial">
-													<span v-html="item.valor_referencial"></span>
+													<span class="text-nowrap" v-html="item.valor_referencial"></span>
 												</td>
 											</tr>
 										</tbody>
@@ -306,7 +306,6 @@
 		//
 
 		profilesData.value = filteredSections;
-		console.log(profilesData.value);
 
 		sectionData.value = profilesData.value[0];
 		showProfile.value = new Array(profileNames.length).fill(false);
@@ -768,7 +767,6 @@
 					.join("")}
 			</div>
 		`;
-
 		return htmlOutput;
 	};
 
@@ -932,20 +930,64 @@
 		html2pdf().from(element).set(options).save();
 	};
 
+	function mergeTables(element: HTMLElement) {
+		const tables = element.querySelectorAll("table");
+		const firstTable = tables[0];
+
+		for (let i = 1; i < tables.length; i++) {
+			const currentTable = tables[i];
+			const tbodies = currentTable.querySelectorAll("tbody");
+
+			// If the current table has a tbody, append it to the first table
+			if (tbodies) {
+				tbodies.forEach((tbody) => {
+					firstTable.appendChild(tbody);
+				});
+			}
+		}
+
+		return firstTable;
+	}
+
+	const inputToSpan = (parentElement: HTMLElement) => {
+		//Agarrar inputs y cambiarlos por span o eliminarlos si no contienen valor
+		const rows = parentElement.querySelectorAll(".rowData");
+		rows.forEach((row: Element) => {
+			const input = row.querySelector("input");
+			if (input?.value) {
+				const span = document.createElement("span");
+				span.textContent = input.value;
+				input.parentNode?.replaceChild(span, input);
+			} else {
+				row.parentNode?.removeChild(row);
+			}
+		});
+
+		//Eliminar titulo del perfil
+		const testTitle = parentElement.querySelectorAll(".testTitle");
+		testTitle.forEach((title) => {
+			title.parentNode?.removeChild(title);
+		});
+		return parentElement.innerHTML;
+	};
+
 	// generar pdf sin firma y sello
 	const pdfWithoutSignature = async () => {
 		const profileRefCopy = profileRef.value.cloneNode(true);
+		mergeTables(profileRefCopy);
+
 		const patientInfoDivCopy = profileRefCopy.querySelector(".patient-info");
 		const profileContentDivs = profileRefCopy.querySelectorAll(".profile-content");
+		const firstProfileContent = profileContentDivs[0];
 
 		html = patientInfoDivCopy.innerHTML;
 
-		profileContentDivs.forEach((item: any) => {
-			console.log(item.children[0]);
-			const childrenCopy = item.children[0].cloneNode(true);
-
-			html += getHtmlWithInputValues(childrenCopy);
-		});
+		const profileContentChildren = firstProfileContent.children;
+		html += inputToSpan(profileContentChildren[0]);
+		// profileContentDivs.forEach((item: any) => {
+		// 	const childrenCopy = item.children[0].cloneNode(true);
+		// 	html += inputToSpan(childrenCopy);
+		// });
 		const element = html;
 
 		const firstName = order.value.firstName;
@@ -961,7 +1003,7 @@
 		profileName.value = `${lastName}_${firstName}_${formattedDate}.pdf`;
 
 		const options = {
-			margin: 8,
+			margin: [2, 5],
 			filename: filename,
 			image: { type: "jpeg", quality: 0.98 },
 			html2canvas: { scale: 2 },
