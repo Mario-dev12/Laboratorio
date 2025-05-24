@@ -26,27 +26,27 @@
 						</div>
 						<div class="border-bottom border-black"></div>
 						<div class="mt-1 text-center d-flex">
-							<div class="me-4">
+							<div class="me-3">
 								<div class="d-inline fw-bold">Paciente:</div>
 								{{ order?.firstName }} {{ order?.lastName }}
 							</div>
-							<div class="me-4">
+							<div class="me-3">
 								<div class="d-inline fw-bold">CI:</div>
 								{{ order?.ci }}
 							</div>
-							<div v-if="order?.doctor" class="me-4">
+							<div v-if="order?.doctor" class="me-3">
 								<div class="d-inline fw-bold">Dr:</div>
 								{{ order?.doctor }}
 							</div>
-							<div class="me-4">
+							<div class="me-3">
 								<div class="d-inline fw-bold">Edad:</div>
 								{{ order?.age }}
 							</div>
-							<div class="me-4">
+							<div class="me-3">
 								<div class="d-inline fw-bold">Sexo:</div>
 								{{ order?.genre === "M" ? "Masculino" : "Femenino" }}
 							</div>
-							<div class="me-4">
+							<div class="me-3">
 								<div class="d-inline fw-bold">Fecha:</div>
 								{{ day }}/{{ month }}/{{ year }}
 							</div>
@@ -55,9 +55,6 @@
 
 					<div class="profile-content" v-for="(profile, indx) in profilesData" :key="indx" ref="profileRef2">
 						<div class="profile-sections mt-1" v-show="showProfile[indx]">
-							<div class="testTitle text-center">
-								<h4 class="m-0 fw-bold">{{ profileNamesOrdered[indx] }}</h4>
-							</div>
 							<div class="profile-tables" ref="sectionRef">
 								<div class="table-responsive">
 									<table class="table table-hover table-striped m-0">
@@ -69,6 +66,13 @@
 												<th scope="col" class="col-3 p-0">Valor Referencial</th>
 											</tr>
 										</thead>
+										<tbody class="testTitle">
+											<tr class="text-center">
+												<td class="p-0" colspan="4">
+													<h4 class="m-0 text-nowrap">{{ profileNamesOrdered[indx] }}</h4>
+												</td>
+											</tr>
+										</tbody>
 										<tbody v-for="([key, section], i) in profile ? Object.entries(profile) : null" :key="i">
 											<tr class="text-center">
 												<td class="p-0" colspan="4">
@@ -930,26 +934,36 @@
 		html2pdf().from(element).set(options).save();
 	};
 
-	function mergeTables(element: HTMLElement) {
-		const tables = element.querySelectorAll("table");
+	async function mergeTables(element: HTMLElement) {
+		const tables = Array.from(element.querySelectorAll("table"));
+		const testTitlesDivs = Array.from(element.querySelectorAll(".testTitle"));
+		const profileSection = element.querySelector(".profile-sections") as HTMLElement;
+
+		profileSection.style.display = "block";
+
+		//Eliminar titulo perfil 20
+		testTitlesDivs.forEach((div) => {
+			const titleText = div.querySelector("h4");
+			if (titleText?.innerHTML === "Perfil 20") {
+				div.parentNode?.removeChild(div);
+			}
+		});
+
 		const firstTable = tables[0];
 
 		for (let i = 1; i < tables.length; i++) {
 			const currentTable = tables[i];
 			const tbodies = currentTable.querySelectorAll("tbody");
 
-			// If the current table has a tbody, append it to the first table
 			if (tbodies) {
 				tbodies.forEach((tbody) => {
 					firstTable.appendChild(tbody);
 				});
 			}
 		}
-
-		return firstTable;
 	}
 
-	const inputToSpan = (parentElement: HTMLElement) => {
+	const inputToSpan = async (parentElement: HTMLElement) => {
 		//Agarrar inputs y cambiarlos por span o eliminarlos si no contienen valor
 		const rows = parentElement.querySelectorAll(".rowData");
 		rows.forEach((row: Element) => {
@@ -964,26 +978,33 @@
 		});
 
 		//Eliminar titulo del perfil
-		const testTitle = parentElement.querySelectorAll(".testTitle");
-		testTitle.forEach((title) => {
-			title.parentNode?.removeChild(title);
-		});
-		return parentElement.innerHTML;
+		// const testTitle = parentElement.querySelectorAll(".testTitle");
+		// testTitle.forEach((title) => {
+		// 	const name = title.children;
+		// 	console.log(name[0].innerHTML);
+		// 	if (name[0].innerHTML === "Perfil 20") {
+		// 		console.log("erase title");
+		// 		title.parentNode?.removeChild(title);
+		// 	}
+		// });
 	};
 
 	// generar pdf sin firma y sello
 	const pdfWithoutSignature = async () => {
 		const profileRefCopy = profileRef.value.cloneNode(true);
-		mergeTables(profileRefCopy);
-
 		const patientInfoDivCopy = profileRefCopy.querySelector(".patient-info");
-		const profileContentDivs = profileRefCopy.querySelectorAll(".profile-content");
-		const firstProfileContent = profileContentDivs[0];
-
 		html = patientInfoDivCopy.innerHTML;
 
-		const profileContentChildren = firstProfileContent.children;
-		html += inputToSpan(profileContentChildren[0]);
+		await mergeTables(profileRefCopy);
+		await inputToSpan(profileRefCopy);
+
+		const profileContentDivCopy = profileRefCopy.querySelector(".profile-content");
+		html += profileContentDivCopy.innerHTML;
+		// const profileContentDivs = profileRefCopy.querySelectorAll(".profile-content");
+		// console.log(profileContentDivs);
+		// const firstProfileContent = profileContentDivs[0];
+
+		// const profileContentChildren = firstProfileContent.children;
 		// profileContentDivs.forEach((item: any) => {
 		// 	const childrenCopy = item.children[0].cloneNode(true);
 		// 	html += inputToSpan(childrenCopy);
