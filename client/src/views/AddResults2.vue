@@ -73,7 +73,7 @@
 												</td>
 											</tr>
 										</tbody>
-										<tbody v-for="([key, section], i) in profile ? Object.entries(profile) : null" :key="i">
+										<tbody class="sectionData" v-for="([key, section], i) in profile ? Object.entries(profile) : null" :key="i">
 											<tr class="text-center">
 												<td class="p-0" colspan="4">
 													<h5 class="m-0 text-nowrap">{{ key }}</h5>
@@ -964,6 +964,17 @@
 	}
 
 	const inputToSpan = async (parentElement: HTMLElement) => {
+		const tbodies = Array.from(parentElement.querySelectorAll(".sectionData"));
+
+		tbodies.forEach((tbody) => {
+			const inputs = Array.from(tbody.querySelectorAll("input"));
+			const inputsValue = inputs.some((input) => input.value);
+
+			if (!inputsValue) {
+				tbody.parentNode?.removeChild(tbody);
+			}
+		});
+
 		//Agarrar inputs y cambiarlos por span o eliminarlos si no contienen valor
 		const rows = parentElement.querySelectorAll(".rowData");
 		rows.forEach((row: Element) => {
