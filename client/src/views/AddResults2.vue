@@ -858,40 +858,146 @@
 	};
 
 	const generatePDF = async () => {
-		const profileRefCopy = profileRef.value.cloneNode(true);
-		const patientInfoDivCopy = profileRefCopy.querySelector(".patient-info");
-		const divFirmaSelloCopy = firmaSello.value.cloneNode(true);
+		// --- 1. PREPARACIÓN Y VALIDACIÓN DE ELEMENTOS ---
+		if (!profileRef.value || !firmaSello.value) {
+			console.error("Error: Las referencias a los elementos del perfil o firma/sello no están disponibles.");
+			return;
+		}
 
-		const profileContentDivs = profileRefCopy.querySelectorAll(".profile-content");
+		const profileRefCopy = profileRef.value.cloneNode(true) as HTMLElement;
+		const divFirmaSelloCopy = firmaSello.value.cloneNode(true) as HTMLElement;
 
-		html = patientInfoDivCopy.innerHTML;
+		// Ejecuta tus funciones de manipulación del DOM sobre la copia antes de procesar el contenido
+		await mergeTables(profileRefCopy); // Asegúrate de que esto fusione las tablas dentro de profileRefCopy
+		await inputToSpan(profileRefCopy); // Asegúrate de que esto convierta los inputs dentro de profileRefCopy
 
-		profileContentDivs.forEach((item: any) => {
-			const childrenCopy = item.children[0].cloneNode(true);
+		const patientInfoElement = profileRefCopy.querySelector(".patient-info") as HTMLElement | null;
+		const allProfileContents = Array.from(profileRefCopy.querySelectorAll(".profile-content")) as HTMLElement[];
 
-			html += getHtmlWithInputValues(childrenCopy);
-		});
-		html += divFirmaSelloCopy.innerHTML;
-		const element = html;
+		if (!patientInfoElement || allProfileContents.length === 0) {
+			console.error("Error: No se pudo encontrar la información del paciente o el contenido principal de perfil.");
+			return;
+		}
+
+		// --- 2. LÓGICA DE PAGINACIÓN MANUAL CON CONSTRUCCIÓN DEL DOM ---
+
+		const pdfContainer = document.createElement('div');
+		pdfContainer.style.width = '210mm'; // Ancho de una página A4/Letter para html2canvas
+		pdfContainer.style.padding = '0mm 5mm'; // Márgenes laterales para el contenido
+
+		// Altura máxima del contenido por página en 'mm'.
+		// Puedes ajustar este valor si el margen vertical es demasiado grande o pequeño.
+		const alturaMaximaContenidoMM = 270; // Un valor intermedio entre 240 y 270 para buen equilibrio
+
+		let paginaActual = document.createElement('div');
+		// Inicialmente, no le ponemos pageBreakAfter a la primera página
+		paginaActual.style.boxSizing = 'border-box';
+		paginaActual.style.minHeight = `${alturaMaximaContenidoMM * 0.95}mm`; // Ligeramente menor para flexibilidad
+		pdfContainer.appendChild(paginaActual);
+
+		// Añade la información del paciente a la primera página
+		paginaActual.appendChild(patientInfoElement.cloneNode(true));
+
+		let alturaAcumulada = (patientInfoElement.offsetHeight ?? 0) * 0.264583;
+
+		// Iterar sobre CADA .profile-content DIV
+		for (const contentDiv of allProfileContents) {
+			const contentDivCloned = contentDiv.cloneNode(true) as HTMLElement;
+
+			// Si este div de contenido tiene una tabla, aplicar page-break-inside a sus filas
+			const tablaEnContent = contentDivCloned.querySelector('table');
+			if (tablaEnContent) {
+				const filasTabla = Array.from(tablaEnContent.querySelectorAll('tbody > tr')) as HTMLTableRowElement[];
+				filasTabla.forEach(fila => {
+					fila.style.pageBreakInside = 'avoid';
+					fila.style.breakInside = 'avoid';
+				});
+				// Opcional: Asegurarse de que el thead tampoco se corte si la tabla es grande
+				const thead = tablaEnContent.querySelector('thead');
+				if(thead) thead.style.pageBreakInside = 'avoid';
+			}
+			
+			// Calcular la altura real (o una buena estimación) del bloque de contenido clonado
+			// Esto puede ser difícil sin un renderizado. html2canvas lo hará mejor al final.
+			// Nos basamos en offsetHeight para una estimación.
+			const contentBlockHeightMM = (contentDivCloned.offsetHeight ?? 0) * 0.264583;
+
+			// Lógica para decidir si el bloque de contenido debe ir en una nueva página
+			// Solo si la página actual tiene contenido y añadir el nuevo bloque la desbordaría
+			if (alturaAcumulada + contentBlockHeightMM > alturaMaximaContenidoMM && alturaAcumulada > 0) {
+				// Marca la página ANTERIOR para un salto
+				paginaActual.style.pageBreakAfter = 'always'; 
+				
+				paginaActual = document.createElement('div');
+				paginaActual.style.boxSizing = 'border-box';
+				paginaActual.style.minHeight = `${alturaMaximaContenidoMM * 0.95}mm`;
+				pdfContainer.appendChild(paginaActual);
+				
+				alturaAcumulada = 0; // Reiniciar altura para la nueva página
+			}
+			
+			// Añade el bloque de contenido a la página actual
+			paginaActual.appendChild(contentDivCloned);
+			alturaAcumulada += contentBlockHeightMM;
+		}
+
+		// --- Añadir la firma y el sello ---
+		const firmaSelloHeightMM = (divFirmaSelloCopy.offsetHeight ?? 0) * 0.264583;
+
+		// Si la firma no cabe en la página actual O si deseamos que siempre inicie en una nueva página.
+		// Aquí decidimos si la firma debe ir a una nueva página para evitar cortes con el contenido previo.
+		if (alturaAcumulada + firmaSelloHeightMM > alturaMaximaContenidoMM) {
+			// Solo añadir salto si la página actual ya tiene contenido
+			if (paginaActual && alturaAcumulada > 0) { 
+				paginaActual.style.pageBreakAfter = 'always'; 
+			}
+			paginaActual = document.createElement('div');
+			paginaActual.style.boxSizing = 'border-box';
+			paginaActual.style.minHeight = `${firmaSelloHeightMM + 10}mm`; // Suficiente espacio para firma
+			pdfContainer.appendChild(paginaActual);
+		}
+		
+		// Asegurarse de que el div de firma/sello no tenga un salto de página después de sí mismo
+		divFirmaSelloCopy.style.pageBreakAfter = 'auto'; 
+		if (paginaActual) {
+			paginaActual.appendChild(divFirmaSelloCopy);
+		}
+
+		// --- SOLUCIÓN PARA LA PÁGINA EN BLANCO ADICIONAL AL FINAL ---
+		// Esto es crucial para la paginación manual
+		const lastPageDiv = pdfContainer.lastElementChild as HTMLElement;
+		if (lastPageDiv) {
+			lastPageDiv.style.pageBreakAfter = 'auto'; 
+		}
+
+
+		// --- 3. GENERACIÓN Y GUARDADO DEL PDF ---
 
 		const firstName = order.value.firstName;
 		const lastName = order.value.lastName;
-
 		const today = new Date();
-		const year = today.getFullYear();
-		const month = String(today.getMonth() + 1).padStart(2, "0");
-		const day = String(today.getDate()).padStart(2, "0");
-		const formattedDate = `${day}-${month}-${year}`;
-
+		const formattedDate = `${String(today.getDate()).padStart(2, "0")}-${String(today.getMonth() + 1).padStart(2, "0")}-${today.getFullYear()}`;
 		const filename = `${lastName}_${firstName}_${formattedDate}.pdf`;
-		profileName.value = `${lastName}_${firstName}_${formattedDate}.pdf`;
+		
+		profileName.value = filename;
+
+		// Calcula el margen para que el contenido total sea de alturaMaximaContenidoMM
+		// Página Letter: ~279.4mm de alto.
+		const verticalMargin = (279.4 - alturaMaximaContenidoMM) / 2; 
 
 		const options = {
-			margin: 6,
+			margin: [verticalMargin, 5, verticalMargin, 5], // Márgenes [arriba, derecha, abajo, izquierda] en mm
 			filename: filename,
 			image: { type: "jpeg", quality: 0.98 },
-			html2canvas: { scale: 2 },
-			jsPDF: { unit: "mm", format: "letter", orientation: "portrait" },
+			html2canvas: { 
+				scale: 2, 
+				useCORS: true,
+			},
+			jsPDF: { 
+				unit: "mm", 
+				format: "letter", 
+				orientation: "portrait", 
+			},
 		};
 
 		pdfFileName.value = options.filename;
@@ -906,8 +1012,9 @@
 
 		const html2pdf = (await import("html2pdf.js")).default;
 
-		html2pdf().from(element).set(options).save();
-		html = "";
+		// Se le pasa el contenedor DOM, no la cadena HTML
+		html2pdf().from(pdfContainer).set(options).save();
+		// html = ""; // Esta línea ya no es relevante si 'html' no es una variable global o no se usa después
 	};
 
 	const pdfCover = async () => {
@@ -1012,78 +1119,76 @@
 
 		const patientInfoElement = profileRefCopy.querySelector(".patient-info");
 		const tablaLargaElement = profileRefCopy.querySelector(".profile-content table") as HTMLTableElement | null;
-		const encabezadoElement = tablaLargaElement?.querySelector("thead");
+		const encabezadoElement = tablaLargaElement?.querySelector('thead');
 
 		if (!patientInfoElement || !tablaLargaElement || !encabezadoElement) {
-			console.error(
-				"Error: No se pudieron encontrar elementos HTML esenciales (info del paciente, tabla o encabezado) para generar el PDF."
-			);
+			console.error("Error: No se pudieron encontrar elementos HTML esenciales (info del paciente, tabla o encabezado) para generar el PDF.");
 			return;
 		}
 
-		const filas: HTMLTableRowElement[] = Array.from(tablaLargaElement.querySelectorAll("tbody > tr"));
+		const filas: HTMLTableRowElement[] = Array.from(tablaLargaElement.querySelectorAll('tbody > tr'));
 		const encabezadoClonado = encabezadoElement.cloneNode(true);
 
 		// --- 2. LÓGICA DE PAGINACIÓN MANUAL ---
 
-		const pdfContainer = document.createElement("div");
-		pdfContainer.style.width = "210mm"; // Ancho de una página A4/Letter
-
+		const pdfContainer = document.createElement('div');
+		pdfContainer.style.width = '210mm'; // Ancho de una página A4/Letter
+		
 		// Altura máxima del contenido por página en 'mm'.
-		const alturaMaximaPorPaginaMM = 240;
+		const alturaMaximaPorPaginaMM = 240; 
 
-		let paginaActual = document.createElement("div");
+		let paginaActual = document.createElement('div');
 		// Inicialmente no le ponemos pageBreakAfter, se lo añadiremos condicionalmente
-		paginaActual.style.boxSizing = "border-box";
-		paginaActual.style.minHeight = `${alturaMaximaPorPaginaMM}mm`;
+		paginaActual.style.boxSizing = 'border-box'; 
+		paginaActual.style.minHeight = `${alturaMaximaPorPaginaMM}mm`; 
 		pdfContainer.appendChild(paginaActual);
 
 		paginaActual.appendChild(patientInfoElement.cloneNode(true));
 
 		const crearNuevaTablaConEncabezado = (): HTMLTableElement => {
-			const nuevaTabla = document.createElement("table");
+			const nuevaTabla = document.createElement('table');
 			if (tablaLargaElement.className) {
 				nuevaTabla.className = tablaLargaElement.className;
 			}
-			nuevaTabla.style.width = "100%";
-			nuevaTabla.style.borderCollapse = "collapse";
+			nuevaTabla.style.width = '100%';
+			nuevaTabla.style.borderCollapse = 'collapse'; 
 			nuevaTabla.appendChild(encabezadoClonado.cloneNode(true));
-			nuevaTabla.appendChild(document.createElement("tbody"));
+			nuevaTabla.appendChild(document.createElement('tbody'));
 			return nuevaTabla;
 		};
 
 		let tablaActual = crearNuevaTablaConEncabezado();
 		paginaActual.appendChild(tablaActual);
-
-		let alturaAcumulada = (tablaActual.querySelector("thead")?.offsetHeight ?? 0) * 0.264583;
+		
+		let alturaAcumulada = (tablaActual.querySelector('thead')?.offsetHeight ?? 0) * 0.264583;
 
 		for (const fila of filas) {
 			const filaClonada = fila.cloneNode(true) as HTMLTableRowElement;
-			filaClonada.style.pageBreakInside = "avoid";
-			filaClonada.style.breakInside = "avoid";
+			filaClonada.style.pageBreakInside = 'avoid'; 
+			filaClonada.style.breakInside = 'avoid'; 
 
 			const alturaFilaMM = fila.offsetHeight * 0.264583;
 
 			// Si la fila actual no cabe en la página restante, creamos una nueva página
 			if (alturaAcumulada + alturaFilaMM > alturaMaximaPorPaginaMM) {
 				// Aquí es donde marcamos la página ANTERIOR para un salto
-				paginaActual.style.pageBreakAfter = "always"; // <--- Se añadió aquí.
-
-				paginaActual = document.createElement("div");
+				paginaActual.style.pageBreakAfter = 'always'; // <--- Se añadió aquí.
+				
+				paginaActual = document.createElement('div');
 				// La nueva página NO tiene pageBreakAfter inicialmente.
-				paginaActual.style.boxSizing = "border-box";
+				paginaActual.style.boxSizing = 'border-box';
 				paginaActual.style.minHeight = `${alturaMaximaPorPaginaMM}mm`;
 				pdfContainer.appendChild(paginaActual);
-
+				
 				tablaActual = crearNuevaTablaConEncabezado();
 				paginaActual.appendChild(tablaActual);
 
-				alturaAcumulada = (tablaActual.querySelector("thead")?.offsetHeight ?? 0) * 0.264583;
+				alturaAcumulada = (tablaActual.querySelector('thead')?.offsetHeight ?? 0) * 0.264583;
 			}
-
-			const tbodyActual = tablaActual.querySelector("tbody");
+			
+			const tbodyActual = tablaActual.querySelector('tbody');
 			if (tbodyActual) {
-				tbodyActual.appendChild(filaClonada);
+				tbodyActual.appendChild(filaClonada); 
 				alturaAcumulada += alturaFilaMM;
 			}
 		}
@@ -1093,34 +1198,32 @@
 		// (el último div hijo de pdfContainer) no tenga page-break-after.
 		const lastPageDiv = pdfContainer.lastElementChild as HTMLElement;
 		if (lastPageDiv) {
-			lastPageDiv.style.pageBreakAfter = "auto"; // Remueve el salto de página extra
+			lastPageDiv.style.pageBreakAfter = 'auto'; // Remueve el salto de página extra
 		}
+
 
 		// --- 3. GENERACIÓN Y GUARDADO DEL PDF ---
 
 		const firstName = order.value.firstName;
 		const lastName = order.value.lastName;
 		const today = new Date();
-		const formattedDate = `${String(today.getDate()).padStart(2, "0")}-${String(today.getMonth() + 1).padStart(
-			2,
-			"0"
-		)}-${today.getFullYear()}`;
+		const formattedDate = `${String(today.getDate()).padStart(2, "0")}-${String(today.getMonth() + 1).padStart(2, "0")}-${today.getFullYear()}`;
 		const filename = `${lastName}_${firstName}_${formattedDate}.pdf`;
-
+		
 		profileName.value = filename;
 
 		const options = {
 			margin: [2, 5], // Márgenes [arriba/abajo, izquierda/derecha] en mm
 			filename: filename,
 			image: { type: "jpeg", quality: 0.98 },
-			html2canvas: {
-				scale: 2,
+			html2canvas: { 
+				scale: 2, 
 				useCORS: true,
 			},
-			jsPDF: {
-				unit: "mm",
-				format: "letter",
-				orientation: "portrait",
+			jsPDF: { 
+				unit: "mm", 
+				format: "letter", 
+				orientation: "portrait", 
 			},
 		};
 
@@ -1140,37 +1243,129 @@
 	};
 
 	const generatePDF2 = async (): Promise<Blob> => {
-		const profileRefCopy = profileRef.value.cloneNode(true);
-		const patientInfoDivCopy = profileRefCopy.querySelector(".patient-info");
-		const profileContentDivs = profileRefCopy.querySelectorAll(".profile-content");
+		// --- 1. PREPARACIÓN Y VALIDACIÓN DE ELEMENTOS ---
+		if (!profileRef.value) {
+			console.error("Error: La referencia al elemento del perfil no está disponible.");
+			return Promise.reject(new Error("La referencia al elemento del perfil no está disponible."));
+		}
 
-		html = patientInfoDivCopy.innerHTML;
+		const profileRefCopy = profileRef.value.cloneNode(true) as HTMLElement;
 
-		profileContentDivs.forEach((item: any) => {
-			const childrenCopy = item.children[0].cloneNode(true);
+		// Ejecuta tus funciones de manipulación sobre el clon si son relevantes aquí
+		await mergeTables(profileRefCopy); 
+		await inputToSpan(profileRefCopy); 
 
-			html += getHtmlWithInputValues(childrenCopy);
-		});
-		const element = html;
+		const patientInfoElement = profileRefCopy.querySelector(".patient-info") as HTMLElement | null;
+		const profileContentDivs = Array.from(profileRefCopy.querySelectorAll(".profile-content")) as HTMLElement[];
+
+		if (!patientInfoElement) {
+			console.error("Error: No se pudo encontrar el elemento HTML de información del paciente.");
+			return Promise.reject(new Error("No se pudo encontrar el elemento HTML de información del paciente."));
+		}
+
+		// --- 2. LÓGICA DE PAGINACIÓN MANUAL EN EL DOM TEMPORAL ---
+
+		const pdfContainer = document.createElement('div');
+		pdfContainer.style.width = '210mm'; // Ancho de una página A4/Letter
+		pdfContainer.style.padding = '0mm 5mm'; // Márgenes laterales para el contenido
+
+		const alturaMaximaContenidoMM = 270; // Altura máxima deseada del contenido por página
+
+		let paginaActual: HTMLElement | null = null; // Empezamos sin página actual
+		let currentContentHeightMM = 0; // Para llevar un seguimiento de la altura del contenido en la página actual
+
+		// Función auxiliar para crear una nueva página
+		const createNewPage = (addBreakAfter = false): HTMLElement => {
+			const newPage = document.createElement('div');
+			if (addBreakAfter) {
+				newPage.style.pageBreakAfter = 'always';
+			}
+			newPage.style.boxSizing = 'border-box';
+			newPage.style.minHeight = `${alturaMaximaContenidoMM}mm`; // Ayuda a la renderización
+			pdfContainer.appendChild(newPage);
+			currentContentHeightMM = 0; // Reiniciar la altura del contenido para la nueva página
+			return newPage;
+		};
+
+		// Añade la información del paciente a la primera página
+		paginaActual = createNewPage(); // Crea la primera página
+		const patientInfoHeightMM = (patientInfoElement.offsetHeight ?? 0) * 0.264583;
+		paginaActual.appendChild(patientInfoElement.cloneNode(true));
+		currentContentHeightMM += patientInfoHeightMM;
+
+
+		for (const contentDiv of profileContentDivs) {
+			const contentDivCloned = contentDiv.cloneNode(true) as HTMLElement;
+
+			// Asegurarse de que las filas de la tabla no se corten
+			const tablaEnContent = contentDivCloned.querySelector('table');
+			if (tablaEnContent) {
+				const filasTabla = Array.from(tablaEnContent.querySelectorAll('tbody > tr')) as HTMLTableRowElement[];
+				filasTabla.forEach(fila => {
+					fila.style.pageBreakInside = 'avoid';
+					fila.style.breakInside = 'avoid';
+				});
+			}
+			
+			// Medir la altura aproximada del bloque de contenido.
+			// Esto es una estimación, html2canvas hace el cálculo final.
+			// Si el elemento es display: none o tiene 0px de altura, offsetHeight será 0.
+			const contentBlockHeightMM = (contentDivCloned.offsetHeight ?? 0) * 0.264583;
+
+			// Si el bloque actual no cabe en la página actual, crea una nueva página
+			// Solo crea una nueva página si ya hay contenido en la página actual
+			// O si el bloque es muy grande y no cabe ni en una página vacía.
+			if (paginaActual && (currentContentHeightMM + contentBlockHeightMM > alturaMaximaContenidoMM)) {
+				paginaActual.style.pageBreakAfter = 'always'; // Marca la página actual para un salto
+				paginaActual = createNewPage(); // Crea una nueva página
+			}
+			
+			// Añade el bloque de contenido a la página actual
+			if (paginaActual) {
+				paginaActual.appendChild(contentDivCloned);
+				currentContentHeightMM += contentBlockHeightMM;
+			}
+		}
+
+		// *** ¡SOLUCIÓN FINAL PARA LAS PÁGINAS EN BLANCO! ***
+		// 1. Elimina cualquier page-break-after del ÚLTIMO elemento de página en el contenedor.
+		const lastPageInContainer = pdfContainer.lastElementChild as HTMLElement;
+		if (lastPageInContainer) {
+			lastPageInContainer.style.pageBreakAfter = 'auto'; // O .removeProperty('page-break-after')
+		}
+
+		// 2. Opcional: Elimina páginas completamente vacías que podrían haberse creado.
+		// Esto es un paso de limpieza adicional si la lógica anterior no fue perfecta.
+		// Itera hacia atrás y elimina si solo contiene texto invisible o tiene 0 altura renderizada.
+		// Esto es más complejo y a veces no es necesario si la lógica de adición es sólida.
+		// Por ahora, nos quedamos con la eliminación del último pageBreakAfter.
+
+		// --- 3. GENERACIÓN Y GUARDADO DEL PDF ---
 
 		const firstName = order.value.firstName;
 		const lastName = order.value.lastName;
 
 		const today = new Date();
-		const year = today.getFullYear();
-		const month = String(today.getMonth() + 1).padStart(2, "0");
-		const day = String(today.getDate()).padStart(2, "0");
-		const formattedDate = `${day}-${month}-${year}`;
+		const formattedDate = `${String(today.getDate()).padStart(2, "0")}-${String(today.getMonth() + 1).padStart(2, "0")}-${today.getFullYear()}`;
 
 		const filename = `${lastName}_${firstName}_${formattedDate}.pdf`;
-		profileName.value = `${lastName}_${firstName}_${formattedDate}.pdf`;
+		profileName.value = filename;
 
 		const options = {
-			margin: 6,
+			// Márgenes [arriba, derecha, abajo, izquierda] en mm
+			// Calcula el margen para que el contenido total sea de 240mm de alto
+			margin: [(279.4 - alturaMaximaContenidoMM) / 2, 5, (279.4 - alturaMaximaContenidoMM) / 2, 5], 
 			filename: filename,
 			image: { type: "jpeg", quality: 0.98 },
-			html2canvas: { scale: 2 },
-			jsPDF: { unit: "mm", format: "letter", orientation: "portrait" },
+			html2canvas: { 
+				scale: 2, 
+				useCORS: true,
+			},
+			jsPDF: { 
+				unit: "mm", 
+				format: "letter", 
+				orientation: "portrait" 
+			},
 		};
 
 		pdfFileName.value = options.filename;
@@ -1187,7 +1382,7 @@
 
 		return new Promise((resolve, reject) => {
 			html2pdf()
-				.from(element)
+				.from(pdfContainer) 
 				.set(options)
 				.toPdf()
 				.get("pdf")
