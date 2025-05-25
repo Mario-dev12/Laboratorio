@@ -73,7 +73,7 @@
 												</td>
 											</tr>
 										</tbody>
-										<tbody v-for="([key, section], i) in profile ? Object.entries(profile) : null" :key="i">
+										<tbody class="sectionData" v-for="([key, section], i) in profile ? Object.entries(profile) : null" :key="i">
 											<tr class="text-center">
 												<td class="p-0" colspan="4">
 													<h5 class="m-0 text-nowrap">{{ key }}</h5>
@@ -1048,6 +1048,25 @@
 
 		profileSection.style.display = "block";
 
+		//Revisar si ningun input tiene valor y eliminar ese tbody y su titulo
+		tables.forEach((table, i) => {
+			const tbodies = Array.from(table.querySelectorAll(".sectionData"));
+			//Chequear inputs de la seccion
+			tbodies.forEach((tbody) => {
+				const inputs = Array.from(tbody.querySelectorAll("input"));
+				const sectionInputvalues = inputs.some((input) => input.value);
+
+				if (!sectionInputvalues) {
+					tbody.parentNode?.removeChild(tbody);
+				}
+			});
+
+			const updatedTbodies = Array.from(table.querySelectorAll(".sectionData"));
+			if (!updatedTbodies.length) {
+				testTitlesDivs[i].parentNode?.removeChild(testTitlesDivs[i]);
+			}
+		});
+
 		//Eliminar titulo perfil 20
 		testTitlesDivs.forEach((div) => {
 			const titleText = div.querySelector("h4");
@@ -1083,17 +1102,6 @@
 				row.parentNode?.removeChild(row);
 			}
 		});
-
-		//Eliminar titulo del perfil
-		// const testTitle = parentElement.querySelectorAll(".testTitle");
-		// testTitle.forEach((title) => {
-		// 	const name = title.children;
-		// 	console.log(name[0].innerHTML);
-		// 	if (name[0].innerHTML === "Perfil 20") {
-		// 		console.log("erase title");
-		// 		title.parentNode?.removeChild(title);
-		// 	}
-		// });
 	};
 
 	// generar pdf sin firma y sello
