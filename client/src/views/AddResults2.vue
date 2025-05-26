@@ -1067,10 +1067,10 @@
 			}
 		});
 
-		//Eliminar titulo perfil 20
 		testTitlesDivs.forEach((div) => {
 			const titleText = div.querySelector("h4");
-			if (titleText?.innerHTML === "Perfil 20") {
+			const regex = /perfil/i; 
+			if (titleText && regex.test(titleText.innerHTML)) {
 				div.parentNode?.removeChild(div);
 			}
 		});
@@ -1138,13 +1138,13 @@
 		const alturaMaximaPorPaginaMM = 240; 
 
 		let paginaActual = document.createElement('div');
-		// Inicialmente no le ponemos pageBreakAfter, se lo añadiremos condicionalmente
 		paginaActual.style.boxSizing = 'border-box'; 
 		paginaActual.style.minHeight = `${alturaMaximaPorPaginaMM}mm`; 
 		pdfContainer.appendChild(paginaActual);
 
 		paginaActual.appendChild(patientInfoElement.cloneNode(true));
 
+		// Función para crear la tabla CON encabezado (para la primera página)
 		const crearNuevaTablaConEncabezado = (): HTMLTableElement => {
 			const nuevaTabla = document.createElement('table');
 			if (tablaLargaElement.className) {
@@ -1157,9 +1157,24 @@
 			return nuevaTabla;
 		};
 
+		// --- FUNCIÓN AÑADIDA ---
+		// Función para crear tablas SIN encabezado (para las páginas 2 en adelante)
+		const crearTablaSinEncabezado = (): HTMLTableElement => {
+			const nuevaTabla = document.createElement('table');
+			if (tablaLargaElement.className) {
+				nuevaTabla.className = tablaLargaElement.className;
+			}
+			nuevaTabla.style.width = '100%';
+			nuevaTabla.style.borderCollapse = 'collapse';
+			nuevaTabla.appendChild(document.createElement('tbody'));
+			return nuevaTabla;
+		};
+
+		// Se crea la primera tabla CON encabezado
 		let tablaActual = crearNuevaTablaConEncabezado();
 		paginaActual.appendChild(tablaActual);
 		
+		// Se calcula la altura inicial incluyendo el encabezado
 		let alturaAcumulada = (tablaActual.querySelector('thead')?.offsetHeight ?? 0) * 0.264583;
 
 		for (const fila of filas) {
@@ -1169,21 +1184,22 @@
 
 			const alturaFilaMM = fila.offsetHeight * 0.264583;
 
-			// Si la fila actual no cabe en la página restante, creamos una nueva página
+			// Si la fila actual no cabe, creamos una nueva página
 			if (alturaAcumulada + alturaFilaMM > alturaMaximaPorPaginaMM) {
-				// Aquí es donde marcamos la página ANTERIOR para un salto
-				paginaActual.style.pageBreakAfter = 'always'; // <--- Se añadió aquí.
+				paginaActual.style.pageBreakAfter = 'always';
 				
 				paginaActual = document.createElement('div');
-				// La nueva página NO tiene pageBreakAfter inicialmente.
 				paginaActual.style.boxSizing = 'border-box';
 				paginaActual.style.minHeight = `${alturaMaximaPorPaginaMM}mm`;
 				pdfContainer.appendChild(paginaActual);
 				
-				tablaActual = crearNuevaTablaConEncabezado();
+				// --- CAMBIO PRINCIPAL AQUÍ ---
+				// Se crea la nueva tabla SIN encabezado para la nueva página
+				tablaActual = crearTablaSinEncabezado();
 				paginaActual.appendChild(tablaActual);
 
-				alturaAcumulada = (tablaActual.querySelector('thead')?.offsetHeight ?? 0) * 0.264583;
+				// La altura acumulada se resetea a 0 porque no hay nuevo encabezado
+				alturaAcumulada = 0;
 			}
 			
 			const tbodyActual = tablaActual.querySelector('tbody');
@@ -1193,14 +1209,11 @@
 			}
 		}
 
-		// --- SOLUCIÓN PARA LA PÁGINA EN BLANCO ADICIONAL ---
-		// Después de que todo el contenido ha sido añadido, aseguramos que la última "página"
-		// (el último div hijo de pdfContainer) no tenga page-break-after.
+		// Solución para la página en blanco adicional
 		const lastPageDiv = pdfContainer.lastElementChild as HTMLElement;
 		if (lastPageDiv) {
-			lastPageDiv.style.pageBreakAfter = 'auto'; // Remueve el salto de página extra
+			lastPageDiv.style.pageBreakAfter = 'auto';
 		}
-
 
 		// --- 3. GENERACIÓN Y GUARDADO DEL PDF ---
 
@@ -1213,7 +1226,7 @@
 		profileName.value = filename;
 
 		const options = {
-			margin: [2, 5], // Márgenes [arriba/abajo, izquierda/derecha] en mm
+			margin: [2, 5],
 			filename: filename,
 			image: { type: "jpeg", quality: 0.98 },
 			html2canvas: { 
