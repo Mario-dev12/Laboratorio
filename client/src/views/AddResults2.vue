@@ -55,7 +55,7 @@
 
 					<div class="profile-content" v-for="(profile, indx) in profilesData" :key="indx" ref="profileRef2">
 						<div class="profile-sections mt-1" v-show="showProfile[indx]">
-							<div class="profile-tables" ref="sectionRef">
+							<div class="profile-tables">
 								<div class="table-responsive">
 									<table class="table table-hover table-striped m-0">
 										<thead>
@@ -73,7 +73,11 @@
 												</td>
 											</tr>
 										</tbody>
-										<tbody class="sectionData" v-for="([key, section], i) in profile ? Object.entries(profile) : null" :key="i">
+										<tbody
+											class="sectionData"
+											v-for="([key, section], i) in profile ? Object.entries(profile) : null"
+											:key="i"
+											ref="sectionRef">
 											<tr class="text-center">
 												<td class="p-0" colspan="4">
 													<h5 class="m-0 text-nowrap">{{ key }}</h5>
@@ -439,7 +443,6 @@
 		};
 
 		if (Number.isNaN(numericInput)) {
-			console.log("not a number");
 			setInputColor(true);
 			return;
 		}
@@ -881,17 +884,17 @@
 
 		// --- 2. LÓGICA DE PAGINACIÓN MANUAL CON CONSTRUCCIÓN DEL DOM ---
 
-		const pdfContainer = document.createElement('div');
-		pdfContainer.style.width = '210mm'; // Ancho de una página A4/Letter para html2canvas
-		pdfContainer.style.padding = '0mm 5mm'; // Márgenes laterales para el contenido
+		const pdfContainer = document.createElement("div");
+		pdfContainer.style.width = "210mm"; // Ancho de una página A4/Letter para html2canvas
+		pdfContainer.style.padding = "0mm 5mm"; // Márgenes laterales para el contenido
 
 		// Altura máxima del contenido por página en 'mm'.
 		// Puedes ajustar este valor si el margen vertical es demasiado grande o pequeño.
 		const alturaMaximaContenidoMM = 270; // Un valor intermedio entre 240 y 270 para buen equilibrio
 
-		let paginaActual = document.createElement('div');
+		let paginaActual = document.createElement("div");
 		// Inicialmente, no le ponemos pageBreakAfter a la primera página
-		paginaActual.style.boxSizing = 'border-box';
+		paginaActual.style.boxSizing = "border-box";
 		paginaActual.style.minHeight = `${alturaMaximaContenidoMM * 0.95}mm`; // Ligeramente menor para flexibilidad
 		pdfContainer.appendChild(paginaActual);
 
@@ -905,18 +908,18 @@
 			const contentDivCloned = contentDiv.cloneNode(true) as HTMLElement;
 
 			// Si este div de contenido tiene una tabla, aplicar page-break-inside a sus filas
-			const tablaEnContent = contentDivCloned.querySelector('table');
+			const tablaEnContent = contentDivCloned.querySelector("table");
 			if (tablaEnContent) {
-				const filasTabla = Array.from(tablaEnContent.querySelectorAll('tbody > tr')) as HTMLTableRowElement[];
-				filasTabla.forEach(fila => {
-					fila.style.pageBreakInside = 'avoid';
-					fila.style.breakInside = 'avoid';
+				const filasTabla = Array.from(tablaEnContent.querySelectorAll("tbody > tr")) as HTMLTableRowElement[];
+				filasTabla.forEach((fila) => {
+					fila.style.pageBreakInside = "avoid";
+					fila.style.breakInside = "avoid";
 				});
 				// Opcional: Asegurarse de que el thead tampoco se corte si la tabla es grande
-				const thead = tablaEnContent.querySelector('thead');
-				if(thead) thead.style.pageBreakInside = 'avoid';
+				const thead = tablaEnContent.querySelector("thead");
+				if (thead) thead.style.pageBreakInside = "avoid";
 			}
-			
+
 			// Calcular la altura real (o una buena estimación) del bloque de contenido clonado
 			// Esto puede ser difícil sin un renderizado. html2canvas lo hará mejor al final.
 			// Nos basamos en offsetHeight para una estimación.
@@ -926,16 +929,16 @@
 			// Solo si la página actual tiene contenido y añadir el nuevo bloque la desbordaría
 			if (alturaAcumulada + contentBlockHeightMM > alturaMaximaContenidoMM && alturaAcumulada > 0) {
 				// Marca la página ANTERIOR para un salto
-				paginaActual.style.pageBreakAfter = 'always'; 
-				
-				paginaActual = document.createElement('div');
-				paginaActual.style.boxSizing = 'border-box';
+				paginaActual.style.pageBreakAfter = "always";
+
+				paginaActual = document.createElement("div");
+				paginaActual.style.boxSizing = "border-box";
 				paginaActual.style.minHeight = `${alturaMaximaContenidoMM * 0.95}mm`;
 				pdfContainer.appendChild(paginaActual);
-				
+
 				alturaAcumulada = 0; // Reiniciar altura para la nueva página
 			}
-			
+
 			// Añade el bloque de contenido a la página actual
 			paginaActual.appendChild(contentDivCloned);
 			alturaAcumulada += contentBlockHeightMM;
@@ -948,17 +951,17 @@
 		// Aquí decidimos si la firma debe ir a una nueva página para evitar cortes con el contenido previo.
 		if (alturaAcumulada + firmaSelloHeightMM > alturaMaximaContenidoMM) {
 			// Solo añadir salto si la página actual ya tiene contenido
-			if (paginaActual && alturaAcumulada > 0) { 
-				paginaActual.style.pageBreakAfter = 'always'; 
+			if (paginaActual && alturaAcumulada > 0) {
+				paginaActual.style.pageBreakAfter = "always";
 			}
-			paginaActual = document.createElement('div');
-			paginaActual.style.boxSizing = 'border-box';
+			paginaActual = document.createElement("div");
+			paginaActual.style.boxSizing = "border-box";
 			paginaActual.style.minHeight = `${firmaSelloHeightMM + 10}mm`; // Suficiente espacio para firma
 			pdfContainer.appendChild(paginaActual);
 		}
-		
+
 		// Asegurarse de que el div de firma/sello no tenga un salto de página después de sí mismo
-		divFirmaSelloCopy.style.pageBreakAfter = 'auto'; 
+		divFirmaSelloCopy.style.pageBreakAfter = "auto";
 		if (paginaActual) {
 			paginaActual.appendChild(divFirmaSelloCopy);
 		}
@@ -967,36 +970,38 @@
 		// Esto es crucial para la paginación manual
 		const lastPageDiv = pdfContainer.lastElementChild as HTMLElement;
 		if (lastPageDiv) {
-			lastPageDiv.style.pageBreakAfter = 'auto'; 
+			lastPageDiv.style.pageBreakAfter = "auto";
 		}
-
 
 		// --- 3. GENERACIÓN Y GUARDADO DEL PDF ---
 
 		const firstName = order.value.firstName;
 		const lastName = order.value.lastName;
 		const today = new Date();
-		const formattedDate = `${String(today.getDate()).padStart(2, "0")}-${String(today.getMonth() + 1).padStart(2, "0")}-${today.getFullYear()}`;
+		const formattedDate = `${String(today.getDate()).padStart(2, "0")}-${String(today.getMonth() + 1).padStart(
+			2,
+			"0"
+		)}-${today.getFullYear()}`;
 		const filename = `${lastName}_${firstName}_${formattedDate}.pdf`;
-		
+
 		profileName.value = filename;
 
 		// Calcula el margen para que el contenido total sea de alturaMaximaContenidoMM
 		// Página Letter: ~279.4mm de alto.
-		const verticalMargin = (279.4 - alturaMaximaContenidoMM) / 2; 
+		const verticalMargin = (279.4 - alturaMaximaContenidoMM) / 2;
 
 		const options = {
 			margin: [verticalMargin, 5, verticalMargin, 5], // Márgenes [arriba, derecha, abajo, izquierda] en mm
 			filename: filename,
 			image: { type: "jpeg", quality: 0.98 },
-			html2canvas: { 
-				scale: 2, 
+			html2canvas: {
+				scale: 2,
 				useCORS: true,
 			},
-			jsPDF: { 
-				unit: "mm", 
-				format: "letter", 
-				orientation: "portrait", 
+			jsPDF: {
+				unit: "mm",
+				format: "letter",
+				orientation: "portrait",
 			},
 		};
 
@@ -1119,77 +1124,80 @@
 
 		const patientInfoElement = profileRefCopy.querySelector(".patient-info");
 		const tablaLargaElement = profileRefCopy.querySelector(".profile-content table") as HTMLTableElement | null;
-		const encabezadoElement = tablaLargaElement?.querySelector('thead');
+		const encabezadoElement = tablaLargaElement?.querySelector("thead");
 
 		if (!patientInfoElement || !tablaLargaElement || !encabezadoElement) {
-			console.error("Error: No se pudieron encontrar elementos HTML esenciales (info del paciente, tabla o encabezado) para generar el PDF.");
+			console.error(
+				"Error: No se pudieron encontrar elementos HTML esenciales (info del paciente, tabla o encabezado) para generar el PDF."
+			);
 			return;
 		}
 
-		const filas: HTMLTableRowElement[] = Array.from(tablaLargaElement.querySelectorAll('tbody > tr'));
+		const filas: HTMLTableRowElement[] = Array.from(tablaLargaElement.querySelectorAll("tbody > tr"));
 		const encabezadoClonado = encabezadoElement.cloneNode(true);
 
 		// --- 2. LÓGICA DE PAGINACIÓN MANUAL ---
 
-		const pdfContainer = document.createElement('div');
-		pdfContainer.style.width = '210mm'; // Ancho de una página A4/Letter
-		
-		// Altura máxima del contenido por página en 'mm'.
-		const alturaMaximaPorPaginaMM = 240; 
+		const pdfContainer = document.createElement("div");
+		pdfContainer.style.width = "210mm"; // Ancho de una página A4/Letter
 
-		let paginaActual = document.createElement('div');
+		// Altura máxima del contenido por página en 'mm'.
+		const alturaMaximaPorPaginaMM = 240;
+
+		let paginaActual = document.createElement("div");
 		// Inicialmente no le ponemos pageBreakAfter, se lo añadiremos condicionalmente
-		paginaActual.style.boxSizing = 'border-box'; 
-		paginaActual.style.minHeight = `${alturaMaximaPorPaginaMM}mm`; 
+		paginaActual.style.boxSizing = "border-box";
+		paginaActual.style.minHeight = `${alturaMaximaPorPaginaMM}mm`;
 		pdfContainer.appendChild(paginaActual);
 
 		paginaActual.appendChild(patientInfoElement.cloneNode(true));
 
 		const crearNuevaTablaConEncabezado = (): HTMLTableElement => {
-			const nuevaTabla = document.createElement('table');
+			const nuevaTabla = document.createElement("table");
 			if (tablaLargaElement.className) {
 				nuevaTabla.className = tablaLargaElement.className;
 			}
-			nuevaTabla.style.width = '100%';
-			nuevaTabla.style.borderCollapse = 'collapse'; 
+			nuevaTabla.style.width = "100%";
+			nuevaTabla.style.borderCollapse = "collapse";
 			nuevaTabla.appendChild(encabezadoClonado.cloneNode(true));
-			nuevaTabla.appendChild(document.createElement('tbody'));
+			nuevaTabla.appendChild(document.createElement("tbody"));
 			return nuevaTabla;
 		};
 
 		let tablaActual = crearNuevaTablaConEncabezado();
 		paginaActual.appendChild(tablaActual);
-		
-		let alturaAcumulada = (tablaActual.querySelector('thead')?.offsetHeight ?? 0) * 0.264583;
+
+		// let alturaAcumulada = (tablaActual.querySelector("thead")?.offsetHeight ?? 0) * 0.264583;
 
 		for (const fila of filas) {
 			const filaClonada = fila.cloneNode(true) as HTMLTableRowElement;
-			filaClonada.style.pageBreakInside = 'avoid'; 
-			filaClonada.style.breakInside = 'avoid'; 
+			filaClonada.style.pageBreakInside = "avoid";
+			filaClonada.style.breakInside = "avoid";
 
-			const alturaFilaMM = fila.offsetHeight * 0.264583;
+			// const alturaFilaMM = fila.offsetHeight * 0.264583;
 
 			// Si la fila actual no cabe en la página restante, creamos una nueva página
-			if (alturaAcumulada + alturaFilaMM > alturaMaximaPorPaginaMM) {
-				// Aquí es donde marcamos la página ANTERIOR para un salto
-				paginaActual.style.pageBreakAfter = 'always'; // <--- Se añadió aquí.
-				
-				paginaActual = document.createElement('div');
-				// La nueva página NO tiene pageBreakAfter inicialmente.
-				paginaActual.style.boxSizing = 'border-box';
-				paginaActual.style.minHeight = `${alturaMaximaPorPaginaMM}mm`;
-				pdfContainer.appendChild(paginaActual);
-				
-				tablaActual = crearNuevaTablaConEncabezado();
-				paginaActual.appendChild(tablaActual);
+			// if (alturaAcumulada + alturaFilaMM > alturaMaximaPorPaginaMM) {
+			// 	console.log("pagina nueva");
+			// 	// Aquí es donde marcamos la página ANTERIOR para un salto
+			// 	paginaActual.style.pageBreakAfter = "always"; // <--- Se añadió aquí.
 
-				alturaAcumulada = (tablaActual.querySelector('thead')?.offsetHeight ?? 0) * 0.264583;
-			}
-			
-			const tbodyActual = tablaActual.querySelector('tbody');
+			// 	paginaActual = document.createElement("div");
+			// 	// La nueva página NO tiene pageBreakAfter inicialmente.
+			// 	paginaActual.style.boxSizing = "border-box";
+			// 	paginaActual.style.minHeight = `${alturaMaximaPorPaginaMM}mm`;
+			// 	pdfContainer.appendChild(paginaActual);
+
+			// 	tablaActual = crearNuevaTablaConEncabezado();
+			// 	paginaActual.appendChild(tablaActual);
+
+			// 	alturaAcumulada = (tablaActual.querySelector("thead")?.offsetHeight ?? 0) * 0.264583;
+			// }
+
+			const tbodyActual = tablaActual.querySelector("tbody");
 			if (tbodyActual) {
-				tbodyActual.appendChild(filaClonada); 
-				alturaAcumulada += alturaFilaMM;
+				tbodyActual.appendChild(filaClonada);
+				// alturaAcumulada += alturaFilaMM;
 			}
 		}
 
@@ -1198,32 +1206,34 @@
 		// (el último div hijo de pdfContainer) no tenga page-break-after.
 		const lastPageDiv = pdfContainer.lastElementChild as HTMLElement;
 		if (lastPageDiv) {
-			lastPageDiv.style.pageBreakAfter = 'auto'; // Remueve el salto de página extra
+			lastPageDiv.style.pageBreakAfter = "auto"; // Remueve el salto de página extra
 		}
-
 
 		// --- 3. GENERACIÓN Y GUARDADO DEL PDF ---
 
 		const firstName = order.value.firstName;
 		const lastName = order.value.lastName;
 		const today = new Date();
-		const formattedDate = `${String(today.getDate()).padStart(2, "0")}-${String(today.getMonth() + 1).padStart(2, "0")}-${today.getFullYear()}`;
+		const formattedDate = `${String(today.getDate()).padStart(2, "0")}-${String(today.getMonth() + 1).padStart(
+			2,
+			"0"
+		)}-${today.getFullYear()}`;
 		const filename = `${lastName}_${firstName}_${formattedDate}.pdf`;
-		
+
 		profileName.value = filename;
 
 		const options = {
 			margin: [2, 5], // Márgenes [arriba/abajo, izquierda/derecha] en mm
 			filename: filename,
 			image: { type: "jpeg", quality: 0.98 },
-			html2canvas: { 
-				scale: 2, 
+			html2canvas: {
+				scale: 2,
 				useCORS: true,
 			},
-			jsPDF: { 
-				unit: "mm", 
-				format: "letter", 
-				orientation: "portrait", 
+			jsPDF: {
+				unit: "mm",
+				format: "letter",
+				orientation: "portrait",
 			},
 		};
 
@@ -1252,8 +1262,8 @@
 		const profileRefCopy = profileRef.value.cloneNode(true) as HTMLElement;
 
 		// Ejecuta tus funciones de manipulación sobre el clon si son relevantes aquí
-		await mergeTables(profileRefCopy); 
-		await inputToSpan(profileRefCopy); 
+		await mergeTables(profileRefCopy);
+		await inputToSpan(profileRefCopy);
 
 		const patientInfoElement = profileRefCopy.querySelector(".patient-info") as HTMLElement | null;
 		const profileContentDivs = Array.from(profileRefCopy.querySelectorAll(".profile-content")) as HTMLElement[];
@@ -1265,9 +1275,9 @@
 
 		// --- 2. LÓGICA DE PAGINACIÓN MANUAL EN EL DOM TEMPORAL ---
 
-		const pdfContainer = document.createElement('div');
-		pdfContainer.style.width = '210mm'; // Ancho de una página A4/Letter
-		pdfContainer.style.padding = '0mm 5mm'; // Márgenes laterales para el contenido
+		const pdfContainer = document.createElement("div");
+		pdfContainer.style.width = "210mm"; // Ancho de una página A4/Letter
+		pdfContainer.style.padding = "0mm 5mm"; // Márgenes laterales para el contenido
 
 		const alturaMaximaContenidoMM = 270; // Altura máxima deseada del contenido por página
 
@@ -1276,11 +1286,11 @@
 
 		// Función auxiliar para crear una nueva página
 		const createNewPage = (addBreakAfter = false): HTMLElement => {
-			const newPage = document.createElement('div');
+			const newPage = document.createElement("div");
 			if (addBreakAfter) {
-				newPage.style.pageBreakAfter = 'always';
+				newPage.style.pageBreakAfter = "always";
 			}
-			newPage.style.boxSizing = 'border-box';
+			newPage.style.boxSizing = "border-box";
 			newPage.style.minHeight = `${alturaMaximaContenidoMM}mm`; // Ayuda a la renderización
 			pdfContainer.appendChild(newPage);
 			currentContentHeightMM = 0; // Reiniciar la altura del contenido para la nueva página
@@ -1293,20 +1303,19 @@
 		paginaActual.appendChild(patientInfoElement.cloneNode(true));
 		currentContentHeightMM += patientInfoHeightMM;
 
-
 		for (const contentDiv of profileContentDivs) {
 			const contentDivCloned = contentDiv.cloneNode(true) as HTMLElement;
 
 			// Asegurarse de que las filas de la tabla no se corten
-			const tablaEnContent = contentDivCloned.querySelector('table');
+			const tablaEnContent = contentDivCloned.querySelector("table");
 			if (tablaEnContent) {
-				const filasTabla = Array.from(tablaEnContent.querySelectorAll('tbody > tr')) as HTMLTableRowElement[];
-				filasTabla.forEach(fila => {
-					fila.style.pageBreakInside = 'avoid';
-					fila.style.breakInside = 'avoid';
+				const filasTabla = Array.from(tablaEnContent.querySelectorAll("tbody > tr")) as HTMLTableRowElement[];
+				filasTabla.forEach((fila) => {
+					fila.style.pageBreakInside = "avoid";
+					fila.style.breakInside = "avoid";
 				});
 			}
-			
+
 			// Medir la altura aproximada del bloque de contenido.
 			// Esto es una estimación, html2canvas hace el cálculo final.
 			// Si el elemento es display: none o tiene 0px de altura, offsetHeight será 0.
@@ -1315,11 +1324,11 @@
 			// Si el bloque actual no cabe en la página actual, crea una nueva página
 			// Solo crea una nueva página si ya hay contenido en la página actual
 			// O si el bloque es muy grande y no cabe ni en una página vacía.
-			if (paginaActual && (currentContentHeightMM + contentBlockHeightMM > alturaMaximaContenidoMM)) {
-				paginaActual.style.pageBreakAfter = 'always'; // Marca la página actual para un salto
+			if (paginaActual && currentContentHeightMM + contentBlockHeightMM > alturaMaximaContenidoMM) {
+				paginaActual.style.pageBreakAfter = "always"; // Marca la página actual para un salto
 				paginaActual = createNewPage(); // Crea una nueva página
 			}
-			
+
 			// Añade el bloque de contenido a la página actual
 			if (paginaActual) {
 				paginaActual.appendChild(contentDivCloned);
@@ -1331,7 +1340,7 @@
 		// 1. Elimina cualquier page-break-after del ÚLTIMO elemento de página en el contenedor.
 		const lastPageInContainer = pdfContainer.lastElementChild as HTMLElement;
 		if (lastPageInContainer) {
-			lastPageInContainer.style.pageBreakAfter = 'auto'; // O .removeProperty('page-break-after')
+			lastPageInContainer.style.pageBreakAfter = "auto"; // O .removeProperty('page-break-after')
 		}
 
 		// 2. Opcional: Elimina páginas completamente vacías que podrían haberse creado.
@@ -1346,7 +1355,10 @@
 		const lastName = order.value.lastName;
 
 		const today = new Date();
-		const formattedDate = `${String(today.getDate()).padStart(2, "0")}-${String(today.getMonth() + 1).padStart(2, "0")}-${today.getFullYear()}`;
+		const formattedDate = `${String(today.getDate()).padStart(2, "0")}-${String(today.getMonth() + 1).padStart(
+			2,
+			"0"
+		)}-${today.getFullYear()}`;
 
 		const filename = `${lastName}_${firstName}_${formattedDate}.pdf`;
 		profileName.value = filename;
@@ -1354,17 +1366,17 @@
 		const options = {
 			// Márgenes [arriba, derecha, abajo, izquierda] en mm
 			// Calcula el margen para que el contenido total sea de 240mm de alto
-			margin: [(279.4 - alturaMaximaContenidoMM) / 2, 5, (279.4 - alturaMaximaContenidoMM) / 2, 5], 
+			margin: [(279.4 - alturaMaximaContenidoMM) / 2, 5, (279.4 - alturaMaximaContenidoMM) / 2, 5],
 			filename: filename,
 			image: { type: "jpeg", quality: 0.98 },
-			html2canvas: { 
-				scale: 2, 
+			html2canvas: {
+				scale: 2,
 				useCORS: true,
 			},
-			jsPDF: { 
-				unit: "mm", 
-				format: "letter", 
-				orientation: "portrait" 
+			jsPDF: {
+				unit: "mm",
+				format: "letter",
+				orientation: "portrait",
 			},
 		};
 
@@ -1382,7 +1394,7 @@
 
 		return new Promise((resolve, reject) => {
 			html2pdf()
-				.from(pdfContainer) 
+				.from(pdfContainer)
 				.set(options)
 				.toPdf()
 				.get("pdf")
