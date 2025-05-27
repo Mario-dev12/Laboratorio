@@ -780,185 +780,185 @@
 	};
 
 	const generatePDF = async () => {
-    // --- 1. PREPARACIÓN Y VALIDACIÓN DE ELEMENTOS ---
-    if (!profileRef.value || !firmaSello.value) {
-        console.error("Error: Las referencias a los elementos del perfil o firma/sello no están disponibles.");
-        return;
-    }
+		// --- 1. PREPARACIÓN Y VALIDACIÓN DE ELEMENTOS ---
+		if (!profileRef.value || !firmaSello.value) {
+			console.error("Error: Las referencias a los elementos del perfil o firma/sello no están disponibles.");
+			return;
+		}
 
-    const profileRefCopy = profileRef.value.cloneNode(true) as HTMLElement;
-    const divFirmaSelloCopy = firmaSello.value.cloneNode(true) as HTMLElement;
+		const profileRefCopy = profileRef.value.cloneNode(true) as HTMLElement;
+		const divFirmaSelloCopy = firmaSello.value.cloneNode(true) as HTMLElement;
 
-    // Ejecuta tus funciones de manipulación del DOM sobre la copia
-    await mergeTables(profileRefCopy);
-    await inputToSpan(profileRefCopy);
+		// Ejecuta tus funciones de manipulación del DOM sobre la copia
+		await mergeTables(profileRefCopy);
+		await inputToSpan(profileRefCopy);
 
-    const patientInfoElement = profileRefCopy.querySelector(".patient-info") as HTMLElement | null;
-    const mainProfileContentElement = profileRefCopy.querySelector(".profile-content") as HTMLElement | null;
+		const patientInfoElement = profileRefCopy.querySelector(".patient-info") as HTMLElement | null;
+		const mainProfileContentElement = profileRefCopy.querySelector(".profile-content") as HTMLElement | null;
 
-    if (!patientInfoElement || !mainProfileContentElement) {
-        let errorMsg = "Error: ";
-        if (!patientInfoElement) errorMsg += "No se pudo encontrar la información del paciente. ";
-        if (!mainProfileContentElement) errorMsg += "No se pudo encontrar el contenido principal del perfil (.profile-content).";
-        console.error(errorMsg);
-        return;
-    }
+		if (!patientInfoElement || !mainProfileContentElement) {
+			let errorMsg = "Error: ";
+			if (!patientInfoElement) errorMsg += "No se pudo encontrar la información del paciente. ";
+			if (!mainProfileContentElement) errorMsg += "No se pudo encontrar el contenido principal del perfil (.profile-content).";
+			console.error(errorMsg);
+			return;
+		}
 
-    // --- OPCIONAL: Comprobación para el caso de thead aislado en el contenido principal ---
-    const esDivConSoloThead = mainProfileContentElement.children.length === 1 && mainProfileContentElement.firstElementChild?.tagName.toUpperCase() === 'THEAD';
-    const esTheadMismo = mainProfileContentElement.tagName.toUpperCase() === 'THEAD';
+		// --- OPCIONAL: Comprobación para el caso de thead aislado en el contenido principal ---
+		const esDivConSoloThead = mainProfileContentElement.children.length === 1 && mainProfileContentElement.firstElementChild?.tagName.toUpperCase() === 'THEAD';
+		const esTheadMismo = mainProfileContentElement.tagName.toUpperCase() === 'THEAD';
 
-    if (esDivConSoloThead || esTheadMismo) {
-        console.warn("El elemento '.profile-content' principal es o solo contiene un 'thead'. Esto podría ser problemático. Se continuará el procesamiento.", mainProfileContentElement);
-    }
+		if (esDivConSoloThead || esTheadMismo) {
+			console.warn("El elemento '.profile-content' principal es o solo contiene un 'thead'. Esto podría ser problemático. Se continuará el procesamiento.", mainProfileContentElement);
+		}
 
-    // --- 2. LÓGICA DE PAGINACIÓN MANUAL CON CONSTRUCCIÓN DEL DOM ---
-    const pdfContainer = document.createElement('div');
-    pdfContainer.style.width = '210mm'; // Ancho A4
-    pdfContainer.style.padding = '0mm 5mm'; // Padding para los márgenes laterales del contenido
+		// --- 2. LÓGICA DE PAGINACIÓN MANUAL CON CONSTRUCCIÓN DEL DOM ---
+		const pdfContainer = document.createElement('div');
+		pdfContainer.style.width = '210mm'; // Ancho A4
+		pdfContainer.style.padding = '0mm 5mm'; // Padding para los márgenes laterales del contenido
 
-    // Altura máxima de contenido por página (A4 es 297mm, Letter es 279.4mm).
-    // Restamos un poco para asegurar que html2canvas tenga margen de maniobra
-    // y para considerar posibles cabeceras/pies de página si se añaden.
-    const alturaMaximaContenidoMM = 270; // Ajustado a 270mm para dejar espacio en Letter (279.4mm)
+		// Altura máxima de contenido por página (A4 es 297mm, Letter es 279.4mm).
+		// Restamos un poco para asegurar que html2canvas tenga margen de maniobra
+		// y para considerar posibles cabeceras/pies de página si se añaden.
+		const alturaMaximaContenidoMM = 270; // Ajustado a 270mm para dejar espacio en Letter (279.4mm)
 
-    let paginaActual = document.createElement('div');
-    paginaActual.style.boxSizing = 'border-box';
-    // Se mantiene una altura mínima para la página, pero si causa problemas de espacio,
-    // se podría considerar cambiar a 'auto' o un valor más flexible.
-    paginaActual.style.minHeight = `${alturaMaximaContenidoMM * 0.95}mm`;
-    pdfContainer.appendChild(paginaActual);
+		let paginaActual = document.createElement('div');
+		paginaActual.style.boxSizing = 'border-box';
+		// Se mantiene una altura mínima para la página, pero si causa problemas de espacio,
+		// se podría considerar cambiar a 'auto' o un valor más flexible.
+		paginaActual.style.minHeight = `${alturaMaximaContenidoMM * 0.95}mm`;
+		pdfContainer.appendChild(paginaActual);
 
-    // Añade la información del paciente a la primera página
-    const patientInfoCloned = patientInfoElement.cloneNode(true) as HTMLElement;
-    paginaActual.appendChild(patientInfoCloned);
-    let alturaAcumulada = (patientInfoCloned.offsetHeight ?? 0) * 0.264583; // px a mm
+		// Añade la información del paciente a la primera página
+		const patientInfoCloned = patientInfoElement.cloneNode(true) as HTMLElement;
+		paginaActual.appendChild(patientInfoCloned);
+		let alturaAcumulada = (patientInfoCloned.offsetHeight ?? 0) * 0.264583; // px a mm
 
-    // Procesar el único mainProfileContentElement
-    const contentDivCloned = mainProfileContentElement.cloneNode(true) as HTMLElement;
+		// Procesar el único mainProfileContentElement
+		const contentDivCloned = mainProfileContentElement.cloneNode(true) as HTMLElement;
 
-    // Aplicar estilos para evitar cortes dentro de las tablas en este contenido
-    const tablaEnContent = contentDivCloned.querySelector('table');
-    if (tablaEnContent) {
-        const filasTabla = Array.from(tablaEnContent.querySelectorAll('tbody > tr')) as HTMLTableRowElement[];
-        filasTabla.forEach(fila => {
-            fila.style.pageBreakInside = 'avoid';
-            fila.style.breakInside = 'avoid';
-        });
-        const thead = tablaEnContent.querySelector('thead');
-        if (thead) {
-            if (thead.innerHTML.trim() !== "") {
-                thead.style.pageBreakInside = 'avoid';
-                thead.style.breakInside = 'avoid';
-            } else {
-                console.warn("Se encontró un thead vacío dentro de '.profile-content'.");
-            }
-        }
-    }
+		// Aplicar estilos para evitar cortes dentro de las tablas en este contenido
+		const tablaEnContent = contentDivCloned.querySelector('table');
+		if (tablaEnContent) {
+			const filasTabla = Array.from(tablaEnContent.querySelectorAll('tbody > tr')) as HTMLTableRowElement[];
+			filasTabla.forEach(fila => {
+				fila.style.pageBreakInside = 'avoid';
+				fila.style.breakInside = 'avoid';
+			});
+			const thead = tablaEnContent.querySelector('thead');
+			if (thead) {
+				if (thead.innerHTML.trim() !== "") {
+					thead.style.pageBreakInside = 'avoid';
+					thead.style.breakInside = 'avoid';
+				} else {
+					console.warn("Se encontró un thead vacío dentro de '.profile-content'.");
+				}
+			}
+		}
 
-    // Calcular la altura del bloque de contenido principal
-    let contentBlockHeightMM = 0;
-    const tempDiv = document.createElement('div');
-    tempDiv.style.visibility = 'hidden';
-    tempDiv.style.position = 'absolute';
-    tempDiv.style.width = '200mm'; // Ancho similar al de la página para la medición
-    tempDiv.appendChild(contentDivCloned.cloneNode(true));
-    document.body.appendChild(tempDiv);
-    contentBlockHeightMM = (tempDiv.offsetHeight ?? 0) * 0.264583; // px a mm
-    document.body.removeChild(tempDiv);
+		// Calcular la altura del bloque de contenido principal
+		let contentBlockHeightMM = 0;
+		const tempDiv = document.createElement('div');
+		tempDiv.style.visibility = 'hidden';
+		tempDiv.style.position = 'absolute';
+		tempDiv.style.width = '200mm'; // Ancho similar al de la página para la medición
+		tempDiv.appendChild(contentDivCloned.cloneNode(true));
+		document.body.appendChild(tempDiv);
+		contentBlockHeightMM = (tempDiv.offsetHeight ?? 0) * 0.264583; // px a mm
+		document.body.removeChild(tempDiv);
 
-    // Lógica de paginación para el bloque de contenido principal
-    if (alturaAcumulada + contentBlockHeightMM > alturaMaximaContenidoMM && alturaAcumulada > 0) {
-        console.log("Creando nueva página para el contenido principal.");
-        paginaActual.style.pageBreakAfter = 'always';
+		// Lógica de paginación para el bloque de contenido principal
+		if (alturaAcumulada + contentBlockHeightMM > alturaMaximaContenidoMM && alturaAcumulada > 0) {
+			console.log("Creando nueva página para el contenido principal.");
+			paginaActual.style.pageBreakAfter = 'always';
 
-        paginaActual = document.createElement('div');
-        paginaActual.style.boxSizing = 'border-box';
-        paginaActual.style.minHeight = `${alturaMaximaContenidoMM * 0.95}mm`;
-        pdfContainer.appendChild(paginaActual);
+			paginaActual = document.createElement('div');
+			paginaActual.style.boxSizing = 'border-box';
+			paginaActual.style.minHeight = `${alturaMaximaContenidoMM * 0.95}mm`;
+			pdfContainer.appendChild(paginaActual);
 
-        alturaAcumulada = 0;
-    }
+			alturaAcumulada = 0;
+		}
 
-    paginaActual.appendChild(contentDivCloned);
-    alturaAcumulada += contentBlockHeightMM;
+		paginaActual.appendChild(contentDivCloned);
+		alturaAcumulada += contentBlockHeightMM;
 
-    // --- Añadir la firma y el sello ---
-    // Aplicar estilos para asegurar que la firma/sello se mantenga unida
-    divFirmaSelloCopy.style.pageBreakInside = 'avoid';
-    divFirmaSelloCopy.style.breakInside = 'avoid';
-    divFirmaSelloCopy.style.display = 'block'; // Asegurar que se renderice como un bloque
+		// --- Añadir la firma y el sello ---
+		// Aplicar estilos para asegurar que la firma/sello se mantenga unida
+		divFirmaSelloCopy.style.pageBreakInside = 'avoid';
+		divFirmaSelloCopy.style.breakInside = 'avoid';
+		divFirmaSelloCopy.style.display = 'block'; // Asegurar que se renderice como un bloque
 
-    // Medir la altura de la firma/sello DESPUÉS de aplicar los estilos y antes de añadir al DOM final.
-    const tempFirmaDiv = document.createElement('div');
-    tempFirmaDiv.style.visibility = 'hidden';
-    tempFirmaDiv.style.position = 'absolute';
-    tempFirmaDiv.style.width = '200mm'; // Ancho similar al de la página
-    tempFirmaDiv.appendChild(divFirmaSelloCopy.cloneNode(true)); // Usar un clon para medir
-    document.body.appendChild(tempFirmaDiv);
-    document.body.removeChild(tempFirmaDiv);
+		// Medir la altura de la firma/sello DESPUÉS de aplicar los estilos y antes de añadir al DOM final.
+		const tempFirmaDiv = document.createElement('div');
+		tempFirmaDiv.style.visibility = 'hidden';
+		tempFirmaDiv.style.position = 'absolute';
+		tempFirmaDiv.style.width = '200mm'; // Ancho similar al de la página
+		tempFirmaDiv.appendChild(divFirmaSelloCopy.cloneNode(true)); // Usar un clon para medir
+		document.body.appendChild(tempFirmaDiv);
+		document.body.removeChild(tempFirmaDiv);
 
-    paginaActual.appendChild(divFirmaSelloCopy);
-    // No es necesario sumar firmaSelloHeightMM a alturaAcumulada aquí si es el último elemento.
+		paginaActual.appendChild(divFirmaSelloCopy);
+		// No es necesario sumar firmaSelloHeightMM a alturaAcumulada aquí si es el último elemento.
 
-    // --- SOLUCIÓN PARA LA PÁGINA EN BLANCO ADICIONAL AL FINAL ---
-    // Esto asegura que la última página no tenga un salto de página forzado.
-    const lastPageDiv = pdfContainer.lastElementChild as HTMLElement;
-    if (lastPageDiv) {
-        lastPageDiv.style.pageBreakAfter = 'auto';
-    }
+		// --- SOLUCIÓN PARA LA PÁGINA EN BLANCO ADICIONAL AL FINAL ---
+		// Esto asegura que la última página no tenga un salto de página forzado.
+		const lastPageDiv = pdfContainer.lastElementChild as HTMLElement;
+		if (lastPageDiv) {
+			lastPageDiv.style.pageBreakAfter = 'auto';
+		}
 
-    // --- 3. GENERACIÓN Y GUARDADO DEL PDF ---
-    const firstName = order.value.firstName;
-    const lastName = order.value.lastName;
-    const today = new Date();
-    const formattedDate = `${String(today.getDate()).padStart(2, "0")}-${String(today.getMonth() + 1).padStart(2, "0")}-${today.getFullYear()}`;
-    const filename = `${lastName}_${firstName}_${formattedDate}.pdf`;
+		// --- 3. GENERACIÓN Y GUARDADO DEL PDF ---
+		const firstName = order.value.firstName;
+		const lastName = order.value.lastName;
+		const today = new Date();
+		const formattedDate = `${String(today.getDate()).padStart(2, "0")}-${String(today.getMonth() + 1).padStart(2, "0")}-${today.getFullYear()}`;
+		const filename = `${lastName}_${firstName}_${formattedDate}.pdf`;
 
-    profileName.value = filename;
+		profileName.value = filename;
 
-    // **IMPORTANTE:** Si tu pdfContainer ya tiene padding, es mejor no usar márgenes en jsPDF
-    // para evitar que se sumen o entren en conflicto con tu paginación manual.
-    const options = {
-        margin: [0, 0, 0, 0], // Establecer márgenes a 0 para evitar conflictos con el padding del contenedor
-        filename: filename,
-        image: { type: "jpeg", quality: 0.98 },
-        html2canvas: {
-            scale: 2,
-            useCORS: true,
-            // logging: true, // Descomentar para ver logs de html2canvas
-        },
-        jsPDF: {
-            unit: "mm",
-            format: "letter", // O 'a4' si es el caso
-            orientation: "portrait",
-        },
-    };
+		// **IMPORTANTE:** Si tu pdfContainer ya tiene padding, es mejor no usar márgenes en jsPDF
+		// para evitar que se sumen o entren en conflicto con tu paginación manual.
+		const options = {
+			margin: [0, 0, 0, 0], // Establecer márgenes a 0 para evitar conflictos con el padding del contenedor
+			filename: filename,
+			image: { type: "jpeg", quality: 0.98 },
+			html2canvas: {
+				scale: 2,
+				useCORS: true,
+				// logging: true, // Descomentar para ver logs de html2canvas
+			},
+			jsPDF: {
+				unit: "mm",
+				format: "letter", // O 'a4' si es el caso
+				orientation: "portrait",
+			},
+		};
 
-    pdfFileName.value = options.filename;
+		pdfFileName.value = options.filename;
 
-    if (ordersArray.value && typeof ordersStore.updateStatusOrder === 'function') {
-        for (const ord of ordersArray.value) {
-            const data = {
-                id: ord.idOrder,
-                status: "Pendiente de enviar", // O el estado que corresponda
-            };
-            await ordersStore.updateStatusOrder(ord.idOrder, data);
-        }
-    } else {
-        console.warn("ordersArray o ordersStore.updateStatusOrder no están disponibles para actualizar estado.");
-    }
+		if (ordersArray.value && typeof ordersStore.updateStatusOrder === 'function') {
+			for (const ord of ordersArray.value) {
+				const data = {
+					id: ord.idOrder,
+					status: "Pendiente de enviar", // O el estado que corresponda
+				};
+				await ordersStore.updateStatusOrder(ord.idOrder, data);
+			}
+		} else {
+			console.warn("ordersArray o ordersStore.updateStatusOrder no están disponibles para actualizar estado.");
+		}
 
-    try {
-        const html2pdfModule = await import("html2pdf.js");
-        const html2pdf = html2pdfModule.default;
+		try {
+			const html2pdfModule = await import("html2pdf.js");
+			const html2pdf = html2pdfModule.default;
 
-        // console.log("Contenido final del DOM para PDF (con firma):", pdfContainer.outerHTML);
-        html2pdf().from(pdfContainer).set(options).save();
-    } catch (e) {
-        console.error("Error al generar el PDF con firma:", e);
-    }
-};
+			// console.log("Contenido final del DOM para PDF (con firma):", pdfContainer.outerHTML);
+			html2pdf().from(pdfContainer).set(options).save();
+		} catch (e) {
+			console.error("Error al generar el PDF con firma:", e);
+		}
+	};
 
 
 	const pdfCover = async () => {
@@ -1653,6 +1653,10 @@
 			const expr = parser.parse(formulaNormalizada);
 			
 			const resultado = expr.evaluate(valoresNormalizados);
+			if (typeof resultado === 'number') {
+				const resultadoFormateado = Math.round(resultado * 100) / 100;
+				return resultadoFormateado;
+			}
 			return resultado;
 
 		} catch (error: any) {
@@ -1710,119 +1714,121 @@
 	};
 
 	const calcularResultados = async (seccion: { resultado: any[] }, sectionIndex: number) => {
-		const valores: Record<string, any> = {};
+		for (let i = 0; i < 2; i++) {
+			const valores: Record<string, any> = {};
 
-		seccion.resultado.forEach((item: { valor: any; nombre: string | number }) => {
-			if (item.valor) {
-				valores[item.nombre] = item.valor;
-			}
-		});
-
-		const currentSection = sectionRef.value[sectionIndex];
-		const inputElements = currentSection.querySelectorAll("input");
-
-		seccion.resultado.forEach((item: { calculado: string; valor: any; restricciones: any }, index: number) => {
-			if (item.calculado) {
-				for (const restriccion of item.restricciones) {
-					aplicarRestriccion(restriccion, valores);
-				}
-				item.valor = aplicarFormula(item.calculado, valores);
-
+			seccion.resultado.forEach((item: { valor: any; nombre: string | number }) => {
 				if (item.valor) {
-					const inputElement = inputElements[index];
-					const inputValue = item.valor;
-					const personAge = order.value.age;
-					const personGenre = order.value.genre;
-					const valorReferencialString = seccion.resultado[index].valor_referencial;
-					const valorReferencialNumber = valorReferencialString.match(/(\d+(?:,\d+)?)/g);
-					const parsedNumbers = valorReferencialNumber?.map((numStr: any) => parseFloat(numStr.replace(",", ".")));
-
-					const numericInput = parseFloat(inputValue);
-
-					const setInputColor = (isValid: boolean) => {
-						inputElement.style.color = isValid ? "green" : "red";
-						inputElement.style.borderColor = isValid ? "lightgreen" : "red";
-					};
-
-					const parseScientific = (str: string) => {
-						const match = /(-?\d+(\.\d+)?)\s*x10\^([-+]?\d+)/.exec(str);
-						if (match) {
-							return parseFloat(match[1]) * Math.pow(10, parseInt(match[3], 10));
-						}
-						return parseFloat(str);
-					};
-
-					if (isNaN(numericInput)) {
-						seccion.resultado[index].valor = null;
-						return;
-					}
-
-					const validateRange = (min: number, max: number): boolean => {
-						return numericInput >= min && numericInput <= max;
-					};
-
-					let isValid = true;
-
-					if (parsedNumbers) {
-						switch (parsedNumbers.length) {
-							case 1: {
-								if (valorReferencialString.includes("menor")) {
-									isValid = numericInput < parsedNumbers[0];
-								} else if (valorReferencialString.includes("Hasta")) {
-									isValid = numericInput <= parsedNumbers[0];
-								}
-								break;
-							}
-
-							case 2: {
-								isValid = validateRange(parsedNumbers[0], parsedNumbers[1]);
-								if (valorReferencialString.includes("Hasta")) {
-									isValid = numericInput <= parsedNumbers[1];
-								}
-								break;
-							}
-
-							case 4: {
-								let range: [number, number];
-								if (valorReferencialString.includes("Hombre")) {
-									range = personGenre === "M" ? [parsedNumbers[0], parsedNumbers[1]] : [parsedNumbers[2], parsedNumbers[3]];
-								} else if (valorReferencialString.includes("Adulto")) {
-									range = personAge > 17 ? [parsedNumbers[0], parsedNumbers[1]] : [parsedNumbers[2], parsedNumbers[3]];
-								} else {
-									range = [parsedNumbers[0], parsedNumbers[1]];
-								}
-								isValid = validateRange(range[0], range[1]);
-								break;
-							}
-
-							case 6: {
-								let minRange = Infinity;
-								let maxRange = -Infinity;
-
-								const matches = valorReferencialString.match(/(-?\d+(\.\d+)?\s*x10\^[-+]?\d+)|(-?\d+(\.\d+)?)/g);
-
-								matches?.forEach((matchStr: any) => {
-									const val = parseScientific(matchStr);
-									if (val !== undefined) {
-										minRange = Math.min(minRange, val);
-										maxRange = Math.max(maxRange, val);
-									}
-								});
-
-								isValid = validateRange(minRange, maxRange);
-								break;
-							}
-
-							default: {
-								break;
-							}
-						}
-					}
-					setInputColor(isValid);
-					seccion.resultado[index].valor = numericInput;
+					valores[item.nombre] = item.valor;
 				}
-			}
-		});
+			});
+
+			const currentSection = sectionRef.value[sectionIndex];
+			const inputElements = currentSection.querySelectorAll("input");
+
+			seccion.resultado.forEach((item: { calculado: string; valor: any; restricciones: any }, index: number) => {
+				if (item.calculado) {
+					for (const restriccion of item.restricciones) {
+						aplicarRestriccion(restriccion, valores);
+					}
+					item.valor = aplicarFormula(item.calculado, valores);
+
+					if (item.valor) {
+						const inputElement = inputElements[index];
+						const inputValue = item.valor;
+						const personAge = order.value.age;
+						const personGenre = order.value.genre;
+						const valorReferencialString = seccion.resultado[index].valor_referencial;
+						const valorReferencialNumber = valorReferencialString.match(/(\d+(?:,\d+)?)/g);
+						const parsedNumbers = valorReferencialNumber?.map((numStr: any) => parseFloat(numStr.replace(",", ".")));
+
+						const numericInput = parseFloat(inputValue);
+
+						const setInputColor = (isValid: boolean) => {
+							inputElement.style.color = isValid ? "green" : "red";
+							inputElement.style.borderColor = isValid ? "lightgreen" : "red";
+						};
+
+						const parseScientific = (str: string) => {
+							const match = /(-?\d+(\.\d+)?)\s*x10\^([-+]?\d+)/.exec(str);
+							if (match) {
+								return parseFloat(match[1]) * Math.pow(10, parseInt(match[3], 10));
+							}
+							return parseFloat(str);
+						};
+
+						if (isNaN(numericInput)) {
+							seccion.resultado[index].valor = null;
+							return;
+						}
+
+						const validateRange = (min: number, max: number): boolean => {
+							return numericInput >= min && numericInput <= max;
+						};
+
+						let isValid = true;
+
+						if (parsedNumbers) {
+							switch (parsedNumbers.length) {
+								case 1: {
+									if (valorReferencialString.includes("menor")) {
+										isValid = numericInput < parsedNumbers[0];
+									} else if (valorReferencialString.includes("Hasta")) {
+										isValid = numericInput <= parsedNumbers[0];
+									}
+									break;
+								}
+
+								case 2: {
+									isValid = validateRange(parsedNumbers[0], parsedNumbers[1]);
+									if (valorReferencialString.includes("Hasta")) {
+										isValid = numericInput <= parsedNumbers[1];
+									}
+									break;
+								}
+
+								case 4: {
+									let range: [number, number];
+									if (valorReferencialString.includes("Hombre")) {
+										range = personGenre === "M" ? [parsedNumbers[0], parsedNumbers[1]] : [parsedNumbers[2], parsedNumbers[3]];
+									} else if (valorReferencialString.includes("Adulto")) {
+										range = personAge > 17 ? [parsedNumbers[0], parsedNumbers[1]] : [parsedNumbers[2], parsedNumbers[3]];
+									} else {
+										range = [parsedNumbers[0], parsedNumbers[1]];
+									}
+									isValid = validateRange(range[0], range[1]);
+									break;
+								}
+
+								case 6: {
+									let minRange = Infinity;
+									let maxRange = -Infinity;
+
+									const matches = valorReferencialString.match(/(-?\d+(\.\d+)?\s*x10\^[-+]?\d+)|(-?\d+(\.\d+)?)/g);
+
+									matches?.forEach((matchStr: any) => {
+										const val = parseScientific(matchStr);
+										if (val !== undefined) {
+											minRange = Math.min(minRange, val);
+											maxRange = Math.max(maxRange, val);
+										}
+									});
+
+									isValid = validateRange(minRange, maxRange);
+									break;
+								}
+
+								default: {
+									break;
+								}
+							}
+						}
+						setInputColor(isValid);
+						seccion.resultado[index].valor = numericInput;
+					}
+				}
+			});
+		}
 	};
 </script>
 
