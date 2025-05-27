@@ -1509,6 +1509,10 @@
 			const expr = parser.parse(formulaNormalizada);
 
 			const resultado = expr.evaluate(valoresNormalizados);
+			if (typeof resultado === "number") {
+				const resultadoFormateado = Math.round(resultado * 100) / 100;
+				return resultadoFormateado;
+			}
 			return resultado;
 		} catch (error: any) {
 			const missingVarMatch = error.message.match(/undefined variable: (\w+)/);
@@ -1571,119 +1575,121 @@
 	};
 
 	const calcularResultados = async (seccion: { resultado: any[] }, sectionIndex: number) => {
-		const valores: Record<string, any> = {};
+		for (let i = 0; i < 2; i++) {
+			const valores: Record<string, any> = {};
 
-		seccion.resultado.forEach((item: { valor: any; nombre: string | number }) => {
-			if (item.valor) {
-				valores[item.nombre] = item.valor;
-			}
-		});
-
-		const currentSection = sectionRef.value[sectionIndex];
-		const inputElements = currentSection.querySelectorAll("input");
-
-		seccion.resultado.forEach((item: { calculado: string; valor: any; restricciones: any }, index: number) => {
-			if (item.calculado) {
-				for (const restriccion of item.restricciones) {
-					aplicarRestriccion(restriccion, valores);
-				}
-				item.valor = aplicarFormula(item.calculado, valores);
-
+			seccion.resultado.forEach((item: { valor: any; nombre: string | number }) => {
 				if (item.valor) {
-					const inputElement = inputElements[index];
-					const inputValue = item.valor;
-					const personAge = order.value.age;
-					const personGenre = order.value.genre;
-					const valorReferencialString = seccion.resultado[index].valor_referencial;
-					const valorReferencialNumber = valorReferencialString.match(/(\d+(?:,\d+)?)/g);
-					const parsedNumbers = valorReferencialNumber?.map((numStr: any) => parseFloat(numStr.replace(",", ".")));
-
-					const numericInput = parseFloat(inputValue);
-
-					const setInputColor = (isValid: boolean) => {
-						inputElement.style.color = isValid ? "green" : "red";
-						inputElement.style.borderColor = isValid ? "lightgreen" : "red";
-					};
-
-					const parseScientific = (str: string) => {
-						const match = /(-?\d+(\.\d+)?)\s*x10\^([-+]?\d+)/.exec(str);
-						if (match) {
-							return parseFloat(match[1]) * Math.pow(10, parseInt(match[3], 10));
-						}
-						return parseFloat(str);
-					};
-
-					if (isNaN(numericInput)) {
-						seccion.resultado[index].valor = null;
-						return;
-					}
-
-					const validateRange = (min: number, max: number): boolean => {
-						return numericInput >= min && numericInput <= max;
-					};
-
-					let isValid = true;
-
-					if (parsedNumbers) {
-						switch (parsedNumbers.length) {
-							case 1: {
-								if (valorReferencialString.toLowerCase().includes("menor")) {
-									isValid = numericInput < parsedNumbers[0];
-								} else if (valorReferencialString.toLowerCase().includes("hasta")) {
-									isValid = numericInput <= parsedNumbers[0];
-								}
-								break;
-							}
-
-							case 2: {
-								isValid = validateRange(parsedNumbers[0], parsedNumbers[1]);
-								if (valorReferencialString.toLowerCase().includes("hasta")) {
-									isValid = numericInput <= parsedNumbers[1];
-								}
-								break;
-							}
-
-							case 4: {
-								let range: [number, number];
-								if (valorReferencialString.toLowerCase().includes("hombre")) {
-									range = personGenre === "M" ? [parsedNumbers[0], parsedNumbers[1]] : [parsedNumbers[2], parsedNumbers[3]];
-								} else if (valorReferencialString.toLowerCase().includes("adulto")) {
-									range = personAge > 17 ? [parsedNumbers[0], parsedNumbers[1]] : [parsedNumbers[2], parsedNumbers[3]];
-								} else {
-									range = [parsedNumbers[0], parsedNumbers[1]];
-								}
-								isValid = validateRange(range[0], range[1]);
-								break;
-							}
-
-							case 6: {
-								let minRange = Infinity;
-								let maxRange = -Infinity;
-
-								const matches = valorReferencialString.match(/(-?\d+(\.\d+)?\s*x10\^[-+]?\d+)|(-?\d+(\.\d+)?)/g);
-
-								matches?.forEach((matchStr: any) => {
-									const val = parseScientific(matchStr);
-									if (val !== undefined) {
-										minRange = Math.min(minRange, val);
-										maxRange = Math.max(maxRange, val);
-									}
-								});
-
-								isValid = validateRange(minRange, maxRange);
-								break;
-							}
-
-							default: {
-								break;
-							}
-						}
-					}
-					setInputColor(isValid);
-					seccion.resultado[index].valor = numericInput;
+					valores[item.nombre] = item.valor;
 				}
-			}
-		});
+			});
+
+			const currentSection = sectionRef.value[sectionIndex];
+			const inputElements = currentSection.querySelectorAll("input");
+
+			seccion.resultado.forEach((item: { calculado: string; valor: any; restricciones: any }, index: number) => {
+				if (item.calculado) {
+					for (const restriccion of item.restricciones) {
+						aplicarRestriccion(restriccion, valores);
+					}
+					item.valor = aplicarFormula(item.calculado, valores);
+
+					if (item.valor) {
+						const inputElement = inputElements[index];
+						const inputValue = item.valor;
+						const personAge = order.value.age;
+						const personGenre = order.value.genre;
+						const valorReferencialString = seccion.resultado[index].valor_referencial;
+						const valorReferencialNumber = valorReferencialString.match(/(\d+(?:,\d+)?)/g);
+						const parsedNumbers = valorReferencialNumber?.map((numStr: any) => parseFloat(numStr.replace(",", ".")));
+
+						const numericInput = parseFloat(inputValue);
+
+						const setInputColor = (isValid: boolean) => {
+							inputElement.style.color = isValid ? "green" : "red";
+							inputElement.style.borderColor = isValid ? "lightgreen" : "red";
+						};
+
+						const parseScientific = (str: string) => {
+							const match = /(-?\d+(\.\d+)?)\s*x10\^([-+]?\d+)/.exec(str);
+							if (match) {
+								return parseFloat(match[1]) * Math.pow(10, parseInt(match[3], 10));
+							}
+							return parseFloat(str);
+						};
+
+						if (isNaN(numericInput)) {
+							seccion.resultado[index].valor = null;
+							return;
+						}
+
+						const validateRange = (min: number, max: number): boolean => {
+							return numericInput >= min && numericInput <= max;
+						};
+
+						let isValid = true;
+
+						if (parsedNumbers) {
+							switch (parsedNumbers.length) {
+								case 1: {
+									if (valorReferencialString.includes("menor")) {
+										isValid = numericInput < parsedNumbers[0];
+									} else if (valorReferencialString.includes("Hasta")) {
+										isValid = numericInput <= parsedNumbers[0];
+									}
+									break;
+								}
+
+								case 2: {
+									isValid = validateRange(parsedNumbers[0], parsedNumbers[1]);
+									if (valorReferencialString.includes("Hasta")) {
+										isValid = numericInput <= parsedNumbers[1];
+									}
+									break;
+								}
+
+								case 4: {
+									let range: [number, number];
+									if (valorReferencialString.includes("Hombre")) {
+										range = personGenre === "M" ? [parsedNumbers[0], parsedNumbers[1]] : [parsedNumbers[2], parsedNumbers[3]];
+									} else if (valorReferencialString.includes("Adulto")) {
+										range = personAge > 17 ? [parsedNumbers[0], parsedNumbers[1]] : [parsedNumbers[2], parsedNumbers[3]];
+									} else {
+										range = [parsedNumbers[0], parsedNumbers[1]];
+									}
+									isValid = validateRange(range[0], range[1]);
+									break;
+								}
+
+								case 6: {
+									let minRange = Infinity;
+									let maxRange = -Infinity;
+
+									const matches = valorReferencialString.match(/(-?\d+(\.\d+)?\s*x10\^[-+]?\d+)|(-?\d+(\.\d+)?)/g);
+
+									matches?.forEach((matchStr: any) => {
+										const val = parseScientific(matchStr);
+										if (val !== undefined) {
+											minRange = Math.min(minRange, val);
+											maxRange = Math.max(maxRange, val);
+										}
+									});
+
+									isValid = validateRange(minRange, maxRange);
+									break;
+								}
+
+								default: {
+									break;
+								}
+							}
+						}
+						setInputColor(isValid);
+						seccion.resultado[index].valor = numericInput;
+					}
+				}
+			});
+		}
 	};
 </script>
 
