@@ -1621,24 +1621,44 @@
 	const aplicarFormula = (formula: string, valores: { [x: string]: any }) => {
 		const parser = new Parser();
 
-		const evaluableFormula = formula.replace(/(\w+)/g, (match) => {
-			if (Object.prototype.hasOwnProperty.call(valores, match) && valores[match] !== undefined) {
-				return String(valores[match]);
+		let formulaNormalizada = formula;
+		const valoresNormalizados: { [key: string]: any } = { ...valores };
+
+		const mapeoNombresComplejos: { [nombreOriginal: string]: string } = {};
+
+		const invalidVarCharRegex = /[^\w]/g;
+
+		for (const key in valores) {
+			if (Object.prototype.hasOwnProperty.call(valores, key) && invalidVarCharRegex.test(key)) {
+				const nombreNormalizado = key.replace(invalidVarCharRegex, '_');
+				mapeoNombresComplejos[key] = nombreNormalizado;
+
+				valoresNormalizados[nombreNormalizado] = valoresNormalizados[key];
+				delete valoresNormalizados[key];
 			}
-			return match;
-		});
+		}
+
+		for (const nombreOriginal in mapeoNombresComplejos) {
+			if (Object.prototype.hasOwnProperty.call(mapeoNombresComplejos, nombreOriginal)) {
+				const nombreNormalizado = mapeoNombresComplejos[nombreOriginal];
+
+				const escapedNombreOriginal = nombreOriginal.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+				const regex = new RegExp(`\\b${escapedNombreOriginal}\\b`, 'g');
+
+				formulaNormalizada = formulaNormalizada.replace(regex, nombreNormalizado);
+			}
+		}
 
 		try {
-			const variablesNoReemplazadas = evaluableFormula.match(/[a-zA-Z_]\w*/g);
-			if (variablesNoReemplazadas && variablesNoReemplazadas.length > 0) {
-				console.warn(`Advertencia: La fórmula contiene variables no definidas: ${variablesNoReemplazadas.join(', ')}. No se pudo evaluar la fórmula.`);
-				return null;
-			}
+			const expr = parser.parse(formulaNormalizada);
+			
+			const resultado = expr.evaluate(valoresNormalizados);
+			return resultado;
 
-			return parser.evaluate(evaluableFormula);
-		} catch (error) {
-			console.error("Error al evaluar la fórmula:", error);
-			return null;
+		} catch (error: any) {
+			const missingVarMatch = error.message.match(/undefined variable: (\w+)/);
+			const missingVar = missingVarMatch ? missingVarMatch[1] : 'desconocida';
+			console.warn(`Advertencia: La fórmula "${formula}" contiene variables no definidas en 'valores': ${missingVar}.`);
 		}
 	};
 
