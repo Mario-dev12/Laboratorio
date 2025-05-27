@@ -462,9 +462,9 @@
 		if (parsedNumbers) {
 			switch (parsedNumbers.length) {
 				case 1: {
-					if (valorReferencialString.includes("menor")) {
+					if (valorReferencialString.toLowerCase().includes("menor")) {
 						isValid = numericInput < parsedNumbers[0];
-					} else if (valorReferencialString.includes("Hasta")) {
+					} else if (valorReferencialString.toLowerCase().includes("hasta")) {
 						isValid = numericInput <= parsedNumbers[0];
 					}
 					break;
@@ -472,7 +472,7 @@
 
 				case 2: {
 					isValid = validateRange(parsedNumbers[0], parsedNumbers[1]);
-					if (valorReferencialString.includes("Hasta")) {
+					if (valorReferencialString.toLowerCase().includes("hasta")) {
 						isValid = numericInput <= parsedNumbers[1];
 					}
 					break;
@@ -497,9 +497,9 @@
 
 						isValid = validateRange(minRange, maxRange);
 					} else {
-						if (valorReferencialString.includes("Hombre")) {
+						if (valorReferencialString.toLowerCase().includes("hombre")) {
 							range = personGenre === "M" ? [parsedNumbers[0], parsedNumbers[1]] : [parsedNumbers[2], parsedNumbers[3]];
-						} else if (valorReferencialString.includes("Adulto")) {
+						} else if (valorReferencialString.toLowerCase().includes("adulto")) {
 							range = personAge > 17 ? [parsedNumbers[0], parsedNumbers[1]] : [parsedNumbers[2], parsedNumbers[3]];
 						} else {
 							range = [parsedNumbers[0], parsedNumbers[1]];
@@ -543,150 +543,6 @@
 		}
 	};
 
-	// const checkInputValue = async (event: Event, index: number, section: any, sectionIndex: number) => {
-	// 	const inputElement = event.target as HTMLInputElement;
-	// 	const personAge = order.value.age;
-	// 	const personGenre = order.value.genre;
-	// 	const valorReferencialString = section.resultado[index].valor_referencial;
-	// 	const valorReferencialNumber = valorReferencialString.match(/(\d+(?:,\d+)?)/g);
-	// 	const parsedNumbers = valorReferencialNumber?.map((numStr: any) => parseFloat(numStr.replace(",", ".")));
-	// 	let inputValue = inputElement.value;
-
-	// 	if (!isNaN(Number(inputValue.replace(",", ".")))) {
-	// 		inputValue = inputValue.replace(",", ".");
-	// 	}
-
-	// 	if (parsedNumbers) {
-	// 		if (parsedNumbers.length === 2) {
-	// 			if (Number(inputValue) < parsedNumbers[0] || Number(inputValue) > parsedNumbers[1]) {
-	// 				inputElement.style.color = "red";
-	// 				inputElement.style.borderColor = "red";
-	// 			} else {
-	// 				inputElement.style.color = "green";
-	// 				inputElement.style.borderColor = "lightgreen";
-	// 			}
-	// 			if (valorReferencialString.includes("Hasta")) {
-	// 				if (Number(inputValue) > parsedNumbers[0]) {
-	// 					inputElement.style.color = "red";
-	// 					inputElement.style.borderColor = "red";
-	// 				} else {
-	// 					inputElement.style.color = "green";
-	// 					inputElement.style.borderColor = "lightgreen";
-	// 				}
-	// 			}
-	// 		}
-
-	// 		if (parsedNumbers.length === 1) {
-	// 			if (valorReferencialString.includes("menor")) {
-	// 				if (Number(inputValue) < parsedNumbers[0]) {
-	// 					inputElement.style.color = "green";
-	// 					inputElement.style.borderColor = "lightgreen";
-	// 				} else {
-	// 					inputElement.style.color = "red";
-	// 					inputElement.style.borderColor = "red";
-	// 				}
-	// 			} else if (valorReferencialString.includes("Hasta")) {
-	// 				if (Number(inputValue) > parsedNumbers[0]) {
-	// 					inputElement.style.color = "red";
-	// 					inputElement.style.borderColor = "red";
-	// 				} else {
-	// 					inputElement.style.color = "green";
-	// 					inputElement.style.borderColor = "lightgreen";
-	// 				}
-	// 			}
-	// 		}
-
-	// 		if (parsedNumbers.length === 4) {
-	// 			if (valorReferencialString.includes("Hombre")) {
-	// 				const validRange = personGenre === "M" ? [parsedNumbers[0], parsedNumbers[1]] : [parsedNumbers[2], parsedNumbers[3]];
-	// 				if (Number(inputValue) < validRange[0] || Number(inputValue) > validRange[1]) {
-	// 					inputElement.style.color = "red";
-	// 					inputElement.style.borderColor = "red";
-	// 				} else {
-	// 					inputElement.style.color = "green";
-	// 					inputElement.style.borderColor = "lightgreen";
-	// 				}
-	// 			} else if (valorReferencialString.includes("Adulto")) {
-	// 				const validRange = personAge > 17 ? [parsedNumbers[0], parsedNumbers[1]] : [parsedNumbers[2], parsedNumbers[3]];
-	// 				if (Number(inputValue) < validRange[0] || Number(inputValue) > validRange[1]) {
-	// 					inputElement.style.color = "red";
-	// 					inputElement.style.borderColor = "red";
-	// 				} else {
-	// 					inputElement.style.color = "green";
-	// 					inputElement.style.borderColor = "lightgreen";
-	// 				}
-	// 			}
-	// 		}
-
-	// 		if (parsedNumbers.length === 6) {
-	// 			let minRange = Infinity;
-	// 			let maxRange = -Infinity;
-
-	// 			try {
-	// 				const matches = valorReferencialString.match(/(-?\d+(\.\d+)?)\s*x10\^([-+]?\d+)|(-?\d+(\.\d+)?)/g);
-
-	// 				const exponentMatches = valorReferencialString.match(/x10\^([-+]?\d+)/g);
-
-	// 				let exponentFactor = 1;
-
-	// 				if (exponentMatches) {
-	// 					for (const exp of exponentMatches) {
-	// 						const exponent = parseInt(exp.replace("x10^", ""), 10);
-	// 						exponentFactor *= Math.pow(10, exponent);
-	// 					}
-	// 				}
-
-	// 				if (matches) {
-	// 					for (const match of matches) {
-	// 						const matchScience = /(-?\d+(\.\d+)?)\s*x10\^([-+]?\d+)/.exec(match);
-	// 						if (matchScience) {
-	// 							const base = parseFloat(matchScience[1]);
-	// 							const exponent = parseInt(matchScience[3], 10);
-	// 							const value = base * Math.pow(10, exponent);
-	// 							minRange = Math.min(minRange, value);
-	// 							maxRange = Math.max(maxRange, value);
-	// 						} else {
-	// 							const value = parseFloat(match) * exponentFactor;
-	// 							minRange = Math.min(minRange, value);
-	// 							maxRange = Math.max(maxRange, value);
-	// 						}
-	// 					}
-	// 				}
-
-	// 				if (!isNaN(Number(inputValue))) {
-	// 					if (Number(inputValue) < minRange || Number(inputValue) > maxRange) {
-	// 						inputElement.style.color = "red";
-	// 						inputElement.style.borderColor = "red";
-	// 					} else {
-	// 						inputElement.style.color = "green";
-	// 						inputElement.style.borderColor = "lightgreen";
-	// 					}
-	// 				} else {
-	// 					inputElement.style.color = "red";
-	// 					inputElement.style.borderColor = "red";
-	// 				}
-	// 			} catch (error) {
-	// 				console.error("Error al evaluar la fórmula:", error);
-	// 				inputElement.style.color = "red";
-	// 				inputElement.style.borderColor = "red";
-	// 			}
-	// 		}
-
-	// 		if (!inputValue) {
-	// 			inputElement.style.color = "black";
-	// 			inputElement.style.borderColor = "black";
-	// 		}
-
-	// 		section.resultado[index].valor = Number(inputValue);
-
-	// 		await calcularResultados(section, sectionIndex);
-
-	// 		if (section.resultado.length - 1) {
-	// 			await calcularResultados(section, sectionIndex);
-	// 		}
-	// 	}
-	// };
-
 	function handleSection(index: number) {
 		sectionData.value = profilesData.value[index];
 		tableInfo.value = "";
@@ -721,28 +577,6 @@
 					const tableName = table.querySelector("h5");
 					const tableData = table.querySelectorAll("tbody tr");
 					testSections[tableName.innerHTML] = [];
-
-					// tableData.forEach((tr: any) => {
-					// 	const dataRow = {
-					// 		fieldName: "",
-					// 		inputValue: 0,
-					// 		Unit: "",
-					// 	};
-					// 	tr.children.forEach((td: any, i: number) => {
-					// 		if (i === 0) {
-					// 			dataRow.fieldName = td.innerHTML;
-					// 		}
-					// 		if (i === 1) {
-					// 			const inputElement = td.querySelector("input");
-					// 			dataRow.inputValue = inputElement.value;
-					// 		}
-					// 		if (i === 2) {
-					// 			dataRow.Unit = td.innerHTML;
-					// 		}
-					// 	});
-					// 	testSections[tableName.innerHTML].push(dataRow);
-					// 	profileFields.push(dataRow);
-					// });
 
 					tableData.forEach((tr: any) => {
 						const dataRow = {
@@ -1793,9 +1627,9 @@
 					if (parsedNumbers) {
 						switch (parsedNumbers.length) {
 							case 1: {
-								if (valorReferencialString.includes("menor")) {
+								if (valorReferencialString.toLowerCase().includes("menor")) {
 									isValid = numericInput < parsedNumbers[0];
-								} else if (valorReferencialString.includes("Hasta")) {
+								} else if (valorReferencialString.toLowerCase().includes("hasta")) {
 									isValid = numericInput <= parsedNumbers[0];
 								}
 								break;
@@ -1803,7 +1637,7 @@
 
 							case 2: {
 								isValid = validateRange(parsedNumbers[0], parsedNumbers[1]);
-								if (valorReferencialString.includes("Hasta")) {
+								if (valorReferencialString.toLowerCase().includes("hasta")) {
 									isValid = numericInput <= parsedNumbers[1];
 								}
 								break;
@@ -1811,9 +1645,9 @@
 
 							case 4: {
 								let range: [number, number];
-								if (valorReferencialString.includes("Hombre")) {
+								if (valorReferencialString.toLowerCase().includes("hombre")) {
 									range = personGenre === "M" ? [parsedNumbers[0], parsedNumbers[1]] : [parsedNumbers[2], parsedNumbers[3]];
-								} else if (valorReferencialString.includes("Adulto")) {
+								} else if (valorReferencialString.toLowerCase().includes("adulto")) {
 									range = personAge > 17 ? [parsedNumbers[0], parsedNumbers[1]] : [parsedNumbers[2], parsedNumbers[3]];
 								} else {
 									range = [parsedNumbers[0], parsedNumbers[1]];
