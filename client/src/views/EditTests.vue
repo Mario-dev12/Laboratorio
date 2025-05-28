@@ -635,7 +635,7 @@
 								(existingSeccion: { nombre: string }) => existingSeccion.nombre.trim() === seccion.nombre.trim()
 							);
 							if (!existe && seccion.nombre && seccion.camposAgregados.length > 0) {
-								console.log("crear seccion");
+
 								seccion.nombre = seccion.nombre.trim();
 								await tests.createProfileSection(selectedPerfil.value.idProfile, seccion);
 							}
@@ -975,7 +975,6 @@
 
 		if (!seccionRepetida) {
 			seccionesAgregadas.value.push(nuevaSeccion);
-			console.log(seccionesAgregadas.value);
 		}
 	};
 

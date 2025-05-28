@@ -11,6 +11,15 @@ reactiveRepository.readReactives = async () => {
 	}
 };
 
+reactiveRepository.readCampo = async () => {
+	try {
+		const resp = await pool.query(`SELECT * FROM sp_find_all_campo()`);
+		return resp.rows[0].sp_find_all_campo;
+	} catch (error) {
+		throw error;
+	}
+};
+
 reactiveRepository.readReactiveByName = async (name) => {
 	try {
 		const resp = await pool.query(`SELECT * FROM sp_find_reactive_by_name('${name}')`);
@@ -55,10 +64,29 @@ reactiveRepository.updateReactive = async (id, answer) => {
 	}
 };
 
+reactiveRepository.updateCampo = async (id, answer) => {
+	try {
+		console.log('rrrrr', id, answer)
+		const resp = await pool.query(`SELECT * FROM sp_update_campo(${id}, '${answer.nombre}', '${answer.unidad}', '${answer.valor_referencial}', '${answer.calculado}')`);
+		return resp.rows[0].sp_update_campo;
+	} catch (error) {
+		throw error;
+	}
+};
+
 reactiveRepository.deleteReactive = async (id) => {
 	try {
 		const resp = await pool.query(`SELECT * FROM sp_delete_reactive(${id})`);
 		return resp.rows[0].sp_delete_reactive;
+	} catch (error) {
+		throw error;
+	}
+};
+
+reactiveRepository.deleteCampo = async (id) => {
+	try {
+		const resp = await pool.query(`SELECT * FROM sp_delete_campo(${id})`);
+		return resp.rows[0].sp_delete_campo;
 	} catch (error) {
 		throw error;
 	}

@@ -91,6 +91,34 @@
 						</table>
 					</div>
 				</div>
+				<div class="container mt-3">
+					<h2 class="text-center mb-4">Lista de Campos</h2>
+					<div class="table-responsive" style="max-height: 400px; overflow-y: auto">
+						<table class="table table-striped">
+							<thead>
+								<tr>
+									<th>Campo</th>
+									<th>Unidad</th>
+									<th>Valor Referencial</th>
+									<th>Calculado</th>
+									<th>Acciones</th>
+								</tr>
+							</thead>
+							<tbody>
+								<tr v-for="campos in campo" :key="campos.idcampo">
+									<td>{{ campos.nombre }}</td>
+									<td>{{ campos.unidad }}</td>
+									<td>{{ campos.valor_referencial }}</td>
+									<td>{{ campos.calculado }}</td>
+									<td>
+										<i class="fas fa-edit" @click="editCampo(campos)" style="cursor: pointer; margin-right: 10px"></i>
+										<i class="fas fa-trash" @click="deleteCampo(campos.idCampo)" style="cursor: pointer"></i>
+									</td>
+								</tr>
+							</tbody>
+						</table>
+					</div>
+				</div>
 				<AddReactiveModal
 					:is-open="isModalOpen"
 					:reactive="allReactives"
@@ -116,6 +144,12 @@
 					:provider="selectedProvider"
 					@close="isEditProviderModalOpen = false"
 					@update="updateProviderInList" />
+
+				<EditCampoModal
+					:is-open="isEditCampoModalOpen"
+					:campo="selectedCampo"
+					@close="isEditCampoModalOpen = false"
+					@update="updateCampoInList" />
 
 				<EditAllianceModal
 					:is-open="isEditAllianceModalOpen"
@@ -150,6 +184,7 @@
 	import AddProviderModal from "@/components/AddProviderModal.vue";
 	import AddShipmentModal from "@/components/AddShipmentModal.vue";
 	import EditProviderModal from "@/components/EditProviderModal.vue";
+	import EditCampoModal from "@/components/EditCampoModal.vue";
 	import EditAllianceModal from "@/components/EditAllianceModal.vue";
 	import { providerStore } from "@/stores/providerStore";
 	import { allianceStore } from "@/stores/allianceStore";
@@ -160,6 +195,7 @@
 	const reactives = ref();
 	const providers = ref();
 	const allReactives = ref();
+	const campo = ref();
 	const exams = ref();
 	const reactivesStore = reactiveStore();
 	const providersStore = providerStore();
@@ -171,9 +207,11 @@
 	const selectedReactive = ref();
 	const selectedAlliance = ref();
 	const selectedProvider = ref();
+	const selectedCampo = ref();
 	const isEditModalOpen = ref(false);
 	const isEditAllianceModalOpen = ref(false);
 	const isEditProviderModalOpen = ref(false);
+	const isEditCampoModalOpen = ref(false);
 	const router = useRouter();
 	const toast = ref({
 		isOpen: false,
@@ -182,21 +220,23 @@
 	});
 
 	onMounted(async () => {
-		[reactives.value, providers.value, allReactives.value, exams.value] = await Promise.all([
+		[reactives.value, providers.value, allReactives.value, exams.value, campo.value] = await Promise.all([
 			reactivesStore.fetchReactiveByProvider(),
 			providersStore.fecthProviders(),
 			reactivesStore.fecthReactives(),
 			examsStore.fecthExams(),
+			reactivesStore.fecthCampo(),
 		]);
 	});
 
 	router.beforeEach(async (to, from, next) => {
 		if (to.name === "Reactivos") {
-			[reactives.value, providers.value, allReactives.value, exams.value] = await Promise.all([
+			[reactives.value, providers.value, allReactives.value, exams.value, campo.value] = await Promise.all([
 				reactivesStore.fetchReactiveByProvider(),
 				providersStore.fecthProviders(),
 				reactivesStore.fecthReactives(),
 				examsStore.fecthExams(),
+				reactivesStore.fecthCampo(),
 			]);
 		}
 		next();
@@ -225,6 +265,12 @@
 		isEditProviderModalOpen.value = true;
 	};
 
+	const editCampo = (campo: any) => {
+		selectedCampo.value = { ...campo };
+		selectedCampo.value = campo;
+		isEditCampoModalOpen.value = true;
+	};
+
 	const updateReactiveInList = async (updatedReactive: Reactive) => {
 		const id = updatedReactive.idreactive;
 		await reactivesStore.updateReactive(id, updatedReactive);
@@ -232,6 +278,7 @@
 		reactives.value = await reactivesStore.fetchReactiveByProvider();
 		providers.value = await providersStore.fecthProviders();
 		allReactives.value = await reactivesStore.fecthReactives();
+		campo.value = await reactivesStore.fecthCampo();
 	};
 
 	const updateAllianceInList = async (updatedAlliance: Alliance) => {
@@ -241,6 +288,7 @@
 		reactives.value = await reactivesStore.fetchReactiveByProvider();
 		providers.value = await providersStore.fecthProviders();
 		allReactives.value = await reactivesStore.fecthReactives();
+		campo.value = await reactivesStore.fecthCampo();
 	};
 
 	const updateProviderInList = async (updatedProvider: Provider) => {
@@ -250,6 +298,17 @@
 		reactives.value = await reactivesStore.fetchReactiveByProvider();
 		providers.value = await providersStore.fecthProviders();
 		allReactives.value = await reactivesStore.fecthReactives();
+		campo.value = await reactivesStore.fecthCampo();
+	};
+
+	const updateCampoInList = async (updatedCampo: any) => {
+		const id = updatedCampo.oId;
+		await reactivesStore.updateCampo(id, updatedCampo);
+		showToast("Campo actualizado correctamente");
+		reactives.value = await reactivesStore.fetchReactiveByProvider();
+		providers.value = await providersStore.fecthProviders();
+		allReactives.value = await reactivesStore.fecthReactives();
+		campo.value = await reactivesStore.fecthCampo();
 	};
 
 	const deleteReactive = async (id: number | string) => {
@@ -258,6 +317,7 @@
 		reactives.value = await reactivesStore.fetchReactiveByProvider();
 		providers.value = await providersStore.fecthProviders();
 		allReactives.value = await reactivesStore.fecthReactives();
+		campo.value = await reactivesStore.fecthCampo();
 	};
 
 	const deleteAlliance = async (id: number | string) => {
@@ -266,6 +326,7 @@
 		reactives.value = await reactivesStore.fetchReactiveByProvider();
 		providers.value = await providersStore.fecthProviders();
 		allReactives.value = await reactivesStore.fecthReactives();
+		campo.value = await reactivesStore.fecthCampo();
 	};
 
 	const deleteProvider = async (id: number | string) => {
@@ -274,6 +335,16 @@
 		reactives.value = await reactivesStore.fetchReactiveByProvider();
 		providers.value = await providersStore.fecthProviders();
 		allReactives.value = await reactivesStore.fecthReactives();
+		campo.value = await reactivesStore.fecthCampo();
+	};
+
+	const deleteCampo = async (id: number | string) => {
+		await reactivesStore.deleteCampo(id);
+		showToast("Campo borrado correctamente");
+		reactives.value = await reactivesStore.fetchReactiveByProvider();
+		providers.value = await providersStore.fecthProviders();
+		allReactives.value = await reactivesStore.fecthReactives();
+		campo.value = await reactivesStore.fecthCampo();
 	};
 
 	const addReactiveToList = async (newReactive: Reactive) => {
@@ -282,6 +353,7 @@
 		reactives.value = await reactivesStore.fetchReactiveByProvider();
 		providers.value = await providersStore.fecthProviders();
 		allReactives.value = await reactivesStore.fecthReactives();
+		campo.value = await reactivesStore.fecthCampo();
 	};
 
 	const addProviderToList = async (newProvider: Provider) => {
@@ -290,6 +362,7 @@
 		reactives.value = await reactivesStore.fetchReactiveByProvider();
 		providers.value = await providersStore.fecthProviders();
 		allReactives.value = await reactivesStore.fecthReactives();
+		campo.value = await reactivesStore.fecthCampo();
 	};
 
 	const addShipmentToList = async (newShipment: Alliance) => {
@@ -298,6 +371,7 @@
 		reactives.value = await reactivesStore.fetchReactiveByProvider();
 		providers.value = await providersStore.fecthProviders();
 		allReactives.value = await reactivesStore.fecthReactives();
+		campo.value = await reactivesStore.fecthCampo();
 	};
 
 	const showModal = async () => {

@@ -12,6 +12,16 @@ reactiveController.readReactives = async (req, res) => {
     }
 }
 
+reactiveController.readCampo = async (req, res) => {
+  try {
+    const answer = await reactiveServices.readCampo()
+
+    res.send(answer)
+  } catch (error) {
+    return res.status(400).send(error.stack)
+  }
+}
+
 reactiveController.readReactivesQuantity = async (req, res) => {
   try {
     const answer = await reactiveServices.readReactivesQuantity()
@@ -63,11 +73,33 @@ reactiveController.updateReactive = async (req, res) => {
   }
 }
 
+reactiveController.updateCampo = async (req, res) => {
+  const { id } = req.params
+
+  try {
+    const answer = await reactiveServices.updateCampo(id, req.body)
+    res.send(answer)
+  } catch (error) {
+    return res.status(400).send(error.message)
+  }
+}
+
 reactiveController.deleteReactive = async (req, res) => {
   const { id } = req.params
 
   try {
     const answer = await reactiveServices.deleteReactive(id)
+    res.send(answer)
+  } catch (error) {
+    return res.status(400).send(error.stack)
+  }
+}
+
+reactiveController.deleteCampo = async (req, res) => {
+  const { id } = req.params
+
+  try {
+    const answer = await reactiveServices.deleteCampo(id)
     res.send(answer)
   } catch (error) {
     return res.status(400).send(error.stack)
