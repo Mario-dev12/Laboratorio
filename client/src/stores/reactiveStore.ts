@@ -13,6 +13,11 @@ export const reactiveStore = defineStore("reactive", {
 			this.reactives = response;
 			return this.reactives;
 		},
+		async fecthCampo() {
+			const response = await axiosRepository.getAllCampo<Reactive>("reactive");
+			this.reactives = response;
+			return this.reactives;
+		},
 		async fetchReactiveById(id: string | number) {
 			const response = await axiosRepository.getById<Reactive>("reactive", id);
 			this.reactives = response;
@@ -38,8 +43,16 @@ export const reactiveStore = defineStore("reactive", {
 			this.reactives = response;
 			return this.reactives;
 		},
+		async updateCampo(id: string | number, data: Reactive) {
+			const response = await axiosRepository.updateCampo<Reactive>("reactive", id, data);
+			this.reactives = response;
+			return this.reactives;
+		},
 		async deleteReactive(id: string | number) {
 			await axiosRepository.delete("reactive", id);
+		},
+		async deleteCampo(id: string | number) {
+			await axiosRepository.deleteCampo("reactive", id);
 		},
 	},
 });

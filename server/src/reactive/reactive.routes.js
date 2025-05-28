@@ -11,5 +11,9 @@ reactiveRouter.post('/', reactiveController.createReactive)
 reactiveRouter.put('/:id', reactiveController.updateReactive)
 reactiveRouter.delete('/:id', reactiveController.deleteReactive)
 
+// Campo
+reactiveRouter.get('/campo', reactiveController.readCampo)
+reactiveRouter.put('/campo/:id', reactiveController.updateCampo)
+reactiveRouter.delete('/campo/:id', reactiveController.deleteCampo)
 
 export default reactiveRouter

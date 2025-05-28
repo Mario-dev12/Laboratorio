@@ -21,6 +21,32 @@ begin
 end;
 $BODY$;
 
+CREATE OR REPLACE FUNCTION sp_find_all_campo(
+	)
+    RETURNS json[]
+    LANGUAGE 'plpgsql'
+    COST 100
+    VOLATILE PARALLEL UNSAFE
+AS $BODY$
+declare 
+	v_json_resp json[];
+begin
+	select array(
+        select jsonb_build_object(
+			'idCampo', a.idCampo,
+			'nombre', a.nombre,
+            'unidad', a.unidad,
+			'valor_referencial', a.valor_referencial,
+            'calculado', a.calculado,
+			'createdDate', a.createdDate,
+            'modifiedDate', a.modifiedDate
+		)
+		from campo a
+        ) ::json[] into v_json_resp;
+		return v_json_resp;
+end;
+$BODY$;
+
 CREATE OR REPLACE FUNCTION sp_find_all_bacterium(
 	)
     RETURNS json[]
@@ -661,6 +687,20 @@ begin
 end;
 $BODY$;
 
+CREATE OR REPLACE FUNCTION sp_delete_campo(
+	p_id integer)
+    RETURNS character varying
+    LANGUAGE 'plpgsql'
+    COST 100
+    VOLATILE PARALLEL UNSAFE
+AS $BODY$
+begin
+	delete from campo
+	where idCampo = p_id;
+	return 'Se ha borrado la campo correctamente';
+end;
+$BODY$;
+
 CREATE OR REPLACE FUNCTION sp_delete_users(
 	p_id integer)
     RETURNS character varying
@@ -1073,6 +1113,47 @@ begin
 		'idReactive', p_id,
 		'name', v_name,
 		'total', v_total,
+		'createdDate', v_createdDate,
+		'modifiedDate', v_modifiedDate
+	);
+end;
+$BODY$;
+
+CREATE OR REPLACE FUNCTION sp_update_campo(
+	p_id integer,
+	p_nombre character varying,
+    p_unidad character varying,
+    p_valor_referencial character varying,
+	p_calculado character varying)
+    RETURNS json
+    LANGUAGE 'plpgsql'
+    COST 100
+    VOLATILE PARALLEL UNSAFE
+AS $BODY$
+declare
+	v_nombre                              character varying;
+	v_unidad                             character varying;
+    v_valor_referencial                             character varying;
+    v_calculado                             character varying;
+	v_createdDate                       TIMESTAMP;
+	v_modifiedDate                      TIMESTAMP;
+	v_id                                    integer;
+begin
+	update campo
+	set nombre = p_nombre, unidad = p_unidad, valor_referencial = p_valor_referencial, calculado = p_calculado, modifiedDate = now()
+	where idCampo = p_id;
+	select u.nombre into v_nombre from campo u where idCampo = p_id;
+	select u.unidad into v_unidad from campo u where idCampo = p_id;
+    select u.valor_referencial into v_valor_referencial from campo u where idCampo = p_id;
+	select u.calculado into v_calculado from campo u where idCampo = p_id;
+	select u.createdDate into v_createdDate from campo u where idCampo = p_id;
+	select u.modifiedDate into v_modifiedDate from campo u where idCampo = p_id;
+	return json_build_object(
+		'idCampo', p_id,
+		'nombre', v_nombre,
+		'unidad', v_unidad,
+        'valor_referencial', v_valor_referencial,
+		'calculado', v_calculado,
 		'createdDate', v_createdDate,
 		'modifiedDate', v_modifiedDate
 	);
