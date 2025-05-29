@@ -1,2 +1,76 @@
-/* For information on how to create your own theme, please see:
-http://ionicframework.com/docs/theming/ */
+/* variables.css */  
+
+/* ------------------------------  
+   Global Styles  
+------------------------------ */  
+
+:root {  
+    --ion-color-primary: #3880ff;  /* Color principal */  
+    --ion-color-secondary: #3dc2ff; /* Color secundario */  
+    --ion-color-tertiary: #4b0082;  /* Color terciario */  
+    --ion-color-success: #10dc60;   /* Color de éxito */  
+    --ion-color-warning: #ffc409;    /* Color de advertencia */  
+    --ion-color-danger: #f04141;     /* Color de peligro */  
+    --ion-color-light: #ffffff;      /* Color de fondo claro */  
+    --ion-color-medium: #ebebeb;     /* Color medio */  
+    --ion-color-dark: #222428;       /* Color oscuro */  
+
+    /* Personalización de inputs */  
+    --ion-input-background: #fff;     /* Fondo blanco para inputs */  
+    --ion-input-color: #000;          /* Color de texto negro */  
+    --ion-input-border-color: #ccc;   /* Borde gris claro */  
+
+    /* Personalización de select */  
+    --ion-select-background: #fff;     /* Fondo blanco para selects */  
+    --ion-select-color: #000;          /* Color de texto negro */  
+    --ion-select-border-color: #ccc;   /* Borde gris claro */  
+    --icon-color: #000;                /* Color negro para el icono de la flecha */  
+    
+    /* Personalización de radio buttons y checkboxes */  
+    --ion-color-background: #fff;   /* Fondo blanco para radio y checkbox */  
+    --ion-color: #3880ff;           /* Color para radio y checkbox seleccionados */  
+}  
+
+/* Estilos para inputs, selects y otros elementos de formulario */  
+input,  
+textarea,  
+ion-input,  
+select,  
+ion-select,  
+ion-radio,  
+ion-checkbox {  
+    background-color: var(--ion-input-background); /* Fondo blanco */  
+    color: var(--ion-input-color);                 /* Texto negro */  
+    border: 1px solid var(--ion-input-border-color); /* Borde gris */  
+    border-radius: 4px;                            /* Bordes redondeados */  
+}  
+
+/* Cambiar el color de icono para los selects */  
+ion-select {  
+    --icon-color: var(--icon-color); /* Color negro para el icono de la flecha */  
+}  
+
+/* Para selects HTML tradicionales */  
+select {  
+    appearance: none;                  /* Eliminar flecha por defecto */  
+    background-color: var(--ion-input-background); /* Fondo blanco */  
+    color: var(--ion-input-color);     /* Texto negro */  
+    border: 1px solid var(--ion-input-border-color);    /* Borde gris */  
+    border-radius: 4px;                /* Bordes redondeados */  
+}  
+
+body {  
+    --ion-color-scheme: light; 
+}  
+
+input[type="number"] {  
+    -moz-appearance: textfield; /* Firefox */  
+}  
+
+input[type="number"]::-webkit-inner-spin-button,  
+input[type="number"]::-webkit-outer-spin-button {  
+    -webkit-appearance: none; /* Chrome y Safari */  
+    margin: 0; /* Sin margen */  
+}  
+
+/* Ejemplo de estilo general que puedas extender en tu aplicación */

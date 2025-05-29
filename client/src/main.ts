@@ -40,9 +40,6 @@ const pinia = createPinia();
 
 const app = createApp(App).use(IonicVue).use(router).use(pinia);  
 
-// Forzar el modo claro  
-document.body.setAttribute('color-theme', 'light');  
-
 router.isReady().then(() => {  
     // Redirige a /home al iniciar la aplicación  
     router.push({ name: 'Home' });  
