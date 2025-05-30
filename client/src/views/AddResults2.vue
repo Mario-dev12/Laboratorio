@@ -87,11 +87,14 @@
 												<td ref="campoNames" class="align-middle p-0">{{ item.nombre }}</td>
 												<td class="align-middle inputElement p-0">
 													<input
+														v-if="!item.calculado"
 														class="p-0"
 														type="text"
 														ref="campoResult"
 														v-model="item.valor"
 														@change="checkInputValue($event, index, section, i)" />
+
+													<input v-else disabled class="p-0" type="text" v-model="item.valor" ref="campoResult" />
 												</td>
 												<td class="unidad align-middle p-0">{{ item.unidad }}</td>
 												<td class="valor-referencial align-middle p-0" ref="valorReferencial">
@@ -423,6 +426,7 @@
 	});
 
 	const checkInputValue = async (event: Event, index: number, section: any, sectionIndex: number) => {
+		console.log(section);
 		const inputElement = event.target as HTMLInputElement;
 		const inputValue = inputElement.value.replace(",", ".");
 		const personAge = order.value.age;
@@ -537,7 +541,17 @@
 
 		section.resultado[index].valor = numericInput;
 
-		await calcularResultados(section, sectionIndex);
+		// await calcularResultados(section, sectionIndex);
+
+		//Si campoCalculadoLlenado es true, se llenó o cambió un campo calculado y entra de nuevo en calcularResultados
+		let campoCalculadoLlenado = await calcularResultados(section, sectionIndex);
+		console.log(campoCalculadoLlenado);
+
+		do {
+			campoCalculadoLlenado = await calcularResultados(section, sectionIndex);
+			console.log(`Current result: ${campoCalculadoLlenado}`);
+		} while (campoCalculadoLlenado);
+
 		if (section.resultado.length > 1) {
 			await calcularResultados(section, sectionIndex);
 		}
@@ -1476,15 +1490,19 @@
 
 	const aplicarFormula = (formula: string, valores: { [x: string]: any }) => {
 		const parser = new Parser();
+		console.log(valores);
 
 		let formulaNormalizada = formula;
+		//valore normalizados es una copia de valores
 		const valoresNormalizados: { [key: string]: any } = { ...valores };
 
+		//mapeoNombresComplejos es un objeto donde el key es el nombre original y el valor es el nombre modificado
 		const mapeoNombresComplejos: { [nombreOriginal: string]: string } = {};
 
 		const invalidVarCharRegex = /[^\w]/g;
 
 		for (const key in valores) {
+			//modifica el nombre del campo,
 			if (Object.prototype.hasOwnProperty.call(valores, key) && invalidVarCharRegex.test(key)) {
 				const nombreNormalizado = key.replace(invalidVarCharRegex, "_");
 				mapeoNombresComplejos[key] = nombreNormalizado;
@@ -1495,6 +1513,7 @@
 		}
 
 		for (const nombreOriginal in mapeoNombresComplejos) {
+			//cambia los nombres en la formula/calculado por los nombres modificados en el for anterior (nombreNormalizado)
 			if (Object.prototype.hasOwnProperty.call(mapeoNombresComplejos, nombreOriginal)) {
 				const nombreNormalizado = mapeoNombresComplejos[nombreOriginal];
 
@@ -1575,121 +1594,133 @@
 	};
 
 	const calcularResultados = async (seccion: { resultado: any[] }, sectionIndex: number) => {
-		for (let i = 0; i < 2; i++) {
-			const valores: Record<string, any> = {};
+		// for (let i = 0; i < 2; i++) {
 
-			seccion.resultado.forEach((item: { valor: any; nombre: string | number }) => {
-				if (item.valor) {
-					valores[item.nombre] = item.valor;
+		//campoCalculadoLlenado es el valor que regresa la funcion como true si un campo calculado cambia o se llena
+		let campoCalculadoLlenado: boolean = false;
+		//valores es un objeto con el nombre del campo y su valor, si tiene un valor
+		const valores: Record<string, any> = {};
+		console.log("seccion", seccion.resultado);
+
+		seccion.resultado.forEach((item: { valor: any; nombre: string | number }) => {
+			if (item.valor) {
+				valores[item.nombre] = item.valor;
+			}
+		});
+		console.log("objeto con cada campo que tiene un valor", valores);
+
+		const currentSection = sectionRef.value[sectionIndex];
+		const inputElements = currentSection.querySelectorAll("input");
+
+		seccion.resultado.forEach((item: { calculado: string; valor: any; restricciones: any }, index: number) => {
+			if (item.calculado) {
+				//valorAnterior es para chequear si el valor del campo calculado cambia despues de aplicarFormula
+				const valorAnterior = item.valor;
+				for (const restriccion of item.restricciones) {
+					aplicarRestriccion(restriccion, valores);
 				}
-			});
+				item.valor = aplicarFormula(item.calculado, valores);
 
-			const currentSection = sectionRef.value[sectionIndex];
-			const inputElements = currentSection.querySelectorAll("input");
+				//chequear si se llena un campo calculado y cambia su valor anterior para que no entre en loop infinito
+				if (item.valor && valorAnterior != item.valor) {
+					campoCalculadoLlenado = true;
+					const inputElement = inputElements[index];
+					const inputValue = item.valor;
+					const personAge = order.value.age;
+					const personGenre = order.value.genre;
+					const valorReferencialString = seccion.resultado[index].valor_referencial;
+					const valorReferencialNumber = valorReferencialString.match(/(\d+(?:,\d+)?)/g);
+					const parsedNumbers = valorReferencialNumber?.map((numStr: any) => parseFloat(numStr.replace(",", ".")));
 
-			seccion.resultado.forEach((item: { calculado: string; valor: any; restricciones: any }, index: number) => {
-				if (item.calculado) {
-					for (const restriccion of item.restricciones) {
-						aplicarRestriccion(restriccion, valores);
-					}
-					item.valor = aplicarFormula(item.calculado, valores);
+					const numericInput = parseFloat(inputValue);
 
-					if (item.valor) {
-						const inputElement = inputElements[index];
-						const inputValue = item.valor;
-						const personAge = order.value.age;
-						const personGenre = order.value.genre;
-						const valorReferencialString = seccion.resultado[index].valor_referencial;
-						const valorReferencialNumber = valorReferencialString.match(/(\d+(?:,\d+)?)/g);
-						const parsedNumbers = valorReferencialNumber?.map((numStr: any) => parseFloat(numStr.replace(",", ".")));
+					const setInputColor = (isValid: boolean) => {
+						inputElement.style.color = isValid ? "green" : "red";
+						inputElement.style.borderColor = isValid ? "lightgreen" : "red";
+					};
 
-						const numericInput = parseFloat(inputValue);
-
-						const setInputColor = (isValid: boolean) => {
-							inputElement.style.color = isValid ? "green" : "red";
-							inputElement.style.borderColor = isValid ? "lightgreen" : "red";
-						};
-
-						const parseScientific = (str: string) => {
-							const match = /(-?\d+(\.\d+)?)\s*x10\^([-+]?\d+)/.exec(str);
-							if (match) {
-								return parseFloat(match[1]) * Math.pow(10, parseInt(match[3], 10));
-							}
-							return parseFloat(str);
-						};
-
-						if (isNaN(numericInput)) {
-							seccion.resultado[index].valor = null;
-							return;
+					const parseScientific = (str: string) => {
+						const match = /(-?\d+(\.\d+)?)\s*x10\^([-+]?\d+)/.exec(str);
+						if (match) {
+							return parseFloat(match[1]) * Math.pow(10, parseInt(match[3], 10));
 						}
+						return parseFloat(str);
+					};
 
-						const validateRange = (min: number, max: number): boolean => {
-							return numericInput >= min && numericInput <= max;
-						};
+					if (isNaN(numericInput)) {
+						seccion.resultado[index].valor = null;
+						return;
+					}
 
-						let isValid = true;
+					const validateRange = (min: number, max: number): boolean => {
+						return numericInput >= min && numericInput <= max;
+					};
 
-						if (parsedNumbers) {
-							switch (parsedNumbers.length) {
-								case 1: {
-									if (valorReferencialString.includes("menor")) {
-										isValid = numericInput < parsedNumbers[0];
-									} else if (valorReferencialString.includes("Hasta")) {
-										isValid = numericInput <= parsedNumbers[0];
+					let isValid = true;
+
+					if (parsedNumbers) {
+						switch (parsedNumbers.length) {
+							case 1: {
+								if (valorReferencialString.includes("menor")) {
+									isValid = numericInput < parsedNumbers[0];
+								} else if (valorReferencialString.includes("Hasta")) {
+									isValid = numericInput <= parsedNumbers[0];
+								}
+								break;
+							}
+
+							case 2: {
+								isValid = validateRange(parsedNumbers[0], parsedNumbers[1]);
+								if (valorReferencialString.includes("Hasta")) {
+									isValid = numericInput <= parsedNumbers[1];
+								}
+								break;
+							}
+
+							case 4: {
+								let range: [number, number];
+								if (valorReferencialString.includes("Hombre")) {
+									range = personGenre === "M" ? [parsedNumbers[0], parsedNumbers[1]] : [parsedNumbers[2], parsedNumbers[3]];
+								} else if (valorReferencialString.includes("Adulto")) {
+									range = personAge > 17 ? [parsedNumbers[0], parsedNumbers[1]] : [parsedNumbers[2], parsedNumbers[3]];
+								} else {
+									range = [parsedNumbers[0], parsedNumbers[1]];
+								}
+								isValid = validateRange(range[0], range[1]);
+								break;
+							}
+
+							case 6: {
+								let minRange = Infinity;
+								let maxRange = -Infinity;
+
+								const matches = valorReferencialString.match(/(-?\d+(\.\d+)?\s*x10\^[-+]?\d+)|(-?\d+(\.\d+)?)/g);
+
+								matches?.forEach((matchStr: any) => {
+									const val = parseScientific(matchStr);
+									if (val !== undefined) {
+										minRange = Math.min(minRange, val);
+										maxRange = Math.max(maxRange, val);
 									}
-									break;
-								}
+								});
 
-								case 2: {
-									isValid = validateRange(parsedNumbers[0], parsedNumbers[1]);
-									if (valorReferencialString.includes("Hasta")) {
-										isValid = numericInput <= parsedNumbers[1];
-									}
-									break;
-								}
+								isValid = validateRange(minRange, maxRange);
+								break;
+							}
 
-								case 4: {
-									let range: [number, number];
-									if (valorReferencialString.includes("Hombre")) {
-										range = personGenre === "M" ? [parsedNumbers[0], parsedNumbers[1]] : [parsedNumbers[2], parsedNumbers[3]];
-									} else if (valorReferencialString.includes("Adulto")) {
-										range = personAge > 17 ? [parsedNumbers[0], parsedNumbers[1]] : [parsedNumbers[2], parsedNumbers[3]];
-									} else {
-										range = [parsedNumbers[0], parsedNumbers[1]];
-									}
-									isValid = validateRange(range[0], range[1]);
-									break;
-								}
-
-								case 6: {
-									let minRange = Infinity;
-									let maxRange = -Infinity;
-
-									const matches = valorReferencialString.match(/(-?\d+(\.\d+)?\s*x10\^[-+]?\d+)|(-?\d+(\.\d+)?)/g);
-
-									matches?.forEach((matchStr: any) => {
-										const val = parseScientific(matchStr);
-										if (val !== undefined) {
-											minRange = Math.min(minRange, val);
-											maxRange = Math.max(maxRange, val);
-										}
-									});
-
-									isValid = validateRange(minRange, maxRange);
-									break;
-								}
-
-								default: {
-									break;
-								}
+							default: {
+								break;
 							}
 						}
-						setInputColor(isValid);
-						seccion.resultado[index].valor = numericInput;
 					}
+					setInputColor(isValid);
+					seccion.resultado[index].valor = numericInput;
 				}
-			});
-		}
+			}
+		});
+		//si un campo calculado cambia o se llena por primera vez esta variable regresa true y vuelve a correr calcularResultados
+		return campoCalculadoLlenado;
+		// }
 	};
 </script>
 
