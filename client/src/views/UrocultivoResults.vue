@@ -5,38 +5,38 @@
 				<div class="info" ref="headerPatientInfo">
 					<div class="header">
 						<div class="row">
-							<div class="col text-center">
-								<img src="/images/laboratorio.png" alt="" style="width: 55%" />
+							<div class="col-5 text-center">
+								<img src="/images/11.png" alt="" style="width: 70%" />
 							</div>
-							<div class="col text-center">
-								<img src="/images/direccion.png" alt="" style="width: 80%" />
+							<div class="col-4 text-center">  
+								<img src="/images/direccionPDF.png" alt="" style="width: 80%" />
 							</div>
 						</div>
 					</div>
 					<div class="patient-info">
 						<div class="border-bottom border-black mt-1"></div>
-						<div class="row mt-2">
-							<div class="col">
+						<div class="mt-1 text-center d-flex">
+							<div class="me-4">
 								<div class="d-inline fw-bold">Paciente:</div>
 								{{ profile?.firstName }} {{ profile?.lastName }}
 							</div>
-							<div class="col">
+							<div class="me-4">
 								<div class="d-inline fw-bold">CI:</div>
 								{{ profile?.ci }}
 							</div>
-							<div v-show="profile?.doctor" class="col">
+							<div v-show="profile?.doctor" class="me-4">
 								<div class="d-inline fw-bold">Dr:</div>
 								{{ profile?.doctor }}
 							</div>
-							<div class="col">
+							<div class="me-4">
 								<div class="d-inline fw-bold">Edad:</div>
 								{{ profile?.age }}
 							</div>
-							<div class="col">
+							<div class="me-4">
 								<div class="d-inline fw-bold">Sexo:</div>
 								{{ profile?.genre === "M" ? "Masculino" : "Femenino" }}
 							</div>
-							<div class="col">
+							<div class="me-4">
 								<div class="d-inline fw-bold">Fecha:</div>
 								{{ day }}/{{ month }}/{{ year }}
 							</div>
@@ -44,7 +44,7 @@
 					</div>
 				</div>
 				<div class="bacteriologico" ref="bacteriologico">
-					<h3 class="text-center mt-5 mb-2">Estudio Bacteriológico</h3>
+					<h3 class="text-center mt-2 size">Estudio Bacteriológico</h3>
 					<div class="row px-2 w-100 m-auto">
 						<div class="col-4 border border-black">Examen:</div>
 						<div class="col-8 border border-black">{{ profileNames ? profileNames[0] : null }}</div>
@@ -80,9 +80,9 @@
 					</div>
 				</div>
 				<div class="Antibiograma" ref="antibiograma">
-					<h3 class="text-center mb-2">Antibiograma</h3>
+					<h3 class="text-center mb-2 size">Antibiograma</h3>
 					<div v-if="resultSensibles" class="sensibles" style="margin-left: 10px">
-						<h5>Sensibles:</h5>
+						<h5 class="title-size">Sensibles:</h5>
 						<div class="row w-100 m-auto" ref="sensibles">
 							<div v-for="(selected, index) in resultSensibles" :key="index" class="col-8 border border-black">
 								<select
@@ -108,7 +108,7 @@
 					</div>
 
 					<div v-else class="sensibles" style="margin-left: 10px">
-						<h5>Sensibles:</h5>
+						<h5 class="title-size">Sensibles:</h5>
 						<div class="row w-100 m-auto" ref="sensibles">
 							<div class="col-8 border border-black" ref="dropdown1">
 								<select class="custom-select" name="germen" id="germen">
@@ -141,7 +141,7 @@
 					</div>
 
 					<div v-if="resultResistentes" class="resistentes" style="margin-left: 10px">
-						<h5>Resistentes:</h5>
+						<h5 class="title-size">Resistentes:</h5>
 						<div class="row w-100 m-auto" ref="resistentes">
 							<div v-for="(selected, index) in resultResistentes" :key="index" class="col-8 border border-black">
 								<select
@@ -671,27 +671,44 @@
 		}
 	};
 
-	const pdfCover = async () => {
-		const profileRefCopy = headerPatientInfo.value.cloneNode(true);
+	const pdfCover = async () => {  
+		const profileRefCopy = headerPatientInfo.value.cloneNode(true);  
 
-		html = profileRefCopy.innerHTML;
+		// Obtiene el HTML del elemento clonado  
+		const html = profileRefCopy.innerHTML;  
 
-		const element = html;
+		// Configuración para html2pdf  
+		const options = {  
+			margin: 6,  
+			image: { type: "jpeg", quality: 0.98 },  
+			html2canvas: { scale: 2 },  
+			jsPDF: { unit: "mm", format: "letter", orientation: "portrait" },  
+		};  
 
-		const filename = `portada.pdf`;
+		const html2pdf = (await import("html2pdf.js")).default;  
 
-		const options = {
-			margin: 6,
-			filename: filename,
-			image: { type: "jpeg", quality: 0.98 },
-			html2canvas: { scale: 2 },
-			jsPDF: { unit: "mm", format: "letter", orientation: "portrait" },
-		};
+		// Genera el Blob en vez de descargar el PDF  
+		const pdfBlob = await html2pdf()  
+			.from(html)  
+			.set(options)  
+			.output('blob');  
 
-		const html2pdf = (await import("html2pdf.js")).default;
+		// Crea una URL para el Blob y lo abre en una nueva ventana para imprimir  
+		const pdfUrl = URL.createObjectURL(pdfBlob);  
+		const printWindow = window.open(pdfUrl);  
 
-		html2pdf().from(element).set(options).save();
-	};
+		if (printWindow) {  
+			printWindow.onload = function () {  
+				printWindow.print();  
+				printWindow.onafterprint = function () {  
+					printWindow.close();  
+					URL.revokeObjectURL(pdfUrl); // Libera el objeto URL  
+				};  
+			};  
+		} else {  
+			console.error("No se pudo abrir la ventana de impresión.");  
+		}  
+	};  
 </script>
 <style scoped>
 	.custom-select {
@@ -728,5 +745,13 @@
 	ion-toast.warning {
 		--background: rgb(219, 248, 0);
 		--color: #323232;
+	}
+
+	.size {
+		font-size: 21px;
+	}
+
+	.title-size {
+		font-size: 17px;
 	}
 </style>
