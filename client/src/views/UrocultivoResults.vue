@@ -166,7 +166,7 @@
 					</div>
 
 					<div v-else class="resistentes" style="margin-left: 10px">
-						<h5>Resistentes:</h5>
+						<h5 class="title-size">Resistentes:</h5>
 						<div class="row w-100 m-auto" ref="resistentes">
 							<div class="col-8 border border-black">
 								<select class="custom-select" name="germen" id="germen">
