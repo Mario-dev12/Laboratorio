@@ -860,15 +860,35 @@
 		const testTitlesDivs = Array.from(element.querySelectorAll(".testTitle"));
 		const profileSection = element.querySelector(".profile-sections") as HTMLElement;
 
-		profileSection.style.display = "block";
+		if (profileSection) {
+			profileSection.style.display = "block";
+		}
 
-		//Revisar si ningun input tiene valor y eliminar ese tbody y su titulo
+		tables.forEach(table => {
+			const filasDeDatos = table.querySelectorAll("tr.rowData");
+
+			filasDeDatos.forEach((fila: Element) => {
+				const celdaNombreCampo = fila.querySelector("td:first-child") as HTMLTableCellElement;
+
+				if (celdaNombreCampo) {
+					let textoActual = celdaNombreCampo.textContent || "";
+					const textoOriginal = textoActual;
+					const regexSufijos = /\s*(?:-\s*)?(?:canino|felino)$/i;
+
+					textoActual = textoActual.replace(regexSufijos, "").trim();
+
+					if (textoActual !== textoOriginal) {
+						celdaNombreCampo.textContent = textoActual;
+					}
+				}
+			});
+		});
+
 		tables.forEach((table, i) => {
 			const tbodies = Array.from(table.querySelectorAll(".sectionData"));
-			//Chequear inputs de la seccion
 			tbodies.forEach((tbody) => {
 				const inputs = Array.from(tbody.querySelectorAll("input"));
-				const sectionInputvalues = inputs.some((input) => input.value);
+				const sectionInputvalues = inputs.some((input) => (input as HTMLInputElement).value);
 
 				if (!sectionInputvalues) {
 					tbody.parentNode?.removeChild(tbody);
@@ -876,7 +896,7 @@
 			});
 
 			const updatedTbodies = Array.from(table.querySelectorAll(".sectionData"));
-			if (!updatedTbodies.length) {
+			if (!updatedTbodies.length && testTitlesDivs[i]) {
 				testTitlesDivs[i].parentNode?.removeChild(testTitlesDivs[i]);
 			}
 		});
@@ -889,16 +909,17 @@
 			}
 		});
 
-		const firstTable = tables[0];
+		if (tables.length > 0) {
+			const firstTable = tables[0];
+			for (let i = 1; i < tables.length; i++) {
+				const currentTable = tables[i];
+				const tbodiesToMove = currentTable.querySelectorAll("tbody");
 
-		for (let i = 1; i < tables.length; i++) {
-			const currentTable = tables[i];
-			const tbodies = currentTable.querySelectorAll("tbody");
-
-			if (tbodies) {
-				tbodies.forEach((tbody) => {
-					firstTable.appendChild(tbody);
-				});
+				if (tbodiesToMove) {
+					tbodiesToMove.forEach((tbody) => {
+						firstTable.appendChild(tbody);
+					});
+				}
 			}
 		}
 	}
