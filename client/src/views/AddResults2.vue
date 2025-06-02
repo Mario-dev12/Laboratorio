@@ -18,10 +18,10 @@
 					<div class="patient-info">
 						<div class="row">  
 							<div class="col-5 text-center">  
-								<img src="/images/11.png" alt="" style="height: 60px" />  
+								<img src="/images/12.png" alt="" style="height: 60px" />  
 							</div>  
 							<div class="col-4 text-center">  
-								<img src="/images/direccionPDF.png" alt="" style="height: 60px" />  
+								<img src="/images/13.png" alt="" style="height: 60px" />  
 							</div>  
 						</div>  
 						<div class="border-bottom border-black"></div>
@@ -815,45 +815,68 @@
 		}
 	};
 
-	const pdfCover = async () => {  
-		const profileRefCopy = profileRef.value.cloneNode(true);  
-		const patientInfoDivCopy = profileRefCopy.querySelector(".patient-info");  
+	const pdfCover = async () => {
+		const profileRefCopy = profileRef.value.cloneNode(true);
+		const patientInfoDivCopy = profileRefCopy.querySelector(".patient-info");
 
-		// Obtiene el HTML del div con la información del paciente  
-		const html = patientInfoDivCopy.innerHTML;  
+		if (patientInfoDivCopy) {
+			const detailsContainer = patientInfoDivCopy.querySelector(".mt-1.text-center.d-flex");
 
-		// Configuración para html2pdf  
-		const options = {  
-			margin: 6,  
-			image: { type: "jpeg", quality: 0.98 },  
-			html2canvas: { scale: 2 },  
-			jsPDF: { unit: "mm", format: "letter", orientation: "portrait" },  
-		};  
+			if (detailsContainer) {
+				detailsContainer.style.display = "flex";
+				detailsContainer.style.flexDirection = "column";
+				detailsContainer.style.alignItems = "flex-start";
 
-		const html2pdf = (await import("html2pdf.js")).default;  
+				detailsContainer.classList.remove("text-center");
 
-		// Genera el Blob en vez de descargar el PDF  
-		const pdfBlob = await html2pdf()  
-			.from(html)  
-			.set(options)  
-			.output('blob');  
+				const detailItems = detailsContainer.children;
+				for (let i = 0; i < detailItems.length; i++) {
+					const item = detailItems[i];
+					if (item instanceof HTMLElement) {
+						item.style.marginRight = "0";
+						item.style.marginBottom = "8px";
+						item.style.textAlign = "left";
+						item.classList.remove("me-3");
+					}
+				}
+			} else {
+				console.warn("Contenedor de detalles (.mt-1.text-center.d-flex) no encontrado en patientInfoDivCopy.");
+			}
+		} else {
+			console.warn(".patient-info no encontrado en profileRefCopy.");
+		}
 
-		// Crea una URL para el Blob y lo abre en una nueva ventana para imprimir  
-		const pdfUrl = URL.createObjectURL(pdfBlob);  
-		const printWindow = window.open(pdfUrl);  
+		const html = patientInfoDivCopy.innerHTML;
 
-		if (printWindow) {  
-			printWindow.onload = function () {  
-				printWindow.print();  
-				printWindow.onafterprint = function () {  
-					printWindow.close();  
-					URL.revokeObjectURL(pdfUrl); // Libera el objeto URL  
-				};  
-			};  
-		} else {  
-			console.error("No se pudo abrir la ventana de impresión.");  
-		}  
-	};  
+		const options = {
+			margin: 6,
+			image: { type: "jpeg", quality: 0.98 },
+			html2canvas: { scale: 2 },
+			jsPDF: { unit: "mm", format: "letter", orientation: "portrait" },
+		};
+
+		const html2pdf = (await import("html2pdf.js")).default;
+
+		const pdfBlob = await html2pdf()
+			.from(html)
+			.set(options)
+			.output('blob');
+
+		const pdfUrl = URL.createObjectURL(pdfBlob);
+		const printWindow = window.open(pdfUrl);
+
+		if (printWindow) {
+			printWindow.onload = function () {
+				printWindow.print();
+				printWindow.onafterprint = function () {
+					printWindow.close();
+					URL.revokeObjectURL(pdfUrl);
+				};
+			};
+		} else {
+			console.error("No se pudo abrir la ventana de impresión.");
+		}
+	};
 
 	async function mergeTables(element: HTMLElement) {
 		const tables = Array.from(element.querySelectorAll("table"));
@@ -866,19 +889,59 @@
 
 		tables.forEach(table => {
 			const filasDeDatos = table.querySelectorAll("tr.rowData");
-
 			filasDeDatos.forEach((fila: Element) => {
 				const celdaNombreCampo = fila.querySelector("td:first-child") as HTMLTableCellElement;
-
 				if (celdaNombreCampo) {
 					let textoActual = celdaNombreCampo.textContent || "";
 					const textoOriginal = textoActual;
-					const regexSufijos = /\s*(?:-\s*)?(?:canino|felino)$/i;
-
+					const regexSufijos = /\s*(?:-\s*)?(?:canino|felino|orina)$/i;
 					textoActual = textoActual.replace(regexSufijos, "").trim();
-
 					if (textoActual !== textoOriginal) {
 						celdaNombreCampo.textContent = textoActual;
+					}
+				}
+			});
+		});
+		const VALOR_MULTIPLICACION_HEMATIES = 1000000;
+
+		tables.forEach(table => {
+			const seccionesData = Array.from(table.querySelectorAll("tbody.sectionData"));
+
+			seccionesData.forEach(tbody => {
+				const tituloSeccionElemento = tbody.querySelector("tr:first-child td h5");
+
+				if (tituloSeccionElemento && tituloSeccionElemento.textContent) {
+					const tituloSeccion = tituloSeccionElemento.textContent.trim().toLowerCase();
+
+					if (tituloSeccion === "hematología completa") {
+						const filasEnSeccion = Array.from(tbody.querySelectorAll("tr.rowData"));
+
+						filasEnSeccion.forEach(fila => {
+							const celdaNombreCampo = fila.querySelector("td:first-child");
+							const celdaInputElement = fila.querySelector("td.inputElement");
+
+							if (celdaNombreCampo && celdaNombreCampo.textContent && celdaInputElement) {
+								const nombreCampo = celdaNombreCampo.textContent.trim().toLowerCase();
+
+								if (nombreCampo === "hematies") {
+									const inputElement = celdaInputElement.querySelector("input") as HTMLInputElement | null;
+
+									if (inputElement) {
+										const valorActualStr = inputElement.value;
+										const valorActualNum = parseFloat(valorActualStr);
+
+										if (!isNaN(valorActualNum)) {
+											const nuevoValor = valorActualNum * VALOR_MULTIPLICACION_HEMATIES;
+											inputElement.value = nuevoValor.toLocaleString('es-ES');
+										} else {
+											console.warn(`El valor para HEMATIES ('${valorActualStr}') no es un número válido y no se multiplicará.`);
+										}
+									} else {
+										console.warn("No se encontró un elemento <input> para HEMATIES en la celda esperada.");
+									}
+								}
+							}
+						});
 					}
 				}
 			});
@@ -914,18 +977,14 @@
 			for (let i = 1; i < tables.length; i++) {
 				const currentTable = tables[i];
 				const tbodiesToMove = currentTable.querySelectorAll("tbody");
-
-				if (tbodiesToMove) {
-					tbodiesToMove.forEach((tbody) => {
-						firstTable.appendChild(tbody);
-					});
-				}
+				tbodiesToMove.forEach((tbody) => {
+					firstTable.appendChild(tbody);
+				});
 			}
 		}
 	}
 
 	const inputToSpan = async (parentElement: HTMLElement) => {
-		//Agarrar inputs y cambiarlos por span o eliminarlos si no contienen valor
 		const rows = parentElement.querySelectorAll(".rowData");
 		rows.forEach((row: Element) => {
 			const input = row.querySelector("input");
