@@ -16,45 +16,45 @@
 				</div>
 				<div ref="profileRef" id="profile">
 					<div class="patient-info">
-						<div class="row">
-							<div class="col text-center">
-								<img src="/images/iconoPDF.png" alt="" style="height: 60px" />
-							</div>
-							<div class="col text-center">
-								<img src="/images/direccionPDF.png" alt="" style="height: 60px" />
-							</div>
-						</div>
+						<div class="row">  
+							<div class="col-5 text-center">  
+								<img src="/images/11.png" alt="" style="height: 60px" />  
+							</div>  
+							<div class="col-4 text-center">  
+								<img src="/images/direccionPDF.png" alt="" style="height: 60px" />  
+							</div>  
+						</div>  
 						<div class="border-bottom border-black"></div>
 						<div class="mt-1 text-center d-flex">
 							<div class="me-3">
-								<div class="d-inline fw-bold">Paciente:</div>
-								{{ order?.firstName }} {{ order?.lastName }}
+								<div class="d-inline fw-bold size">Paciente:</div>
+								<span class="size"> {{ order?.firstName }} {{ order?.lastName }} </span>
 							</div>
 							<div class="me-3">
-								<div class="d-inline fw-bold">CI:</div>
-								{{ order?.ci }}
+								<div class="d-inline fw-bold size">CI:</div>
+								<span class="size"> {{ order?.ci }} </span>
 							</div>
 							<div v-if="order?.doctor" class="me-3">
-								<div class="d-inline fw-bold">Dr:</div>
-								{{ order?.doctor }}
+								<div class="d-inline fw-bold size">Dr:</div>
+								<span class="size"> {{ order?.doctor }} </span>
 							</div>
 							<div class="me-3">
-								<div class="d-inline fw-bold">Edad:</div>
-								{{ order?.age }}
+								<div class="d-inline fw-bold size">Edad:</div>
+								<span class="size"> {{ order?.age }} </span>
 							</div>
 							<div class="me-3">
-								<div class="d-inline fw-bold">Sexo:</div>
-								{{ order?.genre === "M" ? "Masculino" : "Femenino" }}
+								<div class="d-inline fw-bold size">Sexo:</div>
+								<span class="size"> {{ order?.genre === "M" ? "Masculino" : "Femenino" }} </span>
 							</div>
 							<div class="me-3">
-								<div class="d-inline fw-bold">Fecha:</div>
-								{{ day }}/{{ month }}/{{ year }}
+								<div class="d-inline fw-bold size">Fecha:</div>
+								<span class="size"> {{ day }}/{{ month }}/{{ year }} </span>
 							</div>
 						</div>
 					</div>
 
 					<div class="profile-content" v-for="(profile, indx) in profilesData" :key="indx" ref="profileRef2">
-						<div class="profile-sections mt-1" v-show="showProfile[indx]">
+						<div class="profile-sections mt-1 size" v-show="showProfile[indx]">
 							<div class="profile-tables">
 								<div class="table-responsive">
 									<table class="table table-hover table-striped m-0">
@@ -69,7 +69,7 @@
 										<tbody class="testTitle">
 											<tr class="text-center">
 												<td class="p-0" colspan="4">
-													<h4 class="m-0 text-nowrap">{{ profileNamesOrdered[indx] }}</h4>
+													<h4 class="m-0 text-nowrap title-size">{{ profileNamesOrdered[indx] }}</h4>
 												</td>
 											</tr>
 										</tbody>
@@ -80,21 +80,18 @@
 											ref="sectionRef">
 											<tr class="text-center">
 												<td class="p-0" colspan="4">
-													<h5 class="m-0 text-nowrap">{{ key }}</h5>
+													<h5 class="m-0 text-nowrap subtitle-size">{{ key }}</h5>
 												</td>
 											</tr>
 											<tr class="rowData p-0" v-for="(item, index) in (section as Section).resultado" :key="index">
 												<td ref="campoNames" class="align-middle p-0">{{ item.nombre }}</td>
 												<td class="align-middle inputElement p-0">
 													<input
-														v-if="!item.calculado"
 														class="p-0"
 														type="text"
 														ref="campoResult"
 														v-model="item.valor"
 														@change="checkInputValue($event, index, section, i)" />
-
-													<input v-else disabled class="p-0" type="text" v-model="item.valor" ref="campoResult" />
 												</td>
 												<td class="unidad align-middle p-0">{{ item.unidad }}</td>
 												<td class="valor-referencial align-middle p-0" ref="valorReferencial">
@@ -426,7 +423,6 @@
 	});
 
 	const checkInputValue = async (event: Event, index: number, section: any, sectionIndex: number) => {
-		console.log(section);
 		const inputElement = event.target as HTMLInputElement;
 		const inputValue = inputElement.value.replace(",", ".");
 		const personAge = order.value.age;
@@ -819,44 +815,80 @@
 		}
 	};
 
-	const pdfCover = async () => {
-		const profileRefCopy = profileRef.value.cloneNode(true);
-		const patientInfoDivCopy = profileRefCopy.querySelector(".patient-info");
+	const pdfCover = async () => {  
+		const profileRefCopy = profileRef.value.cloneNode(true);  
+		const patientInfoDivCopy = profileRefCopy.querySelector(".patient-info");  
 
-		html = patientInfoDivCopy.innerHTML;
+		// Obtiene el HTML del div con la información del paciente  
+		const html = patientInfoDivCopy.innerHTML;  
 
-		const element = html;
+		// Configuración para html2pdf  
+		const options = {  
+			margin: 6,  
+			image: { type: "jpeg", quality: 0.98 },  
+			html2canvas: { scale: 2 },  
+			jsPDF: { unit: "mm", format: "letter", orientation: "portrait" },  
+		};  
 
-		const filename = `portada.pdf`;
-		profileName.value = `portada.pdf`;
+		const html2pdf = (await import("html2pdf.js")).default;  
 
-		const options = {
-			margin: 6,
-			filename: filename,
-			image: { type: "jpeg", quality: 0.98 },
-			html2canvas: { scale: 2 },
-			jsPDF: { unit: "mm", format: "letter", orientation: "portrait" },
-		};
+		// Genera el Blob en vez de descargar el PDF  
+		const pdfBlob = await html2pdf()  
+			.from(html)  
+			.set(options)  
+			.output('blob');  
 
-		const html2pdf = (await import("html2pdf.js")).default;
+		// Crea una URL para el Blob y lo abre en una nueva ventana para imprimir  
+		const pdfUrl = URL.createObjectURL(pdfBlob);  
+		const printWindow = window.open(pdfUrl);  
 
-		html2pdf().from(element).set(options).save();
-	};
+		if (printWindow) {  
+			printWindow.onload = function () {  
+				printWindow.print();  
+				printWindow.onafterprint = function () {  
+					printWindow.close();  
+					URL.revokeObjectURL(pdfUrl); // Libera el objeto URL  
+				};  
+			};  
+		} else {  
+			console.error("No se pudo abrir la ventana de impresión.");  
+		}  
+	};  
 
 	async function mergeTables(element: HTMLElement) {
 		const tables = Array.from(element.querySelectorAll("table"));
 		const testTitlesDivs = Array.from(element.querySelectorAll(".testTitle"));
 		const profileSection = element.querySelector(".profile-sections") as HTMLElement;
 
-		profileSection.style.display = "block";
+		if (profileSection) {
+			profileSection.style.display = "block";
+		}
 
-		//Revisar si ningun input tiene valor y eliminar ese tbody y su titulo
+		tables.forEach(table => {
+			const filasDeDatos = table.querySelectorAll("tr.rowData");
+
+			filasDeDatos.forEach((fila: Element) => {
+				const celdaNombreCampo = fila.querySelector("td:first-child") as HTMLTableCellElement;
+
+				if (celdaNombreCampo) {
+					let textoActual = celdaNombreCampo.textContent || "";
+					const textoOriginal = textoActual;
+					const regexSufijos = /\s*(?:-\s*)?(?:canino|felino)$/i;
+
+					textoActual = textoActual.replace(regexSufijos, "").trim();
+
+					if (textoActual !== textoOriginal) {
+						celdaNombreCampo.textContent = textoActual;
+					}
+				}
+			});
+		});
+
 		tables.forEach((table, i) => {
 			const tbodies = Array.from(table.querySelectorAll(".sectionData"));
-			//Chequear inputs de la seccion
 			tbodies.forEach((tbody) => {
 				const inputs = Array.from(tbody.querySelectorAll("input"));
-				const sectionInputvalues = inputs.some((input) => input.value);
+				const sectionInputvalues = inputs.some((input) => (input as HTMLInputElement).value);
 
 				if (!sectionInputvalues) {
 					tbody.parentNode?.removeChild(tbody);
@@ -864,7 +896,7 @@
 			});
 
 			const updatedTbodies = Array.from(table.querySelectorAll(".sectionData"));
-			if (!updatedTbodies.length) {
+			if (!updatedTbodies.length && testTitlesDivs[i]) {
 				testTitlesDivs[i].parentNode?.removeChild(testTitlesDivs[i]);
 			}
 		});
@@ -877,16 +909,17 @@
 			}
 		});
 
-		const firstTable = tables[0];
+		if (tables.length > 0) {
+			const firstTable = tables[0];
+			for (let i = 1; i < tables.length; i++) {
+				const currentTable = tables[i];
+				const tbodiesToMove = currentTable.querySelectorAll("tbody");
 
-		for (let i = 1; i < tables.length; i++) {
-			const currentTable = tables[i];
-			const tbodies = currentTable.querySelectorAll("tbody");
-
-			if (tbodies) {
-				tbodies.forEach((tbody) => {
-					firstTable.appendChild(tbody);
-				});
+				if (tbodiesToMove) {
+					tbodiesToMove.forEach((tbody) => {
+						firstTable.appendChild(tbody);
+					});
+				}
 			}
 		}
 	}
@@ -1585,6 +1618,7 @@
 					return null;
 				}
 
+				alertShown.value = false;
 				return resultadoIzquierda;
 			}
 		} catch (error) {
@@ -1716,6 +1750,11 @@
 					setInputColor(isValid);
 					seccion.resultado[index].valor = numericInput;
 				}
+			} else {
+				for (const restriccion of item.restricciones) {
+					console.log('rrrr', restriccion)
+					aplicarRestriccion(restriccion, valores);
+				}
 			}
 		});
 		//si un campo calculado cambia o se llena por primera vez esta variable regresa true y vuelve a correr calcularResultados
@@ -1748,5 +1787,17 @@
 	.sello-img {
 		height: 50px;
 		width: 150px;
+	}
+
+	.size {
+		font-size: 14px;
+	}
+
+	.title-size{
+		font-size: 20px;
+	}
+
+	.subtitle-size{
+		font-size: 17px;
 	}
 </style>
