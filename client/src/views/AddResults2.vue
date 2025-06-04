@@ -18,10 +18,10 @@
 					<div class="patient-info">
 						<div class="row">  
 							<div class="col-5 text-center">  
-								<img src="/images/11.png" alt="" style="height: 60px" />  
+								<img src="/images/12.png" alt="" style="height: 60px" />  
 							</div>  
 							<div class="col-4 text-center">  
-								<img src="/images/direccionPDF.png" alt="" style="height: 60px" />  
+								<img src="/images/13.png" alt="" style="height: 60px" />  
 							</div>  
 						</div>  
 						<div class="border-bottom border-black"></div>
@@ -425,14 +425,24 @@
 	const checkInputValue = async (event: Event, index: number, section: any, sectionIndex: number) => {
 		const inputElement = event.target as HTMLInputElement;
 		const inputValue = inputElement.value.replace(",", ".");
-		const personAge = order.value.age;
-		const personGenre = order.value.genre;
-		const numericInput = parseFloat(inputValue);
 
 		const setInputColor = (isValid: boolean) => {
 			inputElement.style.color = isValid ? "green" : "red";
 			inputElement.style.borderColor = isValid ? "lightgreen" : "red";
 		};
+
+		const hasLetters = /[a-zA-Z]/.test(inputValue);
+		const hasNumbers = /\d/.test(inputValue);
+
+		if (hasLetters && hasNumbers) {
+			setInputColor(true);
+			section.resultado[index].valor = inputValue;
+			return;
+		}
+
+		const personAge = order.value.age;
+		const personGenre = order.value.genre;
+		const numericInput = parseFloat(inputValue);
 
 		const parseScientific = (str: string) => {
 			const match = /(-?\d+(\.\d+)?)\s*x10\^([-+]?\d+)/.exec(str);
@@ -444,6 +454,7 @@
 
 		if (Number.isNaN(numericInput)) {
 			setInputColor(true);
+			section.resultado[index].valor = inputValue;
 			return;
 		}
 
@@ -473,7 +484,7 @@
 				case 2: {
 					isValid = validateRange(parsedNumbers[0], parsedNumbers[1]);
 					if (valorReferencialString.toLowerCase().includes("hasta")) {
-						isValid = numericInput <= parsedNumbers[1];
+						isValid = numericInput >= parsedNumbers[0] && numericInput <= parsedNumbers[1];
 					}
 					break;
 				}
@@ -489,7 +500,7 @@
 
 						matches?.forEach((matchStr: any) => {
 							const val = parseScientific(matchStr);
-							if (val !== undefined) {
+							if (val !== undefined && !Number.isNaN(val)) {
 								minRange = Math.min(minRange, val);
 								maxRange = Math.max(maxRange, val);
 							}
@@ -517,7 +528,7 @@
 
 					matches?.forEach((matchStr: any) => {
 						const val = parseScientific(matchStr);
-						if (val !== undefined) {
+						if (val !== undefined && !Number.isNaN(val)) {
 							minRange = Math.min(minRange, val);
 							maxRange = Math.max(maxRange, val);
 						}
@@ -535,11 +546,11 @@
 
 		setInputColor(isValid);
 
-		section.resultado[index].valor = numericInput;
-
-		// await calcularResultados(section, sectionIndex);
-
-		//Si campoCalculadoLlenado es true, se llenó o cambió un campo calculado y entra de nuevo en calcularResultados
+		if (isValid) {
+			section.resultado[index].valor = numericInput;
+		} else {
+			section.resultado[index].valor = numericInput;
+		}
 		let campoCalculadoLlenado = await calcularResultados(section, sectionIndex);
 		console.log(campoCalculadoLlenado);
 
@@ -565,28 +576,27 @@
 		});
 	}
 
-	const guardarCambios = () => {
+	const guardarCambios = async () => {
 		const testsResults: { [key: string]: any[] } = {};
 		profileNames.forEach((name: string) => {
 			testsResults[name] = [];
 		});
 
 		if (profileRef2.value) {
-			profileRef2.value.forEach(async (item: any, index: number) => {
-				let results: { orderId: number; profileName: string; fields: any[] };
-				results = {
-					orderId: 0,
-					profileName: "",
-					fields: [],
-				};
+			await Promise.all(profileRef2.value.map(async (item: any) => {
 				const profileFields: any[] = [];
 				const testSections: { [key: string]: any[] } = {};
 				const sections = item.querySelectorAll(".profile-tables");
 
+				const profileTitleElement = item.querySelector(".profile-tables .testTitle .title-size");
+				const currentProfileName = profileTitleElement ? profileTitleElement.innerText.trim() : "";
+
 				sections.forEach((table: any) => {
-					const tableName = table.querySelector("h5");
-					const tableData = table.querySelectorAll("tbody tr");
-					testSections[tableName.innerHTML] = [];
+					const tableNameElement = table.querySelector("h5.subtitle-size");
+					const tableName = tableNameElement ? tableNameElement.innerText.trim() : "";
+					testSections[tableName] = [];
+
+					const tableData = table.querySelectorAll("tbody tr.rowData");
 
 					tableData.forEach((tr: any) => {
 						const dataRow = {
@@ -597,32 +607,51 @@
 
 						const tds = tr.children;
 
-						dataRow.fieldName = tds[0]?.innerHTML || "";
+						dataRow.fieldName = tds[0]?.innerText.trim() || "";
 						const inputElement = tds[1]?.querySelector("input");
 						dataRow.inputValue = inputElement ? inputElement.value : "";
-						dataRow.Unit = tds[2]?.innerHTML || "";
+						dataRow.Unit = tds[2]?.innerText.trim() || "";
 
-						if (profileFields) profileFields.push(dataRow);
-						if (testSections[tableName.innerHTML]) {
-							testSections[tableName.innerHTML].push(dataRow);
+						if (dataRow.fieldName) {
+							profileFields.push(dataRow);
+							if (testSections[tableName]) {
+								testSections[tableName].push(dataRow);
+							}
 						}
 					});
 				});
-				Object.values(testsResults)[index].push(testSections);
 
-				results = {
-					orderId: ordersArray.value[index].idOrder,
-					profileName: profileNames[index],
-					fields: profileFields,
-				};
-				const data = {
-					id: ordersArray.value[index].idOrder,
-					status: "Pendiente de enviar",
-				};
-				await examsStore.createExamResults(results);
-				await ordersStore.updateStatusOrder(ordersArray.value[index].idOrder, data);
-			});
-			showToast("Cambios guradados exitosamnte!", "creado", checkboxOutline);
+				if (currentProfileName) {
+					const order = ordersArray.value.find((order: any) => profileNames[ordersArray.value.indexOf(order)] === currentProfileName);
+
+					if (order) {
+						const results = {
+							orderId: order.idOrder,
+							profileName: currentProfileName,
+							fields: profileFields,
+						};
+
+						const data = {
+							id: order.idOrder,
+							status: "Pendiente de enviar",
+						};
+
+						console.log(results);
+						await examsStore.createExamResults(results);
+						await ordersStore.updateStatusOrder(order.idOrder, data);
+					} else {
+						console.warn(`No se encontró un 'orderId' para el perfil: ${currentProfileName}`);
+					}
+
+					if (testsResults[currentProfileName]) {
+						testsResults[currentProfileName].push(testSections);
+					}
+				} else {
+					console.warn("No se pudo obtener el nombre del perfil para un elemento DOM.");
+				}
+			}));
+
+			showToast("Cambios guardados exitosamente!", "creado", checkboxOutline);
 		}
 	};
 
@@ -815,45 +844,68 @@
 		}
 	};
 
-	const pdfCover = async () => {  
-		const profileRefCopy = profileRef.value.cloneNode(true);  
-		const patientInfoDivCopy = profileRefCopy.querySelector(".patient-info");  
+	const pdfCover = async () => {
+		const profileRefCopy = profileRef.value.cloneNode(true);
+		const patientInfoDivCopy = profileRefCopy.querySelector(".patient-info");
 
-		// Obtiene el HTML del div con la información del paciente  
-		const html = patientInfoDivCopy.innerHTML;  
+		if (patientInfoDivCopy) {
+			const detailsContainer = patientInfoDivCopy.querySelector(".mt-1.text-center.d-flex");
 
-		// Configuración para html2pdf  
-		const options = {  
-			margin: 6,  
-			image: { type: "jpeg", quality: 0.98 },  
-			html2canvas: { scale: 2 },  
-			jsPDF: { unit: "mm", format: "letter", orientation: "portrait" },  
-		};  
+			if (detailsContainer) {
+				detailsContainer.style.display = "flex";
+				detailsContainer.style.flexDirection = "column";
+				detailsContainer.style.alignItems = "flex-start";
 
-		const html2pdf = (await import("html2pdf.js")).default;  
+				detailsContainer.classList.remove("text-center");
 
-		// Genera el Blob en vez de descargar el PDF  
-		const pdfBlob = await html2pdf()  
-			.from(html)  
-			.set(options)  
-			.output('blob');  
+				const detailItems = detailsContainer.children;
+				for (let i = 0; i < detailItems.length; i++) {
+					const item = detailItems[i];
+					if (item instanceof HTMLElement) {
+						item.style.marginRight = "0";
+						item.style.marginBottom = "8px";
+						item.style.textAlign = "left";
+						item.classList.remove("me-3");
+					}
+				}
+			} else {
+				console.warn("Contenedor de detalles (.mt-1.text-center.d-flex) no encontrado en patientInfoDivCopy.");
+			}
+		} else {
+			console.warn(".patient-info no encontrado en profileRefCopy.");
+		}
 
-		// Crea una URL para el Blob y lo abre en una nueva ventana para imprimir  
-		const pdfUrl = URL.createObjectURL(pdfBlob);  
-		const printWindow = window.open(pdfUrl);  
+		const html = patientInfoDivCopy.innerHTML;
 
-		if (printWindow) {  
-			printWindow.onload = function () {  
-				printWindow.print();  
-				printWindow.onafterprint = function () {  
-					printWindow.close();  
-					URL.revokeObjectURL(pdfUrl); // Libera el objeto URL  
-				};  
-			};  
-		} else {  
-			console.error("No se pudo abrir la ventana de impresión.");  
-		}  
-	};  
+		const options = {
+			margin: 6,
+			image: { type: "jpeg", quality: 0.98 },
+			html2canvas: { scale: 2 },
+			jsPDF: { unit: "mm", format: "letter", orientation: "portrait" },
+		};
+
+		const html2pdf = (await import("html2pdf.js")).default;
+
+		const pdfBlob = await html2pdf()
+			.from(html)
+			.set(options)
+			.output('blob');
+
+		const pdfUrl = URL.createObjectURL(pdfBlob);
+		const printWindow = window.open(pdfUrl);
+
+		if (printWindow) {
+			printWindow.onload = function () {
+				printWindow.print();
+				printWindow.onafterprint = function () {
+					printWindow.close();
+					URL.revokeObjectURL(pdfUrl);
+				};
+			};
+		} else {
+			console.error("No se pudo abrir la ventana de impresión.");
+		}
+	};
 
 	async function mergeTables(element: HTMLElement) {
 		const tables = Array.from(element.querySelectorAll("table"));
@@ -866,19 +918,59 @@
 
 		tables.forEach(table => {
 			const filasDeDatos = table.querySelectorAll("tr.rowData");
-
 			filasDeDatos.forEach((fila: Element) => {
 				const celdaNombreCampo = fila.querySelector("td:first-child") as HTMLTableCellElement;
-
 				if (celdaNombreCampo) {
 					let textoActual = celdaNombreCampo.textContent || "";
 					const textoOriginal = textoActual;
-					const regexSufijos = /\s*(?:-\s*)?(?:canino|felino)$/i;
-
+					const regexSufijos = /\s*(?:-\s*)?(?:canino|felino|orina)$/i;
 					textoActual = textoActual.replace(regexSufijos, "").trim();
-
 					if (textoActual !== textoOriginal) {
 						celdaNombreCampo.textContent = textoActual;
+					}
+				}
+			});
+		});
+		const VALOR_MULTIPLICACION_HEMATIES = 1000000;
+
+		tables.forEach(table => {
+			const seccionesData = Array.from(table.querySelectorAll("tbody.sectionData"));
+
+			seccionesData.forEach(tbody => {
+				const tituloSeccionElemento = tbody.querySelector("tr:first-child td h5");
+
+				if (tituloSeccionElemento && tituloSeccionElemento.textContent) {
+					const tituloSeccion = tituloSeccionElemento.textContent.trim().toLowerCase();
+
+					if (tituloSeccion === "hematología completa") {
+						const filasEnSeccion = Array.from(tbody.querySelectorAll("tr.rowData"));
+
+						filasEnSeccion.forEach(fila => {
+							const celdaNombreCampo = fila.querySelector("td:first-child");
+							const celdaInputElement = fila.querySelector("td.inputElement");
+
+							if (celdaNombreCampo && celdaNombreCampo.textContent && celdaInputElement) {
+								const nombreCampo = celdaNombreCampo.textContent.trim().toLowerCase();
+
+								if (nombreCampo === "hematies") {
+									const inputElement = celdaInputElement.querySelector("input") as HTMLInputElement | null;
+
+									if (inputElement) {
+										const valorActualStr = inputElement.value;
+										const valorActualNum = parseFloat(valorActualStr);
+
+										if (!isNaN(valorActualNum)) {
+											const nuevoValor = valorActualNum * VALOR_MULTIPLICACION_HEMATIES;
+											inputElement.value = nuevoValor.toLocaleString('es-ES');
+										} else {
+											console.warn(`El valor para HEMATIES ('${valorActualStr}') no es un número válido y no se multiplicará.`);
+										}
+									} else {
+										console.warn("No se encontró un elemento <input> para HEMATIES en la celda esperada.");
+									}
+								}
+							}
+						});
 					}
 				}
 			});
@@ -914,18 +1006,14 @@
 			for (let i = 1; i < tables.length; i++) {
 				const currentTable = tables[i];
 				const tbodiesToMove = currentTable.querySelectorAll("tbody");
-
-				if (tbodiesToMove) {
-					tbodiesToMove.forEach((tbody) => {
-						firstTable.appendChild(tbody);
-					});
-				}
+				tbodiesToMove.forEach((tbody) => {
+					firstTable.appendChild(tbody);
+				});
 			}
 		}
 	}
 
 	const inputToSpan = async (parentElement: HTMLElement) => {
-		//Agarrar inputs y cambiarlos por span o eliminarlos si no contienen valor
 		const rows = parentElement.querySelectorAll(".rowData");
 		rows.forEach((row: Element) => {
 			const input = row.querySelector("input");
@@ -1311,10 +1399,10 @@
 		// --- 2. LÓGICA DE PAGINACIÓN MANUAL EN EL DOM TEMPORAL ---
 
 		const pdfContainer = document.createElement("div");
-		pdfContainer.style.width = "210mm"; // Ancho de una página A4/Letter
-		pdfContainer.style.padding = "0mm 5mm"; // Márgenes laterales para el contenido
+		pdfContainer.style.width = "205mm"; // Ancho de una página A4/Letter
+		pdfContainer.style.padding = "0mm 0mm"; // Márgenes laterales para el contenido
 
-		const alturaMaximaContenidoMM = 270; // Altura máxima deseada del contenido por página
+		const alturaMaximaContenidoMM = 280; // Altura máxima deseada del contenido por página
 
 		let paginaActual: HTMLElement | null = null; // Empezamos sin página actual
 		let currentContentHeightMM = 0; // Para llevar un seguimiento de la altura del contenido en la página actual
