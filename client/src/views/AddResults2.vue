@@ -425,14 +425,24 @@
 	const checkInputValue = async (event: Event, index: number, section: any, sectionIndex: number) => {
 		const inputElement = event.target as HTMLInputElement;
 		const inputValue = inputElement.value.replace(",", ".");
-		const personAge = order.value.age;
-		const personGenre = order.value.genre;
-		const numericInput = parseFloat(inputValue);
 
 		const setInputColor = (isValid: boolean) => {
 			inputElement.style.color = isValid ? "green" : "red";
 			inputElement.style.borderColor = isValid ? "lightgreen" : "red";
 		};
+
+		const hasLetters = /[a-zA-Z]/.test(inputValue);
+		const hasNumbers = /\d/.test(inputValue);
+
+		if (hasLetters && hasNumbers) {
+			setInputColor(true);
+			section.resultado[index].valor = inputValue;
+			return;
+		}
+
+		const personAge = order.value.age;
+		const personGenre = order.value.genre;
+		const numericInput = parseFloat(inputValue);
 
 		const parseScientific = (str: string) => {
 			const match = /(-?\d+(\.\d+)?)\s*x10\^([-+]?\d+)/.exec(str);
@@ -444,6 +454,7 @@
 
 		if (Number.isNaN(numericInput)) {
 			setInputColor(true);
+			section.resultado[index].valor = inputValue;
 			return;
 		}
 
@@ -473,7 +484,7 @@
 				case 2: {
 					isValid = validateRange(parsedNumbers[0], parsedNumbers[1]);
 					if (valorReferencialString.toLowerCase().includes("hasta")) {
-						isValid = numericInput <= parsedNumbers[1];
+						isValid = numericInput >= parsedNumbers[0] && numericInput <= parsedNumbers[1];
 					}
 					break;
 				}
@@ -489,7 +500,7 @@
 
 						matches?.forEach((matchStr: any) => {
 							const val = parseScientific(matchStr);
-							if (val !== undefined) {
+							if (val !== undefined && !Number.isNaN(val)) {
 								minRange = Math.min(minRange, val);
 								maxRange = Math.max(maxRange, val);
 							}
@@ -517,7 +528,7 @@
 
 					matches?.forEach((matchStr: any) => {
 						const val = parseScientific(matchStr);
-						if (val !== undefined) {
+						if (val !== undefined && !Number.isNaN(val)) {
 							minRange = Math.min(minRange, val);
 							maxRange = Math.max(maxRange, val);
 						}
@@ -535,11 +546,11 @@
 
 		setInputColor(isValid);
 
-		section.resultado[index].valor = numericInput;
-
-		// await calcularResultados(section, sectionIndex);
-
-		//Si campoCalculadoLlenado es true, se llenó o cambió un campo calculado y entra de nuevo en calcularResultados
+		if (isValid) {
+			section.resultado[index].valor = numericInput;
+		} else {
+			section.resultado[index].valor = numericInput;
+		}
 		let campoCalculadoLlenado = await calcularResultados(section, sectionIndex);
 		console.log(campoCalculadoLlenado);
 
@@ -565,28 +576,27 @@
 		});
 	}
 
-	const guardarCambios = () => {
+	const guardarCambios = async () => {
 		const testsResults: { [key: string]: any[] } = {};
 		profileNames.forEach((name: string) => {
 			testsResults[name] = [];
 		});
 
 		if (profileRef2.value) {
-			profileRef2.value.forEach(async (item: any, index: number) => {
-				let results: { orderId: number; profileName: string; fields: any[] };
-				results = {
-					orderId: 0,
-					profileName: "",
-					fields: [],
-				};
+			await Promise.all(profileRef2.value.map(async (item: any) => {
 				const profileFields: any[] = [];
 				const testSections: { [key: string]: any[] } = {};
 				const sections = item.querySelectorAll(".profile-tables");
 
+				const profileTitleElement = item.querySelector(".profile-tables .testTitle .title-size");
+				const currentProfileName = profileTitleElement ? profileTitleElement.innerText.trim() : "";
+
 				sections.forEach((table: any) => {
-					const tableName = table.querySelector("h5");
-					const tableData = table.querySelectorAll("tbody tr");
-					testSections[tableName.innerHTML] = [];
+					const tableNameElement = table.querySelector("h5.subtitle-size");
+					const tableName = tableNameElement ? tableNameElement.innerText.trim() : "";
+					testSections[tableName] = [];
+
+					const tableData = table.querySelectorAll("tbody tr.rowData");
 
 					tableData.forEach((tr: any) => {
 						const dataRow = {
@@ -597,32 +607,51 @@
 
 						const tds = tr.children;
 
-						dataRow.fieldName = tds[0]?.innerHTML || "";
+						dataRow.fieldName = tds[0]?.innerText.trim() || "";
 						const inputElement = tds[1]?.querySelector("input");
 						dataRow.inputValue = inputElement ? inputElement.value : "";
-						dataRow.Unit = tds[2]?.innerHTML || "";
+						dataRow.Unit = tds[2]?.innerText.trim() || "";
 
-						if (profileFields) profileFields.push(dataRow);
-						if (testSections[tableName.innerHTML]) {
-							testSections[tableName.innerHTML].push(dataRow);
+						if (dataRow.fieldName) {
+							profileFields.push(dataRow);
+							if (testSections[tableName]) {
+								testSections[tableName].push(dataRow);
+							}
 						}
 					});
 				});
-				Object.values(testsResults)[index].push(testSections);
 
-				results = {
-					orderId: ordersArray.value[index].idOrder,
-					profileName: profileNames[index],
-					fields: profileFields,
-				};
-				const data = {
-					id: ordersArray.value[index].idOrder,
-					status: "Pendiente de enviar",
-				};
-				await examsStore.createExamResults(results);
-				await ordersStore.updateStatusOrder(ordersArray.value[index].idOrder, data);
-			});
-			showToast("Cambios guradados exitosamnte!", "creado", checkboxOutline);
+				if (currentProfileName) {
+					const order = ordersArray.value.find((order: any) => profileNames[ordersArray.value.indexOf(order)] === currentProfileName);
+
+					if (order) {
+						const results = {
+							orderId: order.idOrder,
+							profileName: currentProfileName,
+							fields: profileFields,
+						};
+
+						const data = {
+							id: order.idOrder,
+							status: "Pendiente de enviar",
+						};
+
+						console.log(results);
+						await examsStore.createExamResults(results);
+						await ordersStore.updateStatusOrder(order.idOrder, data);
+					} else {
+						console.warn(`No se encontró un 'orderId' para el perfil: ${currentProfileName}`);
+					}
+
+					if (testsResults[currentProfileName]) {
+						testsResults[currentProfileName].push(testSections);
+					}
+				} else {
+					console.warn("No se pudo obtener el nombre del perfil para un elemento DOM.");
+				}
+			}));
+
+			showToast("Cambios guardados exitosamente!", "creado", checkboxOutline);
 		}
 	};
 
@@ -1370,10 +1399,10 @@
 		// --- 2. LÓGICA DE PAGINACIÓN MANUAL EN EL DOM TEMPORAL ---
 
 		const pdfContainer = document.createElement("div");
-		pdfContainer.style.width = "210mm"; // Ancho de una página A4/Letter
-		pdfContainer.style.padding = "0mm 5mm"; // Márgenes laterales para el contenido
+		pdfContainer.style.width = "205mm"; // Ancho de una página A4/Letter
+		pdfContainer.style.padding = "0mm 0mm"; // Márgenes laterales para el contenido
 
-		const alturaMaximaContenidoMM = 270; // Altura máxima deseada del contenido por página
+		const alturaMaximaContenidoMM = 280; // Altura máxima deseada del contenido por página
 
 		let paginaActual: HTMLElement | null = null; // Empezamos sin página actual
 		let currentContentHeightMM = 0; // Para llevar un seguimiento de la altura del contenido en la página actual
