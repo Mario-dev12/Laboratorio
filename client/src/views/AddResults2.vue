@@ -16,14 +16,14 @@
 				</div>
 				<div ref="profileRef" id="profile">
 					<div class="patient-info">
-						<div class="row">  
-							<div class="col-5 text-center">  
-								<img src="/images/12.png" alt="" style="height: 60px" />  
-							</div>  
-							<div class="col-4 text-center">  
-								<img src="/images/13.png" alt="" style="height: 60px" />  
-							</div>  
-						</div>  
+						<div class="row">
+							<div class="col-5 text-center">
+								<img src="/images/12.png" alt="" style="height: 60px" />
+							</div>
+							<div class="col-4 text-center">
+								<img src="/images/13.png" alt="" style="height: 60px" />
+							</div>
+						</div>
 						<div class="border-bottom border-black"></div>
 						<div class="mt-1 text-center d-flex">
 							<div class="me-3">
@@ -243,7 +243,6 @@
 
 		// filtrar y ordenar secciones
 		const filteredSections: any[] = [];
-		const seenKeys = new Set();
 		let firstTest = "";
 		const firstSection: AnyKeyObject = {
 			"Hematología completa": "",
@@ -259,30 +258,36 @@
 		let primarySectionFilled = false;
 
 		for (const profile of ordersArray.value) {
+			console.log(profile);
 			const profileSection2 = await profilesStore.fetchProfileByInputsName2(profile.profiles[0].profileName, profile.idOrder);
+			console.log(profileSection2);
 			const sectionKeys = Object.keys(profileSection2);
+			console.log(sectionKeys);
 			const hasPrimarySection = primarySectionsStrings.some((item) => sectionKeys.includes(item));
 
-			const filteredSection: any = {};
+			const filteredSection: AnyKeyObject = {
+				"Hematología completa": "",
+				"Hematología Completa": "",
+				"HEMATOLOGÍA COMPLETA": "",
+				vsg: "",
+				"Velocidad de Sedimentación Globular (V.S.G)": "",
+				"VELOCIDAD DE SEDIMENTACIÓN GLOBULAR (V.S.G)": "",
+				"Química Sanguinea": "",
+				"Química Sanguínea": "",
+				"QUÍMICA SANGUÍNEA": "",
+			};
 
 			if (hasPrimarySection && !primarySectionFilled) {
 				primarySectionFilled = true;
 				for (const [key, value] of Object.entries(profileSection2)) {
-					if (!seenKeys.has(key)) {
-						firstSection[key] = value;
-						seenKeys.add(key);
-					}
+					firstSection[key] = value;
 				}
 			} else {
 				for (const [key, value] of Object.entries(profileSection2)) {
-					if (!seenKeys.has(key)) {
-						if (primarySectionsStrings.includes(key)) {
-							firstSection[key] = value;
-							seenKeys.add(key);
-						} else {
-							filteredSection[key] = value;
-							seenKeys.add(key);
-						}
+					if (primarySectionsStrings.includes(key) && !firstSection[key]) {
+						firstSection[key] = value;
+					} else {
+						filteredSection[key] = value;
 					}
 				}
 			}
@@ -291,6 +296,11 @@
 				firstTest = profile.profiles[0].profileName;
 			} else {
 				if (Object.keys(filteredSection).length != 0) {
+					for (const [key, value] of Object.entries(filteredSection)) {
+						if (!value) {
+							delete filteredSection[key];
+						}
+					}
 					filteredSections.push(filteredSection);
 					profileNamesOrdered.push(profile.profiles[0].profileName);
 				}
@@ -344,7 +354,6 @@
 
 			// filtrar y ordenar secciones
 			const filteredSections: any[] = [];
-			const seenKeys = new Set();
 			let firstTest = "";
 			const firstSection: AnyKeyObject = {
 				"Hematología completa": "",
@@ -364,26 +373,29 @@
 				const sectionKeys = Object.keys(profileSection2);
 				const hasPrimarySection = primarySectionsStrings.some((item) => sectionKeys.includes(item));
 
-				const filteredSection: any = {};
+				const filteredSection: AnyKeyObject = {
+					"Hematología completa": "",
+					"Hematología Completa": "",
+					"HEMATOLOGÍA COMPLETA": "",
+					vsg: "",
+					"Velocidad de Sedimentación Globular (V.S.G)": "",
+					"VELOCIDAD DE SEDIMENTACIÓN GLOBULAR (V.S.G)": "",
+					"Química Sanguinea": "",
+					"Química Sanguínea": "",
+					"QUÍMICA SANGUÍNEA": "",
+				};
 
 				if (hasPrimarySection && !primarySectionFilled) {
 					primarySectionFilled = true;
 					for (const [key, value] of Object.entries(profileSection2)) {
-						if (!seenKeys.has(key)) {
-							firstSection[key] = value;
-							seenKeys.add(key);
-						}
+						firstSection[key] = value;
 					}
 				} else {
 					for (const [key, value] of Object.entries(profileSection2)) {
-						if (!seenKeys.has(key)) {
-							if (primarySectionsStrings.includes(key)) {
-								firstSection[key] = value;
-								seenKeys.add(key);
-							} else {
-								filteredSection[key] = value;
-								seenKeys.add(key);
-							}
+						if (primarySectionsStrings.includes(key) && !firstSection[key]) {
+							firstSection[key] = value;
+						} else {
+							filteredSection[key] = value;
 						}
 					}
 				}
@@ -392,6 +404,11 @@
 					firstTest = profile.profiles[0].profileName;
 				} else {
 					if (Object.keys(filteredSection).length != 0) {
+						for (const [key, value] of Object.entries(filteredSection)) {
+							if (!value) {
+								delete filteredSection[key];
+							}
+						}
 						filteredSections.push(filteredSection);
 						profileNamesOrdered.push(profile.profiles[0].profileName);
 					}
@@ -583,73 +600,77 @@
 		});
 
 		if (profileRef2.value) {
-			await Promise.all(profileRef2.value.map(async (item: any) => {
-				const profileFields: any[] = [];
-				const testSections: { [key: string]: any[] } = {};
-				const sections = item.querySelectorAll(".profile-tables");
+			await Promise.all(
+				profileRef2.value.map(async (item: any) => {
+					const profileFields: any[] = [];
+					const testSections: { [key: string]: any[] } = {};
+					const sections = item.querySelectorAll(".profile-tables");
 
-				const profileTitleElement = item.querySelector(".profile-tables .testTitle .title-size");
-				const currentProfileName = profileTitleElement ? profileTitleElement.innerText.trim() : "";
+					const profileTitleElement = item.querySelector(".profile-tables .testTitle .title-size");
+					const currentProfileName = profileTitleElement ? profileTitleElement.innerText.trim() : "";
 
-				sections.forEach((table: any) => {
-					const tableNameElement = table.querySelector("h5.subtitle-size");
-					const tableName = tableNameElement ? tableNameElement.innerText.trim() : "";
-					testSections[tableName] = [];
+					sections.forEach((table: any) => {
+						const tableNameElement = table.querySelector("h5.subtitle-size");
+						const tableName = tableNameElement ? tableNameElement.innerText.trim() : "";
+						testSections[tableName] = [];
 
-					const tableData = table.querySelectorAll("tbody tr.rowData");
+						const tableData = table.querySelectorAll("tbody tr.rowData");
 
-					tableData.forEach((tr: any) => {
-						const dataRow = {
-							fieldName: "",
-							inputValue: "",
-							Unit: "",
-						};
+						tableData.forEach((tr: any) => {
+							const dataRow = {
+								fieldName: "",
+								inputValue: "",
+								Unit: "",
+							};
 
-						const tds = tr.children;
+							const tds = tr.children;
 
-						dataRow.fieldName = tds[0]?.innerText.trim() || "";
-						const inputElement = tds[1]?.querySelector("input");
-						dataRow.inputValue = inputElement ? inputElement.value : "";
-						dataRow.Unit = tds[2]?.innerText.trim() || "";
+							dataRow.fieldName = tds[0]?.innerText.trim() || "";
+							const inputElement = tds[1]?.querySelector("input");
+							dataRow.inputValue = inputElement ? inputElement.value : "";
+							dataRow.Unit = tds[2]?.innerText.trim() || "";
 
-						if (dataRow.fieldName) {
-							profileFields.push(dataRow);
-							if (testSections[tableName]) {
-								testSections[tableName].push(dataRow);
+							if (dataRow.fieldName) {
+								profileFields.push(dataRow);
+								if (testSections[tableName]) {
+									testSections[tableName].push(dataRow);
+								}
 							}
-						}
+						});
 					});
-				});
 
-				if (currentProfileName) {
-					const order = ordersArray.value.find((order: any) => profileNames[ordersArray.value.indexOf(order)] === currentProfileName);
+					if (currentProfileName) {
+						const order = ordersArray.value.find(
+							(order: any) => profileNames[ordersArray.value.indexOf(order)] === currentProfileName
+						);
 
-					if (order) {
-						const results = {
-							orderId: order.idOrder,
-							profileName: currentProfileName,
-							fields: profileFields,
-						};
+						if (order) {
+							const results = {
+								orderId: order.idOrder,
+								profileName: currentProfileName,
+								fields: profileFields,
+							};
 
-						const data = {
-							id: order.idOrder,
-							status: "Pendiente de enviar",
-						};
+							const data = {
+								id: order.idOrder,
+								status: "Pendiente de enviar",
+							};
 
-						console.log(results);
-						await examsStore.createExamResults(results);
-						await ordersStore.updateStatusOrder(order.idOrder, data);
+							console.log(results);
+							await examsStore.createExamResults(results);
+							await ordersStore.updateStatusOrder(order.idOrder, data);
+						} else {
+							console.warn(`No se encontró un 'orderId' para el perfil: ${currentProfileName}`);
+						}
+
+						if (testsResults[currentProfileName]) {
+							testsResults[currentProfileName].push(testSections);
+						}
 					} else {
-						console.warn(`No se encontró un 'orderId' para el perfil: ${currentProfileName}`);
+						console.warn("No se pudo obtener el nombre del perfil para un elemento DOM.");
 					}
-
-					if (testsResults[currentProfileName]) {
-						testsResults[currentProfileName].push(testSections);
-					}
-				} else {
-					console.warn("No se pudo obtener el nombre del perfil para un elemento DOM.");
-				}
-			}));
+				})
+			);
 
 			showToast("Cambios guardados exitosamente!", "creado", checkboxOutline);
 		}
@@ -886,10 +907,7 @@
 
 		const html2pdf = (await import("html2pdf.js")).default;
 
-		const pdfBlob = await html2pdf()
-			.from(html)
-			.set(options)
-			.output('blob');
+		const pdfBlob = await html2pdf().from(html).set(options).output("blob");
 
 		const pdfUrl = URL.createObjectURL(pdfBlob);
 		const printWindow = window.open(pdfUrl);
@@ -916,7 +934,7 @@
 			profileSection.style.display = "block";
 		}
 
-		tables.forEach(table => {
+		tables.forEach((table) => {
 			const filasDeDatos = table.querySelectorAll("tr.rowData");
 			filasDeDatos.forEach((fila: Element) => {
 				const celdaNombreCampo = fila.querySelector("td:first-child") as HTMLTableCellElement;
@@ -933,10 +951,10 @@
 		});
 		const VALOR_MULTIPLICACION_HEMATIES = 1000000;
 
-		tables.forEach(table => {
+		tables.forEach((table) => {
 			const seccionesData = Array.from(table.querySelectorAll("tbody.sectionData"));
 
-			seccionesData.forEach(tbody => {
+			seccionesData.forEach((tbody) => {
 				const tituloSeccionElemento = tbody.querySelector("tr:first-child td h5");
 
 				if (tituloSeccionElemento && tituloSeccionElemento.textContent) {
@@ -945,7 +963,7 @@
 					if (tituloSeccion === "hematología completa") {
 						const filasEnSeccion = Array.from(tbody.querySelectorAll("tr.rowData"));
 
-						filasEnSeccion.forEach(fila => {
+						filasEnSeccion.forEach((fila) => {
 							const celdaNombreCampo = fila.querySelector("td:first-child");
 							const celdaInputElement = fila.querySelector("td.inputElement");
 
@@ -961,7 +979,7 @@
 
 										if (!isNaN(valorActualNum)) {
 											const nuevoValor = valorActualNum * VALOR_MULTIPLICACION_HEMATIES;
-											inputElement.value = nuevoValor.toLocaleString('es-ES');
+											inputElement.value = nuevoValor.toLocaleString("es-ES");
 										} else {
 											console.warn(`El valor para HEMATIES ('${valorActualStr}') no es un número válido y no se multiplicará.`);
 										}
@@ -1840,7 +1858,7 @@
 				}
 			} else {
 				for (const restriccion of item.restricciones) {
-					console.log('rrrr', restriccion)
+					console.log("rrrr", restriccion);
 					aplicarRestriccion(restriccion, valores);
 				}
 			}
@@ -1881,11 +1899,11 @@
 		font-size: 14px;
 	}
 
-	.title-size{
+	.title-size {
 		font-size: 20px;
 	}
 
-	.subtitle-size{
+	.subtitle-size {
 		font-size: 17px;
 	}
 </style>
