@@ -226,7 +226,6 @@
 		order.value = route.query.profile;
 		order.value = JSON.parse(order.value);
 		ordersArray.value = order.value.orders;
-		console.log(ordersArray.value);
 		profileNamesOrdered = [];
 		profileNames = route.query.profileNames;
 		profileNames = JSON.parse(profileNames);
@@ -266,7 +265,17 @@
 			console.log(sectionKeys);
 			const hasPrimarySection = primarySectionsStrings.some((item) => sectionKeys.includes(item));
 
-			const filteredSection: any = {};
+			const filteredSection: AnyKeyObject = {
+				"Hematología completa": "",
+				"Hematología Completa": "",
+				"HEMATOLOGÍA COMPLETA": "",
+				vsg: "",
+				"Velocidad de Sedimentación Globular (V.S.G)": "",
+				"VELOCIDAD DE SEDIMENTACIÓN GLOBULAR (V.S.G)": "",
+				"Química Sanguinea": "",
+				"Química Sanguínea": "",
+				"QUÍMICA SANGUÍNEA": "",
+			};
 
 			if (hasPrimarySection && !primarySectionFilled) {
 				primarySectionFilled = true;
@@ -287,7 +296,11 @@
 				firstTest = profile.profiles[0].profileName;
 			} else {
 				if (Object.keys(filteredSection).length != 0) {
-					console.log(filteredSection);
+					for (const [key, value] of Object.entries(filteredSection)) {
+						if (!value) {
+							delete filteredSection[key];
+						}
+					}
 					filteredSections.push(filteredSection);
 					profileNamesOrdered.push(profile.profiles[0].profileName);
 				}
@@ -360,7 +373,17 @@
 				const sectionKeys = Object.keys(profileSection2);
 				const hasPrimarySection = primarySectionsStrings.some((item) => sectionKeys.includes(item));
 
-				const filteredSection: any = {};
+				const filteredSection: AnyKeyObject = {
+					"Hematología completa": "",
+					"Hematología Completa": "",
+					"HEMATOLOGÍA COMPLETA": "",
+					vsg: "",
+					"Velocidad de Sedimentación Globular (V.S.G)": "",
+					"VELOCIDAD DE SEDIMENTACIÓN GLOBULAR (V.S.G)": "",
+					"Química Sanguinea": "",
+					"Química Sanguínea": "",
+					"QUÍMICA SANGUÍNEA": "",
+				};
 
 				if (hasPrimarySection && !primarySectionFilled) {
 					primarySectionFilled = true;
@@ -369,7 +392,7 @@
 					}
 				} else {
 					for (const [key, value] of Object.entries(profileSection2)) {
-						if (primarySectionsStrings.includes(key)) {
+						if (primarySectionsStrings.includes(key) && !firstSection[key]) {
 							firstSection[key] = value;
 						} else {
 							filteredSection[key] = value;
@@ -381,6 +404,11 @@
 					firstTest = profile.profiles[0].profileName;
 				} else {
 					if (Object.keys(filteredSection).length != 0) {
+						for (const [key, value] of Object.entries(filteredSection)) {
+							if (!value) {
+								delete filteredSection[key];
+							}
+						}
 						filteredSections.push(filteredSection);
 						profileNamesOrdered.push(profile.profiles[0].profileName);
 					}
