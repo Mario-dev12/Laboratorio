@@ -16,14 +16,14 @@
 				</div>
 				<div ref="profileRef" id="profile">
 					<div class="patient-info">
-						<div class="row">  
-							<div class="col-5 text-center">  
-								<img src="/images/11.png" alt="" style="height: 60px" />  
-							</div>  
-							<div class="col-4 text-center">  
-								<img src="/images/direccionPDF.png" alt="" style="height: 60px" />  
-							</div>  
-						</div>  
+						<div class="row">
+							<div class="col-5 text-center">
+								<img src="/images/11.png" alt="" style="height: 60px" />
+							</div>
+							<div class="col-4 text-center">
+								<img src="/images/direccionPDF.png" alt="" style="height: 60px" />
+							</div>
+						</div>
 						<div class="border-bottom border-black"></div>
 						<div class="mt-1 text-center d-flex">
 							<div class="me-3">
@@ -226,6 +226,7 @@
 		order.value = route.query.profile;
 		order.value = JSON.parse(order.value);
 		ordersArray.value = order.value.orders;
+		console.log(ordersArray.value);
 		profileNamesOrdered = [];
 		profileNames = route.query.profileNames;
 		profileNames = JSON.parse(profileNames);
@@ -243,7 +244,6 @@
 
 		// filtrar y ordenar secciones
 		const filteredSections: any[] = [];
-		const seenKeys = new Set();
 		let firstTest = "";
 		const firstSection: AnyKeyObject = {
 			"Hematología completa": "",
@@ -259,8 +259,11 @@
 		let primarySectionFilled = false;
 
 		for (const profile of ordersArray.value) {
+			console.log(profile);
 			const profileSection2 = await profilesStore.fetchProfileByInputsName2(profile.profiles[0].profileName, profile.idOrder);
+			console.log(profileSection2);
 			const sectionKeys = Object.keys(profileSection2);
+			console.log(sectionKeys);
 			const hasPrimarySection = primarySectionsStrings.some((item) => sectionKeys.includes(item));
 
 			const filteredSection: any = {};
@@ -268,21 +271,14 @@
 			if (hasPrimarySection && !primarySectionFilled) {
 				primarySectionFilled = true;
 				for (const [key, value] of Object.entries(profileSection2)) {
-					if (!seenKeys.has(key)) {
-						firstSection[key] = value;
-						seenKeys.add(key);
-					}
+					firstSection[key] = value;
 				}
 			} else {
 				for (const [key, value] of Object.entries(profileSection2)) {
-					if (!seenKeys.has(key)) {
-						if (primarySectionsStrings.includes(key)) {
-							firstSection[key] = value;
-							seenKeys.add(key);
-						} else {
-							filteredSection[key] = value;
-							seenKeys.add(key);
-						}
+					if (primarySectionsStrings.includes(key) && !firstSection[key]) {
+						firstSection[key] = value;
+					} else {
+						filteredSection[key] = value;
 					}
 				}
 			}
@@ -291,6 +287,7 @@
 				firstTest = profile.profiles[0].profileName;
 			} else {
 				if (Object.keys(filteredSection).length != 0) {
+					console.log(filteredSection);
 					filteredSections.push(filteredSection);
 					profileNamesOrdered.push(profile.profiles[0].profileName);
 				}
@@ -344,7 +341,6 @@
 
 			// filtrar y ordenar secciones
 			const filteredSections: any[] = [];
-			const seenKeys = new Set();
 			let firstTest = "";
 			const firstSection: AnyKeyObject = {
 				"Hematología completa": "",
@@ -369,21 +365,14 @@
 				if (hasPrimarySection && !primarySectionFilled) {
 					primarySectionFilled = true;
 					for (const [key, value] of Object.entries(profileSection2)) {
-						if (!seenKeys.has(key)) {
-							firstSection[key] = value;
-							seenKeys.add(key);
-						}
+						firstSection[key] = value;
 					}
 				} else {
 					for (const [key, value] of Object.entries(profileSection2)) {
-						if (!seenKeys.has(key)) {
-							if (primarySectionsStrings.includes(key)) {
-								firstSection[key] = value;
-								seenKeys.add(key);
-							} else {
-								filteredSection[key] = value;
-								seenKeys.add(key);
-							}
+						if (primarySectionsStrings.includes(key)) {
+							firstSection[key] = value;
+						} else {
+							filteredSection[key] = value;
 						}
 					}
 				}
@@ -815,45 +804,42 @@
 		}
 	};
 
-	const pdfCover = async () => {  
-		const profileRefCopy = profileRef.value.cloneNode(true);  
-		const patientInfoDivCopy = profileRefCopy.querySelector(".patient-info");  
+	const pdfCover = async () => {
+		const profileRefCopy = profileRef.value.cloneNode(true);
+		const patientInfoDivCopy = profileRefCopy.querySelector(".patient-info");
 
-		// Obtiene el HTML del div con la información del paciente  
-		const html = patientInfoDivCopy.innerHTML;  
+		// Obtiene el HTML del div con la información del paciente
+		const html = patientInfoDivCopy.innerHTML;
 
-		// Configuración para html2pdf  
-		const options = {  
-			margin: 6,  
-			image: { type: "jpeg", quality: 0.98 },  
-			html2canvas: { scale: 2 },  
-			jsPDF: { unit: "mm", format: "letter", orientation: "portrait" },  
-		};  
+		// Configuración para html2pdf
+		const options = {
+			margin: 6,
+			image: { type: "jpeg", quality: 0.98 },
+			html2canvas: { scale: 2 },
+			jsPDF: { unit: "mm", format: "letter", orientation: "portrait" },
+		};
 
-		const html2pdf = (await import("html2pdf.js")).default;  
+		const html2pdf = (await import("html2pdf.js")).default;
 
-		// Genera el Blob en vez de descargar el PDF  
-		const pdfBlob = await html2pdf()  
-			.from(html)  
-			.set(options)  
-			.output('blob');  
+		// Genera el Blob en vez de descargar el PDF
+		const pdfBlob = await html2pdf().from(html).set(options).output("blob");
 
-		// Crea una URL para el Blob y lo abre en una nueva ventana para imprimir  
-		const pdfUrl = URL.createObjectURL(pdfBlob);  
-		const printWindow = window.open(pdfUrl);  
+		// Crea una URL para el Blob y lo abre en una nueva ventana para imprimir
+		const pdfUrl = URL.createObjectURL(pdfBlob);
+		const printWindow = window.open(pdfUrl);
 
-		if (printWindow) {  
-			printWindow.onload = function () {  
-				printWindow.print();  
-				printWindow.onafterprint = function () {  
-					printWindow.close();  
-					URL.revokeObjectURL(pdfUrl); // Libera el objeto URL  
-				};  
-			};  
-		} else {  
-			console.error("No se pudo abrir la ventana de impresión.");  
-		}  
-	};  
+		if (printWindow) {
+			printWindow.onload = function () {
+				printWindow.print();
+				printWindow.onafterprint = function () {
+					printWindow.close();
+					URL.revokeObjectURL(pdfUrl); // Libera el objeto URL
+				};
+			};
+		} else {
+			console.error("No se pudo abrir la ventana de impresión.");
+		}
+	};
 
 	async function mergeTables(element: HTMLElement) {
 		const tables = Array.from(element.querySelectorAll("table"));
@@ -864,7 +850,7 @@
 			profileSection.style.display = "block";
 		}
 
-		tables.forEach(table => {
+		tables.forEach((table) => {
 			const filasDeDatos = table.querySelectorAll("tr.rowData");
 
 			filasDeDatos.forEach((fila: Element) => {
@@ -1752,7 +1738,7 @@
 				}
 			} else {
 				for (const restriccion of item.restricciones) {
-					console.log('rrrr', restriccion)
+					console.log("rrrr", restriccion);
 					aplicarRestriccion(restriccion, valores);
 				}
 			}
@@ -1793,11 +1779,11 @@
 		font-size: 14px;
 	}
 
-	.title-size{
+	.title-size {
 		font-size: 20px;
 	}
 
-	.subtitle-size{
+	.subtitle-size {
 		font-size: 17px;
 	}
 </style>
