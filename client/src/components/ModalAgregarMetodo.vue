@@ -71,6 +71,7 @@
                                 id="montoEfectivo"  
                                 required  
                                 placeholder="Ingrese el monto"  
+                                @input="replaceCommaWithDot($event, index, 'montoEfectivo')" 
                             />  
                         </div>  
                         <div v-if="metodo.divisaEfectivo === 'Bolivares'" class="form-group mx-2">  
@@ -130,6 +131,7 @@
                                 id="montoDebito"  
                                 required  
                                 placeholder="Ingrese el monto"  
+                                @input="replaceCommaWithDot($event, index, 'montoDebito')"
                             />  
                         </div>  
                         <div class="form-group mx-2">  
@@ -190,6 +192,7 @@
                                 id="montoPagoMovil"  
                                 required  
                                 placeholder="Ingrese el monto"  
+                                @input="replaceCommaWithDot($event, index, 'montoPagoMovil')" 
                             />  
                         </div>  
                         <div class="form-group mx-2">  
@@ -296,6 +299,19 @@ const agregarMetodoPago = async () => {
     await calcularMontosRestantes();
     metodos.value.push({ metodo: '', divisaEfectivo: '', montoEfectivo: 0, divisaDebito: 'Bolivares', montoDebito: 0, montoUSD: 0, banco: '', divisaPagoMovil: 'Bolivares', bancoPagoMovil: '', montoPagoMovil: 0, telefonoPagoMovil: '' });  
 };  
+
+const replaceCommaWithDot = (event: Event, index: number, field: 'montoDebito' | 'montoEfectivo' | 'montoPagoMovil') => {
+    const inputElement = event.target as HTMLInputElement;
+    const value = inputElement.value.replace(/,/g, '.');
+    if (field === 'montoDebito') {
+        metodos.value[index].montoDebito = parseFloat(value) || 0;
+    } else if (field === 'montoEfectivo') {
+        metodos.value[index].montoEfectivo = parseFloat(value) || 0;
+    } else if (field === 'montoPagoMovil') {
+        metodos.value[index].montoPagoMovil = parseFloat(value) || 0;
+    }
+    inputElement.value = value;
+};
 
 const isFormValid = computed(() => {  
     return metodos.value.every(metodo => {  
