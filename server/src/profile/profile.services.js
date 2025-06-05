@@ -2,6 +2,89 @@ import profileRepository from './profile.repository.js'
 
 const profileServices = {};
 
+function ordenarResultadosLaboratorio(data) {
+    const ordenHematologia = [
+      "hematies",
+      "hemoglobina",
+      "hematocrito",
+      "chcm",
+      "hcm",
+      "vcm",
+      "contaje de blancos",
+      "segmentados",
+      "linfocitos",
+      "eosinofilos",
+      "contaje de plaquetas",
+    ];
+  
+    const ordenQuimicaSanguinea = [
+      "glicemia basal",
+      "urea",
+      "creatinina",
+      "acido urico",
+      "transaminasa oxalacetica (ast)",
+      "transaminasa piruvica (alt)",
+      "colesterol",
+      "trigliceridos",
+      "hdl - colesterol",
+      "ldl - colesterol",
+      "lipidos totales",
+      "calcio",
+      "fosforo",
+      "bilirrubina total",
+      "bilirrubina directa",
+      "bilirrubina indirecta",
+      "proteinas totales",
+      "albumina",
+      "globulina",
+      "rel a/g",
+    ];
+  
+    const normalizeString = (str) =>
+      str
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .toLowerCase();
+  
+    for (const key in data) {
+      if (data.hasOwnProperty(key)) {
+        const normalizedKey = normalizeString(key);
+        const resultados = data[key].resultado;
+  
+        let ordenEspecifico;
+  
+        if (normalizedKey === "hematologia completa") {
+          ordenEspecifico = ordenHematologia;
+        } else if (normalizedKey === "quimica sanguinea") {
+          ordenEspecifico = ordenQuimicaSanguinea;
+        } else {
+          continue;
+        }
+  
+        const resultadosMap = new Map();
+        resultados.forEach((item) => {
+          resultadosMap.set(normalizeString(item.nombre), item);
+        });
+  
+        const resultadosOrdenados = [];
+        const resultadosNoEncontrados = [];
+  
+        ordenEspecifico.forEach((nombreEsperado) => {
+          if (resultadosMap.has(nombreEsperado)) {
+            resultadosOrdenados.push(resultadosMap.get(nombreEsperado));
+            resultadosMap.delete(nombreEsperado);
+          }
+        });
+  
+        resultadosMap.forEach((item) => resultadosNoEncontrados.push(item));
+  
+        data[key].resultado = resultadosOrdenados.concat(resultadosNoEncontrados);
+      }
+    }
+  
+    return data;
+}
+
 profileServices.readProfiles = async () => {
     return await profileRepository.readProfiles()
 }
@@ -59,7 +142,12 @@ profileServices.readInputsbySectionName = async name => {
 }
 
 profileServices.readInputsResults2 = async (name, id) => {
-    return await profileRepository.readInputsResults2(name, id)
+    const resp =  await profileRepository.readInputsResults2(name, id)
+    const respOrdenada = ordenarResultadosLaboratorio(resp);
+
+    console.log('Full response:', JSON.stringify(respOrdenada, null, 2));
+
+    return respOrdenada;
 }
 
 profileServices.readCultivesResult = async (id, name) => {
