@@ -927,12 +927,17 @@
 
 	async function mergeTables(element: HTMLElement) {
 		const tables = Array.from(element.querySelectorAll("table"));
-		const testTitlesDivs = Array.from(element.querySelectorAll(".testTitle"));
+		const testTitlesDivs = Array.from(element.querySelectorAll(".testTitle")) as HTMLElement[];
 		const profileSection = element.querySelector(".profile-sections") as HTMLElement;
 
 		if (profileSection) {
 			profileSection.style.display = "block";
 		}
+
+		const normalizeText = (text: string | null | undefined): string => {
+			if (!text) return "";
+			return text.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").trim();
+		};
 
 		tables.forEach((table) => {
 			const filasDeDatos = table.querySelectorAll("tr.rowData");
@@ -960,7 +965,7 @@
 				if (tituloSeccionElemento && tituloSeccionElemento.textContent) {
 					const tituloSeccion = tituloSeccionElemento.textContent.trim().toLowerCase();
 
-					if (tituloSeccion === "hematología completa") {
+					if (tituloSeccion === "hematología completa" || tituloSeccion === "HEMATOLOGÍA COMPLETA") {
 						const filasEnSeccion = Array.from(tbody.querySelectorAll("tr.rowData"));
 
 						filasEnSeccion.forEach((fila) => {
@@ -994,6 +999,60 @@
 			});
 		});
 
+		const MAIN_SECTION_NAMES_NORMALIZED = [
+			normalizeText("Hematología completa"),
+			normalizeText("Velocidad de Sedimentación Globular (V.S.G)"),
+			normalizeText("Química Sanguínea")
+		];
+		const primaryMainSectionTbodiesMap: Map<string, HTMLTableSectionElement> = new Map();
+		const testTitlesToRemove = new Set<HTMLElement>();
+
+		tables.forEach(table => {
+			const sectionsInTable = Array.from(table.querySelectorAll("tbody.sectionData")) as HTMLTableSectionElement[];
+			sectionsInTable.forEach(tbody => {
+				const titleElement = tbody.querySelector("tr:first-child td h5");
+				if (titleElement && titleElement.textContent) {
+					const normalizedTitle = normalizeText(titleElement.textContent);
+					if (MAIN_SECTION_NAMES_NORMALIZED.includes(normalizedTitle) && !primaryMainSectionTbodiesMap.has(normalizedTitle)) {
+						primaryMainSectionTbodiesMap.set(normalizedTitle, tbody);
+					}
+				}
+			});
+		});
+
+		tables.forEach((table, tableIndex) => {
+			const sectionsInTable = Array.from(table.querySelectorAll("tbody.sectionData")) as HTMLTableSectionElement[];
+			let associatedTestTitleShouldBeRemoved = false;
+
+			sectionsInTable.forEach(currentTbody => {
+				const titleElement = currentTbody.querySelector("tr:first-child td h5");
+				if (titleElement && titleElement.textContent) {
+					const currentSectionTitleNormalized = normalizeText(titleElement.textContent);
+
+					if (MAIN_SECTION_NAMES_NORMALIZED.includes(currentSectionTitleNormalized)) {
+						const primaryTbodyForThisSection = primaryMainSectionTbodiesMap.get(currentSectionTitleNormalized);
+						
+						if (primaryTbodyForThisSection && primaryTbodyForThisSection !== currentTbody) {
+							const dataRowsToMove = Array.from(currentTbody.querySelectorAll("tr.rowData"));
+							dataRowsToMove.forEach(row => primaryTbodyForThisSection.appendChild(row));
+							
+							titleElement.closest('tr')?.remove();
+							
+							associatedTestTitleShouldBeRemoved = true;
+
+							if (currentTbody.querySelectorAll("tr").length === 0) {
+								currentTbody.remove();
+							}
+						}
+					}
+				}
+			});
+
+			if (associatedTestTitleShouldBeRemoved && testTitlesDivs[tableIndex]) {
+				testTitlesToRemove.add(testTitlesDivs[tableIndex]);
+			}
+		});
+
 		tables.forEach((table, i) => {
 			const tbodies = Array.from(table.querySelectorAll(".sectionData"));
 			tbodies.forEach((tbody) => {
@@ -1011,10 +1070,51 @@
 			}
 		});
 
-		testTitlesDivs.forEach((div) => {
+		testTitlesDivs.forEach((div, i) => {
 			const titleText = div.querySelector("h4");
-			const regex = /perfil/i;
-			if (titleText && regex.test(titleText.innerHTML)) {
+			const associatedTable = tables[i];
+
+			let shouldRemoveDiv = false;
+
+			if (i === 0){
+				const seccionesData = Array.from(associatedTable.querySelectorAll("tbody.sectionData"));
+				const mainSectionRegex = /h[eé]matolog[ií]a compl[eé]ta|velocidad de sedimentaci[oó]n globular \(v\.s\.g\)|qu[ií]mica sangu[ií]nea/i;
+
+				for (const tbody of seccionesData) {
+					const tituloSeccionElemento = tbody.querySelector("tr:first-child td h5");
+					console.log('ooo', tituloSeccionElemento)
+					if (tituloSeccionElemento && tituloSeccionElemento.textContent) {
+						const tituloSeccion = tituloSeccionElemento.textContent.trim();
+						console.log('ifgggg', tituloSeccion, mainSectionRegex.test(tituloSeccion))
+						if (mainSectionRegex.test(tituloSeccion)) {
+							shouldRemoveDiv = true;
+							break;
+						}
+					}
+				}
+			}
+
+			if (titleText && /perfil/i.test(titleText.innerHTML)) {
+				shouldRemoveDiv = true;
+			}
+
+			if (!shouldRemoveDiv && associatedTable) {
+				const seccionesData = Array.from(associatedTable.querySelectorAll("tbody.sectionData"));
+				const mainSectionRegex = /h[eé]matolog[ií]a compl[eé]ta|velocidad de sedimentaci[oó]n globular \(v\.s\.g\)|qu[ií]mica sangu[ií]nea/i;
+
+				for (const tbody of seccionesData) {
+					const tituloSeccionElemento = tbody.querySelector("tr:first-child td h5");
+					if (tituloSeccionElemento && tituloSeccionElemento.textContent) {
+						const tituloSeccion = tituloSeccionElemento.textContent.trim();
+						if (mainSectionRegex.test(tituloSeccion)) {
+							shouldRemoveDiv = true;
+							break;
+						}
+					}
+				}
+			}
+
+			if (shouldRemoveDiv) {
 				div.parentNode?.removeChild(div);
 			}
 		});
