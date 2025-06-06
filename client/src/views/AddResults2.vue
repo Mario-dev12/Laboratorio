@@ -339,7 +339,6 @@
 			];
 
 			// filtrar y ordenar secciones
-			const filteredSections: any[] = [];
 			const profilePrimarySections: number[] = [];
 			const orderedProfiles: any[] = [];
 
@@ -405,7 +404,6 @@
 
 			orderedProfiles.forEach((item) => {
 				const values = Object.values(item);
-				console.log(values);
 				newSections.push(values[0]);
 			});
 
@@ -1735,7 +1733,6 @@
 
 	const aplicarFormula = (formula: string, valores: { [x: string]: any }) => {
 		const parser = new Parser();
-		console.log(valores);
 
 		let formulaNormalizada = formula;
 		//valore normalizados es una copia de valores
@@ -1846,14 +1843,12 @@
 		let campoCalculadoLlenado: boolean = false;
 		//valores es un objeto con el nombre del campo y su valor, si tiene un valor
 		const valores: Record<string, any> = {};
-		console.log("seccion", seccion.resultado);
 
 		seccion.resultado.forEach((item: { valor: any; nombre: string | number }) => {
 			if (item.valor) {
 				valores[item.nombre] = item.valor;
 			}
 		});
-		console.log("objeto con cada campo que tiene un valor", valores);
 
 		const currentSection = sectionRef.value[sectionIndex];
 		const inputElements = currentSection.querySelectorAll("input");
