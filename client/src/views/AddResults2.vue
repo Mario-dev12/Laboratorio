@@ -183,7 +183,6 @@
 	const profileRef = ref();
 	const order = ref();
 	const profileRef2 = ref();
-	let html: string = "";
 	const ordersArray = ref();
 	const mailsStore = mailStore();
 	const valorReferencial = ref();
@@ -306,7 +305,6 @@
 
 		orderedProfiles.forEach((item) => {
 			const values = Object.values(item);
-			console.log(values);
 			newSections.push(values[0]);
 		});
 
@@ -340,7 +338,6 @@
 			];
 
 			// filtrar y ordenar secciones
-			const filteredSections: any[] = [];
 			const profilePrimarySections: number[] = [];
 			const orderedProfiles: any[] = [];
 
@@ -406,11 +403,10 @@
 
 			orderedProfiles.forEach((item) => {
 				const values = Object.values(item);
-				console.log(values);
 				newSections.push(values[0]);
 			});
 
-			profilesData.value = filteredSections;
+			profilesData.value = newSections;
 
 			sectionData.value = profilesData.value[0];
 			showProfile.value = new Array(profileNames.length).fill(false);
@@ -549,11 +545,9 @@
 			section.resultado[index].valor = numericInput;
 		}
 		let campoCalculadoLlenado = await calcularResultados(section, sectionIndex);
-		console.log(campoCalculadoLlenado);
 
 		do {
 			campoCalculadoLlenado = await calcularResultados(section, sectionIndex);
-			console.log(`Current result: ${campoCalculadoLlenado}`);
 		} while (campoCalculadoLlenado);
 
 		if (section.resultado.length > 1) {
@@ -636,7 +630,6 @@
 								status: "Pendiente de enviar",
 							};
 
-							console.log(results);
 							await examsStore.createExamResults(results);
 							await ordersStore.updateStatusOrder(order.idOrder, data);
 						} else {
@@ -916,7 +909,11 @@
 
 		const normalizeText = (text: string | null | undefined): string => {
 			if (!text) return "";
-			return text.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").trim();
+			return text
+				.toLowerCase()
+				.normalize("NFD")
+				.replace(/[\u0300-\u036f]/g, "")
+				.trim();
 		};
 
 		tables.forEach((table) => {
@@ -982,14 +979,14 @@
 		const MAIN_SECTION_NAMES_NORMALIZED = [
 			normalizeText("Hematología completa"),
 			normalizeText("Velocidad de Sedimentación Globular (V.S.G)"),
-			normalizeText("Química Sanguínea")
+			normalizeText("Química Sanguínea"),
 		];
 		const primaryMainSectionTbodiesMap: Map<string, HTMLTableSectionElement> = new Map();
 		const testTitlesToRemove = new Set<HTMLElement>();
 
-		tables.forEach(table => {
+		tables.forEach((table) => {
 			const sectionsInTable = Array.from(table.querySelectorAll("tbody.sectionData")) as HTMLTableSectionElement[];
-			sectionsInTable.forEach(tbody => {
+			sectionsInTable.forEach((tbody) => {
 				const titleElement = tbody.querySelector("tr:first-child td h5");
 				if (titleElement && titleElement.textContent) {
 					const normalizedTitle = normalizeText(titleElement.textContent);
@@ -1004,20 +1001,20 @@
 			const sectionsInTable = Array.from(table.querySelectorAll("tbody.sectionData")) as HTMLTableSectionElement[];
 			let associatedTestTitleShouldBeRemoved = false;
 
-			sectionsInTable.forEach(currentTbody => {
+			sectionsInTable.forEach((currentTbody) => {
 				const titleElement = currentTbody.querySelector("tr:first-child td h5");
 				if (titleElement && titleElement.textContent) {
 					const currentSectionTitleNormalized = normalizeText(titleElement.textContent);
 
 					if (MAIN_SECTION_NAMES_NORMALIZED.includes(currentSectionTitleNormalized)) {
 						const primaryTbodyForThisSection = primaryMainSectionTbodiesMap.get(currentSectionTitleNormalized);
-						
+
 						if (primaryTbodyForThisSection && primaryTbodyForThisSection !== currentTbody) {
 							const dataRowsToMove = Array.from(currentTbody.querySelectorAll("tr.rowData"));
-							dataRowsToMove.forEach(row => primaryTbodyForThisSection.appendChild(row));
-							
-							titleElement.closest('tr')?.remove();
-							
+							dataRowsToMove.forEach((row) => primaryTbodyForThisSection.appendChild(row));
+
+							titleElement.closest("tr")?.remove();
+
 							associatedTestTitleShouldBeRemoved = true;
 
 							if (currentTbody.querySelectorAll("tr").length === 0) {
@@ -1056,16 +1053,17 @@
 
 			let shouldRemoveDiv = false;
 
-			if (i === 0){
+			if (i === 0) {
 				const seccionesData = Array.from(associatedTable.querySelectorAll("tbody.sectionData"));
-				const mainSectionRegex = /h[eé]matolog[ií]a compl[eé]ta|velocidad de sedimentaci[oó]n globular \(v\.s\.g\)|qu[ií]mica sangu[ií]nea/i;
+				const mainSectionRegex =
+					/h[eé]matolog[ií]a compl[eé]ta|velocidad de sedimentaci[oó]n globular \(v\.s\.g\)|qu[ií]mica sangu[ií]nea/i;
 
 				for (const tbody of seccionesData) {
 					const tituloSeccionElemento = tbody.querySelector("tr:first-child td h5");
-					console.log('ooo', tituloSeccionElemento)
+					console.log("ooo", tituloSeccionElemento);
 					if (tituloSeccionElemento && tituloSeccionElemento.textContent) {
 						const tituloSeccion = tituloSeccionElemento.textContent.trim();
-						console.log('ifgggg', tituloSeccion, mainSectionRegex.test(tituloSeccion))
+						console.log("ifgggg", tituloSeccion, mainSectionRegex.test(tituloSeccion));
 						if (mainSectionRegex.test(tituloSeccion)) {
 							shouldRemoveDiv = true;
 							break;
@@ -1080,7 +1078,8 @@
 
 			if (!shouldRemoveDiv && associatedTable) {
 				const seccionesData = Array.from(associatedTable.querySelectorAll("tbody.sectionData"));
-				const mainSectionRegex = /h[eé]matolog[ií]a compl[eé]ta|velocidad de sedimentaci[oó]n globular \(v\.s\.g\)|qu[ií]mica sangu[ií]nea/i;
+				const mainSectionRegex =
+					/h[eé]matolog[ií]a compl[eé]ta|velocidad de sedimentaci[oó]n globular \(v\.s\.g\)|qu[ií]mica sangu[ií]nea/i;
 
 				for (const tbody of seccionesData) {
 					const tituloSeccionElemento = tbody.querySelector("tr:first-child td h5");
