@@ -305,6 +305,7 @@
 
 		orderedProfiles.forEach((item) => {
 			const values = Object.values(item);
+			console.log(values);
 			newSections.push(values[0]);
 		});
 
@@ -338,6 +339,7 @@
 			];
 
 			// filtrar y ordenar secciones
+			const filteredSections: any[] = [];
 			const profilePrimarySections: number[] = [];
 			const orderedProfiles: any[] = [];
 
@@ -403,6 +405,7 @@
 
 			orderedProfiles.forEach((item) => {
 				const values = Object.values(item);
+				console.log(values);
 				newSections.push(values[0]);
 			});
 
@@ -1060,10 +1063,8 @@
 
 				for (const tbody of seccionesData) {
 					const tituloSeccionElemento = tbody.querySelector("tr:first-child td h5");
-					console.log("ooo", tituloSeccionElemento);
 					if (tituloSeccionElemento && tituloSeccionElemento.textContent) {
 						const tituloSeccion = tituloSeccionElemento.textContent.trim();
-						console.log("ifgggg", tituloSeccion, mainSectionRegex.test(tituloSeccion));
 						if (mainSectionRegex.test(tituloSeccion)) {
 							shouldRemoveDiv = true;
 							break;
@@ -1107,6 +1108,32 @@
 					firstTable.appendChild(tbody);
 				});
 			}
+		}
+
+		if (tables.length > 0) {
+			const firstTable = tables[0];
+			const allTbodies = Array.from(firstTable.querySelectorAll("tbody.sectionData")) as HTMLTableSectionElement[];
+			const sortedTbodies: HTMLTableSectionElement[] = [];
+			const processedTbodies = new Set<HTMLTableSectionElement>();
+
+			MAIN_SECTION_NAMES_NORMALIZED.forEach((sectionName) => {
+				const tbodyToPlace = allTbodies.find((tbody) => {
+					const titleElement = tbody.querySelector("tr:first-child td h5");
+					return titleElement && normalizeText(titleElement.textContent) === sectionName;
+				});
+
+				if (tbodyToPlace) {
+					sortedTbodies.push(tbodyToPlace);
+					processedTbodies.add(tbodyToPlace);
+				}
+			});
+
+			const remainingTbodies = allTbodies.filter((tbody) => !processedTbodies.has(tbody));
+			const finalOrderedTbodies = [...sortedTbodies, ...remainingTbodies];
+
+			allTbodies.forEach((tbody) => tbody.remove());
+
+			finalOrderedTbodies.forEach((tbody) => firstTable.appendChild(tbody));
 		}
 	}
 
