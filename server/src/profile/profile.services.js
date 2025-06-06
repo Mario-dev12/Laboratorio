@@ -16,7 +16,7 @@ function ordenarResultadosLaboratorio(data) {
       "eosinofilos",
       "contaje de plaquetas",
     ];
-  
+ 
     const ordenQuimicaSanguinea = [
       "glicemia basal",
       "urea",
@@ -39,49 +39,69 @@ function ordenarResultadosLaboratorio(data) {
       "globulina",
       "rel a/g",
     ];
-  
+
+    const ordenVSG = [
+      "1era Hora",
+      "2da Hora",
+      "indice",
+    ]
+ 
     const normalizeString = (str) =>
-      str
-        .normalize("NFD")
-        .replace(/[\u0300-\u036f]/g, "")
-        .toLowerCase();
-  
+      // Agregamos una comprobación para evitar errores si str es null o undefined
+      str 
+        ? str.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase()
+        : "";
+ 
     for (const key in data) {
       if (data.hasOwnProperty(key)) {
         const normalizedKey = normalizeString(key);
         const resultados = data[key].resultado;
-  
+        
+        // Si no hay resultados, saltamos a la siguiente iteración
+        if (!resultados) {
+            continue;
+        }
+ 
         let ordenEspecifico;
-  
+ 
+        // Esta comparación es muy estricta, podría mejorarse si los nombres varían
         if (normalizedKey === "hematologia completa") {
           ordenEspecifico = ordenHematologia;
         } else if (normalizedKey === "quimica sanguinea") {
           ordenEspecifico = ordenQuimicaSanguinea;
+        } else if(normalizedKey === "velocidad de sedimentacion globular (v.s.g)"){
+            ordenEspecifico = ordenVSG;
         } else {
           continue;
         }
-  
+ 
         const resultadosMap = new Map();
         resultados.forEach((item) => {
           resultadosMap.set(normalizeString(item.nombre), item);
         });
-  
+ 
         const resultadosOrdenados = [];
-        const resultadosNoEncontrados = [];
-  
+        
+        // ----- INICIO DE LA CORRECCIÓN -----
         ordenEspecifico.forEach((nombreEsperado) => {
-          if (resultadosMap.has(nombreEsperado)) {
-            resultadosOrdenados.push(resultadosMap.get(nombreEsperado));
-            resultadosMap.delete(nombreEsperado);
+          // 1. Normalizamos el nombre que estamos buscando para que coincida con la clave del mapa
+          const normalizedNombreEsperado = normalizeString(nombreEsperado);
+          
+          // 2. Buscamos usando la clave ya normalizada
+          if (resultadosMap.has(normalizedNombreEsperado)) {
+            resultadosOrdenados.push(resultadosMap.get(normalizedNombreEsperado));
+            resultadosMap.delete(normalizedNombreEsperado);
           }
         });
-  
-        resultadosMap.forEach((item) => resultadosNoEncontrados.push(item));
-  
+        // ----- FIN DE LA CORRECCIÓN -----
+ 
+        // Los ítems que queden en el mapa no estaban en la lista de orden
+        const resultadosNoEncontrados = [...resultadosMap.values()];
+ 
         data[key].resultado = resultadosOrdenados.concat(resultadosNoEncontrados);
       }
     }
-  
+ 
     return data;
 }
 
