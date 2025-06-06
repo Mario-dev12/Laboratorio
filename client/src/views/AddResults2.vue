@@ -305,11 +305,11 @@
 
 		orderedProfiles.forEach((item) => {
 			const values = Object.values(item);
-			console.log(values);
 			newSections.push(values[0]);
 		});
 
 		profilesData.value = newSections;
+		console.log(profilesData.value);
 
 		sectionData.value = profilesData.value[0];
 		showProfile.value = new Array(profileNames.length).fill(false);
@@ -575,11 +575,12 @@
 		});
 
 		if (profileRef2.value) {
+			//loop por cada perfil
 			await Promise.all(
 				profileRef2.value.map(async (item: any) => {
 					const profileFields: any[] = [];
 					const testSections: { [key: string]: any[] } = {};
-					const sections = item.querySelectorAll(".profile-tables");
+					const sections = item.querySelectorAll(".sectionData");
 
 					const profileTitleElement = item.querySelector(".profile-tables .testTitle .title-size");
 					const currentProfileName = profileTitleElement ? profileTitleElement.innerText.trim() : "";
