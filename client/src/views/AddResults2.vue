@@ -309,7 +309,6 @@
 		});
 
 		profilesData.value = newSections;
-		console.log(profilesData.value);
 
 		sectionData.value = profilesData.value[0];
 		showProfile.value = new Array(profileNames.length).fill(false);
