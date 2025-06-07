@@ -1594,6 +1594,41 @@ begin
 end;
 $BODY$;
 
+CREATE OR REPLACE FUNCTION sp_find_user_by_name_lastName(
+	p_name character varying,
+    p_lastName character varying)
+    RETURNS json[]
+    LANGUAGE 'plpgsql'
+    COST 100
+    VOLATILE PARALLEL UNSAFE
+AS $BODY$
+declare 
+	v_json_resp json[];
+begin
+	select array(
+        select jsonb_build_object(
+			'idUser', a.idUser,
+			'ci', a.ci,
+			'passport', a.passport,
+			'firstName', a.firstName,
+			'lastName', a.lastName,
+			'genre', a.genre,
+			'age', a.age,
+			'address', a.address,
+			'phone', a.phone,
+			'email', a.email,
+            'doctor', a.doctor,
+			'createdDate', a.createdDate,
+            'modifiedDate', a.modifiedDate
+		)
+		from users a 
+		WHERE a.firstName = p_name
+        and a.lastName = p_lastName
+        ) ::json[] into v_json_resp;
+		return v_json_resp;
+end;
+$BODY$;
+
 CREATE OR REPLACE FUNCTION sp_find_user_by_name(
 	p_name character varying)
     RETURNS json[]
@@ -3324,41 +3359,44 @@ END;
 $$ LANGUAGE plpgsql;  
 
 CREATE OR REPLACE FUNCTION obtener_perfil_con_resultados(
-	nomb_perfil character varying,
-	idorder integer)
+    nomb_perfil character varying,
+    idorder integer)
     RETURNS json
     LANGUAGE 'plpgsql'
     COST 100
     VOLATILE PARALLEL UNSAFE
 AS $BODY$
-DECLARE  
-    resultado JSON;  
-    division_cursor CURSOR FOR  
-        SELECT idDivision, nombre, orden  
-        FROM perfil_division  
-        WHERE idProfile = (SELECT idProfile FROM profile WHERE name = nomb_perfil LIMIT 1)  
-        ORDER BY orden;  
-    id_division INTEGER;  
-    nombre_division TEXT;  
-    orden_division INTEGER;  
-    campos_json JSON[];  
-    nombre_campo TEXT;  
-    unidad_campo TEXT;  
-    valor_referencial_campo TEXT;   
-    calculado_campo TEXT;   
+DECLARE 
+    resultado JSON; 
+    division_cursor CURSOR FOR 
+        SELECT idDivision, nombre, orden 
+        FROM perfil_division 
+        WHERE idProfile = (SELECT idProfile FROM profile WHERE name = nomb_perfil LIMIT 1) 
+        ORDER BY orden; 
+    id_division INTEGER; 
+    nombre_division TEXT; 
+    orden_division INTEGER; 
+    campos_json JSON[]; 
+    nombre_campo TEXT; 
+    unidad_campo TEXT; 
+    valor_referencial_campo TEXT;  
+    calculado_campo TEXT;  
     resultado_campo TEXT;
-    divisiones_array JSON[];   
+    divisiones_array JSON[];  
     division_json JSON;  
     final_json JSONB := '{}'::JSONB;  
     division_element JSON;  
     record RECORD;  
     nombre_tabla TEXT;  
-	restricciones_json JSON;
+    restricciones_json JSON;
 BEGIN   
-    -- Comprobamos si existe el perfil  
     IF NOT EXISTS (SELECT 1 FROM profile WHERE name = nomb_perfil) THEN  
         RAISE EXCEPTION 'Perfil no reconocido: %', nomb_perfil;  
     END IF;  
+
+    SELECT COALESCE(json_agg(r.restriction), '[]'::JSON) INTO restricciones_json
+    FROM restriction r
+    WHERE r.idProfile = (SELECT idProfile FROM profile WHERE name = nomb_perfil LIMIT 1);
 
     divisiones_array := ARRAY[]::JSON[];  
 
@@ -3371,43 +3409,37 @@ BEGIN
         campos_json := ARRAY[]::JSON[];  
 
         FOR record IN  
-            SELECT c.idCampo, c.nombre, c.unidad, c.valor_referencial, c.calculado  
+            SELECT DISTINCT ON (c.nombre) c.idCampo, c.nombre, c.unidad, c.valor_referencial, c.calculado  
             FROM division_campo dc  
             JOIN campo c ON dc.idCampo = c.idCampo  
             WHERE dc.idDivision = id_division  
+            ORDER BY c.nombre, c.idCampo
         LOOP  
             nombre_campo := record.nombre;  
             unidad_campo := record.unidad;  
-            valor_referencial_campo := record.valor_referencial;   
+            valor_referencial_campo := record.valor_referencial;  
             calculado_campo := record.calculado;  
 
-            nombre_tabla := 'resultados_' || lower(replace(nomb_perfil, ' ', '_'));   
+            nombre_tabla := 'resultados_' || lower(replace(nomb_perfil, ' ', '_'));  
 
             EXECUTE format('SELECT r.resultado   
                             FROM %I r   
-                            JOIN campo_perfil c ON r.idcampo_perfil = c.idcampo_perfil   
-                            JOIN campo ca ON ca.idcampo = c.idcampo   
+                            JOIN campo_perfil cp ON r.idcampo_perfil = cp.idcampo_perfil   
+                            JOIN campo ca ON ca.idcampo = cp.idcampo   
                             WHERE r.idOrder = $1 AND ca.nombre = $2', nombre_tabla)   
             INTO resultado_campo USING idOrder, nombre_campo;   
-            
-            -- Manejar el caso en que resultado_campo es nulo  
-            IF resultado_campo IS NULL THEN  
-                resultado_campo := NULL;  -- Mensaje en caso de no encontrar resultados  
-            END IF;  
-			
-			SELECT json_agg(r.restriction) INTO restricciones_json  
-			FROM restriction r  
-			WHERE r.idProfile = (SELECT idProfile FROM profile WHERE name = nomb_perfil LIMIT 1);
-
+             
+            resultado_campo := COALESCE(resultado_campo, '');
+             
             campos_json := array_append(campos_json, json_build_object(  
-                'nombre', nombre_campo,   
-                'unidad', unidad_campo,   
-                'valor_referencial', valor_referencial_campo,   
+                'nombre', nombre_campo,  
+                'unidad', unidad_campo,  
+                'valor_referencial', valor_referencial_campo,  
                 'calculado', calculado_campo,  
                 'valor', resultado_campo,
-				'restricciones', COALESCE(restricciones_json, '[]')
+                'restricciones', restricciones_json
             ));  
-			  
+              
         END LOOP;  
 
         division_json := json_build_object(nombre_division, json_build_object('resultado', json_build_array(VARIADIC campos_json)));  
@@ -3424,7 +3456,6 @@ BEGIN
     resultado := final_json::JSON;  
 
     RETURN resultado;  
-   
 EXCEPTION  
     WHEN OTHERS THEN  
         RAISE EXCEPTION 'Error al obtener el perfil: %', SQLERRM;  

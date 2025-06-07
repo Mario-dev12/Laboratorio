@@ -34,6 +34,8 @@
 								<option disabled selected>Seleccionar</option>
 								<option value="masculino">Masculino</option>
 								<option value="femenino">Femenino</option>
+								<option value="macho">Macho</option>
+								<option value="hembra">Hembra</option>
 							</select>
 						</div>
 					</div>
@@ -451,7 +453,15 @@
 				user.value.id = currentClient[0].idUser;
 				user.value.nombre = currentClient[0].firstName;
 				user.value.apellido = currentClient[0].lastName;
-				user.value.genero = currentClient[0].genre === "M" ? "masculino" : "femenino";
+				if (currentClient[0].genre === "M") {
+					user.value.genero = "masculino";
+				} else if (currentClient[0].genre === "MA") {
+					user.value.genero = "macho";
+				} else if (currentClient[0].genre === "H") {
+					user.value.genero = "hembra";
+				} else {
+					user.value.genero = "femenino";
+				}
 				user.value.edad = currentClient[0].age;
 				user.value.procedencia = currentClient[0].address;
 				user.value.email = currentClient[0].email;
@@ -460,8 +470,52 @@
 			} else {
 				showToast("No Se Encontro Cliente Con Ese Documento De Identidad", "warning", alertCircleOutline);
 			}
+		} else if ((user.value.documento) && (user.value.apellido)) {
+			const currentClient: User[] = await users.fecthUserByNameandLastName(user.value.nombre, user.value.apellido);
+			if (currentClient.length) {
+				user.value.id = currentClient[0].idUser;
+				user.value.nombre = currentClient[0].firstName;
+				user.value.apellido = currentClient[0].lastName;
+				if (currentClient[0].genre === "M") {
+					user.value.genero = "masculino";
+				} else if (currentClient[0].genre === "MA") {
+					user.value.genero = "macho";
+				} else if (currentClient[0].genre === "H") {
+					user.value.genero = "hembra";
+				} else {
+					user.value.genero = "femenino";
+				}
+				user.value.edad = currentClient[0].age;
+				user.value.procedencia = currentClient[0].address;
+				user.value.email = currentClient[0].email;
+				user.value.phone = currentClient[0].phone;
+				user.value.doctor = currentClient[0].doctor;
+			} else {
+				showToast("No Se Encontro Cliente Con Ese Nombre y Apellido", "warning", alertCircleOutline);
+			}
 		} else {
-			showToast("Ingrese documento de identidad", "warning", alertCircleOutline);
+			const currentClient: User[] = await users.fecthUserByName(user.value.nombre);
+			if (currentClient.length) {
+				user.value.id = currentClient[0].idUser;
+				user.value.nombre = currentClient[0].firstName;
+				user.value.apellido = currentClient[0].lastName;
+				if (currentClient[0].genre === "M") {
+					user.value.genero = "masculino";
+				} else if (currentClient[0].genre === "MA") {
+					user.value.genero = "macho";
+				} else if (currentClient[0].genre === "H") {
+					user.value.genero = "hembra";
+				} else {
+					user.value.genero = "femenino";
+				}
+				user.value.edad = currentClient[0].age;
+				user.value.procedencia = currentClient[0].address;
+				user.value.email = currentClient[0].email;
+				user.value.phone = currentClient[0].phone;
+				user.value.doctor = currentClient[0].doctor;
+			} else {
+				showToast("No Se Encontro Cliente Con Ese Nombre y Apellido", "warning", alertCircleOutline);
+			}
 		}
 	};
 
@@ -537,7 +591,6 @@
 
 	const saveOrder = async () => {
 		if (
-			!user.value.documento ||
 			!user.value.nombre ||
 			!user.value.apellido ||
 			!user.value.genero ||
@@ -552,13 +605,26 @@
 				if (user.value.id === 0) {
 					let respUser: number | undefined = 0;
 					let respExam: number | undefined = 0;
+					let genreAbbreviation;
+
+					if (user.value.genero === "masculino") {
+						genreAbbreviation = "M";
+					} else if (user.value.genero === "macho") {
+						genreAbbreviation = "MA";
+					} else if (user.value.genero === "femenino") {
+						genreAbbreviation = "F";
+					} else if (user.value.genero === "hembra") {
+						genreAbbreviation = "H";
+					} else {
+						genreAbbreviation = "";
+					}
 					const body: User = {
 						idUser: user.value.id,
 						passport: null,
 						ci: user.value.documento.trim(),
 						firstName: user.value.nombre,
 						lastName: user.value.apellido,
-						genre: user.value.genero === "masculino" ? "M" : user.value.genero === "femenino" ? "F" : "",
+						genre: genreAbbreviation,
 						age: user.value.edad,
 						address: user.value.procedencia,
 						email: user.value.email,

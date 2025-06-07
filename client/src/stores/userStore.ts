@@ -22,6 +22,11 @@ export const userStore = defineStore("user", {
 			this.users = response;
 			return this.users;
 		},
+		async fecthUserByNameandLastName(name: string, lastName: string) {
+			const response = await axiosRepository.getByNameandLastName<User[]>("users", name, lastName);
+			this.users = response;
+			return this.users;
+		},
 		async createUser(user: User) {
 			const response = await axiosRepository.create<User>("users", user);
 			this.users.push(response);
