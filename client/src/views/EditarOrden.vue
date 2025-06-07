@@ -31,6 +31,8 @@
 								<option disabled selected>Seleccionar</option>
 								<option value="masculino">Masculino</option>
 								<option value="femenino">Femenino</option>
+								<option value="macho">Macho</option>
+								<option value="hembra">Hembra</option>
 							</select>
 						</div>
 					</div>
@@ -428,7 +430,15 @@
 		user.value.apellido = userData.value[0].lastName;
 		user.value.documento = userData.value[0].ci;
 		user.value.edad = userData.value[0].age;
-		user.value.genero = userData.value[0].genre === "M" ? "masculino" : "femenino";
+		if (userData.value[0].genre === "M") {
+			user.value.genero = "masculino";
+		} else if (userData.value[0].genre === "MA") {
+			user.value.genero = "macho";
+		} else if (userData.value[0].genre === "H") {
+			user.value.genero = "hembra";
+		} else {
+			user.value.genero = "femenino";
+		}
 		user.value.nombre = userData.value[0].firstName;
 		user.value.procedencia = userData.value[0].address;
 		user.value.id = userData.value[0].idUser;
@@ -486,7 +496,15 @@
 			user.value.apellido = userData.value[0].lastName;
 			user.value.documento = userData.value[0].ci;
 			user.value.edad = userData.value[0].age;
-			user.value.genero = userData.value[0].genre === "M" ? "masculino" : "femenino";
+			if (userData.value[0].genre === "M") {
+				user.value.genero = "masculino";
+			} else if (userData.value[0].genre === "MA") {
+				user.value.genero = "macho";
+			} else if (userData.value[0].genre === "H") {
+				user.value.genero = "hembra";
+			} else {
+				user.value.genero = "femenino";
+			}
 			user.value.nombre = userData.value[0].firstName;
 			user.value.procedencia = userData.value[0].address;
 			user.value.id = userData.value[0].idUser;
@@ -632,13 +650,25 @@
 		const paymentsHasChanged = JSON.stringify(paymentData.value) !== JSON.stringify(originalPaymentData.value);
 
 		if (userHasChanged) {
+			let genreAbbreviation;
+			if (user.value.genero === "masculino") {
+				genreAbbreviation = "M";
+			} else if (user.value.genero === "macho") {
+				genreAbbreviation = "MA";
+			} else if (user.value.genero === "femenino") {
+				genreAbbreviation = "F";
+			} else if (user.value.genero === "hembra") {
+				genreAbbreviation = "H";
+			} else {
+				genreAbbreviation = "";
+			}
 			const userBody: User = {
 				idUser: user.value.id,
 				ci: user.value.documento.trim(),
 				firstName: user.value.nombre,
 				address: user.value.procedencia,
 				age: user.value.edad,
-				genre: user.value.genero === "masculino" ? "M" : user.value.genero === "femenino" ? "F" : "",
+				genre: genreAbbreviation,
 				lastName: user.value.apellido,
 				passport: 0,
 				email: user.value.email,

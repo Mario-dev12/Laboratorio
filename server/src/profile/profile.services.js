@@ -4,105 +4,154 @@ const profileServices = {};
 
 function ordenarResultadosLaboratorio(data) {
     const ordenHematologia = [
-      "hematies",
-      "hemoglobina",
-      "hematocrito",
-      "chcm",
-      "hcm",
-      "vcm",
-      "contaje de blancos",
-      "segmentados",
-      "linfocitos",
-      "eosinofilos",
-      "contaje de plaquetas",
-    ];
- 
-    const ordenQuimicaSanguinea = [
-      "glicemia basal",
-      "urea",
-      "creatinina",
-      "acido urico",
-      "transaminasa oxalacetica (ast)",
-      "transaminasa piruvica (alt)",
-      "colesterol",
-      "trigliceridos",
-      "hdl - colesterol",
-      "ldl - colesterol",
-      "lipidos totales",
-      "calcio",
-      "fosforo",
-      "bilirrubina total",
-      "bilirrubina directa",
-      "bilirrubina indirecta",
-      "proteinas totales",
-      "albumina",
-      "globulina",
-      "rel a/g",
+        "hematies",
+        "hemoglobina",
+        "hematocrito",
+        "chcm",
+        "hcm",
+        "vcm",
+        "contaje de blancos",
+        "segmentados",
+        "linfocitos",
+        "eosinofilos",
+        "contaje de plaquetas",
+        "fibrinógeno",
+        "grupo sanguíneo",
+        "rh"
     ];
 
-    const ordenVSG = [
-      "1era Hora",
-      "2da Hora",
-      "indice",
-    ]
- 
+    const ordenQuimicaSanguinea = [
+        "glicemia basal",
+        "urea",
+        "creatinina",
+        "ácido úrico",
+        "transaminasa oxalacética (ast)",
+        "transaminasa pirúvica (alt)",
+        "colesterol",
+        "triglicéridos",
+        "hdl - colesterol",
+        "ldl - colesterol",
+        "lipidos totales",
+        "calcio",
+        "fósforo",
+        "bilirrubina total",
+        "bilirrubina directa",
+        "bilirrubina indirecta",
+        "proteínas totales",
+        "albúmina",
+        "globulina",
+        "rel a/g",
+        "glicemia postpandrial",
+        "fosfatasa alcalina",
+        "ldh",
+        "hierro sérico",
+        "cpk",
+        "cpk mb",
+        "hemoglobina glicosilada (hba1c)",
+        "ggtp",
+        "amilasa",
+        "magnesio",
+        "lipasa"
+    ];
+
+    const ordenUroanalisisFisico = [
+        "cantidad",
+        "color",
+        "olor",
+        "reacción",
+        "aspecto",
+        "densidad",
+        "ph"
+    ];
+
+    const ordenUroanalisisQuimico = [
+        "proteínas - orina",
+        "glucosa",
+        "hemoglobina - orina",
+        "cuerpos cetónicos",
+        "bilirrubina - orina",
+        "urobilinógeno",
+        "nitritos",
+        "leucocitos"
+    ];
+
+    const ordenUroanalisisMicroscopico = [
+        "células epiteliales",
+        "leucocitos",
+        "hematies - orina",
+        "bacterias",
+        "filamento de mucina",
+        "cristales",
+        "células redondas",
+        "conidias",
+        "blastoconidias"
+    ];
+
+
+    const ordenVSG = ["1era hora", "2da hora", "índice"];
+
     const normalizeString = (str) =>
-      // Agregamos una comprobación para evitar errores si str es null o undefined
-      str 
-        ? str.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase()
-        : "";
- 
+        str ? str.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().trim() : "";
+
+    const dataOrdenada = {};
+
     for (const key in data) {
-      if (data.hasOwnProperty(key)) {
-        const normalizedKey = normalizeString(key);
-        const resultados = data[key].resultado;
-        
-        // Si no hay resultados, saltamos a la siguiente iteración
-        if (!resultados) {
-            continue;
-        }
- 
-        let ordenEspecifico;
- 
-        // Esta comparación es muy estricta, podría mejorarse si los nombres varían
-        if (normalizedKey === "hematologia completa") {
-          ordenEspecifico = ordenHematologia;
-        } else if (normalizedKey === "quimica sanguinea") {
-          ordenEspecifico = ordenQuimicaSanguinea;
-        } else if(normalizedKey === "velocidad de sedimentacion globular (v.s.g)"){
-            ordenEspecifico = ordenVSG;
+        if (data.hasOwnProperty(key) && data[key].resultado && Array.isArray(data[key].resultado)) {
+            let resultados = data[key].resultado;
+
+            const uniqueResultadosMap = new Map();
+            resultados.forEach((item) => {
+                const normalizedItemName = normalizeString(item.nombre);
+                if (!uniqueResultadosMap.has(normalizedItemName)) {
+                    uniqueResultadosMap.set(normalizedItemName, item);
+                }
+            });
+            let resultadosUnicos = [...uniqueResultadosMap.values()];
+
+            const normalizedKey = normalizeString(key);
+            let ordenEspecifico = [];
+
+            if (normalizedKey === "hematología completa") {
+                ordenEspecifico = ordenHematologia;
+            } else if (normalizedKey === "química sanguínea") {
+                ordenEspecifico = ordenQuimicaSanguinea;
+            } else if (normalizedKey === "uroanálisis - análisis fisico") {
+                ordenEspecifico = ordenUroanalisisFisico;
+            } else if (normalizedKey === "uroanálisis - análisis químico") {
+                ordenEspecifico = ordenUroanalisisQuimico;
+            } else if (normalizedKey === "uroanálisis - análisis microscópico") {
+                ordenEspecifico = ordenUroanalisisMicroscopico;
+            } else if (normalizedKey === "velocidad de sedimentación globular (v.s.g)") {
+                ordenEspecifico = ordenVSG;
+            }
+
+            const resultadosMapParaOrden = new Map();
+            resultadosUnicos.forEach((item) => {
+                resultadosMapParaOrden.set(normalizeString(item.nombre), item);
+            });
+
+            const resultadosOrdenados = [];
+            ordenEspecifico.forEach((nombreEsperado) => {
+                const normalizedNombreEsperado = normalizeString(nombreEsperado);
+                if (resultadosMapParaOrden.has(normalizedNombreEsperado)) {
+                    resultadosOrdenados.push(resultadosMapParaOrden.get(normalizedNombreEsperado));
+                    resultadosMapParaOrden.delete(normalizedNombreEsperado);
+                }
+            });
+
+            const resultadosNoEncontrados = [...resultadosMapParaOrden.values()];
+            
+            dataOrdenada[key] = {
+                ...data[key],
+                resultado: resultadosOrdenados.concat(resultadosNoEncontrados)
+            };
+
         } else {
-          continue;
+            dataOrdenada[key] = data[key];
         }
- 
-        const resultadosMap = new Map();
-        resultados.forEach((item) => {
-          resultadosMap.set(normalizeString(item.nombre), item);
-        });
- 
-        const resultadosOrdenados = [];
-        
-        // ----- INICIO DE LA CORRECCIÓN -----
-        ordenEspecifico.forEach((nombreEsperado) => {
-          // 1. Normalizamos el nombre que estamos buscando para que coincida con la clave del mapa
-          const normalizedNombreEsperado = normalizeString(nombreEsperado);
-          
-          // 2. Buscamos usando la clave ya normalizada
-          if (resultadosMap.has(normalizedNombreEsperado)) {
-            resultadosOrdenados.push(resultadosMap.get(normalizedNombreEsperado));
-            resultadosMap.delete(normalizedNombreEsperado);
-          }
-        });
-        // ----- FIN DE LA CORRECCIÓN -----
- 
-        // Los ítems que queden en el mapa no estaban en la lista de orden
-        const resultadosNoEncontrados = [...resultadosMap.values()];
- 
-        data[key].resultado = resultadosOrdenados.concat(resultadosNoEncontrados);
-      }
     }
- 
-    return data;
+
+    return dataOrdenada;
 }
 
 profileServices.readProfiles = async () => {
@@ -162,11 +211,9 @@ profileServices.readInputsbySectionName = async name => {
 }
 
 profileServices.readInputsResults2 = async (name, id) => {
-    const resp =  await profileRepository.readInputsResults2(name, id)
+    const resp = await profileRepository.readInputsResults2(name, id);
     const respOrdenada = ordenarResultadosLaboratorio(resp);
-
-    console.log('Full response:', JSON.stringify(respOrdenada, null, 2));
-
+    
     return respOrdenada;
 }
 
