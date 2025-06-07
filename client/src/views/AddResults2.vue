@@ -909,11 +909,7 @@
 
 		const normalizeText = (text: string | null | undefined): string => {
 			if (!text) return "";
-			return text
-				.toLowerCase()
-				.normalize("NFD")
-				.replace(/[\u0300-\u036f]/g, "")
-				.trim();
+			return text.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").trim();
 		};
 
 		tables.forEach((table) => {
@@ -932,6 +928,7 @@
 			});
 		});
 		const VALOR_MULTIPLICACION_HEMATIES = 1000000;
+		const VALOR_MULTIPLICACION_EROTROCITOS_FELINO = 1000000;
 
 		tables.forEach((table) => {
 			const seccionesData = Array.from(table.querySelectorAll("tbody.sectionData"));
@@ -969,6 +966,23 @@
 										console.warn("No se encontró un elemento <input> para HEMATIES en la celda esperada.");
 									}
 								}
+								if (nombreCampo === "erotrocitos") {
+									const inputElement = celdaInputElement.querySelector("input") as HTMLInputElement | null;
+
+									if (inputElement) {
+										const valorActualStr = inputElement.value;
+										const valorActualNum = parseFloat(valorActualStr);
+
+										if (!isNaN(valorActualNum)) {
+											const nuevoValor = valorActualNum * VALOR_MULTIPLICACION_EROTROCITOS_FELINO;
+											inputElement.value = nuevoValor.toLocaleString("es-ES");
+										} else {
+											console.warn(`El valor para HEMATIES ('${valorActualStr}') no es un número válido y no se multiplicará.`);
+										}
+									} else {
+										console.warn("No se encontró un elemento <input> para HEMATIES en la celda esperada.");
+									}
+								}
 							}
 						});
 					}
@@ -979,14 +993,14 @@
 		const MAIN_SECTION_NAMES_NORMALIZED = [
 			normalizeText("Hematología completa"),
 			normalizeText("Velocidad de Sedimentación Globular (V.S.G)"),
-			normalizeText("Química Sanguínea"),
+			normalizeText("Química Sanguínea")
 		];
 		const primaryMainSectionTbodiesMap: Map<string, HTMLTableSectionElement> = new Map();
 		const testTitlesToRemove = new Set<HTMLElement>();
 
-		tables.forEach((table) => {
+		tables.forEach(table => {
 			const sectionsInTable = Array.from(table.querySelectorAll("tbody.sectionData")) as HTMLTableSectionElement[];
-			sectionsInTable.forEach((tbody) => {
+			sectionsInTable.forEach(tbody => {
 				const titleElement = tbody.querySelector("tr:first-child td h5");
 				if (titleElement && titleElement.textContent) {
 					const normalizedTitle = normalizeText(titleElement.textContent);
@@ -1001,20 +1015,20 @@
 			const sectionsInTable = Array.from(table.querySelectorAll("tbody.sectionData")) as HTMLTableSectionElement[];
 			let associatedTestTitleShouldBeRemoved = false;
 
-			sectionsInTable.forEach((currentTbody) => {
+			sectionsInTable.forEach(currentTbody => {
 				const titleElement = currentTbody.querySelector("tr:first-child td h5");
 				if (titleElement && titleElement.textContent) {
 					const currentSectionTitleNormalized = normalizeText(titleElement.textContent);
 
 					if (MAIN_SECTION_NAMES_NORMALIZED.includes(currentSectionTitleNormalized)) {
 						const primaryTbodyForThisSection = primaryMainSectionTbodiesMap.get(currentSectionTitleNormalized);
-
+						
 						if (primaryTbodyForThisSection && primaryTbodyForThisSection !== currentTbody) {
 							const dataRowsToMove = Array.from(currentTbody.querySelectorAll("tr.rowData"));
-							dataRowsToMove.forEach((row) => primaryTbodyForThisSection.appendChild(row));
-
-							titleElement.closest("tr")?.remove();
-
+							dataRowsToMove.forEach(row => primaryTbodyForThisSection.appendChild(row));
+							
+							titleElement.closest('tr')?.remove();
+							
 							associatedTestTitleShouldBeRemoved = true;
 
 							if (currentTbody.querySelectorAll("tr").length === 0) {
@@ -1053,10 +1067,9 @@
 
 			let shouldRemoveDiv = false;
 
-			if (i === 0) {
+			if (i === 0){
 				const seccionesData = Array.from(associatedTable.querySelectorAll("tbody.sectionData"));
-				const mainSectionRegex =
-					/h[eé]matolog[ií]a compl[eé]ta|velocidad de sedimentaci[oó]n globular \(v\.s\.g\)|qu[ií]mica sangu[ií]nea/i;
+				const mainSectionRegex = /h[eé]matolog[ií]a compl[eé]ta|velocidad de sedimentaci[oó]n globular \(v\.s\.g\)|qu[ií]mica sangu[ií]nea/i;
 
 				for (const tbody of seccionesData) {
 					const tituloSeccionElemento = tbody.querySelector("tr:first-child td h5");
@@ -1076,8 +1089,7 @@
 
 			if (!shouldRemoveDiv && associatedTable) {
 				const seccionesData = Array.from(associatedTable.querySelectorAll("tbody.sectionData"));
-				const mainSectionRegex =
-					/h[eé]matolog[ií]a compl[eé]ta|velocidad de sedimentaci[oó]n globular \(v\.s\.g\)|qu[ií]mica sangu[ií]nea/i;
+				const mainSectionRegex = /h[eé]matolog[ií]a compl[eé]ta|velocidad de sedimentaci[oó]n globular \(v\.s\.g\)|qu[ií]mica sangu[ií]nea/i;
 
 				for (const tbody of seccionesData) {
 					const tituloSeccionElemento = tbody.querySelector("tr:first-child td h5");
@@ -1113,8 +1125,8 @@
 			const sortedTbodies: HTMLTableSectionElement[] = [];
 			const processedTbodies = new Set<HTMLTableSectionElement>();
 
-			MAIN_SECTION_NAMES_NORMALIZED.forEach((sectionName) => {
-				const tbodyToPlace = allTbodies.find((tbody) => {
+			MAIN_SECTION_NAMES_NORMALIZED.forEach(sectionName => {
+				const tbodyToPlace = allTbodies.find(tbody => {
 					const titleElement = tbody.querySelector("tr:first-child td h5");
 					return titleElement && normalizeText(titleElement.textContent) === sectionName;
 				});
@@ -1125,12 +1137,12 @@
 				}
 			});
 
-			const remainingTbodies = allTbodies.filter((tbody) => !processedTbodies.has(tbody));
+			const remainingTbodies = allTbodies.filter(tbody => !processedTbodies.has(tbody));
 			const finalOrderedTbodies = [...sortedTbodies, ...remainingTbodies];
 
-			allTbodies.forEach((tbody) => tbody.remove());
+			allTbodies.forEach(tbody => tbody.remove());
 
-			finalOrderedTbodies.forEach((tbody) => firstTable.appendChild(tbody));
+			finalOrderedTbodies.forEach(tbody => firstTable.appendChild(tbody));
 		}
 	}
 
