@@ -615,9 +615,9 @@
 						});
 					});
 					if (currentProfileName) {
-						const order = ordersArray.value.find((order: any) => {
-							return profileNames[ordersArray.value.indexOf(order)].trim() === currentProfileName.trim();
-						});
+						const order = ordersArray.value.find(
+							(order: any) => profileNames[ordersArray.value.indexOf(order)].trim() === currentProfileName.trim()
+						);
 						if (order) {
 							const results = {
 								orderId: order.idOrder,
