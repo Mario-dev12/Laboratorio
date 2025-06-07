@@ -225,6 +225,7 @@
 		order.value = route.query.profile;
 		order.value = JSON.parse(order.value);
 		ordersArray.value = order.value.orders;
+		console.log(ordersArray.value);
 		profileNamesOrdered = [];
 		profileNames = route.query.profileNames;
 		profileNames = JSON.parse(profileNames);
@@ -613,12 +614,10 @@
 							}
 						});
 					});
-
 					if (currentProfileName) {
-						const order = ordersArray.value.find(
-							(order: any) => profileNames[ordersArray.value.indexOf(order)] === currentProfileName
-						);
-
+						const order = ordersArray.value.find((order: any) => {
+							return profileNames[ordersArray.value.indexOf(order)].trim() === currentProfileName.trim();
+						});
 						if (order) {
 							const results = {
 								orderId: order.idOrder,
