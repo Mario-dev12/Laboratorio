@@ -24,34 +24,34 @@
 						<div class="border-bottom border-black"></div>
 						<div class="mt-1 text-center d-flex">
 							<div class="me-3">
-								<div class="d-inline fw-bold">Paciente:</div>
-								{{ order?.firstName }} {{ order?.lastName }}
+								<div class="d-inline fw-bold size">Paciente:</div>
+								<span class="size"> {{ order?.firstName }} {{ order?.lastName }} </span>
 							</div>
 							<div class="me-3">
-								<div class="d-inline fw-bold">CI:</div>
-								{{ order?.ci }}
+								<div class="d-inline fw-bold size">CI:</div>
+								<span class="size"> {{ order?.ci }} </span>
 							</div>
 							<div v-if="order?.doctor" class="me-3">
-								<div class="d-inline fw-bold">Dr:</div>
-								{{ order?.doctor }}
+								<div class="d-inline fw-bold size">Dr:</div>
+								<span class="size"> {{ order?.doctor }} </span>
 							</div>
 							<div class="me-3">
-								<div class="d-inline fw-bold">Edad:</div>
-								{{ order?.age }}
+								<div class="d-inline fw-bold size">Edad:</div>
+								<span class="size"> {{ order?.age }} </span>
 							</div>
 							<div class="me-3">
-								<div class="d-inline fw-bold">Sexo:</div>
-								{{ order?.genre === "M" ? "Masculino" : "Femenino" }}
+								<div class="d-inline fw-bold size">Sexo:</div>
+								<span class="size"> {{ order?.genre === "M" ? "Masculino" : "Femenino" }} </span>
 							</div>
 							<div class="me-3">
-								<div class="d-inline fw-bold">Fecha:</div>
-								{{ day }}/{{ month }}/{{ year }}
+								<div class="d-inline fw-bold size">Fecha:</div>
+								<span class="size"> {{ day }}/{{ month }}/{{ year }} </span>
 							</div>
 						</div>
 					</div>
 
 					<div class="profile-content" v-for="(profile, indx) in profilesData" :key="indx" ref="profileRef2">
-						<div class="profile-sections mt-1" v-show="showProfile[indx]">
+						<div class="profile-sections mt-1 size" v-show="showProfile[indx]">
 							<div class="profile-tables">
 								<div class="table-responsive">
 									<table class="table table-hover table-striped m-0">
@@ -66,7 +66,7 @@
 										<tbody class="testTitle">
 											<tr class="text-center">
 												<td class="p-0" colspan="4">
-													<h4 class="m-0 text-nowrap">{{ profileNamesOrdered[indx] }}</h4>
+													<h4 class="m-0 text-nowrap title-size">{{ profileNamesOrdered[indx] }}</h4>
 												</td>
 											</tr>
 										</tbody>
@@ -77,7 +77,7 @@
 											ref="sectionRef">
 											<tr class="text-center">
 												<td class="p-0" colspan="4">
-													<h5 class="m-0 text-nowrap">{{ key }}</h5>
+													<h5 class="m-0 text-nowrap subtitle-size">{{ key }}</h5>
 												</td>
 											</tr>
 											<tr class="rowData p-0" v-for="(item, index) in (section as Section).resultado" :key="index">
@@ -170,7 +170,6 @@
 	const profileRef = ref();
 	const order = ref();
 	const profileRef2 = ref();
-	let html: string = "";
 	const ordersArray = ref();
 	const mailsStore = mailStore();
 	const valorReferencial = ref();
@@ -213,6 +212,7 @@
 		order.value = route.query.profile;
 		order.value = JSON.parse(order.value);
 		ordersArray.value = order.value.orders;
+		console.log(ordersArray.value);
 		profileNamesOrdered = [];
 		profileNames = route.query.profileNames;
 		profileNames = JSON.parse(profileNames);
@@ -228,79 +228,75 @@
 			"QUÍMICA SANGUÍNEA",
 		];
 
-		// filtrar y ordenar secciones
-		const filteredSections: any[] = [];
-		const seenKeys = new Set();
-		let firstTest = "";
-		const firstSection: AnyKeyObject = {
-			"Hematología completa": "",
-			"Hematología Completa": "",
-			"HEMATOLOGÍA COMPLETA": "",
-			vsg: "",
-			"Velocidad de Sedimentación Globular (V.S.G)": "",
-			"VELOCIDAD DE SEDIMENTACIÓN GLOBULAR (V.S.G)": "",
-			"Química Sanguinea": "",
-			"Química Sanguínea": "",
-			"QUÍMICA SANGUÍNEA": "",
-		};
-		let primarySectionFilled = false;
+		const profilePrimarySections: number[] = [];
+		const orderedProfiles: any[] = [];
 
 		for (const profile of ordersArray.value) {
+			const profilesAndSections: { [key: string]: any } = {};
+			let primarySectionsCounter: number = 0;
 			const profileSection2 = await profilesStore.fetchProfileByInputsName2(profile.profiles[0].profileName, profile.idOrder);
 			const sectionKeys = Object.keys(profileSection2);
-			const hasPrimarySection = primarySectionsStrings.some((item) => sectionKeys.includes(item));
 
-			const filteredSection: any = {};
+			const filteredSection: AnyKeyObject = {
+				"Hematología completa": "",
+				"Hematología Completa": "",
+				"HEMATOLOGÍA COMPLETA": "",
+				vsg: "",
+				"Velocidad de Sedimentación Globular (V.S.G)": "",
+				"VELOCIDAD DE SEDIMENTACIÓN GLOBULAR (V.S.G)": "",
+				"Química Sanguinea": "",
+				"Química Sanguínea": "",
+				"QUÍMICA SANGUÍNEA": "",
+			};
 
-			if (hasPrimarySection && !primarySectionFilled) {
-				primarySectionFilled = true;
-				for (const [key, value] of Object.entries(profileSection2)) {
-					if (!seenKeys.has(key)) {
-						firstSection[key] = value;
-						seenKeys.add(key);
-					}
+			//ordenar secciones
+			for (const [key, value] of Object.entries(profileSection2)) {
+				filteredSection[key] = value;
+			}
+
+			for (const [key, value] of Object.entries(filteredSection)) {
+				if (!value) {
+					delete filteredSection[key];
 				}
+			}
+
+			profilesAndSections[profile.profiles[0].profileName] = filteredSection;
+
+			//chequear cuantas secciones primarias tiene el perfil actual
+			sectionKeys.forEach((name) => {
+				const isPrimary = primarySectionsStrings.some((item) => name === item);
+				if (isPrimary) {
+					primarySectionsCounter++;
+				}
+			});
+
+			if (!orderedProfiles.length) {
+				orderedProfiles.push(profilesAndSections);
 			} else {
-				for (const [key, value] of Object.entries(profileSection2)) {
-					if (!seenKeys.has(key)) {
-						if (primarySectionsStrings.includes(key)) {
-							firstSection[key] = value;
-							seenKeys.add(key);
-						} else {
-							filteredSection[key] = value;
-							seenKeys.add(key);
-						}
-					}
+				const morePrimarySections = profilePrimarySections.every((num) => primarySectionsCounter > num);
+				if (morePrimarySections) {
+					orderedProfiles.unshift(profilesAndSections);
+				} else {
+					orderedProfiles.push(profilesAndSections);
 				}
 			}
 
-			if (hasPrimarySection && !firstTest) {
-				firstTest = profile.profiles[0].profileName;
-			} else {
-				if (Object.keys(filteredSection).length != 0) {
-					filteredSections.push(filteredSection);
-					profileNamesOrdered.push(profile.profiles[0].profileName);
-				}
-			}
+			//guardar cuantas secciones primarias tiene cada perfil
+			profilePrimarySections.push(primarySectionsCounter);
 		}
 
-		for (const [key, value] of Object.entries(firstSection)) {
-			if (!value) {
-				delete firstSection[key];
-			}
-		}
+		orderedProfiles.forEach((item) => {
+			profileNamesOrdered.push(Object.keys(item)[0]);
+		});
 
-		if (firstTest) {
-			profileNamesOrdered.unshift(firstTest);
-		}
+		const newSections: any[] = [];
 
-		if (Object.keys(firstSection).length != 0) {
-			filteredSections.unshift(firstSection);
-		}
+		orderedProfiles.forEach((item) => {
+			const values = Object.values(item);
+			newSections.push(values[0]);
+		});
 
-		//
-
-		profilesData.value = filteredSections;
+		profilesData.value = newSections;
 
 		sectionData.value = profilesData.value[0];
 		showProfile.value = new Array(profileNames.length).fill(false);
@@ -330,77 +326,75 @@
 			];
 
 			// filtrar y ordenar secciones
-			const filteredSections: any[] = [];
-			const seenKeys = new Set();
-			let firstTest = "";
-			const firstSection: AnyKeyObject = {
-				"Hematología completa": "",
-				"Hematología Completa": "",
-				"HEMATOLOGÍA COMPLETA": "",
-				vsg: "",
-				"Velocidad de Sedimentación Globular (V.S.G)": "",
-				"VELOCIDAD DE SEDIMENTACIÓN GLOBULAR (V.S.G)": "",
-				"Química Sanguinea": "",
-				"Química Sanguínea": "",
-				"QUÍMICA SANGUÍNEA": "",
-			};
-			let primarySectionFilled = false;
+			const profilePrimarySections: number[] = [];
+			const orderedProfiles: any[] = [];
 
 			for (const profile of ordersArray.value) {
+				const profilesAndSections: { [key: string]: any } = {};
+				let primarySectionsCounter: number = 0;
 				const profileSection2 = await profilesStore.fetchProfileByInputsName2(profile.profiles[0].profileName, profile.idOrder);
 				const sectionKeys = Object.keys(profileSection2);
-				const hasPrimarySection = primarySectionsStrings.some((item) => sectionKeys.includes(item));
 
-				const filteredSection: any = {};
+				const filteredSection: AnyKeyObject = {
+					"Hematología completa": "",
+					"Hematología Completa": "",
+					"HEMATOLOGÍA COMPLETA": "",
+					vsg: "",
+					"Velocidad de Sedimentación Globular (V.S.G)": "",
+					"VELOCIDAD DE SEDIMENTACIÓN GLOBULAR (V.S.G)": "",
+					"Química Sanguinea": "",
+					"Química Sanguínea": "",
+					"QUÍMICA SANGUÍNEA": "",
+				};
 
-				if (hasPrimarySection && !primarySectionFilled) {
-					primarySectionFilled = true;
-					for (const [key, value] of Object.entries(profileSection2)) {
-						if (!seenKeys.has(key)) {
-							firstSection[key] = value;
-							seenKeys.add(key);
-						}
+				//ordenar secciones
+				for (const [key, value] of Object.entries(profileSection2)) {
+					filteredSection[key] = value;
+				}
+
+				for (const [key, value] of Object.entries(filteredSection)) {
+					if (!value) {
+						delete filteredSection[key];
 					}
+				}
+
+				profilesAndSections[profile.profiles[0].profileName] = filteredSection;
+
+				//chequear cuantas secciones primarias tiene el perfil actual
+				sectionKeys.forEach((name) => {
+					const isPrimary = primarySectionsStrings.some((item) => name === item);
+					if (isPrimary) {
+						primarySectionsCounter++;
+					}
+				});
+
+				if (!orderedProfiles.length) {
+					orderedProfiles.push(profilesAndSections);
 				} else {
-					for (const [key, value] of Object.entries(profileSection2)) {
-						if (!seenKeys.has(key)) {
-							if (primarySectionsStrings.includes(key)) {
-								firstSection[key] = value;
-								seenKeys.add(key);
-							} else {
-								filteredSection[key] = value;
-								seenKeys.add(key);
-							}
-						}
+					const morePrimarySections = profilePrimarySections.every((num) => primarySectionsCounter > num);
+					if (morePrimarySections) {
+						orderedProfiles.unshift(profilesAndSections);
+					} else {
+						orderedProfiles.push(profilesAndSections);
 					}
 				}
 
-				if (hasPrimarySection && !firstTest) {
-					firstTest = profile.profiles[0].profileName;
-				} else {
-					if (Object.keys(filteredSection).length != 0) {
-						filteredSections.push(filteredSection);
-						profileNamesOrdered.push(profile.profiles[0].profileName);
-					}
-				}
+				//guardar cuantas secciones primarias tiene cada perfil
+				profilePrimarySections.push(primarySectionsCounter);
 			}
 
-			for (const [key, value] of Object.entries(firstSection)) {
-				if (!value) {
-					delete firstSection[key];
-				}
-			}
+			orderedProfiles.forEach((item) => {
+				profileNamesOrdered.push(Object.keys(item)[0]);
+			});
 
-			if (firstTest) {
-				profileNamesOrdered.unshift(firstTest);
-			}
+			const newSections: any[] = [];
 
-			if (Object.keys(firstSection).length != 0) {
-				filteredSections.unshift(firstSection);
-			}
-			//
+			orderedProfiles.forEach((item) => {
+				const values = Object.values(item);
+				newSections.push(values[0]);
+			});
 
-			profilesData.value = filteredSections;
+			profilesData.value = newSections;
 
 			sectionData.value = profilesData.value[0];
 			showProfile.value = new Array(profileNames.length).fill(false);
@@ -412,14 +406,24 @@
 	const checkInputValue = async (event: Event, index: number, section: any, sectionIndex: number) => {
 		const inputElement = event.target as HTMLInputElement;
 		const inputValue = inputElement.value.replace(",", ".");
-		const personAge = order.value.age;
-		const personGenre = order.value.genre;
-		const numericInput = parseFloat(inputValue);
 
 		const setInputColor = (isValid: boolean) => {
 			inputElement.style.color = isValid ? "green" : "red";
 			inputElement.style.borderColor = isValid ? "lightgreen" : "red";
 		};
+
+		const hasLetters = /[a-zA-Z]/.test(inputValue);
+		const hasNumbers = /\d/.test(inputValue);
+
+		if (hasLetters && hasNumbers) {
+			setInputColor(true);
+			section.resultado[index].valor = inputValue;
+			return;
+		}
+
+		const personAge = order.value.age;
+		const personGenre = order.value.genre;
+		const numericInput = parseFloat(inputValue);
 
 		const parseScientific = (str: string) => {
 			const match = /(-?\d+(\.\d+)?)\s*x10\^([-+]?\d+)/.exec(str);
@@ -431,6 +435,7 @@
 
 		if (Number.isNaN(numericInput)) {
 			setInputColor(true);
+			section.resultado[index].valor = inputValue;
 			return;
 		}
 
@@ -460,7 +465,7 @@
 				case 2: {
 					isValid = validateRange(parsedNumbers[0], parsedNumbers[1]);
 					if (valorReferencialString.toLowerCase().includes("hasta")) {
-						isValid = numericInput <= parsedNumbers[1];
+						isValid = numericInput >= parsedNumbers[0] && numericInput <= parsedNumbers[1];
 					}
 					break;
 				}
@@ -476,7 +481,7 @@
 
 						matches?.forEach((matchStr: any) => {
 							const val = parseScientific(matchStr);
-							if (val !== undefined) {
+							if (val !== undefined && !Number.isNaN(val)) {
 								minRange = Math.min(minRange, val);
 								maxRange = Math.max(maxRange, val);
 							}
@@ -504,7 +509,7 @@
 
 					matches?.forEach((matchStr: any) => {
 						const val = parseScientific(matchStr);
-						if (val !== undefined) {
+						if (val !== undefined && !Number.isNaN(val)) {
 							minRange = Math.min(minRange, val);
 							maxRange = Math.max(maxRange, val);
 						}
@@ -522,9 +527,17 @@
 
 		setInputColor(isValid);
 
-		section.resultado[index].valor = numericInput;
+		if (isValid) {
+			section.resultado[index].valor = numericInput;
+		} else {
+			section.resultado[index].valor = numericInput;
+		}
+		let campoCalculadoLlenado = await calcularResultados(section, sectionIndex);
 
-		await calcularResultados(section, sectionIndex);
+		do {
+			campoCalculadoLlenado = await calcularResultados(section, sectionIndex);
+		} while (campoCalculadoLlenado);
+
 		if (section.resultado.length > 1) {
 			await calcularResultados(section, sectionIndex);
 		}
@@ -542,64 +555,84 @@
 		});
 	}
 
-	const guardarCambios = () => {
+	const guardarCambios = async () => {
 		const testsResults: { [key: string]: any[] } = {};
 		profileNames.forEach((name: string) => {
 			testsResults[name] = [];
 		});
 
 		if (profileRef2.value) {
-			profileRef2.value.forEach(async (item: any, index: number) => {
-				let results: { orderId: number; profileName: string; fields: any[] };
-				results = {
-					orderId: 0,
-					profileName: "",
-					fields: [],
-				};
-				const profileFields: any[] = [];
-				const testSections: { [key: string]: any[] } = {};
-				const sections = item.querySelectorAll(".profile-tables");
+			//loop por cada perfil
+			await Promise.all(
+				profileRef2.value.map(async (item: any) => {
+					const profileFields: any[] = [];
+					const testSections: { [key: string]: any[] } = {};
+					const sections = item.querySelectorAll(".sectionData");
 
-				sections.forEach((table: any) => {
-					const tableName = table.querySelector("h5");
-					const tableData = table.querySelectorAll("tbody tr");
-					testSections[tableName.innerHTML] = [];
+					const profileTitleElement = item.querySelector(".profile-tables .testTitle .title-size");
+					const currentProfileName = profileTitleElement ? profileTitleElement.innerText.trim() : "";
 
-					tableData.forEach((tr: any) => {
-						const dataRow = {
-							fieldName: "",
-							inputValue: "",
-							Unit: "",
-						};
+					sections.forEach((table: any) => {
+						const tableNameElement = table.querySelector("h5.subtitle-size");
+						const tableName = tableNameElement ? tableNameElement.innerText.trim() : "";
+						testSections[tableName] = [];
 
-						const tds = tr.children;
+						const tableData = table.querySelectorAll("tbody tr.rowData");
 
-						dataRow.fieldName = tds[0]?.innerHTML || "";
-						const inputElement = tds[1]?.querySelector("input");
-						dataRow.inputValue = inputElement ? inputElement.value : "";
-						dataRow.Unit = tds[2]?.innerHTML || "";
+						tableData.forEach((tr: any) => {
+							const dataRow = {
+								fieldName: "",
+								inputValue: "",
+								Unit: "",
+							};
 
-						if (profileFields) profileFields.push(dataRow);
-						if (testSections[tableName.innerHTML]) {
-							testSections[tableName.innerHTML].push(dataRow);
-						}
+							const tds = tr.children;
+
+							dataRow.fieldName = tds[0]?.innerText.trim() || "";
+							const inputElement = tds[1]?.querySelector("input");
+							dataRow.inputValue = inputElement ? inputElement.value : "";
+							dataRow.Unit = tds[2]?.innerText.trim() || "";
+
+							if (dataRow.fieldName) {
+								profileFields.push(dataRow);
+								if (testSections[tableName]) {
+									testSections[tableName].push(dataRow);
+								}
+							}
+						});
 					});
-				});
-				Object.values(testsResults)[index].push(testSections);
+					if (currentProfileName) {
+						const order = ordersArray.value.find(
+							(order: any) => profileNames[ordersArray.value.indexOf(order)].trim() === currentProfileName.trim()
+						);
+						if (order) {
+							const results = {
+								orderId: order.idOrder,
+								profileName: currentProfileName,
+								fields: profileFields,
+							};
 
-				results = {
-					orderId: ordersArray.value[index].idOrder,
-					profileName: profileNames[index],
-					fields: profileFields,
-				};
-				const data = {
-					id: ordersArray.value[index].idOrder,
-					status: "Pendiente de enviar",
-				};
-				await examsStore.createExamResults(results);
-				await ordersStore.updateStatusOrder(ordersArray.value[index].idOrder, data);
-			});
-			showToast("Cambios guradados exitosamnte!", "creado", checkboxOutline);
+							const data = {
+								id: order.idOrder,
+								status: "Pendiente de enviar",
+							};
+
+							await examsStore.createExamResults(results);
+							await ordersStore.updateStatusOrder(order.idOrder, data);
+						} else {
+							console.warn(`No se encontró un 'orderId' para el perfil: ${currentProfileName}`);
+						}
+
+						if (testsResults[currentProfileName]) {
+							testsResults[currentProfileName].push(testSections);
+						}
+					} else {
+						console.warn("No se pudo obtener el nombre del perfil para un elemento DOM.");
+					}
+				})
+			);
+
+			showToast("Cambios guardados exitosamente!", "creado", checkboxOutline);
 		}
 	};
 
@@ -796,16 +829,37 @@
 		const profileRefCopy = profileRef.value.cloneNode(true);
 		const patientInfoDivCopy = profileRefCopy.querySelector(".patient-info");
 
-		html = patientInfoDivCopy.innerHTML;
+		if (patientInfoDivCopy) {
+			const detailsContainer = patientInfoDivCopy.querySelector(".mt-1.text-center.d-flex");
 
-		const element = html;
+			if (detailsContainer) {
+				detailsContainer.style.display = "flex";
+				detailsContainer.style.flexDirection = "column";
+				detailsContainer.style.alignItems = "flex-start";
 
-		const filename = `portada.pdf`;
-		profileName.value = `portada.pdf`;
+				detailsContainer.classList.remove("text-center");
+
+				const detailItems = detailsContainer.children;
+				for (let i = 0; i < detailItems.length; i++) {
+					const item = detailItems[i];
+					if (item instanceof HTMLElement) {
+						item.style.marginRight = "0";
+						item.style.marginBottom = "8px";
+						item.style.textAlign = "left";
+						item.classList.remove("me-3");
+					}
+				}
+			} else {
+				console.warn("Contenedor de detalles (.mt-1.text-center.d-flex) no encontrado en patientInfoDivCopy.");
+			}
+		} else {
+			console.warn(".patient-info no encontrado en profileRefCopy.");
+		}
+
+		const html = patientInfoDivCopy.innerHTML;
 
 		const options = {
 			margin: 6,
-			filename: filename,
 			image: { type: "jpeg", quality: 0.98 },
 			html2canvas: { scale: 2 },
 			jsPDF: { unit: "mm", format: "letter", orientation: "portrait" },
@@ -813,23 +867,175 @@
 
 		const html2pdf = (await import("html2pdf.js")).default;
 
-		html2pdf().from(element).set(options).save();
+		const pdfBlob = await html2pdf().from(html).set(options).output("blob");
+
+		const pdfUrl = URL.createObjectURL(pdfBlob);
+		const printWindow = window.open(pdfUrl);
+
+		if (printWindow) {
+			printWindow.onload = function () {
+				printWindow.print();
+				printWindow.onafterprint = function () {
+					printWindow.close();
+					URL.revokeObjectURL(pdfUrl);
+				};
+			};
+		} else {
+			console.error("No se pudo abrir la ventana de impresión.");
+		}
 	};
 
 	async function mergeTables(element: HTMLElement) {
 		const tables = Array.from(element.querySelectorAll("table"));
-		const testTitlesDivs = Array.from(element.querySelectorAll(".testTitle"));
+		const testTitlesDivs = Array.from(element.querySelectorAll(".testTitle")) as HTMLElement[];
 		const profileSection = element.querySelector(".profile-sections") as HTMLElement;
 
-		profileSection.style.display = "block";
+		if (profileSection) {
+			profileSection.style.display = "block";
+		}
 
-		//Revisar si ningun input tiene valor y eliminar ese tbody y su titulo
+		const normalizeText = (text: string | null | undefined): string => {
+			if (!text) return "";
+			return text.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").trim();
+		};
+
+		tables.forEach((table) => {
+			const filasDeDatos = table.querySelectorAll("tr.rowData");
+			filasDeDatos.forEach((fila: Element) => {
+				const celdaNombreCampo = fila.querySelector("td:first-child") as HTMLTableCellElement;
+				if (celdaNombreCampo) {
+					let textoActual = celdaNombreCampo.textContent || "";
+					const textoOriginal = textoActual;
+					const regexSufijos = /\s*(?:-\s*)?(?:canino|felino|orina)$/i;
+					textoActual = textoActual.replace(regexSufijos, "").trim();
+					if (textoActual !== textoOriginal) {
+						celdaNombreCampo.textContent = textoActual;
+					}
+				}
+			});
+		});
+		const VALOR_MULTIPLICACION_HEMATIES = 1000000;
+		const VALOR_MULTIPLICACION_EROTROCITOS_FELINO = 1000000;
+
+		tables.forEach((table) => {
+			const seccionesData = Array.from(table.querySelectorAll("tbody.sectionData"));
+
+			seccionesData.forEach((tbody) => {
+				const tituloSeccionElemento = tbody.querySelector("tr:first-child td h5");
+
+				if (tituloSeccionElemento && tituloSeccionElemento.textContent) {
+					const tituloSeccion = tituloSeccionElemento.textContent.trim().toLowerCase();
+
+					if (tituloSeccion === "hematología completa" || tituloSeccion === "HEMATOLOGÍA COMPLETA") {
+						const filasEnSeccion = Array.from(tbody.querySelectorAll("tr.rowData"));
+
+						filasEnSeccion.forEach((fila) => {
+							const celdaNombreCampo = fila.querySelector("td:first-child");
+							const celdaInputElement = fila.querySelector("td.inputElement");
+
+							if (celdaNombreCampo && celdaNombreCampo.textContent && celdaInputElement) {
+								const nombreCampo = celdaNombreCampo.textContent.trim().toLowerCase();
+
+								if (nombreCampo === "hematies") {
+									const inputElement = celdaInputElement.querySelector("input") as HTMLInputElement | null;
+
+									if (inputElement) {
+										const valorActualStr = inputElement.value;
+										const valorActualNum = parseFloat(valorActualStr);
+
+										if (!isNaN(valorActualNum)) {
+											const nuevoValor = valorActualNum * VALOR_MULTIPLICACION_HEMATIES;
+											inputElement.value = nuevoValor.toLocaleString("es-ES");
+										} else {
+											console.warn(`El valor para HEMATIES ('${valorActualStr}') no es un número válido y no se multiplicará.`);
+										}
+									} else {
+										console.warn("No se encontró un elemento <input> para HEMATIES en la celda esperada.");
+									}
+								}
+								if (nombreCampo === "erotrocitos") {
+									const inputElement = celdaInputElement.querySelector("input") as HTMLInputElement | null;
+
+									if (inputElement) {
+										const valorActualStr = inputElement.value;
+										const valorActualNum = parseFloat(valorActualStr);
+
+										if (!isNaN(valorActualNum)) {
+											const nuevoValor = valorActualNum * VALOR_MULTIPLICACION_EROTROCITOS_FELINO;
+											inputElement.value = nuevoValor.toLocaleString("es-ES");
+										} else {
+											console.warn(`El valor para HEMATIES ('${valorActualStr}') no es un número válido y no se multiplicará.`);
+										}
+									} else {
+										console.warn("No se encontró un elemento <input> para HEMATIES en la celda esperada.");
+									}
+								}
+							}
+						});
+					}
+				}
+			});
+		});
+
+		const MAIN_SECTION_NAMES_NORMALIZED = [
+			normalizeText("Hematología completa"),
+			normalizeText("Velocidad de Sedimentación Globular (V.S.G)"),
+			normalizeText("Química Sanguínea")
+		];
+		const primaryMainSectionTbodiesMap: Map<string, HTMLTableSectionElement> = new Map();
+		const testTitlesToRemove = new Set<HTMLElement>();
+
+		tables.forEach(table => {
+			const sectionsInTable = Array.from(table.querySelectorAll("tbody.sectionData")) as HTMLTableSectionElement[];
+			sectionsInTable.forEach(tbody => {
+				const titleElement = tbody.querySelector("tr:first-child td h5");
+				if (titleElement && titleElement.textContent) {
+					const normalizedTitle = normalizeText(titleElement.textContent);
+					if (MAIN_SECTION_NAMES_NORMALIZED.includes(normalizedTitle) && !primaryMainSectionTbodiesMap.has(normalizedTitle)) {
+						primaryMainSectionTbodiesMap.set(normalizedTitle, tbody);
+					}
+				}
+			});
+		});
+
+		tables.forEach((table, tableIndex) => {
+			const sectionsInTable = Array.from(table.querySelectorAll("tbody.sectionData")) as HTMLTableSectionElement[];
+			let associatedTestTitleShouldBeRemoved = false;
+
+			sectionsInTable.forEach(currentTbody => {
+				const titleElement = currentTbody.querySelector("tr:first-child td h5");
+				if (titleElement && titleElement.textContent) {
+					const currentSectionTitleNormalized = normalizeText(titleElement.textContent);
+
+					if (MAIN_SECTION_NAMES_NORMALIZED.includes(currentSectionTitleNormalized)) {
+						const primaryTbodyForThisSection = primaryMainSectionTbodiesMap.get(currentSectionTitleNormalized);
+						
+						if (primaryTbodyForThisSection && primaryTbodyForThisSection !== currentTbody) {
+							const dataRowsToMove = Array.from(currentTbody.querySelectorAll("tr.rowData"));
+							dataRowsToMove.forEach(row => primaryTbodyForThisSection.appendChild(row));
+							
+							titleElement.closest('tr')?.remove();
+							
+							associatedTestTitleShouldBeRemoved = true;
+
+							if (currentTbody.querySelectorAll("tr").length === 0) {
+								currentTbody.remove();
+							}
+						}
+					}
+				}
+			});
+
+			if (associatedTestTitleShouldBeRemoved && testTitlesDivs[tableIndex]) {
+				testTitlesToRemove.add(testTitlesDivs[tableIndex]);
+			}
+		});
+
 		tables.forEach((table, i) => {
 			const tbodies = Array.from(table.querySelectorAll(".sectionData"));
-			//Chequear inputs de la seccion
 			tbodies.forEach((tbody) => {
 				const inputs = Array.from(tbody.querySelectorAll("input"));
-				const sectionInputvalues = inputs.some((input) => input.value);
+				const sectionInputvalues = inputs.some((input) => (input as HTMLInputElement).value);
 
 				if (!sectionInputvalues) {
 					tbody.parentNode?.removeChild(tbody);
@@ -837,35 +1043,97 @@
 			});
 
 			const updatedTbodies = Array.from(table.querySelectorAll(".sectionData"));
-			if (!updatedTbodies.length) {
+			if (!updatedTbodies.length && testTitlesDivs[i]) {
 				testTitlesDivs[i].parentNode?.removeChild(testTitlesDivs[i]);
 			}
 		});
 
-		testTitlesDivs.forEach((div) => {
+		testTitlesDivs.forEach((div, i) => {
 			const titleText = div.querySelector("h4");
-			const regex = /perfil/i;
-			if (titleText && regex.test(titleText.innerHTML)) {
+			const associatedTable = tables[i];
+
+			let shouldRemoveDiv = false;
+
+			if (i === 0){
+				const seccionesData = Array.from(associatedTable.querySelectorAll("tbody.sectionData"));
+				const mainSectionRegex = /h[eé]matolog[ií]a compl[eé]ta|velocidad de sedimentaci[oó]n globular \(v\.s\.g\)|qu[ií]mica sangu[ií]nea/i;
+
+				for (const tbody of seccionesData) {
+					const tituloSeccionElemento = tbody.querySelector("tr:first-child td h5");
+					if (tituloSeccionElemento && tituloSeccionElemento.textContent) {
+						const tituloSeccion = tituloSeccionElemento.textContent.trim();
+						if (mainSectionRegex.test(tituloSeccion)) {
+							shouldRemoveDiv = true;
+							break;
+						}
+					}
+				}
+			}
+
+			if (titleText && /perfil/i.test(titleText.innerHTML)) {
+				shouldRemoveDiv = true;
+			}
+
+			if (!shouldRemoveDiv && associatedTable) {
+				const seccionesData = Array.from(associatedTable.querySelectorAll("tbody.sectionData"));
+				const mainSectionRegex = /h[eé]matolog[ií]a compl[eé]ta|velocidad de sedimentaci[oó]n globular \(v\.s\.g\)|qu[ií]mica sangu[ií]nea/i;
+
+				for (const tbody of seccionesData) {
+					const tituloSeccionElemento = tbody.querySelector("tr:first-child td h5");
+					if (tituloSeccionElemento && tituloSeccionElemento.textContent) {
+						const tituloSeccion = tituloSeccionElemento.textContent.trim();
+						if (mainSectionRegex.test(tituloSeccion)) {
+							shouldRemoveDiv = true;
+							break;
+						}
+					}
+				}
+			}
+
+			if (shouldRemoveDiv) {
 				div.parentNode?.removeChild(div);
 			}
 		});
 
-		const firstTable = tables[0];
-
-		for (let i = 1; i < tables.length; i++) {
-			const currentTable = tables[i];
-			const tbodies = currentTable.querySelectorAll("tbody");
-
-			if (tbodies) {
-				tbodies.forEach((tbody) => {
+		if (tables.length > 0) {
+			const firstTable = tables[0];
+			for (let i = 1; i < tables.length; i++) {
+				const currentTable = tables[i];
+				const tbodiesToMove = currentTable.querySelectorAll("tbody");
+				tbodiesToMove.forEach((tbody) => {
 					firstTable.appendChild(tbody);
 				});
 			}
 		}
+
+		if (tables.length > 0) {
+			const firstTable = tables[0];
+			const allTbodies = Array.from(firstTable.querySelectorAll("tbody.sectionData")) as HTMLTableSectionElement[];
+			const sortedTbodies: HTMLTableSectionElement[] = [];
+			const processedTbodies = new Set<HTMLTableSectionElement>();
+
+			MAIN_SECTION_NAMES_NORMALIZED.forEach(sectionName => {
+				const tbodyToPlace = allTbodies.find(tbody => {
+					const titleElement = tbody.querySelector("tr:first-child td h5");
+					return titleElement && normalizeText(titleElement.textContent) === sectionName;
+				});
+
+				if (tbodyToPlace) {
+					sortedTbodies.push(tbodyToPlace);
+					processedTbodies.add(tbodyToPlace);
+				}
+			});
+
+			const remainingTbodies = allTbodies.filter(tbody => !processedTbodies.has(tbody));
+			const finalOrderedTbodies = [...sortedTbodies, ...remainingTbodies];
+
+			allTbodies.forEach(tbody => tbody.remove());
+
+			finalOrderedTbodies.forEach(tbody => firstTable.appendChild(tbody));
+		}
 	}
 
 	const inputToSpan = async (parentElement: HTMLElement) => {
-		//Agarrar inputs y cambiarlos por span o eliminarlos si no contienen valor
 		const rows = parentElement.querySelectorAll(".rowData");
 		rows.forEach((row: Element) => {
 			const input = row.querySelector("input");
@@ -1251,10 +1519,10 @@
 		// --- 2. LÓGICA DE PAGINACIÓN MANUAL EN EL DOM TEMPORAL ---
 
 		const pdfContainer = document.createElement("div");
-		pdfContainer.style.width = "210mm"; // Ancho de una página A4/Letter
-		pdfContainer.style.padding = "0mm 5mm"; // Márgenes laterales para el contenido
+		pdfContainer.style.width = "205mm"; // Ancho de una página A4/Letter
+		pdfContainer.style.padding = "0mm 0mm"; // Márgenes laterales para el contenido
 
-		const alturaMaximaContenidoMM = 270; // Altura máxima deseada del contenido por página
+		const alturaMaximaContenidoMM = 280; // Altura máxima deseada del contenido por página
 
 		let paginaActual: HTMLElement | null = null; // Empezamos sin página actual
 		let currentContentHeightMM = 0; // Para llevar un seguimiento de la altura del contenido en la página actual
@@ -1465,13 +1733,16 @@
 		const parser = new Parser();
 
 		let formulaNormalizada = formula;
+		//valore normalizados es una copia de valores
 		const valoresNormalizados: { [key: string]: any } = { ...valores };
 
+		//mapeoNombresComplejos es un objeto donde el key es el nombre original y el valor es el nombre modificado
 		const mapeoNombresComplejos: { [nombreOriginal: string]: string } = {};
 
 		const invalidVarCharRegex = /[^\w]/g;
 
 		for (const key in valores) {
+			//modifica el nombre del campo,
 			if (Object.prototype.hasOwnProperty.call(valores, key) && invalidVarCharRegex.test(key)) {
 				const nombreNormalizado = key.replace(invalidVarCharRegex, "_");
 				mapeoNombresComplejos[key] = nombreNormalizado;
@@ -1482,6 +1753,7 @@
 		}
 
 		for (const nombreOriginal in mapeoNombresComplejos) {
+			//cambia los nombres en la formula/calculado por los nombres modificados en el for anterior (nombreNormalizado)
 			if (Object.prototype.hasOwnProperty.call(mapeoNombresComplejos, nombreOriginal)) {
 				const nombreNormalizado = mapeoNombresComplejos[nombreOriginal];
 
@@ -1553,6 +1825,7 @@
 					return null;
 				}
 
+				alertShown.value = false;
 				return resultadoIzquierda;
 			}
 		} catch (error) {
@@ -1562,121 +1835,136 @@
 	};
 
 	const calcularResultados = async (seccion: { resultado: any[] }, sectionIndex: number) => {
-		for (let i = 0; i < 2; i++) {
-			const valores: Record<string, any> = {};
+		// for (let i = 0; i < 2; i++) {
 
-			seccion.resultado.forEach((item: { valor: any; nombre: string | number }) => {
-				if (item.valor) {
-					valores[item.nombre] = item.valor;
+		//campoCalculadoLlenado es el valor que regresa la funcion como true si un campo calculado cambia o se llena
+		let campoCalculadoLlenado: boolean = false;
+		//valores es un objeto con el nombre del campo y su valor, si tiene un valor
+		const valores: Record<string, any> = {};
+
+		seccion.resultado.forEach((item: { valor: any; nombre: string | number }) => {
+			if (item.valor) {
+				valores[item.nombre] = item.valor;
+			}
+		});
+
+		const currentSection = sectionRef.value[sectionIndex];
+		const inputElements = currentSection.querySelectorAll("input");
+
+		seccion.resultado.forEach((item: { calculado: string; valor: any; restricciones: any }, index: number) => {
+			if (item.calculado) {
+				//valorAnterior es para chequear si el valor del campo calculado cambia despues de aplicarFormula
+				const valorAnterior = item.valor;
+				for (const restriccion of item.restricciones) {
+					aplicarRestriccion(restriccion, valores);
 				}
-			});
+				item.valor = aplicarFormula(item.calculado, valores);
 
-			const currentSection = sectionRef.value[sectionIndex];
-			const inputElements = currentSection.querySelectorAll("input");
+				//chequear si se llena un campo calculado y cambia su valor anterior para que no entre en loop infinito
+				if (item.valor && valorAnterior != item.valor) {
+					campoCalculadoLlenado = true;
+					const inputElement = inputElements[index];
+					const inputValue = item.valor;
+					const personAge = order.value.age;
+					const personGenre = order.value.genre;
+					const valorReferencialString = seccion.resultado[index].valor_referencial;
+					const valorReferencialNumber = valorReferencialString.match(/(\d+(?:,\d+)?)/g);
+					const parsedNumbers = valorReferencialNumber?.map((numStr: any) => parseFloat(numStr.replace(",", ".")));
 
-			seccion.resultado.forEach((item: { calculado: string; valor: any; restricciones: any }, index: number) => {
-				if (item.calculado) {
-					for (const restriccion of item.restricciones) {
-						aplicarRestriccion(restriccion, valores);
-					}
-					item.valor = aplicarFormula(item.calculado, valores);
+					const numericInput = parseFloat(inputValue);
 
-					if (item.valor) {
-						const inputElement = inputElements[index];
-						const inputValue = item.valor;
-						const personAge = order.value.age;
-						const personGenre = order.value.genre;
-						const valorReferencialString = seccion.resultado[index].valor_referencial;
-						const valorReferencialNumber = valorReferencialString.match(/(\d+(?:,\d+)?)/g);
-						const parsedNumbers = valorReferencialNumber?.map((numStr: any) => parseFloat(numStr.replace(",", ".")));
+					const setInputColor = (isValid: boolean) => {
+						inputElement.style.color = isValid ? "green" : "red";
+						inputElement.style.borderColor = isValid ? "lightgreen" : "red";
+					};
 
-						const numericInput = parseFloat(inputValue);
-
-						const setInputColor = (isValid: boolean) => {
-							inputElement.style.color = isValid ? "green" : "red";
-							inputElement.style.borderColor = isValid ? "lightgreen" : "red";
-						};
-
-						const parseScientific = (str: string) => {
-							const match = /(-?\d+(\.\d+)?)\s*x10\^([-+]?\d+)/.exec(str);
-							if (match) {
-								return parseFloat(match[1]) * Math.pow(10, parseInt(match[3], 10));
-							}
-							return parseFloat(str);
-						};
-
-						if (isNaN(numericInput)) {
-							seccion.resultado[index].valor = null;
-							return;
+					const parseScientific = (str: string) => {
+						const match = /(-?\d+(\.\d+)?)\s*x10\^([-+]?\d+)/.exec(str);
+						if (match) {
+							return parseFloat(match[1]) * Math.pow(10, parseInt(match[3], 10));
 						}
+						return parseFloat(str);
+					};
 
-						const validateRange = (min: number, max: number): boolean => {
-							return numericInput >= min && numericInput <= max;
-						};
+					if (isNaN(numericInput)) {
+						seccion.resultado[index].valor = null;
+						return;
+					}
 
-						let isValid = true;
+					const validateRange = (min: number, max: number): boolean => {
+						return numericInput >= min && numericInput <= max;
+					};
 
-						if (parsedNumbers) {
-							switch (parsedNumbers.length) {
-								case 1: {
-									if (valorReferencialString.includes("menor")) {
-										isValid = numericInput < parsedNumbers[0];
-									} else if (valorReferencialString.includes("Hasta")) {
-										isValid = numericInput <= parsedNumbers[0];
+					let isValid = true;
+
+					if (parsedNumbers) {
+						switch (parsedNumbers.length) {
+							case 1: {
+								if (valorReferencialString.includes("menor")) {
+									isValid = numericInput < parsedNumbers[0];
+								} else if (valorReferencialString.includes("Hasta")) {
+									isValid = numericInput <= parsedNumbers[0];
+								}
+								break;
+							}
+
+							case 2: {
+								isValid = validateRange(parsedNumbers[0], parsedNumbers[1]);
+								if (valorReferencialString.includes("Hasta")) {
+									isValid = numericInput <= parsedNumbers[1];
+								}
+								break;
+							}
+
+							case 4: {
+								let range: [number, number];
+								if (valorReferencialString.includes("Hombre")) {
+									range = personGenre === "M" ? [parsedNumbers[0], parsedNumbers[1]] : [parsedNumbers[2], parsedNumbers[3]];
+								} else if (valorReferencialString.includes("Adulto")) {
+									range = personAge > 17 ? [parsedNumbers[0], parsedNumbers[1]] : [parsedNumbers[2], parsedNumbers[3]];
+								} else {
+									range = [parsedNumbers[0], parsedNumbers[1]];
+								}
+								isValid = validateRange(range[0], range[1]);
+								break;
+							}
+
+							case 6: {
+								let minRange = Infinity;
+								let maxRange = -Infinity;
+
+								const matches = valorReferencialString.match(/(-?\d+(\.\d+)?\s*x10\^[-+]?\d+)|(-?\d+(\.\d+)?)/g);
+
+								matches?.forEach((matchStr: any) => {
+									const val = parseScientific(matchStr);
+									if (val !== undefined) {
+										minRange = Math.min(minRange, val);
+										maxRange = Math.max(maxRange, val);
 									}
-									break;
-								}
+								});
 
-								case 2: {
-									isValid = validateRange(parsedNumbers[0], parsedNumbers[1]);
-									if (valorReferencialString.includes("Hasta")) {
-										isValid = numericInput <= parsedNumbers[1];
-									}
-									break;
-								}
+								isValid = validateRange(minRange, maxRange);
+								break;
+							}
 
-								case 4: {
-									let range: [number, number];
-									if (valorReferencialString.includes("Hombre")) {
-										range = personGenre === "M" ? [parsedNumbers[0], parsedNumbers[1]] : [parsedNumbers[2], parsedNumbers[3]];
-									} else if (valorReferencialString.includes("Adulto")) {
-										range = personAge > 17 ? [parsedNumbers[0], parsedNumbers[1]] : [parsedNumbers[2], parsedNumbers[3]];
-									} else {
-										range = [parsedNumbers[0], parsedNumbers[1]];
-									}
-									isValid = validateRange(range[0], range[1]);
-									break;
-								}
-
-								case 6: {
-									let minRange = Infinity;
-									let maxRange = -Infinity;
-
-									const matches = valorReferencialString.match(/(-?\d+(\.\d+)?\s*x10\^[-+]?\d+)|(-?\d+(\.\d+)?)/g);
-
-									matches?.forEach((matchStr: any) => {
-										const val = parseScientific(matchStr);
-										if (val !== undefined) {
-											minRange = Math.min(minRange, val);
-											maxRange = Math.max(maxRange, val);
-										}
-									});
-
-									isValid = validateRange(minRange, maxRange);
-									break;
-								}
-
-								default: {
-									break;
-								}
+							default: {
+								break;
 							}
 						}
-						setInputColor(isValid);
-						seccion.resultado[index].valor = numericInput;
 					}
+					setInputColor(isValid);
+					seccion.resultado[index].valor = numericInput;
 				}
-			});
-		}
+			} else {
+				for (const restriccion of item.restricciones) {
+					console.log("rrrr", restriccion);
+					aplicarRestriccion(restriccion, valores);
+				}
+			}
+		});
+		//si un campo calculado cambia o se llena por primera vez esta variable regresa true y vuelve a correr calcularResultados
+		return campoCalculadoLlenado;
+		// }
 	};
 </script>
 

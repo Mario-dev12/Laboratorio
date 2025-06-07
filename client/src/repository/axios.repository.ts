@@ -69,7 +69,9 @@ class AxiosRepository {
 		return response.data;
 	}
 	async getAllSpermiogramOrders<T>(domain: string, today: boolean, date: string): Promise<T[]> {
-		const response = await axios.get<T[]>(`${import.meta.env.VITE_API_URL}/${domain}/spermiogramorders?today=${today}&date=${date}`);
+		const response = await axios.get<T[]>(
+			`${import.meta.env.VITE_API_URL}/${domain}/spermiogramorders?today=${today}&date=${date}`
+		);
 		return response.data;
 	}
 	async getAllHistOrders<T>(domain: string): Promise<T[]> {
@@ -142,6 +144,11 @@ class AxiosRepository {
 
 	async getByName<T>(domain: string, name: string): Promise<T> {
 		const response = await axios.get<T>(`${import.meta.env.VITE_API_URL}/${domain}/name/${name}`);
+		return response.data;
+	}
+
+	async getByNameandLastName<T>(domain: string, name: string, lastName: string): Promise<T> {
+		const response = await axios.get<T>(`${import.meta.env.VITE_API_URL}/${domain}/lastName/${name}/${lastName}`);
 		return response.data;
 	}
 
@@ -258,7 +265,7 @@ class AxiosRepository {
 
 	async createCultive<T>(domain: string, data: T): Promise<T> {
 		const requestData = {
-			data
+			data,
 		};
 		const response = await axios.post<T>(`${import.meta.env.VITE_API_URL}/${domain}/cultive`, requestData);
 		return response.data;
@@ -268,7 +275,7 @@ class AxiosRepository {
 		const requestData = {
 			data,
 			sensibles,
-			resistentes
+			resistentes,
 		};
 		const response = await axios.post<T>(`${import.meta.env.VITE_API_URL}/${domain}/cultive/results`, requestData);
 		return response.data;
@@ -277,7 +284,7 @@ class AxiosRepository {
 	async createSpermiogramResults<T>(domain: string, data: T, id: number): Promise<T> {
 		const requestData = {
 			id,
-			data
+			data,
 		};
 		const response = await axios.post<T>(`${import.meta.env.VITE_API_URL}/${domain}/spermiogram/results`, requestData);
 		return response.data;

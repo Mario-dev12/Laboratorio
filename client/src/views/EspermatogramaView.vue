@@ -12,36 +12,36 @@
 					</div>
 					<div class="patient-info">
 						<div class="border-bottom border-black mt-1"></div>
-						<div class="row mt-2">
-							<div class="col">
+						<div class="mt-1 text-center d-flex">
+							<div class="me-3">
 								<div class="d-inline fw-bold">Paciente:</div>
 								{{ profile?.firstName }} {{ profile?.lastName }}
 							</div>
-							<div class="col">
+							<div class="me-3">
 								<div class="d-inline fw-bold">CI:</div>
 								{{ profile?.ci }}
 							</div>
-							<div v-show="profile?.doctor" class="col">
+							<div v-show="profile?.doctor" class="me-3">
 								<div class="d-inline fw-bold">Dr:</div>
 								{{ profile?.doctor }}
 							</div>
-							<div class="col">
+							<div class="me-3">
 								<div class="d-inline fw-bold">Edad:</div>
 								{{ profile?.age }}
 							</div>
-							<div class="col">
+							<div class="me-3">
 								<div class="d-inline fw-bold">Sexo:</div>
 								{{ profile?.genre === "M" ? "Masculino" : "Femenino" }}
 							</div>
-							<div class="col">
+							<div class="me-3">
 								<div class="d-inline fw-bold">Fecha:</div>
 								{{ day }}/{{ month }}/{{ year }}
 							</div>
 						</div>
 					</div>
 				</div>
-				<div class="espermatograma mt-5">
-					<h3 class="text-center">Espermatograma</h3>
+				<div class="espermatograma mt-2">
+					<h3 class="text-center size">Espermatograma</h3>
 					<div class="row px-2 w-100 m-auto">
 						<div class="col-3 border border-black">Volumen:</div>
 						<div v-if="resultEspermatograma" class="col-3 border border-black">
@@ -616,26 +616,43 @@
 		}
 	};
 
-	const pdfCover = async () => {
-		const profileRefCopy = headerPatientInfo.value.cloneNode(true);
+	const pdfCover = async () => {  
+		const profileRefCopy = headerPatientInfo.value.cloneNode(true);  
 
-		html = profileRefCopy.innerHTML;
+		// Obtiene el HTML del elemento clonado  
+		const html = profileRefCopy.innerHTML;  
 
-		const element = html;
+		// Opciones para html2pdf  
+		const options = {  
+			margin: 6,  
+			image: { type: "jpeg", quality: 0.98 },  
+			html2canvas: { scale: 2 },  
+			jsPDF: { unit: "mm", format: "letter", orientation: "portrait" },  
+		};  
 
-		const filename = `portada.pdf`;
+		const html2pdf = (await import("html2pdf.js")).default;  
 
-		const options = {
-			margin: 6,
-			filename: filename,
-			image: { type: "jpeg", quality: 0.98 },
-			html2canvas: { scale: 2 },
-			jsPDF: { unit: "mm", format: "letter", orientation: "portrait" },
-		};
+		// Genera el Blob en vez de descargar el PDF  
+		const pdfBlob = await html2pdf()  
+			.from(html)  
+			.set(options)  
+			.output('blob');  
 
-		const html2pdf = (await import("html2pdf.js")).default;
+		// Crea una URL para el Blob y lo abre en una nueva ventana para imprimir  
+		const pdfUrl = URL.createObjectURL(pdfBlob);  
+		const printWindow = window.open(pdfUrl);  
 
-		html2pdf().from(element).set(options).save();
+		if (printWindow) {  
+			printWindow.onload = function () {  
+				printWindow.print();  
+				printWindow.onafterprint = function () {  
+					printWindow.close();  
+					URL.revokeObjectURL(pdfUrl); // Libera el objeto URL  
+				};  
+			};  
+		} else {  
+			console.error("No se pudo abrir la ventana de impresión.");  
+		}  
 	};
 </script>
 
@@ -653,5 +670,9 @@
 	ion-toast.warning {
 		--background: rgb(219, 248, 0);
 		--color: #323232;
+	}
+
+	.size {
+		font-size: 22px;
 	}
 </style>

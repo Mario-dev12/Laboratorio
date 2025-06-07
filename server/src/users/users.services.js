@@ -10,6 +10,10 @@ usersServices.readUserByName = async name => {
     return await usersRepository.readUserByName(name)
 }
 
+usersServices.readUserByNameLastName = async (name, lastName) => {
+    return await usersRepository.readUserByNameLastName(name, lastName)
+}
+
 usersServices.readUserById = async id => {
     return await usersRepository.readUserById(id)
 }

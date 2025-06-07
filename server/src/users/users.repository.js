@@ -29,6 +29,15 @@ usersRepository.readUserByName = async (name) => {
 	}
 };
 
+usersRepository.readUserByNameLastName = async (name, lastName) => {
+	try {
+		const resp = await pool.query(`SELECT * FROM sp_find_user_by_name_lastName('${name}', '${lastName}')`);
+		return resp.rows[0].sp_find_user_by_name_lastName;
+	} catch (error) {
+		throw error;
+	}
+};
+
 usersRepository.createUser = async (ci, passport, firstName, lastName, genre, age, address, phone, email, doctor) => {
 	try {
 		const resp = await pool.query(
