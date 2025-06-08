@@ -44,7 +44,7 @@
 							</div>
 							<div class="me-3">
 								<div class="d-inline fw-bold size">Sexo:</div>
-								<span class="size"> {{ order?.genre === "M" ? "Masculino" : "Femenino" }} </span>
+								<span class="size"> {{ userGender }} </span>
 							</div>
 							<div class="me-3">
 								<div class="d-inline fw-bold size">Fecha:</div>
@@ -197,6 +197,7 @@
 	const sectionRef = ref();
 	let profileNamesOrdered: string[] = [];
 	const alertShown = ref(false);
+	const userGender = ref("");
 
 	const toast = ref({
 		isOpen: false,
@@ -208,10 +209,6 @@
 	const setOpen = (state: boolean) => {
 		isOpen.value = state;
 	};
-
-	// function formatValorReferencial(valor: string): string {
-	// 	return valor.replace(/;/g, ";<br/>");
-	// }
 
 	const showToast = (message: string, style: string, icon: any) => {
 		toast.value.message = message;
@@ -225,7 +222,34 @@
 		order.value = route.query.profile;
 		order.value = JSON.parse(order.value);
 		ordersArray.value = order.value.orders;
-		console.log(ordersArray.value);
+
+		//Colocar genero del cliente
+		if (order.value.genre) {
+			switch (order.value.genre.trim()) {
+				case "M": {
+					userGender.value = "Masculino";
+					break;
+				}
+
+				case "F": {
+					userGender.value = "Femenino";
+					break;
+				}
+				case "MA": {
+					userGender.value = "Macho";
+					break;
+				}
+				case "H": {
+					userGender.value = "Hembra";
+					break;
+				}
+
+				default: {
+					userGender.value = "Desconocido";
+					break;
+				}
+			}
+		}
 		profileNamesOrdered = [];
 		profileNames = route.query.profileNames;
 		profileNames = JSON.parse(profileNames);
@@ -323,6 +347,34 @@
 			order.value = to.query.profile;
 			order.value = JSON.parse(order.value);
 			ordersArray.value = order.value.orders;
+
+			//Colocar genero del cliente
+			if (order.value.genre) {
+				switch (order.value.genre.trim()) {
+					case "M": {
+						userGender.value = "Masculino";
+						break;
+					}
+
+					case "F": {
+						userGender.value = "Femenino";
+						break;
+					}
+					case "MA": {
+						userGender.value = "Macho";
+						break;
+					}
+					case "H": {
+						userGender.value = "Hembra";
+						break;
+					}
+
+					default: {
+						userGender.value = "Desconocido";
+						break;
+					}
+				}
+			}
 
 			profileNames = to.query.profileNames;
 			profileNames = JSON.parse(profileNames);
