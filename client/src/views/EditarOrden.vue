@@ -385,6 +385,8 @@
 	const idExam = ref(route.params.idExam);
 	const cost_bs = ref(route.params.cost_bs);
 	const cost_usd = ref(route.params.cost_usd);
+	const name = ref(route.params.name);
+	const lastName = ref(route.params.lastName);
 	const totalDolar = ref();
 	const originalUserData = ref();
 	const originalOrdersData = ref();
@@ -393,6 +395,13 @@
 	function handlePrecioActualizado(nuevoPrecio: number) {
 		precioDolar.value = parseFloat(nuevoPrecio.toFixed(2));
 	}
+
+	const getRouteParamAsString = (param: string | string[] | undefined): string => {
+		if (Array.isArray(param)) {
+			return param[0];
+		}
+		return String(param || '');
+	};
 
 	onMounted(async () => {
 		await resetOrderData();
@@ -403,7 +412,13 @@
 		debeTotal.value.total$ = 0;
 		debeTotal.value.totalBs = 0;
 		examenesSeleccionados.value = [];
-		userData.value = await usersStore.fecthUserById(Number(idUser.value));
+		if (idUser.value !== undefined){
+			userData.value = await usersStore.fecthUserById(Number(idUser.value));
+		} else if (idUser.value && lastName.value) {
+			userData.value = await usersStore.fecthUserByNameandLastName(getRouteParamAsString(name.value), getRouteParamAsString(lastName.value));
+		} else {
+			userData.value = await usersStore.fecthUserByName(getRouteParamAsString(name.value));
+		}
 		orderData.value = await ordersStore.fecthOrderByExamId(Number(idExam.value));
 		paymentData.value = await paymentsStore.fecthPaymentByExamId(Number(idExam.value));
 		if (!Array.isArray(cost_bs.value) && !Array.isArray(cost_usd.value)) {
@@ -461,15 +476,20 @@
 	router.beforeEach(async (to, from, next) => {
 		if (to.name === "EditarOrden") {
 			await resetOrderData();
-			examenesSeleccionados.value = [];
 			totales.value.totalBs = 0;
 			totales.value.total$ = 0;
 			debe.value.total$ = 0;
 			debe.value.totalBs = 0;
 			debeTotal.value.total$ = 0;
 			debeTotal.value.totalBs = 0;
-			examenesSeleccionados.value = []
-			userData.value = await usersStore.fecthUserById(Number(idUser.value));
+			examenesSeleccionados.value = [];
+			if (idUser.value !== undefined){
+				userData.value = await usersStore.fecthUserById(Number(idUser.value));
+			} else if (idUser.value && lastName.value) {
+				userData.value = await usersStore.fecthUserByNameandLastName(getRouteParamAsString(name.value), getRouteParamAsString(lastName.value));
+			} else {
+				userData.value = await usersStore.fecthUserByName(getRouteParamAsString(name.value));
+			}
 			orderData.value = await ordersStore.fecthOrderByExamId(Number(idExam.value));
 			paymentData.value = await paymentsStore.fecthPaymentByExamId(Number(idExam.value));
 			if (!Array.isArray(cost_bs.value) && !Array.isArray(cost_usd.value)) {
