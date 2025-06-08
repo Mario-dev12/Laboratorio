@@ -336,15 +336,43 @@
 	};
 
 	const editOrder = async (order: any) => {
-		router.push({
-			name: "EditarOrden",
-			params: {
-				idUser: order.ci,
-				idExam: order.orders[0].idExam,
-				cost_bs: order.orders[0].total_cost_bs,
-				cost_usd: order.orders[0].total_cost_usd,
-			},
-		});
+		if (order.ci){
+			router.push({
+				name: "EditarOrden",
+				params: {
+					idUser: order.ci,
+					idExam: order.orders[0].idExam,
+					cost_bs: order.orders[0].total_cost_bs,
+					cost_usd: order.orders[0].total_cost_usd,
+					name: order.firstName,
+					lastName: order.lastName,
+				},
+			});
+		} else if (order.lastName) {
+			router.push({
+				name: "EditarOrden",
+				params: {
+					idUser: null,
+					idExam: order.orders[0].idExam,
+					cost_bs: order.orders[0].total_cost_bs,
+					cost_usd: order.orders[0].total_cost_usd,
+					name: order.firstName,
+					lastName: order.lastName,
+				},
+			});
+		} else {
+			router.push({
+				name: "EditarOrden",
+				params: {
+					idUser: null,
+					idExam: order.orders[0].idExam,
+					cost_bs: order.orders[0].total_cost_bs,
+					cost_usd: order.orders[0].total_cost_usd,
+					name: order.firstName,
+					lastName: ' ',
+				},
+			});
+		}
 	};
 
 	const searchOrders = async () => {
