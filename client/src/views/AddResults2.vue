@@ -4,7 +4,7 @@
 			<div class="container">
 				<div class="perfiles mt-3 mb-3">
 					<h4>Perfiles</h4>
-					<div class="row w-100 m-auto gap-2">
+					<div class="row w-100 m-auto gap-2 align-items-center">
 						<div
 							class="col btn btn-light"
 							v-for="(profileName, index) in profileNamesOrdered"
@@ -41,7 +41,7 @@
 							</div>
 							<div class="me-3">
 								<div class="d-inline fw-bold size">Sexo:</div>
-								<span class="size"> {{ order?.genre === "M" ? "Masculino" : "Femenino" }} </span>
+								<span class="size"> {{ userGender }} </span>
 							</div>
 							<div class="me-3">
 								<div class="d-inline fw-bold size">Fecha:</div>
@@ -184,6 +184,7 @@
 	const sectionRef = ref();
 	let profileNamesOrdered: string[] = [];
 	const alertShown = ref(false);
+	const userGender = ref("");
 
 	const toast = ref({
 		isOpen: false,
@@ -195,10 +196,6 @@
 	const setOpen = (state: boolean) => {
 		isOpen.value = state;
 	};
-
-	// function formatValorReferencial(valor: string): string {
-	// 	return valor.replace(/;/g, ";<br/>");
-	// }
 
 	const showToast = (message: string, style: string, icon: any) => {
 		toast.value.message = message;
@@ -212,7 +209,34 @@
 		order.value = route.query.profile;
 		order.value = JSON.parse(order.value);
 		ordersArray.value = order.value.orders;
-		console.log(ordersArray.value);
+
+		//Colocar genero del cliente
+		if (order.value.genre) {
+			switch (order.value.genre.trim()) {
+				case "M": {
+					userGender.value = "Masculino";
+					break;
+				}
+
+				case "F": {
+					userGender.value = "Femenino";
+					break;
+				}
+				case "MA": {
+					userGender.value = "Macho";
+					break;
+				}
+				case "H": {
+					userGender.value = "Hembra";
+					break;
+				}
+
+				default: {
+					userGender.value = "Desconocido";
+					break;
+				}
+			}
+		}
 		profileNamesOrdered = [];
 		profileNames = route.query.profileNames;
 		profileNames = JSON.parse(profileNames);
@@ -310,6 +334,34 @@
 			order.value = to.query.profile;
 			order.value = JSON.parse(order.value);
 			ordersArray.value = order.value.orders;
+
+			//Colocar genero del cliente
+			if (order.value.genre) {
+				switch (order.value.genre.trim()) {
+					case "M": {
+						userGender.value = "Masculino";
+						break;
+					}
+
+					case "F": {
+						userGender.value = "Femenino";
+						break;
+					}
+					case "MA": {
+						userGender.value = "Macho";
+						break;
+					}
+					case "H": {
+						userGender.value = "Hembra";
+						break;
+					}
+
+					default: {
+						userGender.value = "Desconocido";
+						break;
+					}
+				}
+			}
 
 			profileNames = to.query.profileNames;
 			profileNames = JSON.parse(profileNames);
@@ -896,7 +948,11 @@
 
 		const normalizeText = (text: string | null | undefined): string => {
 			if (!text) return "";
-			return text.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").trim();
+			return text
+				.toLowerCase()
+				.normalize("NFD")
+				.replace(/[\u0300-\u036f]/g, "")
+				.trim();
 		};
 
 		tables.forEach((table) => {
@@ -980,14 +1036,14 @@
 		const MAIN_SECTION_NAMES_NORMALIZED = [
 			normalizeText("Hematología completa"),
 			normalizeText("Velocidad de Sedimentación Globular (V.S.G)"),
-			normalizeText("Química Sanguínea")
+			normalizeText("Química Sanguínea"),
 		];
 		const primaryMainSectionTbodiesMap: Map<string, HTMLTableSectionElement> = new Map();
 		const testTitlesToRemove = new Set<HTMLElement>();
 
-		tables.forEach(table => {
+		tables.forEach((table) => {
 			const sectionsInTable = Array.from(table.querySelectorAll("tbody.sectionData")) as HTMLTableSectionElement[];
-			sectionsInTable.forEach(tbody => {
+			sectionsInTable.forEach((tbody) => {
 				const titleElement = tbody.querySelector("tr:first-child td h5");
 				if (titleElement && titleElement.textContent) {
 					const normalizedTitle = normalizeText(titleElement.textContent);
@@ -1002,20 +1058,20 @@
 			const sectionsInTable = Array.from(table.querySelectorAll("tbody.sectionData")) as HTMLTableSectionElement[];
 			let associatedTestTitleShouldBeRemoved = false;
 
-			sectionsInTable.forEach(currentTbody => {
+			sectionsInTable.forEach((currentTbody) => {
 				const titleElement = currentTbody.querySelector("tr:first-child td h5");
 				if (titleElement && titleElement.textContent) {
 					const currentSectionTitleNormalized = normalizeText(titleElement.textContent);
 
 					if (MAIN_SECTION_NAMES_NORMALIZED.includes(currentSectionTitleNormalized)) {
 						const primaryTbodyForThisSection = primaryMainSectionTbodiesMap.get(currentSectionTitleNormalized);
-						
+
 						if (primaryTbodyForThisSection && primaryTbodyForThisSection !== currentTbody) {
 							const dataRowsToMove = Array.from(currentTbody.querySelectorAll("tr.rowData"));
-							dataRowsToMove.forEach(row => primaryTbodyForThisSection.appendChild(row));
-							
-							titleElement.closest('tr')?.remove();
-							
+							dataRowsToMove.forEach((row) => primaryTbodyForThisSection.appendChild(row));
+
+							titleElement.closest("tr")?.remove();
+
 							associatedTestTitleShouldBeRemoved = true;
 
 							if (currentTbody.querySelectorAll("tr").length === 0) {
@@ -1054,9 +1110,10 @@
 
 			let shouldRemoveDiv = false;
 
-			if (i === 0){
+			if (i === 0) {
 				const seccionesData = Array.from(associatedTable.querySelectorAll("tbody.sectionData"));
-				const mainSectionRegex = /h[eé]matolog[ií]a compl[eé]ta|velocidad de sedimentaci[oó]n globular \(v\.s\.g\)|qu[ií]mica sangu[ií]nea/i;
+				const mainSectionRegex =
+					/h[eé]matolog[ií]a compl[eé]ta|velocidad de sedimentaci[oó]n globular \(v\.s\.g\)|qu[ií]mica sangu[ií]nea/i;
 
 				for (const tbody of seccionesData) {
 					const tituloSeccionElemento = tbody.querySelector("tr:first-child td h5");
@@ -1076,7 +1133,8 @@
 
 			if (!shouldRemoveDiv && associatedTable) {
 				const seccionesData = Array.from(associatedTable.querySelectorAll("tbody.sectionData"));
-				const mainSectionRegex = /h[eé]matolog[ií]a compl[eé]ta|velocidad de sedimentaci[oó]n globular \(v\.s\.g\)|qu[ií]mica sangu[ií]nea/i;
+				const mainSectionRegex =
+					/h[eé]matolog[ií]a compl[eé]ta|velocidad de sedimentaci[oó]n globular \(v\.s\.g\)|qu[ií]mica sangu[ií]nea/i;
 
 				for (const tbody of seccionesData) {
 					const tituloSeccionElemento = tbody.querySelector("tr:first-child td h5");
@@ -1112,8 +1170,8 @@
 			const sortedTbodies: HTMLTableSectionElement[] = [];
 			const processedTbodies = new Set<HTMLTableSectionElement>();
 
-			MAIN_SECTION_NAMES_NORMALIZED.forEach(sectionName => {
-				const tbodyToPlace = allTbodies.find(tbody => {
+			MAIN_SECTION_NAMES_NORMALIZED.forEach((sectionName) => {
+				const tbodyToPlace = allTbodies.find((tbody) => {
 					const titleElement = tbody.querySelector("tr:first-child td h5");
 					return titleElement && normalizeText(titleElement.textContent) === sectionName;
 				});
@@ -1124,12 +1182,12 @@
 				}
 			});
 
-			const remainingTbodies = allTbodies.filter(tbody => !processedTbodies.has(tbody));
+			const remainingTbodies = allTbodies.filter((tbody) => !processedTbodies.has(tbody));
 			const finalOrderedTbodies = [...sortedTbodies, ...remainingTbodies];
 
-			allTbodies.forEach(tbody => tbody.remove());
+			allTbodies.forEach((tbody) => tbody.remove());
 
-			finalOrderedTbodies.forEach(tbody => firstTable.appendChild(tbody));
+			finalOrderedTbodies.forEach((tbody) => firstTable.appendChild(tbody));
 		}
 	}
 
