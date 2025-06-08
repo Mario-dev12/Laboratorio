@@ -13,7 +13,7 @@ CREATE TABLE IF NOT EXISTS users
     passport character varying(255),
     firstName character varying(255) not null,
     lastName character varying(255) not null,
-    genre CHAR(1) NOT NULL CHECK (genre IN ('M', 'F', 'm', 'f', 'MA', 'H', 'Ma', 'h', 'ma')),
+    genre CHAR(2) NOT NULL CHECK (genre IN ('M', 'F', 'm', 'f', 'MA', 'H', 'Ma', 'h', 'ma')),
     age integer not null,
     address character varying(255) not null,
     phone character varying(255),
