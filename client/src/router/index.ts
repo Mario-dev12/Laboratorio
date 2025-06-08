@@ -30,7 +30,7 @@ const routes: Array<RouteRecordRaw> = [
 		component: CrearOrden,
 	},
 	{
-		path: "/editarOrden/:idUser/:idExam/:cost_bs/:cost_usd",
+		path: "/editarOrden/:idUser?/:idExam/:cost_bs/:cost_usd/:name/:lastName?",
 		name: "EditarOrden",
 		component: EditarOrden,
 	},
