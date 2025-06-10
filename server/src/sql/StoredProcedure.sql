@@ -3360,7 +3360,7 @@ $$ LANGUAGE plpgsql;
 
 CREATE OR REPLACE FUNCTION obtener_perfil_con_resultados(
     nomb_perfil character varying,
-    idorder integer)
+	idorder integer)
     RETURNS json
     LANGUAGE 'plpgsql'
     COST 100
@@ -3389,6 +3389,7 @@ DECLARE
     record RECORD;  
     nombre_tabla TEXT;  
     restricciones_json JSON;
+    id integer;
 BEGIN   
     IF NOT EXISTS (SELECT 1 FROM profile WHERE name = nomb_perfil) THEN  
         RAISE EXCEPTION 'Perfil no reconocido: %', nomb_perfil;  
@@ -3420,14 +3421,16 @@ BEGIN
             valor_referencial_campo := record.valor_referencial;  
             calculado_campo := record.calculado;  
 
-            nombre_tabla := 'resultados_' || lower(replace(nomb_perfil, ' ', '_'));  
+            nombre_tabla := 'resultados_' || lower(replace(nomb_perfil, ' ', '_'));
+
+            select idCampo into id
+            from campo
+            where nombre = nombre_campo;
 
             EXECUTE format('SELECT r.resultado   
-                            FROM %I r   
-                            JOIN campo_perfil cp ON r.idcampo_perfil = cp.idcampo_perfil   
-                            JOIN campo ca ON ca.idcampo = cp.idcampo   
-                            WHERE r.idOrder = $1 AND ca.nombre = $2', nombre_tabla)   
-            INTO resultado_campo USING idOrder, nombre_campo;   
+                            FROM %I r     
+                            WHERE r.idOrder = $1 AND r.idcampo_perfil = $2', nombre_tabla)   
+            INTO resultado_campo USING idOrder, id;   
              
             resultado_campo := COALESCE(resultado_campo, '');
              
