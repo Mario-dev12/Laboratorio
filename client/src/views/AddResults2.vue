@@ -1179,7 +1179,7 @@
 
 		if (tables.length > 0) {
 			const firstTable = tables[0];
-			const allTbodies = Array.from(firstTable.querySelectorAll("tbody.sectionData")) as HTMLTableSectionElement[];
+			const allTbodies = Array.from(firstTable.querySelectorAll("tbody")) as HTMLTableSectionElement[];
 			const sortedTbodies: HTMLTableSectionElement[] = [];
 			const processedTbodies = new Set<HTMLTableSectionElement>();
 
