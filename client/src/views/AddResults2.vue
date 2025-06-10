@@ -1593,7 +1593,7 @@
 		pdfContainer.style.width = "205mm"; // Ancho de una página A4/Letter
 		pdfContainer.style.padding = "0mm 0mm"; // Márgenes laterales para el contenido
 
-		const alturaMaximaContenidoMM = 280; // Altura máxima deseada del contenido por página
+		const alturaMaximaContenidoMM = 285; // Altura máxima deseada del contenido por página
 
 		let paginaActual: HTMLElement | null = null; // Empezamos sin página actual
 		let currentContentHeightMM = 0; // Para llevar un seguimiento de la altura del contenido en la página actual
@@ -1681,7 +1681,7 @@
 		const options = {
 			// Márgenes [arriba, derecha, abajo, izquierda] en mm
 			// Calcula el margen para que el contenido total sea de 240mm de alto
-			margin: [(279.4 - alturaMaximaContenidoMM) / 2, 5, (279.4 - alturaMaximaContenidoMM) / 2, 5],
+			margin: [(298 - alturaMaximaContenidoMM) / 2, 5, (310 - alturaMaximaContenidoMM) / 2, 5],
 			filename: filename,
 			image: { type: "jpeg", quality: 0.98 },
 			html2canvas: {
