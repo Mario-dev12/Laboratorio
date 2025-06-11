@@ -104,6 +104,17 @@
 							</div>
 						</div>
 					</div>
+					<!-- Observaciones -->
+					<div class="Observaciones d-flex align-items-center justify-content-center mt-3">
+						<label class="me-3" for="observaciones">Observaciones:</label>
+						<textarea
+							class="p-1"
+							style="border: 1px solid black; box-shadow: none"
+							id="observaciones"
+							rows="2"
+							cols="40"
+							placeholder="Escribe tus observaciones aquí..."></textarea>
+					</div>
 				</div>
 				<div class="firma-sello" ref="firmaSello">
 					<div class="row justify-content-end">
@@ -808,6 +819,12 @@
 		}
 
 		paginaActual.appendChild(contentDivCloned);
+		// Agregar obeservaciones si tiene algun contenido
+		const observacionesText = profileRefCopy.querySelector("#observaciones") as HTMLTextAreaElement;
+		if (observacionesText.value) {
+			const observacionesDiv = profileRefCopy.querySelector(".Observaciones") as HTMLElement;
+			paginaActual.appendChild(observacionesDiv);
+		}
 		alturaAcumulada += contentBlockHeightMM;
 
 		// --- Añadir la firma y el sello ---
@@ -1481,6 +1498,14 @@
 
 		// Añade el bloque de contenido principal a la página actual (o nueva)
 		paginaActual.appendChild(contentDivCloned);
+
+		// Agregar div de observaciones si tiene algun contenido
+		const observacionesText = profileRefCopy.querySelector("#observaciones") as HTMLTextAreaElement;
+		if (observacionesText.value) {
+			const observacionesDiv = profileRefCopy.querySelector(".Observaciones") as HTMLElement;
+			paginaActual.appendChild(observacionesDiv);
+		}
+
 		alturaAcumulada += contentBlockHeightMM;
 		// NOTA: Si contentBlockHeightMM por sí solo es > alturaMaximaContenidoMM,
 		// html2pdf.js tendrá que manejar la división interna de este bloque.
@@ -1647,6 +1672,12 @@
 			// Añade el bloque de contenido a la página actual
 			if (paginaActual) {
 				paginaActual.appendChild(contentDivCloned);
+				// Agregar observaciones si tiene algun contenido
+				const observacionesText = profileRefCopy.querySelector("#observaciones") as HTMLTextAreaElement;
+				if (observacionesText.value) {
+					const observacionesDiv = profileRefCopy.querySelector(".Observaciones") as HTMLElement;
+					paginaActual.appendChild(observacionesDiv);
+				}
 				currentContentHeightMM += contentBlockHeightMM;
 			}
 		}
