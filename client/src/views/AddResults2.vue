@@ -101,6 +101,17 @@
 							</div>
 						</div>
 					</div>
+					<!-- Observaciones -->
+					<div class="Observaciones d-flex align-items-center justify-content-center mt-3">
+						<label class="me-3" for="observaciones">Observaciones:</label>
+						<textarea
+							class="p-1"
+							style="border: 1px solid black; box-shadow: none"
+							id="observaciones"
+							rows="2"
+							cols="40"
+							placeholder="Escribe tus observaciones aquí..."></textarea>
+					</div>
 				</div>
 
 				<div class="row mb-3">
@@ -795,6 +806,12 @@
 		}
 
 		paginaActual.appendChild(contentDivCloned);
+		// Agregar obeservaciones si tiene algun contenido
+		const observacionesText = profileRefCopy.querySelector("#observaciones") as HTMLTextAreaElement;
+		if (observacionesText.value) {
+			const observacionesDiv = profileRefCopy.querySelector(".Observaciones") as HTMLElement;
+			paginaActual.appendChild(observacionesDiv);
+		}
 		alturaAcumulada += contentBlockHeightMM;
 
 		// --- Añadir la firma y el sello ---
@@ -1468,6 +1485,14 @@
 
 		// Añade el bloque de contenido principal a la página actual (o nueva)
 		paginaActual.appendChild(contentDivCloned);
+
+		// Agregar div de observaciones si tiene algun contenido
+		const observacionesText = profileRefCopy.querySelector("#observaciones") as HTMLTextAreaElement;
+		if (observacionesText.value) {
+			const observacionesDiv = profileRefCopy.querySelector(".Observaciones") as HTMLElement;
+			paginaActual.appendChild(observacionesDiv);
+		}
+
 		alturaAcumulada += contentBlockHeightMM;
 		// NOTA: Si contentBlockHeightMM por sí solo es > alturaMaximaContenidoMM,
 		// html2pdf.js tendrá que manejar la división interna de este bloque.
@@ -1580,7 +1605,7 @@
 		pdfContainer.style.width = "205mm"; // Ancho de una página A4/Letter
 		pdfContainer.style.padding = "0mm 0mm"; // Márgenes laterales para el contenido
 
-		const alturaMaximaContenidoMM = 280; // Altura máxima deseada del contenido por página
+		const alturaMaximaContenidoMM = 285; // Altura máxima deseada del contenido por página
 
 		let paginaActual: HTMLElement | null = null; // Empezamos sin página actual
 		let currentContentHeightMM = 0; // Para llevar un seguimiento de la altura del contenido en la página actual
@@ -1634,6 +1659,12 @@
 			// Añade el bloque de contenido a la página actual
 			if (paginaActual) {
 				paginaActual.appendChild(contentDivCloned);
+				// Agregar observaciones si tiene algun contenido
+				const observacionesText = profileRefCopy.querySelector("#observaciones") as HTMLTextAreaElement;
+				if (observacionesText.value) {
+					const observacionesDiv = profileRefCopy.querySelector(".Observaciones") as HTMLElement;
+					paginaActual.appendChild(observacionesDiv);
+				}
 				currentContentHeightMM += contentBlockHeightMM;
 			}
 		}
@@ -1668,7 +1699,7 @@
 		const options = {
 			// Márgenes [arriba, derecha, abajo, izquierda] en mm
 			// Calcula el margen para que el contenido total sea de 240mm de alto
-			margin: [(279.4 - alturaMaximaContenidoMM) / 2, 5, (279.4 - alturaMaximaContenidoMM) / 2, 5],
+			margin: [(298 - alturaMaximaContenidoMM) / 2, 5, (310 - alturaMaximaContenidoMM) / 2, 5],
 			filename: filename,
 			image: { type: "jpeg", quality: 0.98 },
 			html2canvas: {
