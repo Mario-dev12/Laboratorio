@@ -102,11 +102,10 @@
 						</div>
 					</div>
 					<!-- Observaciones -->
-					<div class="Observaciones d-flex align-items-center justify-content-center mt-3">
+					<div class="Observaciones d-flex align-items-start justify-content-center mt-3">
 						<label class="me-3" for="observaciones">Observaciones:</label>
 						<textarea
-							class="p-1"
-							style="border: 1px solid black; box-shadow: none"
+							class="px-1 py-0"
 							id="observaciones"
 							rows="2"
 							cols="40"
@@ -1221,159 +1220,6 @@
 			}
 		});
 	};
-
-	// generar pdf sin firma y sello
-	/*const pdfWithoutSignature = async () => {
-		// --- 1. PREPARACIÓN Y VALIDACIÓN DE ELEMENTOS ---
-		if (!profileRef.value) {
-			console.error("Error: La referencia al elemento del perfil no está disponible.");
-			return;
-		}
-
-		const profileRefCopy = profileRef.value.cloneNode(true) as HTMLElement;
-
-		await mergeTables(profileRefCopy);
-		await inputToSpan(profileRefCopy);
-
-		const patientInfoElement = profileRefCopy.querySelector(".patient-info");
-		const tablaLargaElement = profileRefCopy.querySelector(".profile-content table") as HTMLTableElement | null;
-		const encabezadoElement = tablaLargaElement?.querySelector("thead");
-
-		if (!patientInfoElement || !tablaLargaElement || !encabezadoElement) {
-			console.error(
-				"Error: No se pudieron encontrar elementos HTML esenciales (info del paciente, tabla o encabezado) para generar el PDF."
-			);
-			return;
-		}
-
-		const filas: HTMLTableRowElement[] = Array.from(tablaLargaElement.querySelectorAll("tbody > tr"));
-		const encabezadoClonado = encabezadoElement.cloneNode(true);
-
-		// --- 2. LÓGICA DE PAGINACIÓN MANUAL ---
-
-		const pdfContainer = document.createElement("div");
-		pdfContainer.style.width = "210mm"; // Ancho de una página A4/Letter
-
-		let paginaActual = document.createElement('div');
-		paginaActual.style.boxSizing = 'border-box';
-		paginaActual.style.minHeight = `${alturaMaximaPorPaginaMM}mm`;
-		pdfContainer.appendChild(paginaActual);
-
-		paginaActual.appendChild(patientInfoElement.cloneNode(true));
-
-		// Función para crear la tabla CON encabezado (para la primera página)
-		const crearNuevaTablaConEncabezado = (): HTMLTableElement => {
-			const nuevaTabla = document.createElement("table");
-			if (tablaLargaElement.className) {
-				nuevaTabla.className = tablaLargaElement.className;
-			}
-			nuevaTabla.style.width = "100%";
-			nuevaTabla.style.borderCollapse = "collapse";
-			nuevaTabla.appendChild(encabezadoClonado.cloneNode(true));
-			nuevaTabla.appendChild(document.createElement("tbody"));
-			return nuevaTabla;
-		};
-
-		// --- FUNCIÓN AÑADIDA ---
-		// Función para crear tablas SIN encabezado (para las páginas 2 en adelante)
-		const crearTablaSinEncabezado = (): HTMLTableElement => {
-			const nuevaTabla = document.createElement('table');
-			if (tablaLargaElement.className) {
-				nuevaTabla.className = tablaLargaElement.className;
-			}
-			nuevaTabla.style.width = '100%';
-			nuevaTabla.style.borderCollapse = 'collapse';
-			nuevaTabla.appendChild(document.createElement('tbody'));
-			return nuevaTabla;
-		};
-
-		// Se crea la primera tabla CON encabezado
-		let tablaActual = crearNuevaTablaConEncabezado();
-		paginaActual.appendChild(tablaActual);
-
-		// Se calcula la altura inicial incluyendo el encabezado
-		let alturaAcumulada = (tablaActual.querySelector('thead')?.offsetHeight ?? 0) * 0.264583;
-
-		for (const fila of filas) {
-			const filaClonada = fila.cloneNode(true) as HTMLTableRowElement;
-			filaClonada.style.pageBreakInside = "avoid";
-			filaClonada.style.breakInside = "avoid";
-
-			// const alturaFilaMM = fila.offsetHeight * 0.264583;
-
-			// Si la fila actual no cabe, creamos una nueva página
-			if (alturaAcumulada + alturaFilaMM > alturaMaximaPorPaginaMM) {
-				paginaActual.style.pageBreakAfter = 'always';
-
-				paginaActual = document.createElement('div');
-				paginaActual.style.boxSizing = 'border-box';
-				paginaActual.style.minHeight = `${alturaMaximaPorPaginaMM}mm`;
-				pdfContainer.appendChild(paginaActual);
-
-				// --- CAMBIO PRINCIPAL AQUÍ ---
-				// Se crea la nueva tabla SIN encabezado para la nueva página
-				tablaActual = crearTablaSinEncabezado();
-				paginaActual.appendChild(tablaActual);
-
-				// La altura acumulada se resetea a 0 porque no hay nuevo encabezado
-				alturaAcumulada = 0;
-			}
-
-			const tbodyActual = tablaActual.querySelector('tbody');
-			if (tbodyActual) {
-				tbodyActual.appendChild(filaClonada);
-				// alturaAcumulada += alturaFilaMM;
-			}
-		}
-
-		// Solución para la página en blanco adicional
-		const lastPageDiv = pdfContainer.lastElementChild as HTMLElement;
-		if (lastPageDiv) {
-			lastPageDiv.style.pageBreakAfter = 'auto';
-		}
-
-		// --- 3. GENERACIÓN Y GUARDADO DEL PDF ---
-
-		const firstName = order.value.firstName;
-		const lastName = order.value.lastName;
-		const today = new Date();
-		const formattedDate = `${String(today.getDate()).padStart(2, "0")}-${String(today.getMonth() + 1).padStart(
-			2,
-			"0"
-		)}-${today.getFullYear()}`;
-		const filename = `${lastName}_${firstName}_${formattedDate}.pdf`;
-
-		profileName.value = filename;
-
-		const options = {
-			margin: [2, 5],
-			filename: filename,
-			image: { type: "jpeg", quality: 0.98 },
-			html2canvas: {
-				scale: 2,
-				useCORS: true,
-			},
-			jsPDF: {
-				unit: "mm",
-				format: "letter",
-				orientation: "portrait",
-			},
-		};
-
-		pdfFileName.value = options.filename;
-
-		for (const orders of ordersArray.value) {
-			const data = {
-				id: orders.idOrder,
-				status: "Pendiente de enviar",
-			};
-			await ordersStore.updateStatusOrder(orders.idOrder, data);
-		}
-
-		const html2pdf = (await import("html2pdf.js")).default;
-
-		html2pdf().from(pdfContainer).set(options).save();
-	};*/
 
 	const pdfWithoutSignature = async () => {
 		// --- 1. PREPARACIÓN Y VALIDACIÓN DE ELEMENTOS ---
