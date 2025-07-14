@@ -474,7 +474,7 @@
 			inputElement.style.borderColor = isValid ? "lightgreen" : "red";
 		};
 
-		const hasLetters = /[a-zA-Z]/.test(inputValue);
+		const hasLetters = /[a-zA-Z*]/.test(inputValue);
 		const hasNumbers = /\d/.test(inputValue);
 
 		if (hasLetters && hasNumbers) {
@@ -1048,6 +1048,39 @@
 				}
 			});
 		});
+
+		tables.forEach((table) => {
+            const filasDeDatos = table.querySelectorAll("tr.rowData");
+            filasDeDatos.forEach((fila: Element) => {
+                const celdaInputElement = fila.querySelector("td.inputElement");
+                if (celdaInputElement) {
+                    const inputElement = celdaInputElement.querySelector("input") as HTMLInputElement | null;
+                    if (inputElement) {
+                        const valorActualStr = inputElement.value;
+                        // Expresión regular para verificar si el valor es solo numérico (enteros o decimales)
+                        // Permite comas o puntos como separadores decimales temporalmente para el parseo
+                        const numericRegex = /^-?\d+([.,]\d+)?$/; 
+
+                        if (numericRegex.test(valorActualStr)) {
+                            // Reemplazar la coma por punto para que parseFloat funcione correctamente
+                            const valorParseable = valorActualStr.replace(/,/g, '.');
+                            const valorNumerico = parseFloat(valorParseable);
+
+                            if (!isNaN(valorNumerico)) {
+                                // Formatear el número con separador de miles '.' y decimales ','
+                                // Usamos Intl.NumberFormat para tener un control más granular
+                                const formatter = new Intl.NumberFormat('es-ES', {
+                                    minimumFractionDigits: 0, // No forzar decimales si no los hay
+                                    maximumFractionDigits: 20, // Permitir hasta 20 decimales
+                                    useGrouping: true // Asegura el uso de separadores de grupo (miles)
+                                });
+                                inputElement.value = formatter.format(valorNumerico);
+                            }
+                        }
+                    }
+                }
+            });
+        });
 
 		const MAIN_SECTION_NAMES_NORMALIZED = [
 			normalizeText("Hematología completa"),
@@ -1917,5 +1950,27 @@
 	ion-toast.warning {
 		--background: rgb(219, 248, 0);
 		--color: #323232;
+	}
+
+	.firma-img {
+		height: 65px;
+		width: 180px;
+	}
+
+	.sello-img {
+		height: 50px;
+		width: 150px;
+	}
+
+	.size {
+		font-size: 12px;
+	}
+
+	.title-size {
+		font-size: 18px;
+	}
+
+	.subtitle-size {
+		font-size: 15px;
 	}
 </style>

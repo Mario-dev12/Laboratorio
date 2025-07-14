@@ -93,7 +93,7 @@
 										:key="index"
 										:value="antibiotico.nombre"
 										:disabled="resultSensibles.includes(antibiotico.nombre)">
-										{{ antibiotico.nombre }}
+										{{antibiotico.idAntibiotico}} - {{ antibiotico.nombre }}
 									</option>
 								</select>
 							</div>
@@ -111,7 +111,7 @@
 								<select class="custom-select" name="germen" id="germen">
 									<option value="">Seleccionar Antibiótico</option>
 									<option v-for="(antibiotico, index) in antibioticos" :key="index" :value="antibiotico.nombre">
-										{{ antibiotico.nombre }}
+										{{antibiotico.idAntibiotico}} - {{ antibiotico.nombre }}
 									</option>
 								</select>
 							</div>
@@ -119,7 +119,7 @@
 								<select class="custom-select" name="germen" id="germen">
 									<option value="">Seleccionar Antibiótico</option>
 									<option v-for="(antibiotico, index) in antibioticos" :key="index" :value="antibiotico.nombre">
-										{{ antibiotico.nombre }}
+										{{antibiotico.idAntibiotico}} - {{ antibiotico.nombre }}
 									</option>
 								</select>
 							</div>
@@ -127,7 +127,7 @@
 								<select class="custom-select" name="germen" id="germen">
 									<option value="">Seleccionar Antibiótico</option>
 									<option v-for="(antibiotico, index) in antibioticos" :key="index" :value="antibiotico.nombre">
-										{{ antibiotico.nombre }}
+										{{antibiotico.idAntibiotico}} - {{ antibiotico.nombre }}
 									</option>
 								</select>
 							</div>
@@ -152,7 +152,7 @@
 										:key="index"
 										:value="antibiotico.nombre"
 										:disabled="resultResistentes.includes(antibiotico.nombre)">
-										{{ antibiotico.nombre }}
+										{{antibiotico.idAntibiotico}} - {{ antibiotico.nombre }}
 									</option>
 								</select>
 							</div>
@@ -169,7 +169,7 @@
 								<select class="custom-select" name="germen" id="germen">
 									<option value="">Seleccionar Antibiótico</option>
 									<option v-for="(antibiotico, index) in antibioticos" :key="index" :value="antibiotico.nombre">
-										{{ antibiotico.nombre }}
+										{{antibiotico.idAntibiotico}} - {{ antibiotico.nombre }}
 									</option>
 								</select>
 							</div>
@@ -177,7 +177,7 @@
 								<select class="custom-select" name="germen" id="germen">
 									<option value="">Seleccionar Antibiótico</option>
 									<option v-for="(antibiotico, index) in antibioticos" :key="index" :value="antibiotico.nombre">
-										{{ antibiotico.nombre }}
+										{{antibiotico.idAntibiotico}} - {{ antibiotico.nombre }}
 									</option>
 								</select>
 							</div>
@@ -185,13 +185,23 @@
 								<select class="custom-select" name="germen" id="germen">
 									<option value="">Seleccionar Antibiótico</option>
 									<option v-for="(antibiotico, index) in antibioticos" :key="index" :value="antibiotico.nombre">
-										{{ antibiotico.nombre }}
+										{{antibiotico.idAntibiotico}} - {{ antibiotico.nombre }}
 									</option>
 								</select>
 							</div>
 						</div>
 						<div class="agregarResistente text-center mb-2">
 							<button @click="agregarResistente" class="btn btn-primary mt-2">Agregar Antibiótico</button>
+						</div>
+					</div>
+				</div>
+				<div class="firma-sello" ref="firmaSello">
+					<div class="row justify-content-end">
+						<div class="sello-img col-4"><img class="h-100 w-100" src="/images/selloLab3.png" alt="" /></div>
+					</div>
+					<div class="row justify-content-end">
+						<div class="firma-img col-4">
+							<img class="h-100 w-100" style="margin-left: 25px" src="/images/firmaLab3-sinfondo.png" alt="" />
 						</div>
 					</div>
 				</div>
@@ -330,6 +340,7 @@
 		const germen = bacteriologico.value.querySelector("#germen").value;
 		const bacteriologicoSelect = bacteriologicoCopy.querySelector("select");
 		const bacteriologicoInputs = bacteriologicoCopy.querySelectorAll("input");
+		const divFirmaSelloCopy = firmaSello.value.cloneNode(true);
 
 		bacteriologicoInputs.forEach((input: any) => {
 			const inputValue = input.value;
@@ -385,6 +396,8 @@
 		});
 
 		html += antibiogramaCopy.innerHTML;
+
+		html += divFirmaSelloCopy.innerHTML;
 
 		const firstName = profile.value.firstName;
 		const lastName = profile.value.lastName;
@@ -704,6 +717,16 @@
 
 	.col-8 {
 		position: relative;
+	}
+
+	.firma-img {
+		height: 65px;
+		width: 180px;
+	}
+
+	.sello-img {
+		height: 50px;
+		width: 150px;
 	}
 
 	ion-toast.creado {
