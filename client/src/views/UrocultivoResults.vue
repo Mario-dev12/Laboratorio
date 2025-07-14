@@ -96,7 +96,7 @@
 										:key="index"
 										:value="antibiotico.nombre"
 										:disabled="resultSensibles.includes(antibiotico.nombre)">
-										{{ antibiotico.nombre }}
+										{{antibiotico.idAntibiotico}} - {{ antibiotico.nombre }}
 									</option>
 								</select>
 							</div>
@@ -114,7 +114,7 @@
 								<select class="custom-select" name="germen" id="germen">
 									<option value="">Seleccionar Antibiótico</option>
 									<option v-for="(antibiotico, index) in antibioticos" :key="index" :value="antibiotico.nombre">
-										{{ antibiotico.nombre }}
+										{{antibiotico.idAntibiotico}} - {{ antibiotico.nombre }}
 									</option>
 								</select>
 							</div>
@@ -122,7 +122,7 @@
 								<select class="custom-select" name="germen" id="germen">
 									<option value="">Seleccionar Antibiótico</option>
 									<option v-for="(antibiotico, index) in antibioticos" :key="index" :value="antibiotico.nombre">
-										{{ antibiotico.nombre }}
+										{{antibiotico.idAntibiotico}} - {{ antibiotico.nombre }}
 									</option>
 								</select>
 							</div>
@@ -130,7 +130,7 @@
 								<select class="custom-select" name="germen" id="germen">
 									<option value="">Seleccionar Antibiótico</option>
 									<option v-for="(antibiotico, index) in antibioticos" :key="index" :value="antibiotico.nombre">
-										{{ antibiotico.nombre }}
+										{{antibiotico.idAntibiotico}} - {{ antibiotico.nombre }}
 									</option>
 								</select>
 							</div>
@@ -155,7 +155,7 @@
 										:key="index"
 										:value="antibiotico.nombre"
 										:disabled="resultResistentes.includes(antibiotico.nombre)">
-										{{ antibiotico.nombre }}
+										{{antibiotico.idAntibiotico}} - {{ antibiotico.nombre }}
 									</option>
 								</select>
 							</div>
@@ -172,7 +172,7 @@
 								<select class="custom-select" name="germen" id="germen">
 									<option value="">Seleccionar Antibiótico</option>
 									<option v-for="(antibiotico, index) in antibioticos" :key="index" :value="antibiotico.nombre">
-										{{ antibiotico.nombre }}
+										{{antibiotico.idAntibiotico}} - {{ antibiotico.nombre }}
 									</option>
 								</select>
 							</div>
@@ -180,7 +180,7 @@
 								<select class="custom-select" name="germen" id="germen">
 									<option value="">Seleccionar Antibiótico</option>
 									<option v-for="(antibiotico, index) in antibioticos" :key="index" :value="antibiotico.nombre">
-										{{ antibiotico.nombre }}
+										{{antibiotico.idAntibiotico}} - {{ antibiotico.nombre }}
 									</option>
 								</select>
 							</div>
@@ -188,7 +188,7 @@
 								<select class="custom-select" name="germen" id="germen">
 									<option value="">Seleccionar Antibiótico</option>
 									<option v-for="(antibiotico, index) in antibioticos" :key="index" :value="antibiotico.nombre">
-										{{ antibiotico.nombre }}
+										{{antibiotico.idAntibiotico}} - {{ antibiotico.nombre }}
 									</option>
 								</select>
 							</div>

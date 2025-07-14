@@ -31,6 +31,7 @@ function ordenarResultadosLaboratorio(data) {
         "triglicéridos",
         "hdl - colesterol",
         "ldl - colesterol",
+        "vldl",
         "lipidos totales",
         "calcio",
         "fósforo",
@@ -111,17 +112,17 @@ function ordenarResultadosLaboratorio(data) {
             const normalizedKey = normalizeString(key);
             let ordenEspecifico = [];
 
-            if (normalizedKey === "hematología completa") {
+            if (normalizedKey === "hematologia completa") {
                 ordenEspecifico = ordenHematologia;
-            } else if (normalizedKey === "química sanguínea") {
+            } else if (normalizedKey === "quimica sanguinea") {
                 ordenEspecifico = ordenQuimicaSanguinea;
-            } else if (normalizedKey === "uroanálisis - análisis fisico") {
+            } else if (normalizedKey === "uroanalisis - analisis fisico") {
                 ordenEspecifico = ordenUroanalisisFisico;
-            } else if (normalizedKey === "uroanálisis - análisis químico") {
+            } else if (normalizedKey === "uroanalisis - analisis quimico") {
                 ordenEspecifico = ordenUroanalisisQuimico;
-            } else if (normalizedKey === "uroanálisis - análisis microscópico") {
+            } else if (normalizedKey === "uroanalisis - analisis microscopico") {
                 ordenEspecifico = ordenUroanalisisMicroscopico;
-            } else if (normalizedKey === "velocidad de sedimentación globular (v.s.g)") {
+            } else if (normalizedKey === "velocidad de sedimentacion globular (v.s.g)") {
                 ordenEspecifico = ordenVSG;
             }
 
