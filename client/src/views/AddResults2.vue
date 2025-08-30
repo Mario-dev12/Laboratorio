@@ -102,17 +102,20 @@
 									</table>
 								</div>
 							</div>
+							<!-- Observaciones -->
+							<div class="Observaciones d-flex align-items-start justify-content-center mt-3" ref="observacionesRef">
+								<label class="me-3" for="observaciones">Observaciones:</label>
+								<textarea
+									class="px-1 py-0"
+									id="observaciones"
+									rows="2"
+									cols="40"
+									placeholder="Escribe tus observaciones aquí..."></textarea>
+							</div>
+							<div class="currentProfile-btn d-flex justify-content-center mt-3">
+								<button class="btn btn-primary" @click="printCurrentProfile(profileRef2[indx])">Imprimir este perfil</button>
+							</div>
 						</div>
-					</div>
-					<!-- Observaciones -->
-					<div class="Observaciones d-flex align-items-start justify-content-center mt-3">
-						<label class="me-3" for="observaciones">Observaciones:</label>
-						<textarea
-							class="px-1 py-0"
-							id="observaciones"
-							rows="2"
-							cols="40"
-							placeholder="Escribe tus observaciones aquí..."></textarea>
 					</div>
 				</div>
 				<div class="firma-sello" ref="firmaSello">
@@ -208,6 +211,7 @@
 	let profileNamesOrdered: string[] = [];
 	const alertShown = ref(false);
 	const userGender = ref("");
+	const observacionesRef = ref();
 
 	const toast = ref({
 		isOpen: false,
@@ -721,6 +725,14 @@
 		const profileRefCopy = profileRef.value.cloneNode(true) as HTMLElement;
 		const divFirmaSelloCopy = firmaSello.value.cloneNode(true) as HTMLElement;
 
+		const btnDiv = profileRefCopy.querySelector(".currentProfile-btn");
+		const observaciones = profileRefCopy.querySelector(".Observaciones");
+		const observacionesCopy = observaciones?.cloneNode(true) as HTMLElement;
+		observaciones?.remove();
+		if (btnDiv) {
+			btnDiv.remove();
+		}
+
 		// Ejecuta tus funciones de manipulación del DOM sobre la copia
 		await mergeTables(profileRefCopy);
 		await inputToSpan(profileRefCopy);
@@ -819,10 +831,9 @@
 
 		paginaActual.appendChild(contentDivCloned);
 		// Agregar obeservaciones si tiene algun contenido
-		const observacionesText = profileRefCopy.querySelector("#observaciones") as HTMLTextAreaElement;
+		const observacionesText = observacionesCopy.querySelector("#observaciones") as HTMLTextAreaElement;
 		if (observacionesText.value) {
-			const observacionesDiv = profileRefCopy.querySelector(".Observaciones") as HTMLElement;
-			paginaActual.appendChild(observacionesDiv);
+			paginaActual.appendChild(observacionesCopy);
 		}
 		alturaAcumulada += contentBlockHeightMM;
 
@@ -1277,6 +1288,14 @@
 
 		const profileRefCopy = profileRef.value.cloneNode(true) as HTMLElement;
 
+		const btnDiv = profileRefCopy.querySelector(".currentProfile-btn");
+		const observaciones = profileRefCopy.querySelector(".Observaciones");
+		const observacionesCopy = observaciones?.cloneNode(true) as HTMLElement;
+		observaciones?.remove();
+		if (btnDiv) {
+			btnDiv.remove();
+		}
+
 		// Ejecuta tus funciones de manipulación del DOM sobre la copia
 		await mergeTables(profileRefCopy); // Asegúrate de que esto opere correctamente sobre la estructura esperada
 		await inputToSpan(profileRefCopy); // Asegúrate de que esto opere correctamente
@@ -1379,10 +1398,9 @@
 		paginaActual.appendChild(contentDivCloned);
 
 		// Agregar div de observaciones si tiene algun contenido
-		const observacionesText = profileRefCopy.querySelector("#observaciones") as HTMLTextAreaElement;
+		const observacionesText = observacionesCopy.querySelector("#observaciones") as HTMLTextAreaElement;
 		if (observacionesText.value) {
-			const observacionesDiv = profileRefCopy.querySelector(".Observaciones") as HTMLElement;
-			paginaActual.appendChild(observacionesDiv);
+			paginaActual.appendChild(observacionesCopy);
 		}
 
 		alturaAcumulada += contentBlockHeightMM;
@@ -1478,6 +1496,14 @@
 
 		const profileRefCopy = profileRef.value.cloneNode(true) as HTMLElement;
 
+		const btnDiv = profileRefCopy.querySelector(".currentProfile-btn");
+		const observaciones = profileRefCopy.querySelector(".Observaciones");
+		const observacionesCopy = observaciones?.cloneNode(true) as HTMLElement;
+		observaciones?.remove();
+		if (btnDiv) {
+			btnDiv.remove();
+		}
+
 		// Ejecuta tus funciones de manipulación sobre el clon si son relevantes aquí
 		await mergeTables(profileRefCopy);
 		await inputToSpan(profileRefCopy);
@@ -1552,10 +1578,9 @@
 			if (paginaActual) {
 				paginaActual.appendChild(contentDivCloned);
 				// Agregar observaciones si tiene algun contenido
-				const observacionesText = profileRefCopy.querySelector("#observaciones") as HTMLTextAreaElement;
+				const observacionesText = observacionesCopy.querySelector("#observaciones") as HTMLTextAreaElement;
 				if (observacionesText.value) {
-					const observacionesDiv = profileRefCopy.querySelector(".Observaciones") as HTMLElement;
-					paginaActual.appendChild(observacionesDiv);
+					paginaActual.appendChild(observacionesCopy);
 				}
 				currentContentHeightMM += contentBlockHeightMM;
 			}
@@ -1709,6 +1734,77 @@
 			console.error("No se pudo abrir la ventana de impresión.");
 		}
 	};
+
+	async function printCurrentProfile(currentProfile: HTMLElement) {
+		const container = document.createElement("div");
+		const profileRefCopy = profileRef.value.cloneNode(true) as HTMLElement;
+		const patientInfoElement = profileRefCopy.querySelector(".patient-info") as HTMLElement | null;
+		const currentProfileCopy = currentProfile.cloneNode(true) as HTMLElement;
+		const btnDiv = currentProfileCopy.querySelector(".currentProfile-btn");
+		const observaciones = currentProfileCopy.querySelector(".Observaciones");
+		const observacionesCopy = observaciones?.cloneNode(true) as HTMLElement;
+		const testTitleDiv = currentProfileCopy.querySelector(".testTitle");
+		const testTitle = testTitleDiv?.querySelector("h4");
+		const observacionesTextContent = observacionesCopy?.querySelector("#observaciones") as HTMLTextAreaElement;
+		observaciones?.remove();
+
+		// Quitar titulo si es perfil 20
+		if (testTitle?.textContent.toLocaleLowerCase().trim() === "perfil 20") {
+			testTitleDiv?.remove();
+		}
+
+		// quitar boton de imprimir este perfil
+		if (btnDiv) {
+			btnDiv.remove();
+		}
+
+		await inputToSpan(currentProfileCopy);
+
+		if (patientInfoElement && currentProfileCopy && observaciones) {
+			container.appendChild(patientInfoElement);
+			container.appendChild(currentProfileCopy);
+			if (observacionesTextContent.value.length) {
+				container.appendChild(observacionesCopy);
+			}
+		}
+
+		const firstName = order.value.firstName; // Asegúrate que 'order' está definido
+		const lastName = order.value.lastName;
+		const today = new Date();
+		const formattedDate = `${String(today.getDate()).padStart(2, "0")}-${String(today.getMonth() + 1).padStart(
+			2,
+			"0"
+		)}-${today.getFullYear()}`;
+		const filename = `${lastName}_${firstName}_${formattedDate}.pdf`;
+
+		const options = {
+			margin: [5, 5, 5, 5], // [arriba, derecha, abajo, izquierda] en mm
+			filename: filename,
+			image: { type: "jpeg", quality: 0.98 },
+			html2canvas: {
+				scale: 2,
+				useCORS: true,
+				// logging: true, // Descomentar para depurar html2canvas
+			},
+			jsPDF: {
+				unit: "mm",
+				format: "letter",
+				orientation: "portrait",
+			},
+			// Considerar opciones de pagebreak de html2pdf.js si aún hay problemas
+			// pagebreak: { mode: ['css', 'legacy'], avoid: ['thead', 'tr'] }
+		};
+
+		try {
+			const html2pdfModule = await import("html2pdf.js");
+			const html2pdf = html2pdfModule.default;
+
+			// console.log("Contenido final del DOM para PDF:", pdfContainer.outerHTML); // Descomenta para depuración
+			html2pdf().from(container).set(options).save();
+		} catch (e) {
+			console.error("Error al generar el PDF:", e);
+		}
+	}
 
 	const aplicarFormula = (formula: string, valores: { [x: string]: any }) => {
 		const parser = new Parser();
