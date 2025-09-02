@@ -1761,13 +1761,35 @@
 			// Considerar opciones de pagebreak de html2pdf.js si aún hay problemas
 			// pagebreak: { mode: ['css', 'legacy'], avoid: ['thead', 'tr'] }
 		};
-
 		try {
-			const html2pdfModule = await import("html2pdf.js");
-			const html2pdf = html2pdfModule.default;
+			const html2pdf = (await import("html2pdf.js")).default;
+			const pdfBlob = await new Promise<Blob>((resolve, reject) => {
+				html2pdf()
+					.from(container)
+					.set(options)
+					.toPdf()
+					.get("pdf")
+					.then((pdf: { output: (arg0: string) => any }) => {
+						const blob = pdf.output("blob");
+						resolve(blob);
+					})
+					.catch((error: any) => {
+						console.error("Error generando el PDF:", error);
+						reject(error);
+					});
+			});
+			const pdfUrl = URL.createObjectURL(pdfBlob);
 
-			// console.log("Contenido final del DOM para PDF:", pdfContainer.outerHTML); // Descomenta para depuración
-			html2pdf().from(container).set(options).save();
+			const printWindow = window.open(pdfUrl);
+
+			if (printWindow) {
+				printWindow.onload = function () {
+					printWindow.print();
+					printWindow.onafterprint = function () {
+						printWindow.close();
+					};
+				};
+			}
 		} catch (e) {
 			console.error("Error al generar el PDF:", e);
 		}
