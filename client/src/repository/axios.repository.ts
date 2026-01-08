@@ -1,0 +1,387 @@
+import axios, { AxiosResponse, AxiosError } from "axios";
+
+axios.interceptors.response.use(
+	(response: AxiosResponse) => response,
+	(error: AxiosError) => {
+		console.error("Error in Axios Request:", error);
+		return Promise.reject(error);
+	}
+);
+
+class AxiosRepository {
+	async getAll<T>(domain: string): Promise<T[]> {
+		const response = await axios.get<T[]>(`${import.meta.env.VITE_API_URL}/${domain}`);
+		return response.data;
+	}
+
+	async getAllCampo<T>(domain: string): Promise<T[]> {
+		const response = await axios.get<T[]>(`${import.meta.env.VITE_API_URL}/${domain}/campo`);
+		return response.data;
+	}
+
+	async getAllProfile<T>(domain: string): Promise<T[]> {
+		const response = await axios.get<T[]>(`${import.meta.env.VITE_API_URL}/${domain}/profile`);
+		return response.data;
+	}
+
+	async getAllCultive<T>(domain: string): Promise<T[]> {
+		const response = await axios.get<T[]>(`${import.meta.env.VITE_API_URL}/${domain}/cultive`);
+		return response.data;
+	}
+
+	async getAllSpermiogram<T>(domain: string): Promise<T[]> {
+		const response = await axios.get<T[]>(`${import.meta.env.VITE_API_URL}/${domain}/spermiogram`);
+		return response.data;
+	}
+
+	async getAllBacterium<T>(domain: string): Promise<T[]> {
+		const response = await axios.get<T[]>(`${import.meta.env.VITE_API_URL}/${domain}/bacterium`);
+		return response.data;
+	}
+
+	async getAllAntibiotics<T>(domain: string): Promise<T[]> {
+		const response = await axios.get<T[]>(`${import.meta.env.VITE_API_URL}/${domain}/antibiotics`);
+		return response.data;
+	}
+
+	async getAllInputs<T>(domain: string): Promise<T[]> {
+		const response = await axios.get<T[]>(`${import.meta.env.VITE_API_URL}/${domain}/input`);
+		return response.data;
+	}
+
+	async getAllInputUnits<T>(domain: string): Promise<T[]> {
+		const response = await axios.get<T[]>(`${import.meta.env.VITE_API_URL}/${domain}/unit`);
+		return response.data;
+	}
+
+	async getAllUnrepeated<T>(domain: string): Promise<T[]> {
+		const response = await axios.get<T[]>(`${import.meta.env.VITE_API_URL}/${domain}/unrepeated`);
+		return response.data;
+	}
+
+	async getAllOrders<T>(domain: string, today: boolean, date: string): Promise<T[]> {
+		const response = await axios.get<T[]>(`${import.meta.env.VITE_API_URL}/${domain}/orders?today=${today}&date=${date}`);
+		return response.data;
+	}
+
+	async getAllCultiveOrders<T>(domain: string, today: boolean, date: string): Promise<T[]> {
+		const response = await axios.get<T[]>(`${import.meta.env.VITE_API_URL}/${domain}/cultiveorders?today=${today}&date=${date}`);
+		return response.data;
+	}
+	async getAllSpermiogramOrders<T>(domain: string, today: boolean, date: string): Promise<T[]> {
+		const response = await axios.get<T[]>(
+			`${import.meta.env.VITE_API_URL}/${domain}/spermiogramorders?today=${today}&date=${date}`
+		);
+		return response.data;
+	}
+	async getAllHistOrders<T>(domain: string): Promise<T[]> {
+		const response = await axios.get<T[]>(`${import.meta.env.VITE_API_URL}/${domain}/history`);
+		return response.data;
+	}
+
+	async getAllCultiveHistOrders<T>(domain: string): Promise<T[]> {
+		const response = await axios.get<T[]>(`${import.meta.env.VITE_API_URL}/${domain}/cultivehistory`);
+		return response.data;
+	}
+	async getAllSpermiogramHistOrders<T>(domain: string): Promise<T[]> {
+		const response = await axios.get<T[]>(`${import.meta.env.VITE_API_URL}/${domain}/spermiogramhistory`);
+		return response.data;
+	}
+	async getAllIncome<T>(domain: string, all: boolean, startDate: string, endDate: string): Promise<T[]> {
+		const response = await axios.get<T[]>(
+			`${import.meta.env.VITE_API_URL}/${domain}/ingreso?all=${all}&startDate=${startDate}&endDate=${endDate}`
+		);
+		return response.data;
+	}
+
+	async getAllBills<T>(domain: string, all: boolean, startDate: string, endDate: string): Promise<T[]> {
+		const response = await axios.get<T[]>(
+			`${import.meta.env.VITE_API_URL}/${domain}/egreso?all=${all}&startDate=${startDate}&endDate=${endDate}`
+		);
+		return response.data;
+	}
+
+	async getAllDebt<T>(domain: string, all: boolean, startDate: string, endDate: string): Promise<T[]> {
+		const response = await axios.get<T[]>(
+			`${import.meta.env.VITE_API_URL}/${domain}/deuda?all=${all}&startDate=${startDate}&endDate=${endDate}`
+		);
+		return response.data;
+	}
+
+	async getById<T>(domain: string, id: string | number): Promise<T> {
+		const response = await axios.get<T>(`${import.meta.env.VITE_API_URL}/${domain}/${id}`);
+		return response.data;
+	}
+
+	async getAllInputsByProfileId<T>(domain: string, id: string | number): Promise<T> {
+		const response = await axios.get<T>(`${import.meta.env.VITE_API_URL}/${domain}/inputs/${id}`);
+		return response.data;
+	}
+
+	async readInputsProfileByProfile<T>(domain: string, idCampo: string | number, idProfile: string | number): Promise<T> {
+		const response = await axios.get<T>(`${import.meta.env.VITE_API_URL}/${domain}/inputsprofile/${idCampo}/${idProfile}`);
+		return response.data;
+	}
+
+	async getByExamId<T>(domain: string, id: string | number): Promise<T> {
+		const response = await axios.get<T>(`${import.meta.env.VITE_API_URL}/${domain}/exam/${id}`);
+		return response.data;
+	}
+
+	async getByExamIdAndProfileId<T>(domain: string, idexam: string | number, idprofile: string | number): Promise<T> {
+		const response = await axios.get<T>(`${import.meta.env.VITE_API_URL}/${domain}/order/${idexam}/${idprofile}`);
+		return response.data;
+	}
+
+	async getPaymentsByExamIdAndPaymentMethodId<T>(
+		domain: string,
+		idexam: string | number,
+		idpayment_method: string | number
+	): Promise<T> {
+		const response = await axios.get<T>(`${import.meta.env.VITE_API_URL}/${domain}/pay/${idexam}/${idpayment_method}`);
+		return response.data;
+	}
+
+	async getByName<T>(domain: string, name: string): Promise<T> {
+		const response = await axios.get<T>(`${import.meta.env.VITE_API_URL}/${domain}/name/${name}`);
+		return response.data;
+	}
+
+	async getByNameandLastName<T>(domain: string, name: string, lastName: string): Promise<T> {
+		const response = await axios.get<T>(`${import.meta.env.VITE_API_URL}/${domain}/lastName/${name}/${lastName}`);
+		return response.data;
+	}
+
+	async getBySectionName<T>(domain: string, name: string): Promise<T> {
+		const response = await axios.get<T>(`${import.meta.env.VITE_API_URL}/${domain}/inputbysection/${name}`);
+		return response.data;
+	}
+
+	async getInputsByProfileName<T>(domain: string, name: string): Promise<T> {
+		const response = await axios.get<T>(`${import.meta.env.VITE_API_URL}/${domain}/inputresults/${name}`);
+		return response.data;
+	}
+
+	async getInputsByProfileName2<T>(domain: string, name: string, id: number | string): Promise<T> {
+		const response = await axios.get<T>(`${import.meta.env.VITE_API_URL}/${domain}/inputresults2/${name}/${id}`);
+		return response.data;
+	}
+
+	async getCultiveResult<T>(domain: string, id: number | string, name: number | string): Promise<T> {
+		const response = await axios.get<T>(`${import.meta.env.VITE_API_URL}/${domain}/cultive/result/${id}/${name}`);
+		return response.data;
+	}
+
+	async getSpermiogramResult<T>(domain: string, id: number | string, name: number | string): Promise<T> {
+		const response = await axios.get<T>(`${import.meta.env.VITE_API_URL}/${domain}/spermiogram/result/${id}/${name}`);
+		return response.data;
+	}
+
+	async getByUnitName<T>(domain: string, name: string): Promise<T> {
+		const response = await axios.get<T>(`${import.meta.env.VITE_API_URL}/${domain}/name?name=${name}`);
+		return response.data;
+	}
+
+	async getByReactiveAndProvider<T>(domain: string): Promise<T> {
+		const response = await axios.get<T>(`${import.meta.env.VITE_API_URL}/${domain}/provider`);
+		return response.data;
+	}
+
+	async getByType<T>(domain: string, name: string): Promise<T> {
+		const response = await axios.get<T>(`${import.meta.env.VITE_API_URL}/${domain}/type/${name}`);
+		return response.data;
+	}
+
+	async getReactiveByProvider<T>(domain: string): Promise<T[]> {
+		const response = await axios.get<T[]>(`${import.meta.env.VITE_API_URL}/${domain}/provider`);
+		return response.data;
+	}
+
+	async create<T>(domain: string, data: T): Promise<T> {
+		const response = await axios.post<T>(`${import.meta.env.VITE_API_URL}/${domain}`, data);
+		return response.data;
+	}
+
+	async createAntibiotics<T>(domain: string, data: T): Promise<T> {
+		const response = await axios.post<T>(`${import.meta.env.VITE_API_URL}/${domain}/antibiotics`, data);
+		return response.data;
+	}
+
+	async createBacterium<T>(domain: string, data: T): Promise<T> {
+		const response = await axios.post<T>(`${import.meta.env.VITE_API_URL}/${domain}/bacterium`, data);
+		return response.data;
+	}
+
+	async createExamResults<T>(domain: string, data: T): Promise<T> {
+		const response = await axios.post<T>(`${import.meta.env.VITE_API_URL}/${domain}/results`, data);
+		return response.data;
+	}
+
+	async createInputsInProfile<T>(domain: string, data: T, inputs: T): Promise<T> {
+		const requestData = {
+			data,
+			inputs,
+		};
+		const response = await axios.post<T>(`${import.meta.env.VITE_API_URL}/${domain}/inputsinprofile`, requestData);
+		return response.data;
+	}
+
+	async createProfileSection<T>(domain: string, data: T, section: T): Promise<T> {
+		const requestData = {
+			data,
+			section,
+		};
+		const response = await axios.post<T>(`${import.meta.env.VITE_API_URL}/${domain}/section`, requestData);
+		return response.data;
+	}
+
+	async createProfileSectionInputs<T>(domain: string, data: T, inputs: T): Promise<T> {
+		const requestData = {
+			data,
+			inputs,
+		};
+		const response = await axios.post<T>(`${import.meta.env.VITE_API_URL}/${domain}/section/input`, requestData);
+		return response.data;
+	}
+
+	async createInputs<T>(domain: string, data: T, inputs: T): Promise<T> {
+		const requestData = {
+			data,
+			inputs,
+		};
+		const response = await axios.post<T>(`${import.meta.env.VITE_API_URL}/${domain}/createinputs`, requestData);
+		return response.data;
+	}
+
+	async createProfileInputs<T>(domain: string, data: T, inputs: T, section: T): Promise<T> {
+		const requestData = {
+			data,
+			inputs,
+			section,
+		};
+		const response = await axios.post<T>(`${import.meta.env.VITE_API_URL}/${domain}/inputs`, requestData);
+		return response.data;
+	}
+
+	async createCultive<T>(domain: string, data: T): Promise<T> {
+		const requestData = {
+			data,
+		};
+		const response = await axios.post<T>(`${import.meta.env.VITE_API_URL}/${domain}/cultive`, requestData);
+		return response.data;
+	}
+
+	async createCultiveResults<T>(domain: string, data: T, sensibles: T, resistentes: T): Promise<T> {
+		const requestData = {
+			data,
+			sensibles,
+			resistentes,
+		};
+		const response = await axios.post<T>(`${import.meta.env.VITE_API_URL}/${domain}/cultive/results`, requestData);
+		return response.data;
+	}
+
+	async createSpermiogramResults<T>(domain: string, data: T, id: number): Promise<T> {
+		const requestData = {
+			id,
+			data,
+		};
+		const response = await axios.post<T>(`${import.meta.env.VITE_API_URL}/${domain}/spermiogram/results`, requestData);
+		return response.data;
+	}
+
+	async update<T>(domain: string, id: string | number | undefined, data: T): Promise<T> {
+		const response = await axios.put<T>(`${import.meta.env.VITE_API_URL}/${domain}/${id}`, data);
+		return response.data;
+	}
+
+	async updateCampo<T>(domain: string, id: string | number | undefined, data: T): Promise<T> {
+		const response = await axios.put<T>(`${import.meta.env.VITE_API_URL}/${domain}/campo/${id}`, data);
+		return response.data;
+	}
+
+	async updateProfileSection<T>(domain: string, id: string | number | undefined, data: T): Promise<T> {
+		const response = await axios.put<T>(`${import.meta.env.VITE_API_URL}/${domain}/section/${id}`, data);
+		return response.data;
+	}
+
+	async updateAntibiotics<T>(domain: string, id: string | number | undefined, data: T): Promise<T> {
+		const response = await axios.put<T>(`${import.meta.env.VITE_API_URL}/${domain}/antibiotics/${id}`, data);
+		return response.data;
+	}
+
+	async updateBacterium<T>(domain: string, id: string | number | undefined, data: T): Promise<T> {
+		const response = await axios.put<T>(`${import.meta.env.VITE_API_URL}/${domain}/bacterium/${id}`, data);
+		return response.data;
+	}
+
+	async updateCultive<T>(domain: string, id: string | number | undefined, data: T): Promise<T> {
+		const response = await axios.put<T>(`${import.meta.env.VITE_API_URL}/${domain}/cultive/${id}`, data);
+		return response.data;
+	}
+
+	async updateInputs<T>(domain: string, id: string | number | undefined, data: T): Promise<T> {
+		const response = await axios.put<T>(`${import.meta.env.VITE_API_URL}/${domain}/input/${id}`, data);
+		return response.data;
+	}
+
+	async updateStatusOrder<T>(domain: string, id: string | number | undefined, data: T): Promise<T> {
+		const response = await axios.put<T>(`${import.meta.env.VITE_API_URL}/${domain}/status/${id}`, data);
+		return response.data;
+	}
+
+	async updateInputsProfile<T>(domain: string, id: string | number | undefined, data: T): Promise<T> {
+		const response = await axios.put<T>(`${import.meta.env.VITE_API_URL}/${domain}/profileinputs/${id}`, data);
+		return response.data;
+	}
+
+	async delete(domain: string, id: string | number): Promise<void> {
+		await axios.delete(`${import.meta.env.VITE_API_URL}/${domain}/${id}`);
+	}
+
+	async deleteCampo(domain: string, id: string | number): Promise<void> {
+		await axios.delete(`${import.meta.env.VITE_API_URL}/${domain}/campo/${id}`);
+	}
+
+	async deleteDebtExam(domain: string, id: string | number): Promise<void> {
+		await axios.delete(`${import.meta.env.VITE_API_URL}/${domain}/exam/${id}`);
+	}
+
+	async deleteAntibiotics(domain: string, id: string | number): Promise<void> {
+		await axios.delete(`${import.meta.env.VITE_API_URL}/${domain}/antibiotics/${id}`);
+	}
+
+	async deleteBacterium(domain: string, id: string | number): Promise<void> {
+		await axios.delete(`${import.meta.env.VITE_API_URL}/${domain}/bacterium/${id}`);
+	}
+
+	async deleteCultive(domain: string, id: string | number): Promise<void> {
+		await axios.delete(`${import.meta.env.VITE_API_URL}/${domain}/cultive/${id}`);
+	}
+
+	async deleteInputsInProfile(domain: string, idProfile: number, idsArray: number[]): Promise<void> {
+		await axios.delete(`${import.meta.env.VITE_API_URL}/${domain}/inputsinprofile/${idProfile}/${idsArray}`);
+	}
+
+	async deleteInputs(domain: string, id: string | number): Promise<void> {
+		await axios.delete(`${import.meta.env.VITE_API_URL}/${domain}/input/${id}`);
+	}
+
+	async deleteInputsProfile(domain: string, id: string | number): Promise<void> {
+		await axios.delete(`${import.meta.env.VITE_API_URL}/${domain}/profileinputs/${id}`);
+	}
+
+	async deleteByExamIdAndProfileId(domain: string, idexam: string | number, idprofile: string | number): Promise<void> {
+		await axios.delete(`${import.meta.env.VITE_API_URL}/${domain}/order/${idexam}/${idprofile}`);
+	}
+
+	async deleteProfileSection(domain: string, idProfile: number, nombre: string): Promise<void> {
+		await axios.delete(`${import.meta.env.VITE_API_URL}/${domain}/section/${idProfile}/${nombre}`);
+	}
+
+	async deleteProfileSectionInputs(domain: string, idProfile: number, nombre: string, idsArray: number[]): Promise<void> {
+		await axios.delete(`${import.meta.env.VITE_API_URL}/${domain}/section/input/${idProfile}/${nombre}/${idsArray}`);
+	}
+}
+
+export const axiosRepository = new AxiosRepository();
