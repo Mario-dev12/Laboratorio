@@ -1,0 +1,1132 @@
+<template>
+	<ion-page>
+		<ion-content>
+			<div class="container">
+				<div>
+					<h1 class="mb-4 text-center mt-4">Perfiles</h1>
+				</div>
+				<div class="d-flex justify-content-end mb-3">
+					<ion-button @click="createPerfil" color="primary">+ Perfil</ion-button>
+				</div>
+				<div class="perfiles">
+					<input type="text" v-model="filtroNombre" placeholder="Filtrar por nombre" class="form-control" />
+					<table class="table table-striped text-center">
+						<thead>
+							<tr>
+								<th scope="col">ID</th>
+								<th scope="col">Name</th>
+								<th scope="col">Costo $</th>
+								<th scope="col">Costo Bs</th>
+								<th scope="col">Acciones</th>
+							</tr>
+						</thead>
+						<tbody>
+							<tr v-for="perfil in perfilesFiltrados" :key="perfil.idProfile">
+								<td>{{ perfil.idProfile }}</td>
+								<td>
+									{{ perfil.name }}
+								</td>
+
+								<td>$ {{ perfil.cost_usd }}</td>
+
+								<td>Bs {{ perfil.cost_bs }}</td>
+
+								<td class="align-middle">
+									<i class="fas fa-edit" style="cursor: pointer; margin-right: 10px" @click="editPerfil(perfil)"></i>
+									<i class="fas fa-trash" style="cursor: pointer" @click="deletePerfil(perfil.idProfile)"></i>
+								</td>
+							</tr>
+						</tbody>
+					</table>
+				</div>
+
+				<div class="editar-perfil mt-4" v-if="create || update" ref="edicionPerfil">
+					<h1 class="text-center" v-if="!update">Perfil Nuevo</h1>
+					<h1 class="text-center" v-if="update">{{ perfilName }}</h1>
+					<div class="informacion-perfil bg-dark-subtle rounded p-3">
+						<div class="w-100 m-auto row px-2 mb-3">
+							<label class="col-12 p-0" for="documento">Nombre Del Perfil</label>
+							<input
+								v-if="!update"
+								class="col-12"
+								type="text"
+								:placeholder="update ? selectedPerfil.name : 'Nombre'"
+								ref="nombrePerfilNuevo" />
+							<input
+								v-else
+								class="col-12"
+								type="text"
+								v-model="selectedPerfil.name"
+								:placeholder="create ? 'Nombre' : ''"
+								ref="nombrePerfilNuevo" />
+						</div>
+						<div class="w-100 m-auto row px-2 mb-3">
+							<label class="col-12 p-0" for="documento">Costo En Dolares</label>
+							<input
+								v-if="!update"
+								class="col-12"
+								type="text"
+								:placeholder="update ? selectedPerfil.cost_usd : 'Costo $'"
+								ref="costoDolaresPerfilNuevo"
+								@input="updateCostBs" />
+							<input
+								v-else
+								class="col-12"
+								type="text"
+								v-model="selectedPerfil.cost_usd"
+								:placeholder="create ? 'Costo $' : ''"
+								ref="costoDolaresPerfilNuevo"
+								@input="updateCostBs" />
+						</div>
+						<div class="w-100 m-auto row px-2">
+							<label class="col-12 p-0" for="documento">Costo En Bolivares</label>
+							<input
+								v-if="!update"
+								class="col-12"
+								type="text"
+								:placeholder="update ? selectedPerfil.cost_bs : 'Costo Bs'"
+								ref="costoBsPerfilNuevo" />
+							<input
+								v-else
+								class="col-12"
+								type="text"
+								v-model="selectedPerfil.cost_bs"
+								:placeholder="create ? 'Costo Bs' : ''"
+								ref="costoBsPerfilNuevo" />
+						</div>
+					</div>
+					<div class="w-100 m-auto row px-2 mb-3 mt-3">
+						<label v-if="!update" class="col-12 p-0"> <input type="checkbox" v-model="externoNuevo" /> Examen Externo </label>
+						<label v-else class="col-12 p-0">
+							<input type="checkbox" v-model="selectedPerfil.externo" ref="externoNuevo" /> Examen Externo
+						</label>
+					</div>
+					<h1 class="mt-4 text-center">Secciones Del Perfil</h1>
+					<div class="secciones mt-4">
+						<div v-if="secciones.length === 0" class="text-center mt-3">No hay secciones para este perfil.</div>
+						<div v-else>
+							<div v-for="(seccion, index) in secciones" :key="index" class="seccion mt-3">
+								<div class="d-flex align-items-center">
+									<input type="text" v-model="seccion.nombre" placeholder="Nombre de la sección" class="form-control mb-2" />
+									<button @click="toggleExpand(index)" class="btn btn-link ms-2">
+										{{ seccion.expandida ? "Menos" : "Más" }}
+									</button>
+									<button @click="deleteSeccion(index)" class="btn btn-link ms-2 text-danger" title="Eliminar Sección">
+										<i class="fas fa-trash"></i>
+									</button>
+								</div>
+
+								<div v-if="seccion.expandida">
+									<div v-if="seccion.nueva" class="row">
+										<div class="col-12">
+											<label for="hematologia-completa">Hematologia Completa</label>
+											<input
+												class="my-auto"
+												name="hematologia-completa"
+												ref="completarHematologia"
+												type="checkbox"
+												value="Hematología completa"
+												@change="
+													(e) => {
+														completarSeccion(e, seccion);
+														completarNombreSeccion(e, seccion);
+													}
+												" />
+										</div>
+									</div>
+									<div class="campos">
+										<table class="table table-striped text-center">
+											<thead>
+												<tr>
+													<th scope="col">Name</th>
+													<th scope="col">Unit</th>
+													<th scope="col">Valor Referencial</th>
+													<th scope="col">Agregado</th>
+												</tr>
+											</thead>
+											<tbody>
+												<tr v-for="campo in camposExistentes" :key="campo.idCampo">
+													<td>{{ campo.nombre }}</td>
+													<td>{{ campo.unidad }}</td>
+													<td>{{ campo.valor_referencial }}</td>
+													<td class="align-middle">
+														<input
+															type="checkbox"
+															@change="(e) => toggleCampoSeleccionado(e, campo, seccion)"
+															:checked="isCampoSeleccionado(seccion, campo)" />
+													</td>
+												</tr>
+											</tbody>
+										</table>
+									</div>
+								</div>
+							</div>
+						</div>
+						<div class="d-flex justify-content-center">
+							<button class="btn btn-primary mt-2 mb-3" @click="agregarSeccion">Agregar Sección</button>
+						</div>
+					</div>
+
+					<div class="d-flex justify-content-center mt-3 mb-3">
+						<button class="btn btn-primary mb-4" @click="crearPerfil" v-if="!update">Crear Perfil</button>
+						<button class="btn btn-primary mb-4" v-if="update" @click="updatePerfil">Guardar Cambios</button>
+						<button class="btn btn-primary mb-4 ms-5" @click="adicionarCampo">+ Campo</button>
+						<button class="btn btn-primary mb-4 ms-5" @click="adicionarRestriccion">+ Restricción</button>
+					</div>
+				</div>
+				<div class="agregar-campo bg-dark-subtle rounded p-3 mb-3" v-if="crearCampo" ref="edicionCampo">
+					<div class="w-100 m-auto row px-2 mb-3">
+						<label for="campo">Nombre Del Campo</label>
+						<input type="text" placeholder="Nombre" name="campo" ref="nombreCampo" />
+					</div>
+					<div class="w-100 m-auto row px-2">
+						<div class="col">
+							<label for="unidad">Unidad Del Campo</label>
+						</div>
+						<div class="col d-flex align-content-center">
+							<p class="d-inline m-0 me-2">Existente</p>
+							<input class="" type="checkbox" name="existente" v-model="unidadExistenteRef" @click="handleCampo" />
+						</div>
+						<div class="col d-flex align-content-center">
+							<p class="d-inline m-0 me-2">Nueva</p>
+							<input type="checkbox" name="nueva" v-model="unidadNuevoRef" @click="handleCampo" />
+						</div>
+					</div>
+					<div class="w-100 m-auto row px-2 mb-3">
+						<input type="text" placeholder="Unidad" name="unidad" v-if="unidadNuevoRef" ref="nombreUnidadNueva" />
+						<select name="campos" id="campos" v-if="unidadExistenteRef" ref="nombreUnidadExistente">
+							<option value="default">Seleccionar</option>
+							<option :value="unidad.unidad" v-for="unidad in unidadesDeCampos" :key="unidad.idCampo">
+								{{ unidad.unidad }}
+							</option>
+						</select>
+					</div>
+					<div class="w-100 m-auto row px-2 mb-3">
+						<label for="valorReferencial">Valores Referenciales</label>
+						<input type="text" placeholder="Valor Referencial" name="valorReferencial" ref="valorReferencial" />
+					</div>
+					<div class="w-100 m-auto row px-2 mb-3">
+						<div class="col d-flex align-content-center">
+							<p class="d-inline m-0 me-2">Campo Calculado</p>
+							<input type="checkbox" v-model="isCampoCalculado" />
+						</div>
+					</div>
+
+					<div class="w-100 m-auto row px-2 mb-3" v-if="isCampoCalculado">
+						<label for="campoSelect">Seleccionar Campo</label>
+						<div class="d-flex mb-3">
+							<select v-model="campoSeleccionado">
+								<option value="">Seleccionar Campo</option>
+								<option v-for="campo in camposExistentes" :key="campo.idCampo" :value="campo.nombre">{{ campo.nombre }}</option>
+							</select>
+							<button class="btn btn-primary ms-2" @click="agregarCampoAFormula">Agregar</button>
+						</div>
+						<div class="w-100 m-auto row px-2 mb-3">
+							<label for="formula">Fórmula</label>
+							<input type="text" v-model="formula" placeholder="Construir fórmula..." />
+							<small class="form-text text-muted">Ejemplo: Campo1 + 10</small>
+						</div>
+					</div>
+					<div class="d-flex justify-content-center">
+						<button class="btn btn-primary" @click="createCampo">Crear Campo</button>
+					</div>
+				</div>
+				<div class="agregar-restriccion bg-dark-subtle rounded p-3 mb-3" v-if="crearRestriccion" ref="edicionRestriccion">
+					<div class="w-100 m-auto row mb-3">
+						<label for="restriccionList">Lista de Restricciones</label>
+						<div v-if="restriction.length === 0">No hay restricciones</div>
+						<span v-for="restriccion in restriction" :key="restriccion.idRestriction">
+							<span v-if="!restriccion.editando">{{ restriccion.restriction }}</span>
+							<input
+								v-if="restriccion.editando"
+								v-model="restriccion.nuevaRestriccion"
+								type="text"
+								placeholder="Editar restricción..."
+								@keyup.enter="actualizarRestriccion(restriccion)"
+								class="ms-2" />
+							<i
+								v-if="!restriccion.editando"
+								class="fas fa-edit ms-2 text-dark"
+								@click="editarRestriccion(restriccion)"
+								title="Editar restricción"
+								style="cursor: pointer"></i>
+							<i
+								v-if="restriccion.editando"
+								class="fas fa-check accept-icon"
+								@click="actualizarRestriccion(restriccion)"
+								style="cursor: pointer; margin-left: 10px"></i>
+							<i
+								v-if="restriccion.editando"
+								class="fas fa-times reject-icon"
+								@click="cancelarEdicion(restriccion)"
+								style="cursor: pointer; margin-left: 10px"></i>
+							<i
+								class="fas fa-trash"
+								style="cursor: pointer; margin-left: 8px"
+								@click="deleteRestriccion(restriccion.idRestriction)"></i>
+						</span>
+					</div>
+					<label class="d-flex px-2" for="campoSelect">Seleccionar Campo</label>
+					<div class="d-flex px-2 mb-3">
+						<select v-model="campoSeleccionado">
+							<option value="">Seleccionar Campo</option>
+							<option v-for="campo in camposExistentes" :key="campo.idCampo" :value="campo.nombre">{{ campo.nombre }}</option>
+						</select>
+						<button class="btn btn-primary ms-2" @click="agregarCampoARestriccion">Agregar</button>
+					</div>
+					<label class="w-100 m-auto px-2" for="formula">Restricción</label>
+					<div class="w-100 m-auto row px-2 mb-3">
+						<input type="text" v-model="formulaRestriccion" placeholder="Construir restricción..." />
+						<small class="form-text text-muted">Ejemplo: Campo1 - 5 = 100</small>
+					</div>
+					<div class="d-flex justify-content-center">
+						<button class="btn btn-primary" @click="createRestriccion">Crear Restricción</button>
+					</div>
+				</div>
+			</div>
+			<ion-toast
+				:class="toast.class"
+				:icon="toast.icon"
+				:is-open="isOpen"
+				:message="toast.message"
+				duration="2000"
+				@didDismiss="setOpen(false)"
+				position="top"></ion-toast>
+
+			<CustomConfirm ref="customConfirm"></CustomConfirm>
+		</ion-content>
+	</ion-page>
+</template>
+
+<script setup lang="ts">
+	import { IonContent, IonPage, IonButton, IonToast } from "@ionic/vue";
+	import { onMounted, ref, nextTick, watch, computed } from "vue";
+	import { profileStore } from "@/stores/profileStore";
+	import { restrictionStore } from "@/stores/restrictionStore";
+	import { Profile, Campo, Unit } from "@/interfaces/interfaces";
+	import { checkboxOutline, closeCircleOutline, alertCircleOutline } from "ionicons/icons";
+	import eventBus from "../eventBus";
+	import { useRouter, onBeforeRouteLeave } from "vue-router";
+	import CustomConfirm from "@/components/CustomConfirm.vue";
+
+	const perfilName = ref();
+	const selectedPerfil = ref();
+	const tests = profileStore();
+	const restrictions = restrictionStore();
+	const restriction = ref();
+	const secciones = ref<Seccion[]>([]);
+	const seccionesAgregadas = ref<Seccion[]>([]);
+	const seccionesEliminadas = ref<Seccion[]>([]);
+	const perfiles = ref<Profile[]>([]);
+	const camposExistentes = ref<Campo[]>([]);
+	const create = ref(false);
+	const update = ref(false);
+	const campos = ref<CampoNuevo[]>([]);
+	const restricciones = ref<CampoNuevo[]>([]);
+	const unidadExistenteRef = ref(true);
+	const unidadNuevoRef = ref(false);
+	const unidadesDeCampos = ref<Unit[]>([]);
+	const nombreCampo = ref();
+	const nombreUnidadNueva = ref();
+	const nombreUnidadExistente = ref();
+	const valorReferencial = ref();
+	const nombrePerfilNuevo = ref();
+	const costoBsPerfilNuevo = ref();
+	const externoNuevo = ref(false);
+	const costoDolaresPerfilNuevo = ref();
+	const crearCampo = ref(false);
+	const crearRestriccion = ref(false);
+	const edicionPerfil = ref();
+	const edicionCampo = ref();
+	const edicionRestriccion = ref();
+	const camposDelPerfil = ref();
+	const isOpen = ref(false);
+	const idCamposAgregados = ref<number[]>([]);
+	const idCamposEliminados = ref<number[]>([]);
+	const isCampoCalculado = ref(false);
+	const campoSeleccionado = ref("");
+	const formula = ref("");
+	const formulaRestriccion = ref("");
+	const tasa = ref<number>(parseFloat(localStorage.getItem("tasaDolar") || "1"));
+	const completarHematologia = ref();
+	const filtroNombre = ref("");
+	const router = useRouter();
+	const customConfirm = ref();
+	const toast = ref({
+		isOpen: false,
+		message: "",
+		class: "",
+		icon: null,
+	});
+
+	const dataPerfilNuevo: Partial<Profile> = {
+		name: "",
+		cost_bs: "",
+		cost_usd: "",
+		externo: false,
+	};
+
+	interface CampoNuevo {
+		idCampo: number;
+		nombre: string;
+		unidad: string;
+		valor_referencial: string;
+		calculado: string;
+		checked?: boolean;
+	}
+
+	interface Seccion {
+		idDivision: number;
+		nombre: string;
+		campos: Array<{ idCampo: number; nombre: string; unidad: string; valor_referencial?: any; calculado: string }>;
+		expandida: boolean;
+		orden: number;
+		camposAgregados: number[];
+		camposEliminados: number[];
+		nueva?: boolean;
+	}
+
+	onMounted(async () => {
+		update.value = false;
+		create.value = false;
+		crearCampo.value = false;
+		eventBus.on("precioActualizado", handlePrecioActualizado);
+		tasa.value = Number(localStorage.getItem("tasaDolar")) || 50;
+
+		try {
+			const [fetchedProfiles, fetchedInputs, fetchedInputUnits] = await Promise.all([
+				tests.fecthProfiles(),
+				tests.fecthProfilesInputs(),
+				tests.fecthProfilesInputUnits(),
+			]);
+
+			perfiles.value = fetchedProfiles;
+
+			perfiles.value.forEach((perfil) => {
+				const costUsd = parseFloat(perfil.cost_usd);
+				const costBs = (costUsd * tasa.value).toFixed(2);
+				perfil.cost_bs = costBs.toString().replace(",", ".");
+			});
+
+			camposExistentes.value = fetchedInputs;
+			unidadesDeCampos.value = fetchedInputUnits;
+		} catch (error) {
+			console.error("Error al obtener datos:", error);
+		}
+	});
+
+	router.beforeEach(async (to, from, next) => {
+		if (to.name === "EditarPerfil") {
+			update.value = false;
+			create.value = false;
+			crearCampo.value = false;
+			eventBus.on("precioActualizado", handlePrecioActualizado);
+			tasa.value = Number(localStorage.getItem("tasaDolar")) || 50;
+
+			try {
+				const [fetchedProfiles, fetchedInputs, fetchedInputUnits] = await Promise.all([
+					tests.fecthProfiles(),
+					tests.fecthProfilesInputs(),
+					tests.fecthProfilesInputUnits(),
+				]);
+
+				perfiles.value = fetchedProfiles;
+
+				perfiles.value.forEach((perfil) => {
+					const costUsd = parseFloat(perfil.cost_usd);
+					const costBs = (costUsd * tasa.value).toFixed(2);
+					perfil.cost_bs = costBs.toString().replace(",", ".");
+				});
+
+				camposExistentes.value = fetchedInputs;
+				unidadesDeCampos.value = fetchedInputUnits;
+			} catch (error) {
+				console.error("Error al obtener datos:", error);
+			}
+		}
+		next();
+	});
+
+	onBeforeRouteLeave((to, from, next) => {
+		update.value = false;
+		create.value = false;
+		crearCampo.value = false;
+		next();
+	});
+
+	const perfilesFiltrados = computed(() => {
+		return perfiles.value.filter((perfil) => {
+			return perfil.name.toLowerCase().includes(filtroNombre.value.toLowerCase());
+		});
+	});
+
+	const completarSeccion = async (event: any, seccion: any) => {
+		if (event.target.checked) {
+			const sectionFields = await tests.fetchSectionByName(event.target.value);
+			seccion.campos = sectionFields;
+		} else {
+			seccion.campos = [];
+		}
+	};
+
+	function completarNombreSeccion(event: any, seccion: any) {
+		if (event.target.checked) {
+			seccion.nombre = event.target.value;
+		} else {
+			seccion.nombre = "";
+		}
+	}
+
+	const updateCostBs = () => {
+		if (create.value) {
+			const costInDollars = parseFloat(costoDolaresPerfilNuevo.value.value) || 0;
+			const calculated = (costInDollars * tasa.value).toFixed(2);
+			costoBsPerfilNuevo.value.value = calculated.toString().replace(",", ".");
+		} else {
+			const costInDollars = parseFloat(selectedPerfil.value.cost_usd) || 0;
+			const calculated = (costInDollars * tasa.value).toFixed(2);
+			selectedPerfil.value.cost_bs = calculated.toString().replace(",", ".");
+		}
+	};
+
+	watch(tasa, () => {
+		perfiles.value.forEach((perfil) => {
+			const costUsd = parseFloat(perfil.cost_usd);
+			const costBs = (costUsd * tasa.value).toFixed(2);
+			perfil.cost_bs = costBs.toString().replace(",", ".");
+		});
+	});
+
+	function handlePrecioActualizado(nuevoPrecio: number) {
+		tasa.value = nuevoPrecio;
+	}
+
+	const setOpen = (state: boolean) => {
+		isOpen.value = state;
+	};
+
+	const showToast = (message: string, style: string, icon: any) => {
+		toast.value.message = message;
+		toast.value.isOpen = true;
+		toast.value.class = style;
+		toast.value.icon = icon;
+		setOpen(true);
+	};
+
+	async function editPerfil(perfil: any) {
+		camposDelPerfil.value = await tests.fetchInputsByProfileId(perfil.idProfile);
+		restriction.value = await restrictions.fetchRestrictionById(perfil.idProfile);
+		secciones.value = camposDelPerfil.value.section;
+		secciones.value = secciones.value.filter((seccion) => {
+			return seccion.nombre.trim() !== "" || (seccion.campos && seccion.campos.length > 0);
+		});
+		selectedPerfil.value = perfil;
+		perfilName.value = perfil.name;
+		create.value = false;
+		update.value = true;
+		crearCampo.value = false;
+		await nextTick();
+		if (!update.value) {
+			nombrePerfilNuevo.value.value = "";
+			costoBsPerfilNuevo.value.value = "";
+			costoDolaresPerfilNuevo.value.value = "";
+		}
+		if (edicionPerfil.value) {
+			edicionPerfil.value.scrollIntoView({ behavior: "smooth" });
+		}
+	}
+
+	const updatePerfil = async () => {
+		if (!nombrePerfilNuevo.value.value && !costoDolaresPerfilNuevo.value.value && !costoBsPerfilNuevo.value.value) {
+			if (idCamposAgregados.value.length || idCamposEliminados.value.length) {
+				if (idCamposAgregados.value.length) {
+					await tests.createInputsInProfile(selectedPerfil.value.idProfile, idCamposAgregados.value);
+				}
+
+				if (idCamposEliminados.value.length) {
+					await tests.deleteInputsInProfile(selectedPerfil.value.idProfile, idCamposEliminados.value);
+				}
+				showToast("Perfil actualizado exitosamente!", "creado", checkboxOutline);
+				update.value = false;
+				crearCampo.value = false;
+			}
+		} else {
+			if (
+				isNaN(costoDolaresPerfilNuevo.value.value.replace(",", ".")) ||
+				isNaN(costoBsPerfilNuevo.value.value.replace(",", ".")) ||
+				!isNaN(nombrePerfilNuevo.value.value)
+			) {
+				showToast("Por favor ingresa datos válidos.", "warning", alertCircleOutline);
+			} else {
+				const perfilesMenosSeleccionado = perfiles.value.filter((perfil) => {
+					return perfil.idProfile !== selectedPerfil.value.idProfile;
+				});
+
+				if (
+					perfilesMenosSeleccionado.some((item) => {
+						const nombrePerfilExistente = item.name
+							.normalize("NFD")
+							.replace(/[\u0300-\u036f]/g, "")
+							.replace(/\s+/g, " ")
+							.trim()
+							.toLowerCase();
+
+						const nombrePerfilEditadoLimpiado =
+							nombrePerfilNuevo.value.value
+								?.normalize("NFD")
+								.replace(/[\u0300-\u036f]/g, "")
+								.replace(/\s+/g, " ")
+								.trim()
+								.toLowerCase() || "";
+
+						return nombrePerfilExistente === nombrePerfilEditadoLimpiado;
+					})
+				) {
+					showToast("El perfil ya existe", "warning", alertCircleOutline);
+				} else {
+					selectedPerfil.value.name = nombrePerfilNuevo.value.value;
+					selectedPerfil.value.cost_bs = costoBsPerfilNuevo.value.value;
+					selectedPerfil.value.cost_usd = costoDolaresPerfilNuevo.value.value;
+
+					const profilesSections: any = await tests.fetchInputsByProfileId(selectedPerfil.value.idProfile);
+
+					const getSectionName = (idDivision: number) =>
+						profilesSections.section.find((sec: { idDivision: number }) => sec.idDivision === idDivision)?.nombre ||
+						"Sección no encontrada";
+
+					const seccionesActualizadas = secciones.value.map((seccion) => ({
+						nombre: seccion.nombre,
+						idDivision: seccion.idDivision,
+						orden: seccion.orden,
+						campos: seccion.campos,
+						camposAgregados: seccion.camposAgregados,
+						camposEliminados: seccion.camposEliminados,
+						nombreAntiguo: getSectionName(seccion.idDivision),
+					}));
+
+					const seccionesValidas = seccionesActualizadas.every(
+						(seccion) => seccion.nombre.trim() !== "" && seccion.campos.length > 0 && seccion.nombreAntiguo.trim() !== ""
+					);
+
+					if (!seccionesValidas) {
+						showToast("Cada sección debe tener un nombre y al menos un campo seleccionado.", "warning", alertCircleOutline);
+						return;
+					}
+
+					if (campos.value.length) {
+						await tests.createInputs(selectedPerfil.value.idProfile, campos.value).then(async () => {
+							perfiles.value = await tests.fecthProfiles();
+							camposExistentes.value = await tests.fecthProfilesInputs();
+							unidadesDeCampos.value = await tests.fecthProfilesInputUnits();
+						});
+					}
+
+					if (restricciones.value.length) {
+						const data = {
+							idProfile: selectedPerfil.value.idProfile,
+							restriction: restricciones.value,
+						};
+						await restrictions.createRestriction(data);
+					}
+
+					if (seccionesAgregadas.value.length) {
+						for (const seccion of seccionesAgregadas.value) {
+							const existe = profilesSections.section.some(
+								(existingSeccion: { nombre: string }) => existingSeccion.nombre.trim() === seccion.nombre.trim()
+							);
+							if (!existe && seccion.nombre && seccion.camposAgregados.length > 0) {
+
+								seccion.nombre = seccion.nombre.trim();
+								await tests.createProfileSection(selectedPerfil.value.idProfile, seccion);
+							}
+						}
+					}
+
+					if (seccionesEliminadas.value.length) {
+						for (const seccion of seccionesEliminadas.value) {
+							if (seccion.nombre !== "") {
+								await tests.deleteProfileSection(selectedPerfil.value.idProfile, seccion.nombre);
+							}
+						}
+					}
+
+					for (const seccion of seccionesActualizadas) {
+						if (seccion.camposAgregados && seccion.camposAgregados.length > 0) {
+							const data = {
+								idProfile: selectedPerfil.value.idProfile,
+								nombre: seccion.nombreAntiguo.trim(),
+							};
+							const camposNuevos = seccion.campos.filter((campo) => campo.idCampo === 0);
+
+							const idsCorrespondientes = camposNuevos
+								.map((campoNuevo) => {
+									const campoExistente = camposExistentes.value.find((campo) => campo.nombre === campoNuevo.nombre);
+									return campoExistente ? campoExistente.idCampo : null;
+								})
+								.filter((id) => id !== null) as number[];
+
+							seccion.camposAgregados.push(...idsCorrespondientes);
+							seccion.camposAgregados = seccion.camposAgregados.filter((id) => id !== 0);
+
+							if (seccion.idDivision !== 0) {
+								await tests.createProfileSectionInputs(data, seccion.camposAgregados);
+							}
+						}
+
+						if (seccion.camposEliminados && seccion.camposEliminados.length > 0) {
+							await tests.deleteProfileSectionInputs(
+								selectedPerfil.value.idProfile,
+								seccion.nombreAntiguo,
+								seccion.camposEliminados
+							);
+						}
+
+						const data = {
+							nombre: seccion.nombre,
+							orden: seccion.orden,
+						};
+
+						await tests.updateProfileSection(seccion.idDivision, data);
+					}
+
+					await tests.updateProfile(selectedPerfil.value.idProfile, selectedPerfil.value);
+					showToast("Perfil actualizado exitosamente!", "creado", checkboxOutline);
+					update.value = false;
+					crearCampo.value = false;
+					perfiles.value = await tests.fecthProfiles();
+					perfiles.value.forEach((perfil) => {
+						const costUsd = parseFloat(perfil.cost_usd);
+						const costBs = (costUsd * tasa.value).toFixed(2);
+						perfil.cost_bs = costBs.toString().replace(",", ".");
+					});
+					camposExistentes.value = await tests.fecthProfilesInputs();
+					unidadesDeCampos.value = await tests.fecthProfilesInputUnits();
+					seccionesActualizadas.length = 0;
+					seccionesAgregadas.value = [];
+					seccionesEliminadas.value = [];
+				}
+			}
+		}
+	};
+
+	async function createPerfil() {
+		secciones.value = [];
+		camposDelPerfil.value = null;
+		campos.value = [];
+		create.value = true;
+		update.value = false;
+		crearCampo.value = false;
+		restriction.value = [];
+		await nextTick();
+		nombrePerfilNuevo.value.value = "";
+		costoBsPerfilNuevo.value.value = "";
+		costoDolaresPerfilNuevo.value.value = "";
+		if (edicionPerfil.value) {
+			edicionPerfil.value.scrollIntoView({ behavior: "smooth" });
+		}
+	}
+
+	async function deletePerfil(idperfil: number) {
+		if (confirm("Borrar Perfil?")) {
+			await tests.deleteProfile(idperfil);
+			perfiles.value = await tests.fecthProfiles();
+			showToast("Perfil borrado", "borrar", closeCircleOutline);
+		}
+	}
+
+	function handleCampo() {
+		if (unidadExistenteRef.value) {
+			unidadExistenteRef.value = false;
+			unidadNuevoRef.value = true;
+		} else {
+			unidadExistenteRef.value = true;
+			unidadNuevoRef.value = false;
+		}
+	}
+
+	const createCampo = () => {
+		const dataCampoNuevo = {
+			idCampo: 0,
+			nombre: "",
+			unidad: "",
+			valor_referencial: "",
+			calculado: "",
+			checked: true,
+			seleccionado: false,
+		};
+
+		if (
+			!nombreCampo.value.value ||
+			(unidadNuevoRef.value && !nombreUnidadNueva.value.value) ||
+			(unidadExistenteRef.value && nombreUnidadExistente.value.value === "default")
+		) {
+			showToast("Por Favor Completar Datos Del Campo", "warning", alertCircleOutline);
+		} else {
+			if (!isNaN(nombreCampo.value.value)) {
+				showToast("Por Favor Introduce Un Nombre De Campo Valido", "warning", alertCircleOutline);
+			} else {
+				if (
+					camposExistentes.value.some((campo) => {
+						return campo.nombre.trim() === nombreCampo.value.value.trim();
+					})
+				) {
+					showToast("Ya Existe Un Campo Con Ese Nombre", "warning", alertCircleOutline);
+				} else {
+					dataCampoNuevo.nombre = nombreCampo.value.value;
+					if (valorReferencial.value.value) {
+						dataCampoNuevo.valor_referencial = valorReferencial.value.value;
+					}
+					if (formula.value) {
+						dataCampoNuevo.calculado = formula.value;
+					}
+					if (unidadNuevoRef.value && nombreUnidadNueva.value.value) {
+						dataCampoNuevo.unidad = nombreUnidadNueva.value.value;
+						nombreUnidadNueva.value.value = "";
+					} else if (unidadExistenteRef.value && nombreUnidadExistente.value.value) {
+						dataCampoNuevo.unidad = nombreUnidadExistente.value.value;
+						nombreUnidadExistente.value.value = "default";
+					}
+					campos.value.push(dataCampoNuevo);
+					camposExistentes.value.unshift(dataCampoNuevo);
+					nombreCampo.value.value = "";
+					valorReferencial.value.value = "";
+					formula.value = "";
+					isCampoCalculado.value = false;
+				}
+			}
+		}
+		crearCampo.value = !crearCampo.value;
+	};
+
+	const createRestriccion = () => {
+		const dataCampoNuevo = {
+			idCampo: 0,
+			nombre: "",
+			restriction: "",
+			unidad: "",
+			valor_referencial: "",
+			calculado: "",
+			checked: true,
+			seleccionado: false,
+		};
+
+		if (!formulaRestriccion.value) {
+			showToast("Por Favor Completar Datos De La Restricción", "warning", alertCircleOutline);
+		} else {
+			const regexValidacion = /=\s*\d+/;
+			if (!regexValidacion.test(formulaRestriccion.value)) {
+				showToast("No se puede guardar una restricción sin un '=' y un número.", "warning", alertCircleOutline);
+			} else {
+				if (restriction.value) {
+					if (
+						restriction.value.some((campo: { restriction: string }) => {
+							return campo.restriction.trim() === formulaRestriccion.value.trim();
+						})
+					) {
+						showToast("Ya Existe Una Restricción Con Esa Fórmula", "warning", alertCircleOutline);
+					} else {
+						dataCampoNuevo.restriction = formulaRestriccion.value;
+						restricciones.value.push(dataCampoNuevo);
+						restriction.value.unshift(dataCampoNuevo);
+						formulaRestriccion.value = "";
+					}
+				} else {
+					dataCampoNuevo.restriction = formulaRestriccion.value;
+					restricciones.value.push(dataCampoNuevo);
+					formulaRestriccion.value = "";
+				}
+			}
+		}
+
+		crearRestriccion.value = !crearRestriccion.value;
+	};
+
+	async function crearPerfil() {
+		if (!nombrePerfilNuevo.value.value || !costoBsPerfilNuevo.value.value || !costoDolaresPerfilNuevo.value.value) {
+			showToast("Por favor completa los datos del perfil.", "warning", alertCircleOutline);
+		} else {
+			if (
+				isNaN(costoDolaresPerfilNuevo.value.value.replace(",", ".")) ||
+				isNaN(costoBsPerfilNuevo.value.value.replace(",", ".")) ||
+				!isNaN(nombrePerfilNuevo.value.value)
+			) {
+				showToast("Por favor ingresa datos válidos.", "warning", alertCircleOutline);
+			} else {
+				dataPerfilNuevo.name = nombrePerfilNuevo.value.value;
+				dataPerfilNuevo.cost_usd = costoDolaresPerfilNuevo.value.value;
+				dataPerfilNuevo.cost_bs = costoBsPerfilNuevo.value.value;
+				dataPerfilNuevo.externo = externoNuevo.value;
+				if (secciones.value.length === 0) {
+					showToast("El perfil debe contener al menos una sección.", "warning", alertCircleOutline);
+					return;
+				}
+
+				if (
+					perfiles.value.some((item) => {
+						const nombrePerfilExistente = item.name
+							.normalize("NFD")
+							.replace(/[\u0300-\u036f]/g, "")
+							.replace(/\s+/g, " ")
+							.trim()
+							.toLowerCase();
+
+						const nombrePerfilNuevoLimpiado =
+							dataPerfilNuevo.name
+								?.normalize("NFD")
+								.replace(/[\u0300-\u036f]/g, "")
+								.replace(/\s+/g, " ")
+								.trim()
+								.toLowerCase() || "";
+
+						return nombrePerfilExistente === nombrePerfilNuevoLimpiado;
+					})
+				) {
+					showToast("El perfil ya existe", "warning", alertCircleOutline);
+				} else {
+					const seccionesValidas = secciones.value.every((seccion) => seccion.nombre.trim() !== "" && seccion.campos.length > 0);
+
+					if (!seccionesValidas) {
+						showToast("Cada sección debe tener un nombre y al menos un campo.", "warning", alertCircleOutline);
+						return;
+					}
+					const camposNuevos = secciones.value.flatMap((seccion) =>
+						seccion.campos.map(({ nombre, unidad, valor_referencial, calculado }) => ({
+							nombre,
+							unidad,
+							valor_referencial: valor_referencial,
+							calculado: calculado,
+						}))
+					);
+					const datosFiltrados = secciones.value.filter(
+						(item) => item.nombre.trim() !== "" || (item.campos && item.campos.length > 0)
+					);
+
+					const resp: any = await tests.createProfileInputs(dataPerfilNuevo, camposNuevos, datosFiltrados);
+
+					if (restricciones.value.length) {
+						const data = {
+							idProfile: resp.id,
+							restriction: restricciones.value,
+						};
+						await restrictions.createRestriction(data);
+					}
+					perfiles.value = await tests.fecthProfiles();
+					camposExistentes.value = await tests.fecthProfilesInputs();
+					unidadesDeCampos.value = await tests.fecthProfilesInputUnits();
+					showToast("Perfil creado exitosamente!", "creado", checkboxOutline);
+					create.value = false;
+					crearCampo.value = false;
+					secciones.value = [];
+				}
+			}
+		}
+	}
+
+	const adicionarCampo = async () => {
+		crearCampo.value = !crearCampo.value;
+		await nextTick();
+		if (edicionCampo.value) {
+			edicionCampo.value.scrollIntoView({ behavior: "smooth" });
+		}
+	};
+
+	const adicionarRestriccion = async () => {
+		crearRestriccion.value = !crearRestriccion.value;
+		await nextTick();
+		if (edicionRestriccion.value) {
+			edicionRestriccion.value.scrollIntoView({ behavior: "smooth" });
+		}
+	};
+
+	const toggleExpand = (index: number) => {
+		secciones.value.forEach((s, i) => {
+			s.expandida = i === index ? !s.expandida : false;
+		});
+	};
+
+	const agregarSeccion = () => {
+		const todosCamposLlenos = secciones.value.every((seccion) => seccion.nombre.trim() !== "" && seccion.campos.length > 0);
+
+		if (!todosCamposLlenos) {
+			showToast(
+				"Por favor, completa todos los campos y selecciona al menos un campo en cada sección.",
+				"warning",
+				alertCircleOutline
+			);
+			return;
+		}
+
+		secciones.value.forEach((seccion) => (seccion.expandida = false));
+
+		const nuevaSeccion: Seccion = {
+			nombre: "",
+			idDivision: 0,
+			campos: [],
+			expandida: true,
+			orden: secciones.value.length === 0 ? 1 : secciones.value.length + 1,
+			camposAgregados: [],
+			camposEliminados: [],
+			nueva: true,
+		};
+
+		secciones.value.push(nuevaSeccion);
+
+		const seccionRepetida = seccionesAgregadas.value.find((item) => item.nombre.trim() === nuevaSeccion.nombre.trim());
+
+		if (!seccionRepetida) {
+			seccionesAgregadas.value.push(nuevaSeccion);
+		}
+	};
+
+	const toggleCampoSeleccionado = (event: Event, campo: Campo, seccion: Seccion) => {
+		if (!seccion) {
+			console.error("Sección no definida");
+			return;
+		}
+
+		const checked = (event.target as HTMLInputElement).checked;
+
+		if (checked) {
+			if (campo.idCampo === 0) {
+				if (!seccion.campos.some((c) => c.nombre === campo.nombre)) {
+					seccion.campos.push(campo);
+				}
+			} else {
+				if (!seccion.campos.some((c) => c.idCampo === campo.idCampo)) {
+					seccion.campos.push(campo);
+				}
+			}
+
+			if (!seccion.camposAgregados) {
+				seccion.camposAgregados = [];
+			}
+			if (!seccion.camposAgregados.includes(campo.idCampo)) {
+				seccion.camposAgregados.push(campo.idCampo);
+			}
+
+			if (!seccion.camposEliminados) {
+				seccion.camposEliminados = [];
+			}
+			seccion.camposEliminados = seccion.camposEliminados.filter((id) => id !== campo.idCampo);
+		} else {
+			seccion.campos = seccion.campos.filter((c) => c.idCampo !== campo.idCampo);
+
+			if (!seccion.camposEliminados) {
+				seccion.camposEliminados = [];
+			}
+			if (!seccion.camposEliminados.includes(campo.idCampo)) {
+				seccion.camposEliminados.push(campo.idCampo);
+			}
+
+			if (seccion.camposAgregados) {
+				seccion.camposAgregados = seccion.camposAgregados.filter((id) => id !== campo.idCampo);
+			}
+		}
+	};
+
+	const isCampoSeleccionado = (seccion: Seccion, campo: Campo) => {
+		if (campo.idCampo === 0 || campo.idCampo === undefined) {
+			return seccion.campos.some((c) => c.nombre === campo.nombre);
+		}
+
+		return seccion.campos.some((c) => c.idCampo === campo.idCampo);
+	};
+
+	const deleteSeccion = async (index: number) => {
+		// if (confirm("¿Estás seguro de que deseas eliminar esta sección?")) {
+		// 	const seccionAEliminar = secciones.value[index];
+
+		// 	if (!seccionesEliminadas.value.includes(seccionAEliminar)) {
+		// 		seccionesEliminadas.value.push(seccionAEliminar);
+		// 	}
+
+		// 	secciones.value.splice(index, 1);
+		// }
+
+		if (await customConfirm.value.open("Seguro quieres eliminar esto?")) {
+			const seccionAEliminar = secciones.value[index];
+
+			if (!seccionesEliminadas.value.includes(seccionAEliminar)) {
+				seccionesEliminadas.value.push(seccionAEliminar);
+			}
+
+			secciones.value.splice(index, 1);
+		}
+	};
+
+	const agregarCampoAFormula = () => {
+		if (campoSeleccionado.value) {
+			if (formula.value) {
+				formula.value += "" + campoSeleccionado.value;
+			} else {
+				formula.value = campoSeleccionado.value;
+			}
+			campoSeleccionado.value = "";
+		}
+	};
+
+	const agregarCampoARestriccion = () => {
+		if (campoSeleccionado.value) {
+			if (formulaRestriccion.value) {
+				formulaRestriccion.value += "" + campoSeleccionado.value;
+			} else {
+				formulaRestriccion.value = campoSeleccionado.value;
+			}
+			campoSeleccionado.value = "";
+		}
+	};
+
+	const deleteRestriccion = async (id: number | string) => {
+		await restrictions.deleteRestriction(id);
+		restriction.value = await restrictions.fetchRestrictionById(selectedPerfil.value.idProfile);
+		showToast("Restricción borrada", "creado", checkboxOutline);
+	};
+
+	async function cancelarEdicion(restriccion: { editando: boolean }) {
+		restriccion.editando = false;
+	}
+
+	async function actualizarRestriccion(restriccion: { restriction: any; nuevaRestriccion: any; editando: boolean }) {
+		restriccion.restriction = restriccion.nuevaRestriccion;
+		restriccion.editando = false;
+		const data = {
+			idProfile: selectedPerfil.value.idProfile,
+			restriction: restriccion.restriction,
+		};
+		await restrictions.updateRestriction(selectedPerfil.value.idProfile, data);
+		restriction.value = await restrictions.fetchRestrictionById(selectedPerfil.value.idProfile);
+		showToast("Restricción actualizada", "creado", checkboxOutline);
+	}
+
+	async function editarRestriccion(restriccion: { editando: boolean; nuevaRestriccion: any; restriction: any }) {
+		restriccion.editando = true;
+		restriccion.nuevaRestriccion = restriccion.restriction;
+	}
+</script>
+
+<style scoped>
+	.perfiles:not(:last-child) {
+		margin-bottom: 15px;
+	}
+
+	.campos,
+	.perfiles {
+		max-height: 400px;
+		overflow-y: auto;
+	}
+
+	ion-toast.creado {
+		--background: rgb(0, 204, 0);
+		--color: #323232;
+	}
+
+	ion-toast.borrar {
+		--background: rgb(229, 0, 0);
+		--color: #323232;
+	}
+
+	ion-toast.warning {
+		--background: rgb(219, 248, 0);
+		--color: #323232;
+	}
+</style>
