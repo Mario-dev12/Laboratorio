@@ -1064,7 +1064,294 @@
 		}
 	};
 
-	async function mergeTables(element: HTMLElement) {
+	/*async function mergeTables(element: HTMLElement) {
+		const tables = Array.from(element.querySelectorAll("table"));
+		const testTitlesDivs = Array.from(element.querySelectorAll(".testTitle")) as HTMLElement[];
+		const profileSection = element.querySelector(".profile-sections") as HTMLElement;
+
+		if (profileSection) {
+			profileSection.style.display = "block";
+		}
+
+		const normalizeText = (text: string | null | undefined): string => {
+			if (!text) return "";
+			return text
+				.toLowerCase()
+				.normalize("NFD")
+				.replace(/[\u0300-\u036f]/g, "")
+				.trim();
+		};
+
+		tables.forEach((table) => {
+			const filasDeDatos = table.querySelectorAll("tr.rowData");
+			filasDeDatos.forEach((fila: Element) => {
+				const celdaNombreCampo = fila.querySelector("td:first-child") as HTMLTableCellElement;
+				if (celdaNombreCampo) {
+					let textoActual = celdaNombreCampo.textContent || "";
+					const textoOriginal = textoActual;
+					const regexSufijos = /\s*(?:-\s*)?(?:canino|felino|orina)$/i;
+					textoActual = textoActual.replace(regexSufijos, "").trim();
+					if (textoActual !== textoOriginal) {
+						celdaNombreCampo.textContent = textoActual;
+					}
+				}
+			});
+		});
+		const VALOR_MULTIPLICACION_HEMATIES = 1000000;
+		const VALOR_MULTIPLICACION_EROTROCITOS_FELINO = 1000000;
+
+		tables.forEach((table) => {
+			const seccionesData = Array.from(table.querySelectorAll("tbody.sectionData"));
+
+			seccionesData.forEach((tbody) => {
+				const tituloSeccionElemento = tbody.querySelector("tr:first-child td h5");
+
+				if (tituloSeccionElemento && tituloSeccionElemento.textContent) {
+					const tituloSeccion = tituloSeccionElemento.textContent.trim().toLowerCase();
+
+					if (tituloSeccion === "hematología completa" || tituloSeccion === "HEMATOLOGÍA COMPLETA") {
+						const filasEnSeccion = Array.from(tbody.querySelectorAll("tr.rowData"));
+
+						filasEnSeccion.forEach((fila) => {
+							const celdaNombreCampo = fila.querySelector("td:first-child");
+							const celdaInputElement = fila.querySelector("td.inputElement");
+
+							if (celdaNombreCampo && celdaNombreCampo.textContent && celdaInputElement) {
+								const nombreCampo = celdaNombreCampo.textContent.trim().toLowerCase();
+
+								if (nombreCampo === "hematies") {
+									const inputElement = celdaInputElement.querySelector("input") as HTMLInputElement | null;
+
+									if (inputElement) {
+										const valorActualStr = inputElement.value;
+										const valorActualNum = parseFloat(valorActualStr);
+
+										if (!isNaN(valorActualNum)) {
+											const nuevoValor = valorActualNum * VALOR_MULTIPLICACION_HEMATIES;
+											inputElement.value = nuevoValor.toLocaleString("es-ES");
+										} else {
+											console.warn(`El valor para HEMATIES ('${valorActualStr}') no es un número válido y no se multiplicará.`);
+										}
+									} else {
+										console.warn("No se encontró un elemento <input> para HEMATIES en la celda esperada.");
+									}
+								}
+								if (nombreCampo === "erotrocitos") {
+									const inputElement = celdaInputElement.querySelector("input") as HTMLInputElement | null;
+
+									if (inputElement) {
+										const valorActualStr = inputElement.value;
+										const valorActualNum = parseFloat(valorActualStr);
+
+										if (!isNaN(valorActualNum)) {
+											const nuevoValor = valorActualNum * VALOR_MULTIPLICACION_EROTROCITOS_FELINO;
+											inputElement.value = nuevoValor.toLocaleString("es-ES");
+										} else {
+											console.warn(`El valor para HEMATIES ('${valorActualStr}') no es un número válido y no se multiplicará.`);
+										}
+									} else {
+										console.warn("No se encontró un elemento <input> para HEMATIES en la celda esperada.");
+									}
+								}
+							}
+						});
+					}
+				}
+			});
+		});
+
+		tables.forEach((table) => {
+            const filasDeDatos = table.querySelectorAll("tr.rowData");
+            filasDeDatos.forEach((fila: Element) => {
+                const celdaInputElement = fila.querySelector("td.inputElement");
+                if (celdaInputElement) {
+                    const inputElement = celdaInputElement.querySelector("input") as HTMLInputElement | null;
+                    if (inputElement) {
+                        const valorActualStr = inputElement.value;
+                        // Expresión regular para verificar si el valor es solo numérico (enteros o decimales)
+                        // Permite comas o puntos como separadores decimales temporalmente para el parseo
+                        const numericRegex = /^-?\d+([.,]\d+)?$/; 
+
+                        if (numericRegex.test(valorActualStr)) {
+                            // Reemplazar la coma por punto para que parseFloat funcione correctamente
+                            const valorParseable = valorActualStr.replace(/,/g, '.');
+                            const valorNumerico = parseFloat(valorParseable);
+
+                            if (!isNaN(valorNumerico)) {
+                                // Formatear el número con separador de miles '.' y decimales ','
+                                // Usamos Intl.NumberFormat para tener un control más granular
+                                const formatter = new Intl.NumberFormat('es-ES', {
+                                    minimumFractionDigits: 0, // No forzar decimales si no los hay
+                                    maximumFractionDigits: 20, // Permitir hasta 20 decimales
+                                    useGrouping: true // Asegura el uso de separadores de grupo (miles)
+                                });
+                                inputElement.value = formatter.format(valorNumerico);
+                            }
+                        }
+                    }
+                }
+            });
+        });
+
+		const MAIN_SECTION_NAMES_NORMALIZED = [
+			normalizeText("Hematología completa"),
+			normalizeText("Velocidad de Sedimentación Globular (V.S.G)"),
+			normalizeText("Química Sanguínea"),
+		];
+		const primaryMainSectionTbodiesMap: Map<string, HTMLTableSectionElement> = new Map();
+		const testTitlesToRemove = new Set<HTMLElement>();
+
+		tables.forEach((table) => {
+			const sectionsInTable = Array.from(table.querySelectorAll("tbody.sectionData")) as HTMLTableSectionElement[];
+			sectionsInTable.forEach((tbody) => {
+				const titleElement = tbody.querySelector("tr:first-child td h5");
+				if (titleElement && titleElement.textContent) {
+					const normalizedTitle = normalizeText(titleElement.textContent);
+					if (MAIN_SECTION_NAMES_NORMALIZED.includes(normalizedTitle) && !primaryMainSectionTbodiesMap.has(normalizedTitle)) {
+						primaryMainSectionTbodiesMap.set(normalizedTitle, tbody);
+					}
+				}
+			});
+		});
+
+		tables.forEach((table, tableIndex) => {
+			const sectionsInTable = Array.from(table.querySelectorAll("tbody.sectionData")) as HTMLTableSectionElement[];
+			let associatedTestTitleShouldBeRemoved = false;
+
+			sectionsInTable.forEach((currentTbody) => {
+				const titleElement = currentTbody.querySelector("tr:first-child td h5");
+				if (titleElement && titleElement.textContent) {
+					const currentSectionTitleNormalized = normalizeText(titleElement.textContent);
+
+					if (MAIN_SECTION_NAMES_NORMALIZED.includes(currentSectionTitleNormalized)) {
+						const primaryTbodyForThisSection = primaryMainSectionTbodiesMap.get(currentSectionTitleNormalized);
+
+						if (primaryTbodyForThisSection && primaryTbodyForThisSection !== currentTbody) {
+							const dataRowsToMove = Array.from(currentTbody.querySelectorAll("tr.rowData"));
+							dataRowsToMove.forEach((row) => primaryTbodyForThisSection.appendChild(row));
+
+							titleElement.closest("tr")?.remove();
+
+							associatedTestTitleShouldBeRemoved = true;
+
+							if (currentTbody.querySelectorAll("tr").length === 0) {
+								currentTbody.remove();
+							}
+						}
+					}
+				}
+			});
+
+			if (associatedTestTitleShouldBeRemoved && testTitlesDivs[tableIndex]) {
+				testTitlesToRemove.add(testTitlesDivs[tableIndex]);
+			}
+		});
+
+		tables.forEach((table, i) => {
+			const tbodies = Array.from(table.querySelectorAll(".sectionData"));
+			tbodies.forEach((tbody) => {
+				const inputs = Array.from(tbody.querySelectorAll("input"));
+				const sectionInputvalues = inputs.some((input) => (input as HTMLInputElement).value);
+
+				if (!sectionInputvalues) {
+					tbody.parentNode?.removeChild(tbody);
+				}
+			});
+
+			const updatedTbodies = Array.from(table.querySelectorAll(".sectionData"));
+			if (!updatedTbodies.length && testTitlesDivs[i]) {
+				testTitlesDivs[i].parentNode?.removeChild(testTitlesDivs[i]);
+			}
+		});
+
+		testTitlesDivs.forEach((div, i) => {
+			const titleText = div.querySelector("h4");
+			const associatedTable = tables[i];
+
+			let shouldRemoveDiv = false;
+
+			if (i === 0) {
+				const seccionesData = Array.from(associatedTable.querySelectorAll("tbody.sectionData"));
+				const mainSectionRegex =
+					/h[eé]matolog[ií]a compl[eé]ta|velocidad de sedimentaci[oó]n globular \(v\.s\.g\)|qu[ií]mica sangu[ií]nea/i;
+
+				for (const tbody of seccionesData) {
+					const tituloSeccionElemento = tbody.querySelector("tr:first-child td h5");
+					if (tituloSeccionElemento && tituloSeccionElemento.textContent) {
+						const tituloSeccion = tituloSeccionElemento.textContent.trim();
+						if (mainSectionRegex.test(tituloSeccion)) {
+							shouldRemoveDiv = true;
+							break;
+						}
+					}
+				}
+			}
+
+			if (titleText && /perfil/i.test(titleText.innerHTML)) {
+				shouldRemoveDiv = true;
+			}
+
+			if (!shouldRemoveDiv && associatedTable) {
+				const seccionesData = Array.from(associatedTable.querySelectorAll("tbody.sectionData"));
+				const mainSectionRegex =
+					/h[eé]matolog[ií]a compl[eé]ta|velocidad de sedimentaci[oó]n globular \(v\.s\.g\)|qu[ií]mica sangu[ií]nea/i;
+
+				for (const tbody of seccionesData) {
+					const tituloSeccionElemento = tbody.querySelector("tr:first-child td h5");
+					if (tituloSeccionElemento && tituloSeccionElemento.textContent) {
+						const tituloSeccion = tituloSeccionElemento.textContent.trim();
+						if (mainSectionRegex.test(tituloSeccion)) {
+							shouldRemoveDiv = true;
+							break;
+						}
+					}
+				}
+			}
+
+			if (shouldRemoveDiv) {
+				div.parentNode?.removeChild(div);
+			}
+		});
+
+		if (tables.length > 0) {
+			const firstTable = tables[0];
+			for (let i = 1; i < tables.length; i++) {
+				const currentTable = tables[i];
+				const tbodiesToMove = currentTable.querySelectorAll("tbody");
+				tbodiesToMove.forEach((tbody) => {
+					firstTable.appendChild(tbody);
+				});
+			}
+		}
+
+		if (tables.length > 0) {
+			const firstTable = tables[0];
+			const allTbodies = Array.from(firstTable.querySelectorAll("tbody")) as HTMLTableSectionElement[];
+			const sortedTbodies: HTMLTableSectionElement[] = [];
+			const processedTbodies = new Set<HTMLTableSectionElement>();
+
+			MAIN_SECTION_NAMES_NORMALIZED.forEach((sectionName) => {
+				const tbodyToPlace = allTbodies.find((tbody) => {
+					const titleElement = tbody.querySelector("tr:first-child td h5");
+					return titleElement && normalizeText(titleElement.textContent) === sectionName;
+				});
+
+				if (tbodyToPlace) {
+					sortedTbodies.push(tbodyToPlace);
+					processedTbodies.add(tbodyToPlace);
+				}
+			});
+
+			const remainingTbodies = allTbodies.filter((tbody) => !processedTbodies.has(tbody));
+			const finalOrderedTbodies = [...sortedTbodies, ...remainingTbodies];
+
+			allTbodies.forEach((tbody) => tbody.remove());
+
+			finalOrderedTbodies.forEach((tbody) => firstTable.appendChild(tbody));
+		}
+	}*/
+
+	/* async function mergeTables(element: HTMLElement) {
 		const tables = Array.from(element.querySelectorAll("table"));
 		const profileSection = element.querySelector(".profile-sections") as HTMLElement;
 
@@ -1363,6 +1650,397 @@
 
 			finalOrderedTbodies.forEach((tbody) => firstTable.appendChild(tbody));
 		}
+	} */
+
+	async function mergeTables(element: HTMLElement) {
+		const tables = Array.from(element.querySelectorAll("table"));
+		const testTitlesDivs = Array.from(element.querySelectorAll(".testTitle")) as HTMLElement[];
+		const profileSection = element.querySelector(".profile-sections") as HTMLElement;
+
+		console.log('llega', element)
+
+		if (profileSection) {
+			profileSection.style.display = "block";
+		}
+
+		const normalizeText = (text: string | null | undefined): string => {
+			if (!text) return "";
+			return text
+				.toLowerCase()
+				.normalize("NFD")
+				.replace(/[\u0300-\u036f]/g, "")
+				.trim();
+		};
+
+		tables.forEach((table) => {
+			const filasDeDatos = table.querySelectorAll("tr.rowData");
+			filasDeDatos.forEach((fila: Element) => {
+				const celdaNombreCampo = fila.querySelector("td:first-child") as HTMLTableCellElement;
+				if (celdaNombreCampo) {
+					let textoActual = celdaNombreCampo.textContent || "";
+					const textoOriginal = textoActual;
+					const regexSufijos = /\s*(?:-\s*)?(?:canino|felino|orina|copro)$/i;
+					textoActual = textoActual.replace(regexSufijos, "").trim();
+					if (textoActual !== textoOriginal) {
+						celdaNombreCampo.textContent = textoActual;
+					}
+				}
+			});
+		});
+		const VALOR_MULTIPLICACION_HEMATIES = 1000000;
+		const VALOR_MULTIPLICACION_EROTROCITOS_FELINO = 1000000;
+
+		tables.forEach((table) => {
+			const seccionesData = Array.from(table.querySelectorAll("tbody.sectionData"));
+
+			seccionesData.forEach((tbody) => {
+				const tituloSeccionElemento = tbody.querySelector("tr:first-child td h5");
+
+				if (tituloSeccionElemento && tituloSeccionElemento.textContent) {
+					const tituloSeccion = tituloSeccionElemento.textContent.trim().toLowerCase();
+
+					if (tituloSeccion === "hematología completa" || tituloSeccion === "HEMATOLOGÍA COMPLETA") {
+						const filasEnSeccion = Array.from(tbody.querySelectorAll("tr.rowData"));
+
+						filasEnSeccion.forEach((fila) => {
+							const celdaNombreCampo = fila.querySelector("td:first-child");
+							const celdaInputElement = fila.querySelector("td.inputElement");
+
+							if (celdaNombreCampo && celdaNombreCampo.textContent && celdaInputElement) {
+								const nombreCampo = celdaNombreCampo.textContent.trim().toLowerCase();
+
+								if (nombreCampo === "hematies") {
+									const inputElement = celdaInputElement.querySelector("input") as HTMLInputElement | null;
+
+									if (inputElement) {
+										const valorActualStr = inputElement.value;
+										const valorActualNum = parseFloat(valorActualStr);
+
+										if (!isNaN(valorActualNum)) {
+											const nuevoValor = valorActualNum * VALOR_MULTIPLICACION_HEMATIES;
+											inputElement.value = nuevoValor.toLocaleString("es-ES");
+										} else {
+											console.warn(`El valor para HEMATIES ('${valorActualStr}') no es un número válido y no se multiplicará.`);
+										}
+									} else {
+										console.warn("No se encontró un elemento <input> para HEMATIES en la celda esperada.");
+									}
+								}
+								if (nombreCampo === "erotrocitos") {
+									const inputElement = celdaInputElement.querySelector("input") as HTMLInputElement | null;
+
+									if (inputElement) {
+										const valorActualStr = inputElement.value;
+										const valorActualNum = parseFloat(valorActualStr);
+
+										if (!isNaN(valorActualNum)) {
+											const nuevoValor = valorActualNum * VALOR_MULTIPLICACION_EROTROCITOS_FELINO;
+											inputElement.value = nuevoValor.toLocaleString("es-ES");
+										} else {
+											console.warn(`El valor para HEMATIES ('${valorActualStr}') no es un número válido y no se multiplicará.`);
+										}
+									} else {
+										console.warn("No se encontró un elemento <input> para HEMATIES en la celda esperada.");
+									}
+								}
+							}
+						});
+					}
+				}
+			});
+		});
+
+		tables.forEach((table) => {
+            const filasDeDatos = table.querySelectorAll("tr.rowData");
+            filasDeDatos.forEach((fila: Element) => {
+                const celdaInputElement = fila.querySelector("td.inputElement");
+                if (celdaInputElement) {
+                    const inputElement = celdaInputElement.querySelector("input") as HTMLInputElement | null;
+                    if (inputElement) {
+                        const valorActualStr = inputElement.value;
+                        // Expresión regular para verificar si el valor es solo numérico (enteros o decimales)
+                        // Permite comas o puntos como separadores decimales temporalmente para el parseo
+                        const numericRegex = /^-?\d+([.,]\d+)?$/; 
+
+                        if (numericRegex.test(valorActualStr)) {
+                            // Reemplazar la coma por punto para que parseFloat funcione correctamente
+                            const valorParseable = valorActualStr.replace(/,/g, '.');
+                            const valorNumerico = parseFloat(valorParseable);
+
+                            if (!isNaN(valorNumerico)) {
+                                // Formatear el número con separador de miles '.' y decimales ','
+                                // Usamos Intl.NumberFormat para tener un control más granular
+                                const formatter = new Intl.NumberFormat('es-ES', {
+                                    minimumFractionDigits: 0, // No forzar decimales si no los hay
+                                    maximumFractionDigits: 20, // Permitir hasta 20 decimales
+                                    useGrouping: true // Asegura el uso de separadores de grupo (miles)
+                                });
+                                inputElement.value = formatter.format(valorNumerico);
+                            }
+                        }
+                    }
+                }
+            });
+        });
+
+		const MAIN_SECTION_NAMES_NORMALIZED = [
+			normalizeText("Hematología completa"),
+			normalizeText("Velocidad de Sedimentación Globular (V.S.G)"),
+			normalizeText("Química Sanguínea"),
+		];
+		const primaryMainSectionTbodiesMap: Map<string, HTMLTableSectionElement> = new Map();
+		const testTitlesToRemove = new Set<HTMLElement>();
+
+		/*tables.forEach((table) => {
+			const sectionsInTable = Array.from(table.querySelectorAll("tbody.sectionData")) as HTMLTableSectionElement[];
+			sectionsInTable.forEach((tbody) => {
+				const titleElement = tbody.querySelector("tr:first-child td h5");
+				if (titleElement && titleElement.textContent) {
+					const normalizedTitle = normalizeText(titleElement.textContent);
+					if (MAIN_SECTION_NAMES_NORMALIZED.includes(normalizedTitle) && !primaryMainSectionTbodiesMap.has(normalizedTitle)) {
+						primaryMainSectionTbodiesMap.set(normalizedTitle, tbody);
+					}
+				}
+			});
+		});
+
+		tables.forEach((table, tableIndex) => {
+			const sectionsInTable = Array.from(table.querySelectorAll("tbody.sectionData")) as HTMLTableSectionElement[];
+			let associatedTestTitleShouldBeRemoved = false;
+
+			sectionsInTable.forEach((currentTbody) => {
+				const titleElement = currentTbody.querySelector("tr:first-child td h5");
+				if (titleElement && titleElement.textContent) {
+					const currentSectionTitleNormalized = normalizeText(titleElement.textContent);
+
+					if (MAIN_SECTION_NAMES_NORMALIZED.includes(currentSectionTitleNormalized)) {
+						const primaryTbodyForThisSection = primaryMainSectionTbodiesMap.get(currentSectionTitleNormalized);
+
+						if (primaryTbodyForThisSection && primaryTbodyForThisSection !== currentTbody) {
+							const dataRowsToMove = Array.from(currentTbody.querySelectorAll("tr.rowData"));
+							dataRowsToMove.forEach((row) => primaryTbodyForThisSection.appendChild(row));
+
+							titleElement.closest("tr")?.remove();
+
+							associatedTestTitleShouldBeRemoved = true;
+
+							if (currentTbody.querySelectorAll("tr").length === 0) {
+								currentTbody.remove();
+							}
+						}
+					}
+				}
+			});
+
+			if (associatedTestTitleShouldBeRemoved && testTitlesDivs[tableIndex]) {
+				testTitlesToRemove.add(testTitlesDivs[tableIndex]);
+			}
+		});*/
+		
+
+		tables.forEach((table, i) => {
+			const tbodies = Array.from(table.querySelectorAll(".sectionData"));
+			tbodies.forEach((tbody) => {
+				const inputs = Array.from(tbody.querySelectorAll("input"));
+				const sectionInputvalues = inputs.some((input) => (input as HTMLInputElement).value);
+
+				if (!sectionInputvalues) {
+					tbody.parentNode?.removeChild(tbody);
+				}
+			});
+
+			const updatedTbodies = Array.from(table.querySelectorAll(".sectionData"));
+			if (!updatedTbodies.length && testTitlesDivs[i]) {
+				testTitlesDivs[i].parentNode?.removeChild(testTitlesDivs[i]);
+			}
+		});
+
+		testTitlesDivs.forEach((div, i) => {
+			const titleText = div.querySelector("h4");
+			const associatedTable = tables[i];
+
+			let shouldRemoveDiv = false;
+
+			const seccionesData = Array.from(associatedTable.querySelectorAll("tbody.sectionData"))
+
+			if (i === 0) {
+				const seccionesData = Array.from(associatedTable.querySelectorAll("tbody.sectionData"));
+				const mainSectionRegex =
+					/h[eé]matolog[ií]a compl[eé]ta|velocidad de sedimentaci[oó]n globular \(v\.s\.g\)|qu[ií]mica sangu[ií]nea/i;
+
+				for (const tbody of seccionesData) {
+					const tituloSeccionElemento = tbody.querySelector("tr:first-child td h5");
+					if (tituloSeccionElemento && tituloSeccionElemento.textContent) {
+						const tituloSeccion = tituloSeccionElemento.textContent.trim();
+						if (mainSectionRegex.test(tituloSeccion)) {
+							if (titleText && /perfil/i.test(titleText.innerHTML)) {
+								shouldRemoveDiv = true;
+							}
+							shouldRemoveDiv = true;
+							break;
+						}
+					}
+				}
+			}
+
+			if (!shouldRemoveDiv && associatedTable) {
+				const seccionesData = Array.from(associatedTable.querySelectorAll("tbody.sectionData"));
+				const mainSectionRegex =
+					/h[eé]matolog[ií]a compl[eé]ta|velocidad de sedimentaci[oó]n globular \(v\.s\.g\)|qu[ií]mica sangu[ií]nea/i;
+
+				for (const tbody of seccionesData) {
+					const tituloSeccionElemento = tbody.querySelector("tr:first-child td h5");
+					if (tituloSeccionElemento && tituloSeccionElemento.textContent) {
+						const tituloSeccion = tituloSeccionElemento.textContent.trim();
+						if (mainSectionRegex.test(tituloSeccion)) {
+							if (titleText && /perfil/i.test(titleText.innerHTML)) {
+								shouldRemoveDiv = true;
+							}
+							//shouldRemoveDiv = true;
+							break;
+						}
+					}
+				}
+			}
+
+			if (shouldRemoveDiv) {
+				div.parentNode?.removeChild(div);
+			}
+		});
+
+		if (tables.length > 0) {
+			const firstTable = tables[0];
+			for (let i = 1; i < tables.length; i++) {
+				const currentTable = tables[i];
+				const tbodiesToMove = currentTable.querySelectorAll("tbody");
+				tbodiesToMove.forEach((tbody) => {
+					firstTable.appendChild(tbody);
+				});
+			}
+		}
+
+		if (tables.length > 0) {
+			const firstTable = tables[0];
+			const allTbodies = Array.from(firstTable.querySelectorAll("tbody")) as HTMLTableSectionElement[];
+			const sortedTbodies: HTMLTableSectionElement[] = [];
+			const processedTbodies = new Set<HTMLTableSectionElement>();
+
+			MAIN_SECTION_NAMES_NORMALIZED.forEach((sectionName) => {
+				const tbodyToPlace = allTbodies.find((tbody) => {
+					const titleElement = tbody.querySelector("tr:first-child td h5");
+					return titleElement && normalizeText(titleElement.textContent) === sectionName;
+				});
+
+				if (tbodyToPlace) {
+					sortedTbodies.push(tbodyToPlace);
+					processedTbodies.add(tbodyToPlace);
+				}
+			});
+
+			const remainingTbodies = allTbodies.filter((tbody) => !processedTbodies.has(tbody));
+			const finalOrderedTbodies = [...sortedTbodies, ...remainingTbodies];
+
+			allTbodies.forEach((tbody) => tbody.remove());
+
+			finalOrderedTbodies.forEach((tbody) => firstTable.appendChild(tbody));
+		}
+
+		// --- REORDENAMIENTO FINAL Y FORZADO DE PAREJAS ---
+		if (tables.length > 0) {
+            const firstTable = tables[0];
+
+            // FUNCIÓN MEJORADA: Obtiene solo los bloques que pertenecen REALMENTE al examen
+            const getFullExamenBlocks = (term: string) => {
+                const allTbodies = Array.from(firstTable.querySelectorAll("tbody"));
+                const normalizedSearch = normalizeText(term);
+                const foundBlocks: HTMLElement[] = [];
+                
+                for (let i = 0; i < allTbodies.length; i++) {
+                    const currentTbody = allTbodies[i];
+                    const text = normalizeText(currentTbody.textContent || "");
+
+                    // Si encontramos el título del examen
+                    if (text.includes(normalizedSearch)) {
+                        foundBlocks.push(currentTbody);
+                        
+                        // Buscamos los siguientes bloques que NO sean títulos de otro examen
+                        let next = currentTbody.nextElementSibling as HTMLElement | null;
+                        while (next && next.tagName === "TBODY") {
+                            const nextText = normalizeText(next.textContent || "");
+                            // Si el siguiente bloque parece un nuevo título principal, paramos
+                            if (next.classList.contains("testTitle") || 
+                                nextText.includes("pruebas especiales") || 
+                                nextText.includes("serologicas")) {
+                                break;
+                            }
+                            foundBlocks.push(next);
+                            next = next.nextElementSibling as HTMLElement | null;
+                        }
+                    }
+                }
+                return foundBlocks;
+            };
+
+            // --- 1. REORDENAMIENTO DE PAREJAS ---
+            const priorityPairs = [
+                ["pt", "ptt"],
+                ["uroanalisis", "coproanalisis"],
+                ["perfil tiroideo", "hiv"], 
+                ["hiv", "serologia"]
+            ];
+
+            priorityPairs.forEach(([topTerm, bottomTerm]) => {
+                const topGroup = getFullExamenBlocks(topTerm);
+                const bottomGroup = getFullExamenBlocks(bottomTerm);
+
+                if (topGroup.length > 0 && bottomGroup.length > 0) {
+                    const anchor = topGroup[topGroup.length - 1];
+                    let currentAnchor = anchor;
+                    bottomGroup.forEach((tbody) => {
+                        currentAnchor.after(tbody);
+                        currentAnchor = tbody;
+                    });
+                }
+            });
+
+            // --- 2. LIMPIEZA DE UROANÁLISIS (ESTRICTA Y SEGURA) ---
+            const uroGroup = getFullExamenBlocks("uroanalisis");
+            if (uroGroup.length > 0) {
+                let tieneDataEnSeccionesCriticas = false;
+                
+                uroGroup.forEach((tbody) => {
+                    const text = normalizeText(tbody.textContent || "");
+                    
+                    // Solo validamos datos en Físico o Microscópico
+                    if (text.includes("fisico") || text.includes("microscopico")) {
+                        const cells = Array.from(tbody.querySelectorAll("td"));
+                        cells.forEach(cell => {
+                            const val = cell.textContent?.trim() || "";
+                            // Filtramos basura: círculos "°", "0", "C", etc.
+                            if (val !== "" && 
+                                !["0", "3", "4", "C", ".", "°"].includes(val.toUpperCase()) && 
+                                val.length > 1) { 
+                                tieneDataEnSeccionesCriticas = true;
+                            }
+                        });
+                    }
+                });
+
+                // Si no hay data real en Físico/Micro, borramos solo los bloques de Uro
+                if (!tieneDataEnSeccionesCriticas) {
+                    uroGroup.forEach(tb => {
+                        const safeText = normalizeText(tb.textContent || "");
+                        // SEGURO DOBLE: No borrar si detectamos algo que no sea Uroanálisis
+                        if (safeText.includes("uroanalisis") || 
+                            safeText.includes("fisico") || 
+                            safeText.includes("quimico") || 
+                            safeText.includes("microscopico")) {
+                            tb.remove();
+                        }
+                    });
+                }
+            }
+        }
 	}
 
 	const inputToSpan = async (parentElement: HTMLElement) => {
