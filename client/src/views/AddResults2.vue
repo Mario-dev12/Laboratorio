@@ -1385,6 +1385,12 @@
 		const tables = Array.from(element.querySelectorAll("table"));
 		const profileSection = element.querySelector(".profile-sections") as HTMLElement;
 
+		//variable para que no se repitan secciones de uroanalisis
+		let uroanalisisAdded: boolean = false;
+
+		//variable para agregar titulo de uroanalisis
+		let testTitleTbodyCopy: any = null;
+
 		//variables de pt, ptt, uroanalisis y coproanalisisis
 		let ptTitleTbody;
 		let ptSectionsTbody: Element[] = [];
@@ -1392,6 +1398,7 @@
 		let pttSectionsTbody: Element[] = [];
 		let uroanalisisTitleTbody;
 		let uroanalisisSectionsTbody: Element[] = [];
+		const uroanalisisSectionsTbody2: Element[] = [];
 		let coproanalisisTitleTbody;
 		let coproanalisisSectionsTbody: Element[] = [];
 
@@ -1530,6 +1537,12 @@
 			const sectionsTitles = table.querySelectorAll("h5.section-title");
 			const sectionTitlesArray = Array.from(sectionsTitles).map((h5) => h5.textContent || "");
 			const hasMainSection = sectionTitlesArray.some((title) => MAIN_SECTION_NAMES_NORMALIZED.includes(normalizeText(title)));
+
+			//Copiar testTitleTbody para agregar titulo de uroanalisis si es necesario
+			if (testTitleTbody && !testTitleTbodyCopy) {
+				testTitleTbodyCopy = testTitleTbody.cloneNode(true);
+			}
+
 			if (
 				hasMainSection &&
 				testTitleTbody &&
@@ -1571,7 +1584,6 @@
 					//Se agrega el titulo y las secciones de un examen a la primera tabla si por lo menos
 					//un input de alguna seccion tiene un valor
 
-					//como se si todas las secciones estan vacias?
 					let allSectionsEmpty: boolean = true;
 					const sectionsToAppend: any[] = [];
 					if (sectionsData) {
@@ -1597,6 +1609,19 @@
 					}
 				}
 			}
+
+			//Buscar secciones de uroanalisis dentro de perfil 20 u otros examenes
+			if (sectionsData) {
+				sectionsData.forEach((section: any) => {
+					const sectionName = section.querySelector("h5");
+					if (sectionName && normalizeText(sectionName.textContent).includes("uroanalisis")) {
+						console.log("uroanalisis section found");
+						uroanalisisSectionsTbody2.push(section);
+						section.remove();
+					}
+					console.log(uroanalisisSectionsTbody2);
+				});
+			}
 		});
 
 		//Agregar pt, ptt, uroanalisis y coproanalisis en orden
@@ -1615,10 +1640,46 @@
 		}
 
 		if (uroanalisisTitleTbody && uroanalisisSectionsTbody) {
-			tables[0].appendChild(uroanalisisTitleTbody);
+			let emptySectionsCount: number = 0;
 			uroanalisisSectionsTbody.forEach((section) => {
-				tables[0].appendChild(section);
+				const inputElements = Array.from(section.querySelectorAll("input"));
+				const allInputsEmpty = inputElements.some((input) => (input as HTMLInputElement).value);
+				if (!allInputsEmpty) {
+					console.log("all inputs empty");
+					emptySectionsCount++;
+				}
 			});
+
+			if (emptySectionsCount < 2) {
+				tables[0].appendChild(uroanalisisTitleTbody);
+				uroanalisisSectionsTbody2.forEach((section) => {
+					tables[0].appendChild(section);
+				});
+				uroanalisisAdded = true;
+			}
+		}
+
+		if (uroanalisisSectionsTbody2 && !uroanalisisAdded) {
+			let emptySectionsCount: number = 0;
+			uroanalisisSectionsTbody2.forEach((section) => {
+				const inputElements = Array.from(section.querySelectorAll("input"));
+				const allInputsEmpty = inputElements.some((input) => (input as HTMLInputElement).value);
+				if (!allInputsEmpty) {
+					console.log("all inputs empty");
+					emptySectionsCount++;
+				}
+			});
+
+			if (emptySectionsCount < 2) {
+				if (testTitleTbodyCopy) {
+					const titleToUpdate = testTitleTbodyCopy.querySelector("h4");
+					titleToUpdate.textContent = "UROANÁLISIS";
+					tables[0].appendChild(testTitleTbodyCopy);
+				}
+				uroanalisisSectionsTbody2.forEach((section) => {
+					tables[0].appendChild(section);
+				});
+			}
 		}
 
 		if (coproanalisisTitleTbody && coproanalisisSectionsTbody) {
