@@ -1657,6 +1657,8 @@
 		const testTitlesDivs = Array.from(element.querySelectorAll(".testTitle")) as HTMLElement[];
 		const profileSection = element.querySelector(".profile-sections") as HTMLElement;
 
+		// tables es para saber los examenes y sus secciones
+
 		console.log('llega', element)
 
 		if (profileSection) {
@@ -1672,6 +1674,7 @@
 				.trim();
 		};
 
+		// En el siguiente forEach se busca si algun campo dice canino, felino, orina, copro y lo elimina al hacer el pdf
 		tables.forEach((table) => {
 			const filasDeDatos = table.querySelectorAll("tr.rowData");
 			filasDeDatos.forEach((fila: Element) => {
@@ -1690,6 +1693,7 @@
 		const VALOR_MULTIPLICACION_HEMATIES = 1000000;
 		const VALOR_MULTIPLICACION_EROTROCITOS_FELINO = 1000000;
 
+		// En el siguiente forEach se multiplica por millon si en hematologia existe un campo llamado hematies o erotrocitos
 		tables.forEach((table) => {
 			const seccionesData = Array.from(table.querySelectorAll("tbody.sectionData"));
 
@@ -1749,7 +1753,8 @@
 				}
 			});
 		});
-
+		
+		// En el siguiente forEach se formatea los numeros con punto si es decena de mil y con coma si es decimal
 		tables.forEach((table) => {
             const filasDeDatos = table.querySelectorAll("tr.rowData");
             filasDeDatos.forEach((fila: Element) => {
@@ -1837,7 +1842,7 @@
 			}
 		});*/
 		
-
+		// En el siguiente forEach se limpia el pdf eliminando secciones vacías.
 		tables.forEach((table, i) => {
 			const tbodies = Array.from(table.querySelectorAll(".sectionData"));
 			tbodies.forEach((tbody) => {
@@ -1855,6 +1860,7 @@
 			}
 		});
 
+		// En el siguiente forEach se limpia el pdf eliminando títulos de los perfiles que posean las 3 o alguna seccion principal
 		testTitlesDivs.forEach((div, i) => {
 			const titleText = div.querySelector("h4");
 			const associatedTable = tables[i];
@@ -1908,6 +1914,7 @@
 			}
 		});
 
+		// En el siguiente if se hace la unificación de tablas en una sola
 		if (tables.length > 0) {
 			const firstTable = tables[0];
 			for (let i = 1; i < tables.length; i++) {
@@ -1919,6 +1926,7 @@
 			}
 		}
 
+		//En el siguiente if se ordenan las secciones de la tabla principal según una prioridad específica
 		if (tables.length > 0) {
 			const firstTable = tables[0];
 			const allTbodies = Array.from(firstTable.querySelectorAll("tbody")) as HTMLTableSectionElement[];
@@ -1945,7 +1953,8 @@
 			finalOrderedTbodies.forEach((tbody) => firstTable.appendChild(tbody));
 		}
 
-		// --- REORDENAMIENTO FINAL Y FORZADO DE PAREJAS ---
+		// --- REORDENAMIENTO FINAL Y FORZADO DE PAREJAS --- 
+		// Se encarga de la organización inteligente por proximidad y de una limpieza profunda basada en reglas médicas
 		if (tables.length > 0) {
             const firstTable = tables[0];
 
