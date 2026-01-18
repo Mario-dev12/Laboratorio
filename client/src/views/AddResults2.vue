@@ -95,7 +95,7 @@
 												</td>
 												<td class="unidad align-middle p-0">{{ item.unidad }}</td>
 												<td class="valor-referencial align-middle p-0" ref="valorReferencial">
-													<span class="text-nowrap" v-html="item.valor_referencial"></span>
+													<span v-html="item.valor_referencial"></span>
 												</td>
 											</tr>
 										</tbody>
