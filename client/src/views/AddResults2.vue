@@ -1958,7 +1958,7 @@
 		if (tables.length > 0) {
             const firstTable = tables[0];
 
-            // FUNCIÓN MEJORADA: Obtiene solo los bloques que pertenecen REALMENTE al examen
+            // FUNCIÓN: Obtiene los bloques (tbodies) de un examen específico
             const getFullExamenBlocks = (term: string) => {
                 const allTbodies = Array.from(firstTable.querySelectorAll("tbody"));
                 const normalizedSearch = normalizeText(term);
@@ -1968,18 +1968,16 @@
                     const currentTbody = allTbodies[i];
                     const text = normalizeText(currentTbody.textContent || "");
 
-                    // Si encontramos el título del examen
+                    // Si encontramos el término (ej: "psa libre")
                     if (text.includes(normalizedSearch)) {
                         foundBlocks.push(currentTbody);
                         
-                        // Buscamos los siguientes bloques que NO sean títulos de otro examen
+                        // Recogemos los bloques siguientes hasta encontrar un nuevo título principal
                         let next = currentTbody.nextElementSibling as HTMLElement | null;
                         while (next && next.tagName === "TBODY") {
-                            const nextText = normalizeText(next.textContent || "");
-                            // Si el siguiente bloque parece un nuevo título principal, paramos
-                            if (next.classList.contains("testTitle") || 
-                                nextText.includes("pruebas especiales") || 
-                                nextText.includes("serologicas")) {
+                            // IMPORTANTE: Solo frenamos si es un título principal (.testTitle)
+                            // No frenamos por "Pruebas Especiales" porque PSA y Perfil Tiroideo lo comparten
+                            if (next.classList.contains("testTitle")) {
                                 break;
                             }
                             foundBlocks.push(next);
@@ -1990,12 +1988,13 @@
                 return foundBlocks;
             };
 
-            // --- 1. REORDENAMIENTO DE PAREJAS ---
+            // --- 1. REORDENAMIENTO DE PAREJAS (PSA, COAGULACIÓN Y TIROIDES) ---
             const priorityPairs = [
                 ["pt", "ptt"],
                 ["uroanalisis", "coproanalisis"],
+                ["psa total", "psa libre"],      // Mueve el PSA Libre debajo del Total
                 ["perfil tiroideo", "hiv"], 
-                ["hiv", "serologia"]
+                ["hiv", "serologicas"]
             ];
 
             priorityPairs.forEach(([topTerm, bottomTerm]) => {
@@ -2003,8 +2002,10 @@
                 const bottomGroup = getFullExamenBlocks(bottomTerm);
 
                 if (topGroup.length > 0 && bottomGroup.length > 0) {
+                    // El ancla es el último bloque del examen que va arriba
                     const anchor = topGroup[topGroup.length - 1];
                     let currentAnchor = anchor;
+                    
                     bottomGroup.forEach((tbody) => {
                         currentAnchor.after(tbody);
                         currentAnchor = tbody;
@@ -2012,7 +2013,7 @@
                 }
             });
 
-            // --- 2. LIMPIEZA DE UROANÁLISIS (ESTRICTA Y SEGURA) ---
+            // --- 2. LIMPIEZA DE UROANÁLISIS (ESTRICTA) ---
             const uroGroup = getFullExamenBlocks("uroanalisis");
             if (uroGroup.length > 0) {
                 let tieneDataEnSeccionesCriticas = false;
@@ -2020,12 +2021,12 @@
                 uroGroup.forEach((tbody) => {
                     const text = normalizeText(tbody.textContent || "");
                     
-                    // Solo validamos datos en Físico o Microscópico
+                    // Solo validamos si hay resultados en Físico o Microscópico
                     if (text.includes("fisico") || text.includes("microscopico")) {
                         const cells = Array.from(tbody.querySelectorAll("td"));
                         cells.forEach(cell => {
                             const val = cell.textContent?.trim() || "";
-                            // Filtramos basura: círculos "°", "0", "C", etc.
+                            // Filtramos basura: círculos "°", "0", "C", ".", etc.
                             if (val !== "" && 
                                 !["0", "3", "4", "C", ".", "°"].includes(val.toUpperCase()) && 
                                 val.length > 1) { 
@@ -2035,11 +2036,10 @@
                     }
                 });
 
-                // Si no hay data real en Físico/Micro, borramos solo los bloques de Uro
+                // Si no hay data real, borramos SOLO los bloques que pertenecen a Uroanálisis
                 if (!tieneDataEnSeccionesCriticas) {
                     uroGroup.forEach(tb => {
                         const safeText = normalizeText(tb.textContent || "");
-                        // SEGURO DOBLE: No borrar si detectamos algo que no sea Uroanálisis
                         if (safeText.includes("uroanalisis") || 
                             safeText.includes("fisico") || 
                             safeText.includes("quimico") || 
