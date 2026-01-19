@@ -1431,7 +1431,7 @@
 			normalizeText("Química Sanguínea"),
 		];
 
-		tables.forEach((table) => {
+		tables.forEach((table, index) => {
 			//Pasa por cada input y lo formatea
 			const filasDeDatos = table.querySelectorAll("tr.rowData");
 			filasDeDatos.forEach((fila: Element) => {
@@ -1567,32 +1567,75 @@
 				case "pt": {
 					ptTitleTbody = testTitleTbody;
 					ptSectionsTbody = Array.from(sectionsData);
+					//Borrar titulo y secciones si esta en la primera tabla
+					if (index === 0) {
+						testTitleTbody?.remove();
+						sectionsData.forEach((section) => {
+							section.remove();
+						});
+					}
 					break;
 				}
 				case "ptt": {
 					pttTitleTbody = testTitleTbody;
 					pttSectionsTbody = Array.from(sectionsData);
+					//Borrar titulo y secciones si esta en la primera tabla
+					if (index === 0) {
+						testTitleTbody?.remove();
+						sectionsData.forEach((section) => {
+							section.remove();
+						});
+					}
 					break;
 				}
 				case "uroanalisis": {
 					uroanalisisTitleTbody = testTitleTbody;
 					uroanalisisSectionsTbody = Array.from(sectionsData);
+					//Borrar titulo y secciones si esta en la primera tabla
+					if (index === 0) {
+						testTitleTbody?.remove();
+						sectionsData.forEach((section) => {
+							section.remove();
+						});
+					}
 					break;
 				}
 				case "coproanalisis": {
 					coproanalisisTitleTbody = testTitleTbody;
 					coproanalisisSectionsTbody = Array.from(sectionsData);
+					//Borrar titulo y secciones si esta en la primera tabla
+					if (index === 0) {
+						testTitleTbody?.remove();
+						sectionsData.forEach((section) => {
+							section.remove();
+						});
+					}
 					break;
 				}
 
 				case "psa libre": {
+					console.log("psa libre switch");
 					psaLibreTitleTbody = testTitleTbody;
 					psaLibreSectionsTbody = Array.from(sectionsData);
+					//Borrar titulo y secciones si esta en la primera tabla
+					if (index === 0) {
+						testTitleTbody?.remove();
+						sectionsData.forEach((section) => {
+							section.remove();
+						});
+					}
 					break;
 				}
 				case "psa total": {
 					psaTotalTitleTbody = testTitleTbody;
 					psaTotalSectionsTbody = Array.from(sectionsData);
+					//Borrar titulo y secciones si esta en la primera tabla
+					if (index === 0) {
+						testTitleTbody?.remove();
+						sectionsData.forEach((section) => {
+							section.remove();
+						});
+					}
 					break;
 				}
 				default: {
@@ -1614,9 +1657,10 @@
 						});
 					}
 
-					//Si no todas las secciones estan vacias agregar el titulo del examen y las secciones con por lo menos
-					//un valor lleno
-					if (testTitleTbody && !allSectionsEmpty) {
+					//Si no todas las secciones estan vacias y NO es la primera tabla agregar el titulo del examen y las
+					// secciones con por lo menos un valor lleno
+					if (testTitleTbody && !allSectionsEmpty && index != 0) {
+						console.log(testTitleTbody);
 						tables[0].appendChild(testTitleTbody);
 						sectionsToAppend.forEach((section) => {
 							tables[0].appendChild(section);
@@ -1639,83 +1683,112 @@
 			}
 		});
 
-		//Agregar pt, ptt, psa libre, psa total, uroanalisis y coproanalisis en orden
+		//Agregar pt, ptt, psa libre, psa total, uroanalisis y coproanalisis en orden y las secciones
+		//que tienen por lo menos un campo lleno
 		if (ptTitleTbody && ptSectionsTbody) {
-			tables[0].appendChild(ptTitleTbody);
-			ptSectionsTbody.forEach((section: any) => {
-				tables[0].appendChild(section);
+			const filteredSections = ptSectionsTbody.filter((section) => {
+				const inputElements = Array.from(section.querySelectorAll("input"));
+				const hasValue = inputElements.some((input) => (input as HTMLInputElement).value);
+				return hasValue; // Keep only sections that have input values
 			});
+			if (filteredSections.length) {
+				tables[0].appendChild(ptTitleTbody);
+				filteredSections.forEach((section: any) => {
+					tables[0].appendChild(section);
+				});
+			}
 		}
 
 		if (pttTitleTbody && pttSectionsTbody) {
-			tables[0].appendChild(pttTitleTbody);
-			pttSectionsTbody.forEach((section) => {
-				tables[0].appendChild(section);
+			const filteredSections = pttSectionsTbody.filter((section) => {
+				const inputElements = Array.from(section.querySelectorAll("input"));
+				const hasValue = inputElements.some((input) => (input as HTMLInputElement).value);
+				return hasValue; // Keep only sections that have input values
 			});
+			if (filteredSections.length) {
+				tables[0].appendChild(pttTitleTbody);
+				filteredSections.forEach((section: any) => {
+					tables[0].appendChild(section);
+				});
+			}
 		}
 
 		if (psaLibreTitleTbody && psaLibreSectionsTbody) {
-			tables[0].appendChild(psaLibreTitleTbody);
-			psaLibreSectionsTbody.forEach((section) => {
-				tables[0].appendChild(section);
+			const filteredSections = psaLibreSectionsTbody.filter((section) => {
+				const inputElements = Array.from(section.querySelectorAll("input"));
+				const hasValue = inputElements.some((input) => (input as HTMLInputElement).value);
+				return hasValue; // Keep only sections that have input values
 			});
+			if (filteredSections.length) {
+				tables[0].appendChild(psaLibreTitleTbody);
+				filteredSections.forEach((section: any) => {
+					tables[0].appendChild(section);
+				});
+			}
 		}
 
 		if (psaTotalTitleTbody && psaTotalSectionsTbody) {
-			tables[0].appendChild(psaTotalTitleTbody);
-			psaTotalSectionsTbody.forEach((section) => {
-				tables[0].appendChild(section);
+			const filteredSections = psaTotalSectionsTbody.filter((section) => {
+				const inputElements = Array.from(section.querySelectorAll("input"));
+				const hasValue = inputElements.some((input) => (input as HTMLInputElement).value);
+				return hasValue; // Keep only sections that have input values
 			});
+			if (filteredSections.length) {
+				tables[0].appendChild(psaTotalTitleTbody);
+				filteredSections.forEach((section: any) => {
+					tables[0].appendChild(section);
+				});
+			}
 		}
 
 		if (uroanalisisTitleTbody && uroanalisisSectionsTbody) {
-			let emptySectionsCount: number = 0;
-			uroanalisisSectionsTbody.forEach((section) => {
+			uroanalisisAdded = true;
+			const filteredSections = uroanalisisSectionsTbody.filter((section) => {
 				const inputElements = Array.from(section.querySelectorAll("input"));
-				const allInputsEmpty = inputElements.some((input) => (input as HTMLInputElement).value);
-				if (!allInputsEmpty) {
-					console.log("all inputs empty");
-					emptySectionsCount++;
-				}
+				const hasValue = inputElements.some((input) => (input as HTMLInputElement).value);
+				return hasValue; // Keep only sections that have input values
 			});
 
-			if (emptySectionsCount < 2) {
+			if (filteredSections.length >= 2) {
 				tables[0].appendChild(uroanalisisTitleTbody);
-				uroanalisisSectionsTbody2.forEach((section) => {
+				filteredSections.forEach((section) => {
 					tables[0].appendChild(section);
 				});
-				uroanalisisAdded = true;
 			}
 		}
 
 		if (uroanalisisSectionsTbody2 && !uroanalisisAdded) {
-			let emptySectionsCount: number = 0;
-			uroanalisisSectionsTbody2.forEach((section) => {
+			const filteredSections = uroanalisisSectionsTbody.filter((section) => {
 				const inputElements = Array.from(section.querySelectorAll("input"));
-				const allInputsEmpty = inputElements.some((input) => (input as HTMLInputElement).value);
-				if (!allInputsEmpty) {
-					console.log("all inputs empty");
-					emptySectionsCount++;
-				}
+				const hasValue = inputElements.some((input) => (input as HTMLInputElement).value);
+				return hasValue; // Keep only sections that have input values
 			});
 
-			if (emptySectionsCount < 2) {
+			if (filteredSections.length >= 2) {
 				if (testTitleTbodyCopy) {
 					const titleToUpdate = testTitleTbodyCopy.querySelector("h4");
 					titleToUpdate.textContent = "UROANÁLISIS";
 					tables[0].appendChild(testTitleTbodyCopy);
 				}
-				uroanalisisSectionsTbody2.forEach((section) => {
+				filteredSections.forEach((section) => {
 					tables[0].appendChild(section);
 				});
 			}
 		}
 
 		if (coproanalisisTitleTbody && coproanalisisSectionsTbody) {
-			tables[0].appendChild(coproanalisisTitleTbody);
-			coproanalisisSectionsTbody.forEach((section) => {
-				tables[0].appendChild(section);
+			const filteredSections = coproanalisisSectionsTbody.filter((section) => {
+				const inputElements = Array.from(section.querySelectorAll("input"));
+				const hasValue = inputElements.some((input) => (input as HTMLInputElement).value);
+				return hasValue; // Keep only sections that have input values
 			});
+
+			if (filteredSections.length) {
+				tables[0].appendChild(coproanalisisTitleTbody);
+				filteredSections.forEach((section) => {
+					tables[0].appendChild(section);
+				});
+			}
 		}
 	}
 
