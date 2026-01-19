@@ -300,7 +300,7 @@
 			let primarySectionsCounter: number = 0;
 			const profileSection2: any = await profilesStore.fetchProfileByInputsName2(
 				profile.profiles[0].profileName,
-				profile.idOrder
+				profile.idOrder,
 			);
 
 			// LÓGICA AGREGADA AQUÍ
@@ -469,7 +469,7 @@
 				let primarySectionsCounter: number = 0;
 				const profileSection2: any = await profilesStore.fetchProfileByInputsName2(
 					profile.profiles[0].profileName,
-					profile.idOrder
+					profile.idOrder,
 				);
 
 				// LÓGICA AGREGADA AQUÍ
@@ -772,7 +772,7 @@
 					});
 					if (currentProfileName) {
 						const order = ordersArray.value.find(
-							(order: any) => profileNames[ordersArray.value.indexOf(order)].trim() === currentProfileName.trim()
+							(order: any) => profileNames[ordersArray.value.indexOf(order)].trim() === currentProfileName.trim(),
 						);
 						if (order) {
 							const results = {
@@ -798,7 +798,7 @@
 					} else {
 						console.warn("No se pudo obtener el nombre del perfil para un elemento DOM.");
 					}
-				})
+				}),
 			);
 
 			showToast("Cambios guardados exitosamente!", "creado", checkboxOutline);
@@ -847,7 +847,7 @@
 		if (esDivConSoloThead || esTheadMismo) {
 			console.warn(
 				"El elemento '.profile-content' principal es o solo contiene un 'thead'. Esto podría ser problemático. Se continuará el procesamiento.",
-				mainProfileContentElement
+				mainProfileContentElement,
 			);
 		}
 
@@ -958,7 +958,7 @@
 		const today = new Date();
 		const formattedDate = `${String(today.getDate()).padStart(2, "0")}-${String(today.getMonth() + 1).padStart(
 			2,
-			"0"
+			"0",
 		)}-${today.getFullYear()}`;
 		const filename = `${lastName}_${firstName}_${formattedDate}.pdf`;
 
@@ -1391,7 +1391,7 @@
 		//variable para agregar titulo de uroanalisis
 		let testTitleTbodyCopy: any = null;
 
-		//variables de pt, ptt, uroanalisis y coproanalisisis
+		//variables de pt, ptt, psa libre, psa total, uroanalisis y coproanalisisis
 		let ptTitleTbody;
 		let ptSectionsTbody: Element[] = [];
 		let pttTitleTbody;
@@ -1401,6 +1401,10 @@
 		const uroanalisisSectionsTbody2: Element[] = [];
 		let coproanalisisTitleTbody;
 		let coproanalisisSectionsTbody: Element[] = [];
+		let psaLibreTitleTbody;
+		let psaLibreSectionsTbody: Element[] = [];
+		let psaTotalTitleTbody;
+		let psaTotalSectionsTbody: Element[] = [];
 
 		const VALOR_MULTIPLICACION_HEMATIES = 1000000;
 		const VALOR_MULTIPLICACION_EROTROCITOS_FELINO = 1000000;
@@ -1580,6 +1584,17 @@
 					coproanalisisSectionsTbody = Array.from(sectionsData);
 					break;
 				}
+
+				case "psa libre": {
+					psaLibreTitleTbody = testTitleTbody;
+					psaLibreSectionsTbody = Array.from(sectionsData);
+					break;
+				}
+				case "psa total": {
+					psaTotalTitleTbody = testTitleTbody;
+					psaTotalSectionsTbody = Array.from(sectionsData);
+					break;
+				}
 				default: {
 					//Se agrega el titulo y las secciones de un examen a la primera tabla si por lo menos
 					//un input de alguna seccion tiene un valor
@@ -1624,7 +1639,7 @@
 			}
 		});
 
-		//Agregar pt, ptt, uroanalisis y coproanalisis en orden
+		//Agregar pt, ptt, psa libre, psa total, uroanalisis y coproanalisis en orden
 		if (ptTitleTbody && ptSectionsTbody) {
 			tables[0].appendChild(ptTitleTbody);
 			ptSectionsTbody.forEach((section: any) => {
@@ -1635,6 +1650,20 @@
 		if (pttTitleTbody && pttSectionsTbody) {
 			tables[0].appendChild(pttTitleTbody);
 			pttSectionsTbody.forEach((section) => {
+				tables[0].appendChild(section);
+			});
+		}
+
+		if (psaLibreTitleTbody && psaLibreSectionsTbody) {
+			tables[0].appendChild(psaLibreTitleTbody);
+			psaLibreSectionsTbody.forEach((section) => {
+				tables[0].appendChild(section);
+			});
+		}
+
+		if (psaTotalTitleTbody && psaTotalSectionsTbody) {
+			tables[0].appendChild(psaTotalTitleTbody);
+			psaTotalSectionsTbody.forEach((section) => {
 				tables[0].appendChild(section);
 			});
 		}
@@ -1748,7 +1777,7 @@
 		if (esDivConSoloThead || esTheadMismo) {
 			console.warn(
 				"El elemento '.profile-content' principal es o solo contiene un 'thead'. Esto podría ser la fuente del problema si el thead aparece aislado. Se procederá, pero revisa el origen de este '.profile-content'.",
-				mainProfileContentElement
+				mainProfileContentElement,
 			);
 			// Dependiendo de tu lógica, podrías querer retornar aquí o manejarlo de forma especial.
 			// Por ahora, se continuará el procesamiento.
@@ -1866,7 +1895,7 @@
 		const today = new Date();
 		const formattedDate = `${String(today.getDate()).padStart(2, "0")}-${String(today.getMonth() + 1).padStart(
 			2,
-			"0"
+			"0",
 		)}-${today.getFullYear()}`;
 		const filename = `${lastName}_${firstName}_${formattedDate}.pdf`;
 
@@ -2039,7 +2068,7 @@
 		const today = new Date();
 		const formattedDate = `${String(today.getDate()).padStart(2, "0")}-${String(today.getMonth() + 1).padStart(
 			2,
-			"0"
+			"0",
 		)}-${today.getFullYear()}`;
 
 		const filename = `${lastName}_${firstName}_${formattedDate}.pdf`;
@@ -2106,7 +2135,7 @@
 			window.open(whatsappUrl, "_blank");
 		} else {
 			const whatsappUrl = `https://web.whatsapp.com/send?phone=${order.value.phone.substring(1)}&text=${encodeURIComponent(
-				message
+				message,
 			)}`;
 			window.open(whatsappUrl, "_blank");
 		}
@@ -2124,7 +2153,7 @@
 		const subject = "Resultados Exámenes";
 		const body = "Adjunto los resultados de los exámenes. Por favor confirmar la llegada de este correo. Gracias de antemano";
 		const mailtoLink = `https://mail.google.com/mail/?view=cm&fs=1&to=${recipientEmail}&su=${encodeURIComponent(
-			subject
+			subject,
 		)}&body=${encodeURIComponent(body)}`;
 		window.open(mailtoLink, "_blank");
 	};
@@ -2237,8 +2266,8 @@
 				if (variablesNoReemplazadas && variablesNoReemplazadas.length > 0) {
 					console.warn(
 						`Advertencia: La fórmula contiene variables no definidas: ${variablesNoReemplazadas.join(
-							", "
-						)}. No se pudo evaluar la restricción.`
+							", ",
+						)}. No se pudo evaluar la restricción.`,
 					);
 					return null;
 				}
@@ -2248,7 +2277,7 @@
 
 				if (isNaN(resultadoIzquierda) || isNaN(resultadoDerecha)) {
 					console.error(
-						"Error: Una de las partes de la fórmula resultó en NaN después de la evaluación. Revise la fórmula o los valores."
+						"Error: Una de las partes de la fórmula resultó en NaN después de la evaluación. Revise la fórmula o los valores.",
 					);
 					return null;
 				}
@@ -2258,7 +2287,7 @@
 					showToast(
 						`Error: la suma debe ser igual a ${resultadoDerecha}. Revise las entradas de los campos.`,
 						"warning",
-						alertCircleOutline
+						alertCircleOutline,
 					);
 					return null;
 				}
@@ -2354,7 +2383,7 @@
 		const today = new Date();
 		const formattedDate = `${String(today.getDate()).padStart(2, "0")}-${String(today.getMonth() + 1).padStart(
 			2,
-			"0"
+			"0",
 		)}-${today.getFullYear()}`;
 		const filename = `${lastName}_${firstName}_${formattedDate}.pdf`;
 
@@ -2450,7 +2479,7 @@
 		const today = new Date();
 		const formattedDate = `${String(today.getDate()).padStart(2, "0")}-${String(today.getMonth() + 1).padStart(
 			2,
-			"0"
+			"0",
 		)}-${today.getFullYear()}`;
 		const filename = `${lastName}_${firstName}_${formattedDate}.pdf`;
 
