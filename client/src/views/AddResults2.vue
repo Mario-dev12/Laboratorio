@@ -1902,7 +1902,7 @@
 							if (titleText && /perfil/i.test(titleText.innerHTML)) {
 								shouldRemoveDiv = true;
 							}
-							//shouldRemoveDiv = true;
+							shouldRemoveDiv = true;
 							break;
 						}
 					}
